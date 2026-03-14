@@ -1,7 +1,9 @@
 version: "1.0"
 linter: jetbrains/qodana-js:latest
 
-bootstrap: bun install
+bootstrap: |
+  curl -fsSL https://bun.sh/install | bash && \
+  /root/.bun/bin/bun install
 
 exclude:
   - name: All

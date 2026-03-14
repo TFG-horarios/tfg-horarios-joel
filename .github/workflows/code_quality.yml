@@ -15,20 +15,20 @@ jobs:
       pull-requests: write
       checks: write
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🥟 Configurar Bun
+      - name: Configurar Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: 📦 Instalar dependencias
+      - name: Instalar dependencias
         run: bun install
 
-      - name: 🧠 Qodana Scan
+      - name: Qodana Scan
         uses: JetBrains/qodana-action@v2024.1
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
