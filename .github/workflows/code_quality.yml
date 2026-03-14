@@ -1,36 +1,19 @@
-name: Qodana Quality Cloud
-
+name: Build
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
-  workflow_dispatch:
-
+    types: [opened, synchronize, reopened]
 jobs:
-  qodana:
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Configurar Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Instalar dependencias
-        run: bun install
-
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2024.1
+          fetch-depth: 0 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-        with:
-          cache-default-branch-only: true
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
