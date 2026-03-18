@@ -5,7 +5,13 @@ import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
   {
-    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/build/**', '**/coverage/**'],
+    ignores: [
+      '**/dist/**',
+      '**/.next/**',
+      '**/node_modules/**',
+      '**/build/**',
+      '**/coverage/**',
+    ],
   },
 
   {
