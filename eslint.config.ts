@@ -22,7 +22,6 @@ export default defineConfig([
         projectService: {
           allowDefaultProject: [
             'eslint.config.ts',
-            'vitest.config.ts',
             'frontend/postcss.config.mjs',
           ],
         },
