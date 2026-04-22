@@ -20,7 +20,7 @@ import { LoginUseCase } from '../../application/use-cases/auth/login.usecase';
 import { RegisterUseCase } from '../../application/use-cases/auth/register.usecase';
 
 import { JwtService } from '../auth/jwt.service';
-import { BunPasswordHasherService } from '../auth/bun-password-hasher.service';
+import { PasswordHasherService } from '../auth/password-hasher.service';
 
 export function registerDependencies() {
   const organizationRepo = new OrganizationRepository();
@@ -78,7 +78,7 @@ export function registerDependencies() {
   container.register(DI_TOKENS.OrganizationMemberRepository, memberRepo);
 
   const jwtService = new JwtService();
-  const passwordHasherService = new BunPasswordHasherService();
+  const passwordHasherService = new PasswordHasherService();
   container.register(DI_TOKENS.JwtService, jwtService);
   container.register(DI_TOKENS.PasswordHasherService, passwordHasherService);
   container.register(

@@ -1,6 +1,6 @@
 import { IPasswordHasherService } from '../../application/services/password-hasher.service.interface';
 
-export class BunPasswordHasherService implements IPasswordHasherService {
+export class PasswordHasherService implements IPasswordHasherService {
   async hash(value: string): Promise<string> {
     return await Bun.password.hash(value);
   }
