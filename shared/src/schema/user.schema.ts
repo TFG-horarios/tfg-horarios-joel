@@ -11,6 +11,9 @@ export const UserSchema = z
     email: z.string().email().openapi({
       example: 'john.doe@example.com',
     }),
+    role: z.enum(['admin', 'editor', 'viewer']).optional().openapi({
+      example: 'admin',
+    }),
     createdAt: z.string().datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
@@ -20,16 +23,4 @@ export const UserSchema = z
   })
   .openapi('User');
 
-export const CreateUserSchema = z
-  .object({
-    name: z.string().min(2).openapi({
-      example: 'John Doe',
-    }),
-    email: z.string().email().openapi({
-      example: 'john.doe@example.com',
-    }),
-    password: z.string().min(6).openapi({
-      example: 'secure-password',
-    }),
-  })
-  .openapi('CreateUser');
+export type UserDTO = z.infer<typeof UserSchema>;

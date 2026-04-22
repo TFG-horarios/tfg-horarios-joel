@@ -23,8 +23,20 @@ export const SubjectSchema = z
     courseYear: z.number().int().positive().openapi({
       example: 1,
     }),
+    degree: z.string().openapi({
+      example: 'Grado en Ingeniería Informática',
+    }),
     period: z.number().int().nonnegative().openapi({
       example: 1,
+    }),
+    weeklyHours: z.number().int().positive().openapi({
+      example: 6,
+    }),
+    isCommon: z.boolean().openapi({
+      example: true,
+    }),
+    itineraryName: z.string().optional().openapi({
+      example: 'Itinerary A',
     }),
     createdAt: z.string().datetime().openapi({
       example: '2025-01-01T12:00:00Z',
@@ -40,6 +52,9 @@ export const CreateSubjectSchema = z
     name: z.string().min(2).openapi({
       example: 'Matemáticas I',
     }),
+    organizationId: z.string().uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174001',
+    }),
     code: z.string().min(2).openapi({
       example: 'MAT101',
     }),
@@ -52,8 +67,23 @@ export const CreateSubjectSchema = z
     courseYear: z.number().int().positive().openapi({
       example: 1,
     }),
+    degree: z.string().min(2).openapi({
+      example: 'Grado en Ingeniería Informática',
+    }),
     period: z.number().int().nonnegative().openapi({
       example: 1,
     }),
+    weeklyHours: z.number().int().positive().openapi({
+      example: 6,
+    }),
+    isCommon: z.boolean().openapi({
+      example: true,
+    }),
+    itineraryName: z.string().optional().openapi({
+      example: 'Itinerary A',
+    }),
   })
   .openapi('CreateSubject');
+
+export type SubjectDTO = z.infer<typeof SubjectSchema>;
+export type CreateSubjectDTO = z.infer<typeof CreateSubjectSchema>;

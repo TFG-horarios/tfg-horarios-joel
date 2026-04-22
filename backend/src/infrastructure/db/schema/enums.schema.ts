@@ -5,7 +5,7 @@ export const shiftEnum = pgEnum('shift', ['morning', 'afternoon']);
 export const groupTypeEnum = pgEnum('group_type', [
   'theory',
   'problems',
-  'labs',
+  'practices',
 ]);
 
 export const roleEnum = pgEnum('role', ['admin', 'editor', 'viewer']);

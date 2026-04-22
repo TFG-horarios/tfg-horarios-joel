@@ -5,6 +5,7 @@ import {
   unique,
   timestamp,
   integer,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { organization } from './organization.schema';
 import { shiftEnum } from './enums.schema';
@@ -21,7 +22,11 @@ export const subject = pgTable(
     availableShifts: shiftEnum('available_shifts').array().notNull(),
     numberOfStudents: integer('number_of_students').notNull(),
     courseYear: integer('course_year').notNull(),
+    degree: text('degree').notNull(),
     period: integer('period').notNull().default(0),
+    weeklyHours: integer('weekly_hours').notNull().default(0),
+    isCommon: boolean('is_common').notNull().default(true),
+    itineraryName: text('itinerary_name'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()

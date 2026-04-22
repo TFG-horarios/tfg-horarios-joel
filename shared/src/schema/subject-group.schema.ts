@@ -11,7 +11,7 @@ export const SubjectGroupSchema = z
     name: z.string().openapi({
       example: 'Grupo 1 Theory',
     }),
-    groupType: z.enum(['theory', 'problems', 'labs']).openapi({
+    groupType: z.enum(['theory', 'problems', 'practices']).openapi({
       example: 'theory',
     }),
     shift: z.enum(['morning', 'afternoon']).openapi({
@@ -40,7 +40,10 @@ export const CreateSubjectGroupSchema = z
     name: z.string().min(2).openapi({
       example: 'Grupo 1 Theory',
     }),
-    groupType: z.enum(['theory', 'problems', 'labs']).openapi({
+    subjectId: z.string().uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174001',
+    }),
+    groupType: z.enum(['theory', 'problems', 'practices']).openapi({
       example: 'theory',
     }),
     shift: z.enum(['morning', 'afternoon']).openapi({
@@ -57,3 +60,6 @@ export const CreateSubjectGroupSchema = z
     }),
   })
   .openapi('CreateSubjectGroup');
+
+export type SubjectGroupDTO = z.infer<typeof SubjectGroupSchema>;
+export type CreateSubjectGroupDTO = z.infer<typeof CreateSubjectGroupSchema>;

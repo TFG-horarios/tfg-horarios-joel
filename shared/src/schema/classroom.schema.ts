@@ -31,5 +31,11 @@ export const CreateClassroomSchema = z
     capacity: z.number().int().positive().openapi({
       example: 60,
     }),
+    organizationId: z.string().uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174001',
+    }),
   })
   .openapi('CreateClassroom');
+
+export type ClassroomDTO = z.infer<typeof ClassroomSchema>;
+export type CreateClassroomDTO = z.infer<typeof CreateClassroomSchema>;
