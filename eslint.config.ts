@@ -1,3 +1,10 @@
+declare global {
+  interface ImportMeta {
+    dirname: string;
+    filename: string;
+  }
+}
+
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -14,18 +21,41 @@ export default defineConfig([
     ],
   },
 
+  // Común a todo el proyecto
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'],
     languageOptions: {
-      globals: globals.node,
       parserOptions: {
         projectService: {
           allowDefaultProject: [
             'eslint.config.ts',
             'frontend/postcss.config.mjs',
+            'frontend/vitest.config.mts',
+            'backend/drizzle.config.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+
+  // Backend, Shared y scripts en la raíz
+  {
+    files: ['backend/**/*.{js,ts}', 'shared/**/*.{js,ts}', '*.{js,ts}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
+  // Frontend
+  {
+    files: ['frontend/**/*.{js,jsx,ts,tsx,mjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
       },
     },
   },

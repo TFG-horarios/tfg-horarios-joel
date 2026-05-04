@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi';
 
 export const OrgIdParamSchema = z.object({
-  orgId: z.string().uuid().openapi({
+  orgId: z.uuid().openapi({
     param: {
       name: 'orgId',
       in: 'path',
@@ -11,7 +11,7 @@ export const OrgIdParamSchema = z.object({
 });
 
 export const SubjectIdParamSchema = z.object({
-  subjectId: z.string().uuid().openapi({
+  subjectId: z.uuid().openapi({
     param: {
       name: 'subjectId',
       in: 'path',
@@ -21,7 +21,7 @@ export const SubjectIdParamSchema = z.object({
 });
 
 export const OrgAndSubjectIdParamSchema = OrgIdParamSchema.extend({
-  subjectId: z.string().uuid().openapi({
+  subjectId: z.uuid().openapi({
     param: {
       name: 'subjectId',
       in: 'path',

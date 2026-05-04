@@ -2,10 +2,10 @@ import { z } from '@hono/zod-openapi';
 
 export const SubjectSchema = z
   .object({
-    id: z.string().uuid().openapi({
+    id: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174000',
     }),
-    organizationId: z.string().uuid().openapi({
+    organizationId: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174001',
     }),
     name: z.string().openapi({
@@ -38,10 +38,10 @@ export const SubjectSchema = z
     itineraryName: z.string().optional().openapi({
       example: 'Itinerary A',
     }),
-    createdAt: z.string().datetime().openapi({
+    createdAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
-    updatedAt: z.string().datetime().openapi({
+    updatedAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
   })
@@ -52,7 +52,7 @@ export const CreateSubjectSchema = z
     name: z.string().min(2).openapi({
       example: 'Matemáticas I',
     }),
-    organizationId: z.string().uuid().openapi({
+    organizationId: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174001',
     }),
     code: z.string().min(2).openapi({

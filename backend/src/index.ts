@@ -1,15 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import { cors } from 'hono/cors';
-import { organizationsController } from './infrastructure/http/api/organizations/organizations.controller';
-import { usersController } from './infrastructure/http/api/users/users.controller';
-import { subjectsController } from './infrastructure/http/api/subjects/subjects.controller';
-import { subjectGroupsController } from './infrastructure/http/api/subject-groups/subject-groups.controller';
-import { classroomsController } from './infrastructure/http/api/classrooms/classrooms.controller';
-import { authController } from './infrastructure/http/api/auth/auth.controller';
-import { registerDependencies } from './infrastructure/di/register-dependencies';
-
-registerDependencies();
+import { globalErrorMiddleware } from './core/middlewares/error.middleware';
+import { db } from './core/db/connection';
+import { createOrganizationModule } from './modules/organization/organization.module';
+import { createUserModule } from './modules/user/user.module';
+import { createAuthModule } from './modules/auth/auth.module';
 
 const app = new OpenAPIHono();
 
@@ -17,20 +13,16 @@ app.use(
   '/api/*',
   cors({
     origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
 );
 
-app.route('/api/auth', authController);
+app.use('*', globalErrorMiddleware);
 
-app.route('/api/organizations/:orgId/subjects', subjectsController);
-app.route('/api/organizations/:orgId/classrooms', classroomsController);
-app.route(
-  '/api/organizations/:orgId/subjects/:subjectId/groups',
-  subjectGroupsController
-);
-app.route('/api/organizations', organizationsController);
-app.route('/api/users', usersController);
+app.route('/api/auth', createAuthModule(db));
+app.route('/api/organizations', createOrganizationModule(db));
+app.route('/api/users', createUserModule(db));
 
 app.get(
   '/reference',
@@ -54,3 +46,5 @@ export default {
   port: 8080,
   fetch: app.fetch,
 };
+
+export type AppType = typeof app;

@@ -2,7 +2,7 @@ import { z } from '@hono/zod-openapi';
 
 export const LoginSchema = z
   .object({
-    email: z.string().email().openapi({
+    email: z.email().openapi({
       example: 'user@example.com',
     }),
     password: z.string().min(10).max(128).openapi({
@@ -14,9 +14,9 @@ export const LoginSchema = z
 export const AuthResponseSchema = z
   .object({
     user: z.object({
-      id: z.string().uuid(),
+      id: z.uuid(),
       name: z.string(),
-      email: z.string().email(),
+      email: z.email(),
     }),
     token: z.string(),
   })
@@ -27,7 +27,7 @@ export const RegisterSchema = z
     name: z.string().min(2).max(120).openapi({
       example: 'John Doe',
     }),
-    email: z.string().email().openapi({
+    email: z.email().openapi({
       example: 'user@example.com',
     }),
     password: z.string().min(10).max(128).openapi({

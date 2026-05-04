@@ -1,5 +1,6 @@
 {
   "name": "tfg-horarios",
+  "private": true,
   "type": "module",
   "workspaces": [
     "frontend",
@@ -9,14 +10,12 @@
   "scripts": {
     "dev:front": "cd frontend && bun run dev",
     "dev:back": "cd backend && bun run dev",
-    "dev": "bun run dev:back & bun run dev:front",
+    "dev": "concurrently \"bun run dev:back\" \"bun run dev:front\"",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "bun test",
-    "test:ci": "bun test --coverage",
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f",
+    "db:up": "cd backend && docker compose up -d",
+    "db:down": "cd backend && docker compose down",
+    "db:logs": "cd backend && docker compose logs -f",
     "db:studio": "cd backend && bun run db:studio",
     "db:push": "cd backend && bun run db:push",
     "docs": "typedoc",
@@ -25,14 +24,12 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
-    "bun-types": "^1.3.10",
+    "concurrently": "^9.0.0",
     "eslint": "^10.0.3",
     "globals": "^17.4.0",
     "prettier": "^3.8.1",
     "typedoc": "^0.28.17",
-    "typescript-eslint": "^8.57.0"
-  },
-  "peerDependencies": {
+    "typescript-eslint": "^8.57.0",
     "typescript": "^5.9.3"
   }
 }
