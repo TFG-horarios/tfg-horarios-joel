@@ -1,12 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import * as userSchema from '../../modules/user/infrastructure/database/drizzle.user.schema';
-import * as organizationSchema from '../../modules/organization/infrastructure/database/drizzle.organization.schema';
-import * as organizationMemberSchema from '../../modules/organization/infrastructure/database/drizzle.organization-member.schema';
-import * as classroomSchema from '../../modules/classroom/infrastructure/database/drizzle.classroom.schema';
-import * as subjectSchema from '../../modules/subject/infrastructure/database/drizzle.subject.schema';
-import * as subjectGroupSchema from '../../modules/subject-group/infrastructure/database/drizzle.subject-group.schema';
-import * as scheduleSchema from '../../modules/scheduler/infrastructure/database/drizzle.schedule.schema';
+import * as userSchema from '../../modules/user/infrastructure/db/drizzle.user.schema';
+import * as organizationSchema from '../../modules/organization/infrastructure/db/drizzle.organization.schema';
+import * as organizationMemberSchema from '../../modules/organization-member/infrastructure/db/drizzle.organization-member.schema';
+import * as classroomSchema from '../../modules/classroom/infrastructure/db/drizzle.classroom.schema';
+import * as subjectSchema from '../../modules/subject/infrastructure/db/drizzle.subject.schema';
+import * as subjectGroupSchema from '../../modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
+import * as scheduleSchema from '../../modules/schedule/drizzle.schedule.schema';
 
 const schema = {
   ...userSchema,

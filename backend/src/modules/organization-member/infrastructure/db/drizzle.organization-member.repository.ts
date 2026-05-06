@@ -4,7 +4,7 @@ import {
   organizationMembersTable as organizationMember,
   type DrizzleOrganizationMember,
 } from './drizzle.organization-member.schema';
-import { type IOrganizationMemberRepository } from '../../domain/organization-member.repository.interface';
+import { type IOrganizationMemberRepository } from '../../domain/organization-member.repository';
 import {
   OrganizationMember,
   type UserRole,

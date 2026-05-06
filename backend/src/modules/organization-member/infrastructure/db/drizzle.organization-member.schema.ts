@@ -1,5 +1,7 @@
-import { pgTable, uuid, unique, timestamp } from 'drizzle-orm/pg-core';
-import { organizationsTable, roleEnum } from './drizzle.organization.schema';
+import { pgTable, uuid, unique, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { organizationsTable } from '../../../organization/infrastructure/db/drizzle.organization.schema';
+
+const roleEnum = pgEnum('role', ['admin', 'editor', 'viewer']);
 
 export const organizationMembersTable = pgTable(
   'organization_member',

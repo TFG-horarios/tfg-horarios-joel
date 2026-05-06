@@ -1,7 +1,7 @@
 import { sign, verify } from 'hono/jwt';
-import type { IJwtService } from '../../domain/jwt.service.interface';
+import type { ITokenService, TokenPayload } from '../../domain/token.service';
 
-export class JwtService implements IJwtService {
+export class JwtService implements ITokenService {
   private readonly secret: string;
   private readonly expiresInSeconds: number;
 
@@ -21,7 +21,7 @@ export class JwtService implements IJwtService {
         : 60 * 60 * 24;
   }
 
-  async sign(payload: Record<string, unknown>): Promise<string> {
+  async generate(payload: TokenPayload): Promise<string> {
     const fullPayload = {
       ...payload,
       exp: Math.floor(Date.now() / 1000) + this.expiresInSeconds,
@@ -29,13 +29,14 @@ export class JwtService implements IJwtService {
     return await sign(fullPayload, this.secret);
   }
 
-  async verify(token: string): Promise<Record<string, unknown> | null> {
+  async validate(token: string): Promise<TokenPayload | null> {
     try {
-      return (await verify(token, this.secret, 'HS256')) as Record<
-        string,
-        unknown
-      >;
-    } catch (error) {
+      return (await verify(
+        token,
+        this.secret,
+        'HS256'
+      )) as unknown as TokenPayload;
+    } catch {
       return null;
     }
   }

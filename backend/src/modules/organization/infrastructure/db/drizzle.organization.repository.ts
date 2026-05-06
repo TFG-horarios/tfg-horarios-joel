@@ -4,7 +4,8 @@ import {
   organizationsTable,
   type DrizzleOrganization,
 } from './drizzle.organization.schema';
-import { type IOrganizationRepository } from '../../domain/organization.repository.interface';
+import { organizationMembersTable } from '../../../organization-member/infrastructure/db/drizzle.organization-member.schema';
+import { type IOrganizationRepository } from '../../domain/organization.repository';
 import { Organization } from '../../domain/organization.entity';
 
 export class DrizzleOrganizationRepository implements IOrganizationRepository {
@@ -26,17 +27,26 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
   }
 
   async findById(id: string): Promise<Organization | null> {
-    const result = await this.database
+    const rows = await this.database
       .select()
       .from(organizationsTable)
       .where(eq(organizationsTable.id, id))
       .limit(1);
-    return result[0] ? this.mapToDomain(result[0]) : null;
+    return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(): Promise<Organization[]> {
-    const results = await this.database.select().from(organizationsTable);
-    return results.map((row) => this.mapToDomain(row));
+  async findByUserId(userId: string): Promise<Organization[]> {
+    const rows = await this.database
+      .select({
+        organization: organizationsTable,
+      })
+      .from(organizationsTable)
+      .innerJoin(
+        organizationMembersTable,
+        eq(organizationsTable.id, organizationMembersTable.organizationId)
+      )
+      .where(eq(organizationMembersTable.userId, userId));
+    return rows.map((row) => this.mapToDomain(row.organization));
   }
 
   async save(domainEntity: Organization): Promise<void> {

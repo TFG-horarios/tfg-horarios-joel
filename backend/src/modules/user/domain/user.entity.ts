@@ -1,4 +1,4 @@
-import { DomainException } from '../../../core/errors/domain.exception';
+import { DomainException } from '../../../core/errors/app.error';
 
 export interface UserProps {
   id: string;

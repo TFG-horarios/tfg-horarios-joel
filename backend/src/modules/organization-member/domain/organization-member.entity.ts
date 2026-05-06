@@ -47,9 +47,4 @@ export class OrganizationMember {
   get updatedAt(): Date {
     return this.props.updatedAt;
   }
-
-  public updateRole(role: UserRole): void {
-    this.props.role = role;
-    this.props.updatedAt = new Date();
-  }
 }

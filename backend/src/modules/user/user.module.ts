@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { UserSchema } from '@tfg-horarios/shared';
 import { HonoUserController } from './infrastructure/http/hono.user.controller';
 import { ListUsersUseCase } from './application/list-users.usecase';
-import { DrizzleUserRepository } from './infrastructure/database/drizzle.user.repository';
+import { DrizzleUserRepository } from './infrastructure/db/drizzle.user.repository';
 import { createAuthMiddleware } from 'src/core/middlewares/auth.middleware';
 import type { DbConnection } from 'src/core/db/connection';
 import { JwtService } from '../auth/infrastructure/services/jwt.service';

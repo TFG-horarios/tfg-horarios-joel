@@ -1,21 +1,22 @@
-import type { AuthRepositoryInterface } from '../domain/auth.repository.interface';
-import type { IJwtService } from '../domain/jwt.service.interface';
-import type { IPasswordHasherService } from '../domain/password-hasher.service.interface';
-import { UserAlreadyExistsError } from '../domain/auth.errors';
+import type { AuthRepository } from '../domain/auth.repository';
+import type { ITokenService } from '../domain/token.service';
+import type { IPasswordHasherService } from '../domain/password-hasher.service';
+import { ConflictError } from 'src/core/errors/app.error';
 import { AuthUser } from '../domain/auth.entity';
 import type { RegisterDTO, AuthResponseDTO } from '@tfg-horarios/shared';
+import { AuthMapper } from './auth.mapper';
 
 export class RegisterUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryInterface,
-    private readonly jwtService: IJwtService,
+    private readonly authRepository: AuthRepository,
+    private readonly tokenService: ITokenService,
     private readonly passwordHasherService: IPasswordHasherService
   ) {}
 
   async execute(dto: RegisterDTO): Promise<AuthResponseDTO> {
-    const existingUser = await this.authRepository.findByEmail(dto.email);
-    if (existingUser) {
-      throw new UserAlreadyExistsError();
+    const user = await this.authRepository.findByEmail(dto.email);
+    if (user) {
+      throw new ConflictError('This email is already taken');
     }
 
     const passwordHash = await this.passwordHasherService.hash(dto.password);
@@ -25,22 +26,14 @@ export class RegisterUseCase {
       email: dto.email,
       passwordHash,
     });
-
     await this.authRepository.create(newUser);
 
-    const token = await this.jwtService.sign({
-      sub: newUser.id,
+    const token = await this.tokenService.generate({
+      id: newUser.id,
       name: newUser.name,
       email: newUser.email,
     });
 
-    return {
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-      },
-      token,
-    };
+    return AuthMapper.toDTO(newUser, token);
   }
 }

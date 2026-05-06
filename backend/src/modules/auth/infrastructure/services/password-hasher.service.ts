@@ -1,4 +1,4 @@
-import type { IPasswordHasherService } from '../../domain/password-hasher.service.interface';
+import type { IPasswordHasherService } from '../../domain/password-hasher.service';
 
 export class PasswordHasherService implements IPasswordHasherService {
   async hash(value: string): Promise<string> {

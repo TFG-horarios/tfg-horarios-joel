@@ -1,6 +1,6 @@
 import { AuthUser } from './auth.entity';
 
-export interface AuthRepositoryInterface {
+export interface AuthRepository {
   findByEmail(email: string): Promise<AuthUser | null>;
   create(user: AuthUser): Promise<void>;
 }

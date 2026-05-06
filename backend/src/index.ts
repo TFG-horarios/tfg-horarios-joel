@@ -18,7 +18,7 @@ app.use(
   })
 );
 
-app.use('*', globalErrorMiddleware);
+app.onError(globalErrorMiddleware);
 
 app.route('/api/auth', createAuthModule(db));
 app.route('/api/organizations', createOrganizationModule(db));
@@ -27,9 +27,7 @@ app.route('/api/users', createUserModule(db));
 app.get(
   '/reference',
   Scalar({
-    spec: {
-      url: '/doc',
-    },
+    url: '/doc',
     theme: 'moon',
   })
 );

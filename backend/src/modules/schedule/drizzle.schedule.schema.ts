@@ -8,10 +8,10 @@ import {
   pgEnum,
   time,
 } from 'drizzle-orm/pg-core';
-import { organizationsTable } from '../../../organization/infrastructure/database/drizzle.organization.schema';
-import { shiftEnum } from '../../../subject/infrastructure/database/drizzle.subject.schema';
-import { subjectGroupsTable } from '../../../subject-group/infrastructure/database/drizzle.subject-group.schema';
-import { classroom } from '../../../classroom/infrastructure/database/drizzle.classroom.schema';
+import { organizationsTable } from '../organization/infrastructure/db/drizzle.organization.schema';
+import { shiftEnum } from '../subject/infrastructure/db/drizzle.subject.schema';
+import { subjectGroupsTable } from '../subject-group/infrastructure/db/drizzle.subject-group.schema';
+import { classroom } from '../classroom/infrastructure/db/drizzle.classroom.schema';
 
 export const scheduleStatusEnum = pgEnum('schedule_status', [
   'draft',

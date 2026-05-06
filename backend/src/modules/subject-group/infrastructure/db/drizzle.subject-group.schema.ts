@@ -7,11 +7,11 @@ import {
   timestamp,
   text,
 } from 'drizzle-orm/pg-core';
-import { subjectsTable } from '../../../subject/infrastructure/database/drizzle.subject.schema';
+import { subjectsTable } from '../../../subject/infrastructure/db/drizzle.subject.schema';
 import {
   shiftEnum,
   groupTypeEnum,
-} from '../../../subject/infrastructure/database/drizzle.subject.schema';
+} from '../../../subject/infrastructure/db/drizzle.subject.schema';
 
 export const subjectGroupsTable = pgTable(
   'subject_group',

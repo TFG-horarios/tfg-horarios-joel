@@ -1,4 +1,4 @@
-import { type IUserRepository } from '../domain/user.repository.interface';
+import { type IUserRepository } from '../domain/user.repository';
 import { type UserDTO } from '@tfg-horarios/shared';
 
 export class ListUsersUseCase {

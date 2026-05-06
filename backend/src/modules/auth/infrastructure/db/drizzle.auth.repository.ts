@@ -1,13 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { type DbConnection } from 'src/core/db/connection';
 import { AuthUser } from '../../domain/auth.entity';
-import type { AuthRepositoryInterface } from 'src/modules/auth/domain/auth.repository.interface';
+import type { AuthRepository } from 'src/modules/auth/domain/auth.repository';
 import {
   usersTable,
   type DrizzleUser,
-} from 'src/modules/user/infrastructure/database/drizzle.user.schema';
+} from 'src/modules/user/infrastructure/db/drizzle.user.schema';
 
-export class DrizzleAuthRepository implements AuthRepositoryInterface {
+export class DrizzleAuthRepository implements AuthRepository {
   constructor(private readonly database: DbConnection) {}
 
   private mapToDomain(row: DrizzleUser): AuthUser {
@@ -25,29 +25,15 @@ export class DrizzleAuthRepository implements AuthRepositoryInterface {
       .from(usersTable)
       .where(eq(usersTable.email, email))
       .limit(1);
-
     return result[0] ? this.mapToDomain(result[0]) : null;
   }
 
   async create(user: AuthUser): Promise<void> {
-    const existing = await this.findByEmail(user.email);
-
-    if (existing) {
-      await this.database
-        .update(usersTable)
-        .set({
-          name: user.name,
-          email: user.email,
-          password: user.passwordHash,
-        })
-        .where(eq(usersTable.id, user.id));
-    } else {
-      await this.database.insert(usersTable).values({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        password: user.passwordHash,
-      });
-    }
+    await this.database.insert(usersTable).values({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.passwordHash,
+    });
   }
 }

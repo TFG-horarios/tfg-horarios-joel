@@ -1,4 +1,4 @@
-import { DomainException } from '../../../core/errors/domain.exception';
+import { ValidationError } from '../../../core/errors/app.error';
 
 export type OrganizationPeriodType = 'semester' | 'trimester' | 'annual';
 
@@ -21,14 +21,14 @@ export class Organization {
   public static create(
     props: Omit<OrganizationProps, 'id' | 'createdAt' | 'updatedAt'>
   ): Organization {
-    if (props.name.length < 3) {
-      throw new DomainException(
-        'Organization name must be at least 3 characters long'
+    if (props.name.length < 2) {
+      throw new ValidationError(
+        'Organization name must be at least 2 characters long'
       );
     }
 
     if (props.slotDurationMinutes <= 0) {
-      throw new DomainException('Slot duration must be greater than 0');
+      throw new ValidationError('Slot duration must be greater than 0');
     }
 
     return new Organization({
@@ -81,41 +81,5 @@ export class Organization {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  public updateName(name: string): void {
-    if (name.length < 3) {
-      throw new DomainException(
-        'Organization name must be at least 3 characters long'
-      );
-    }
-    this.props.name = name;
-    this.props.updatedAt = new Date();
-  }
-
-  public getAvailableSlots(shift: 'morning' | 'afternoon'): number {
-    const start =
-      shift === 'morning' ? this.props.morningStart : this.props.afternoonStart;
-    const end =
-      shift === 'morning' ? this.props.morningEnd : this.props.afternoonEnd;
-
-    const [startH, startM] = start.split(':').map(Number);
-    const [endH, endM] = end.split(':').map(Number);
-
-    if (
-      endH === undefined ||
-      startH === undefined ||
-      endM === undefined ||
-      startM === undefined
-    ) {
-      throw new DomainException('Invalid time format');
-    }
-
-    const startTotalMinutes = startH * 60 + startM;
-    const endTotalMinutes = endH * 60 + endM;
-
-    return Math.floor(
-      (endTotalMinutes - startTotalMinutes) / this.props.slotDurationMinutes
-    );
   }
 }

@@ -6,7 +6,7 @@ import {
   timestamp,
   unique,
 } from 'drizzle-orm/pg-core';
-import { organizationsTable as organization } from '../../../organization/infrastructure/database/drizzle.organization.schema';
+import { organizationsTable as organization } from '../../../organization/infrastructure/db/drizzle.organization.schema';
 
 export const classroom = pgTable(
   'classroom',

@@ -8,7 +8,7 @@ import {
   unique,
   pgEnum,
 } from 'drizzle-orm/pg-core';
-import { organizationsTable } from '../../../organization/infrastructure/database/drizzle.organization.schema';
+import { organizationsTable } from '../../../organization/infrastructure/db/drizzle.organization.schema';
 
 export const shiftEnum = pgEnum('shift', ['morning', 'afternoon']);
 export const groupTypeEnum = pgEnum('group_type', [

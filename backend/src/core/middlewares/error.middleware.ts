@@ -1,27 +1,27 @@
-import { type Context, type Next } from 'hono';
-import { DomainException } from '../errors/domain.exception';
+import type { Context, ErrorHandler } from 'hono';
+import { AppError } from '../errors/app.error';
+import { ZodError } from 'zod';
 
-export const globalErrorMiddleware = async (c: Context, next: Next) => {
-  try {
-    await next();
-  } catch (err: any) {
-    if (err instanceof DomainException) {
-      return c.json(
-        {
-          message: err.message,
-          error: 'Domain Error',
-        },
-        400
-      );
-    }
-
-    console.error('Unhandled Exception:', err);
+export const globalErrorMiddleware: ErrorHandler = (err, c: Context) => {
+  if (err instanceof AppError) {
     return c.json(
       {
-        message: 'Internal server error',
-        error: err.message || 'Unknown',
+        status: 'error',
+        message: err.message,
+        type: err.name,
       },
-      500
+      err.statusCode
     );
   }
+  if (err instanceof ZodError) {
+    return c.json(
+      {
+        status: 'error',
+        message: 'Validation Failed',
+        errors: err.issues,
+      },
+      400
+    );
+  }
+  return c.json({ message: 'Internal Server Error' }, 500);
 };

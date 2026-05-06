@@ -3,15 +3,21 @@ export interface AuthUserProps {
   name: string;
   email: string;
   passwordHash: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class AuthUser {
   private constructor(private readonly props: AuthUserProps) {}
 
-  public static create(props: Omit<AuthUserProps, 'id'>): AuthUser {
+  public static create(
+    props: Omit<AuthUserProps, 'id' | 'createdAt' | 'updatedAt'>
+  ): AuthUser {
     return new AuthUser({
       ...props,
       id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   }
 
@@ -33,5 +39,13 @@ export class AuthUser {
 
   get passwordHash(): string {
     return this.props.passwordHash;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this.props.updatedAt;
   }
 }

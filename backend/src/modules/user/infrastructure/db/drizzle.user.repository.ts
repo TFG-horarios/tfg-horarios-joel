@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { type DbConnection } from '../../../../core/db/connection';
 import { usersTable, type DrizzleUser } from './drizzle.user.schema';
-import { type IUserRepository } from '../../domain/user.repository.interface';
+import { type IUserRepository } from '../../domain/user.repository';
 import { User } from '../../domain/user.entity';
 
 export class DrizzleUserRepository implements IUserRepository {

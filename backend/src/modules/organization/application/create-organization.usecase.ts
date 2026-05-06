@@ -1,11 +1,12 @@
-import { type IOrganizationRepository } from '../domain/organization.repository.interface';
-import { type IOrganizationMemberRepository } from '../domain/organization-member.repository.interface';
+import { type IOrganizationRepository } from '../domain/organization.repository';
+import { type IOrganizationMemberRepository } from '../../organization-member/domain/organization-member.repository';
 import { Organization } from '../domain/organization.entity';
-import { OrganizationMember } from '../domain/organization-member.entity';
+import { OrganizationMember } from '../../organization-member/domain/organization-member.entity';
 import {
   type CreateOrganizationDTO,
   type OrganizationDTO,
 } from '@tfg-horarios/shared';
+import { OrganizationMapper } from './organization.mapper';
 
 export class CreateOrganizationUseCase {
   constructor(
@@ -36,17 +37,6 @@ export class CreateOrganizationUseCase {
     await this.organizationRepository.save(organization);
     await this.organizationMemberRepository.save(adminMember);
 
-    return {
-      id: organization.id,
-      name: organization.name,
-      periodType: organization.periodType,
-      morningStart: organization.morningStart.slice(0, 5),
-      morningEnd: organization.morningEnd.slice(0, 5),
-      afternoonStart: organization.afternoonStart.slice(0, 5),
-      afternoonEnd: organization.afternoonEnd.slice(0, 5),
-      slotDurationMinutes: organization.slotDurationMinutes,
-      createdAt: organization.createdAt.toISOString(),
-      updatedAt: organization.updatedAt.toISOString(),
-    };
+    return OrganizationMapper.toDTO(organization);
   }
 }

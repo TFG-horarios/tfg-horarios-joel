@@ -2,7 +2,7 @@ import { OrganizationMember } from './organization-member.entity';
 
 export interface IOrganizationMemberRepository {
   findById(id: string): Promise<OrganizationMember | null>;
-  findByUserInOrganization(
+  findByUserAndOrg(
     userId: string,
     organizationId: string
   ): Promise<OrganizationMember | null>;
