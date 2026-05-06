@@ -23,6 +23,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: bun
 
       - name: Install dependencies
         run: bun install
@@ -36,6 +37,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=coverage/backend/lcov.info,coverage/frontend/lcov.info
             -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx
             -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**
+            -Dsonar.sources=frontend/src,backend/src

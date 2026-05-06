@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run --hot src/index.ts",
+    "test:coverage": "bun test --coverage --coverage-reporter=lcov --coverage-dir=../coverage/backend",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
