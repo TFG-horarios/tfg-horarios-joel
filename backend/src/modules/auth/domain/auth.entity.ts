@@ -1,3 +1,5 @@
+import { ValidationError } from '@/core/errors/app.error';
+
 export interface AuthUserProps {
   id: string;
   name: string;
@@ -13,8 +15,18 @@ export class AuthUser {
   public static create(
     props: Omit<AuthUserProps, 'id' | 'createdAt' | 'updatedAt'>
   ): AuthUser {
+    const normalizedEmail = props.email.trim().toLowerCase();
+    if (!normalizedEmail.includes('@')) {
+      throw new ValidationError('Invalid email format');
+    }
+
+    if (props.name.trim().length < 2) {
+      throw new ValidationError('Name must have at least 2 characters');
+    }
+
     return new AuthUser({
       ...props,
+      email: normalizedEmail,
       id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),

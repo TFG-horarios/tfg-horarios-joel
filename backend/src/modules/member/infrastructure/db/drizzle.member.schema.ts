@@ -1,16 +1,19 @@
 import { pgTable, uuid, unique, timestamp, pgEnum } from 'drizzle-orm/pg-core';
-import { organizationsTable } from '../../../organization/infrastructure/db/drizzle.organization.schema';
+import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
+import { usersTable } from '@/modules/user/infrastructure/db/drizzle.user.schema';
 
-const roleEnum = pgEnum('role', ['admin', 'editor', 'viewer']);
+export const roleEnum = pgEnum('role', ['admin', 'editor', 'viewer']);
 
-export const organizationMembersTable = pgTable(
-  'organization_member',
+export const membersTable = pgTable(
+  'member',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     organizationId: uuid('organization_id')
       .notNull()
       .references(() => organizationsTable.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id').notNull(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
     role: roleEnum('role').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
@@ -21,7 +24,5 @@ export const organizationMembersTable = pgTable(
   (table) => [unique().on(table.organizationId, table.userId)]
 );
 
-export type DrizzleOrganizationMember =
-  typeof organizationMembersTable.$inferSelect;
-export type NewDrizzleOrganizationMember =
-  typeof organizationMembersTable.$inferInsert;
+export type DrizzleMember = typeof membersTable.$inferSelect;
+export type NewDrizzleMember = typeof membersTable.$inferInsert;

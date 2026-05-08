@@ -1,5 +1,5 @@
 import { type Context, type Next } from 'hono';
-import { type ITokenService } from '../../modules/auth/domain/token.service';
+import { type ITokenService } from '@/modules/auth/domain/token.service';
 import { UnauthorizedError } from '../errors/app.error';
 
 export const createAuthMiddleware = (tokenService: ITokenService) => {

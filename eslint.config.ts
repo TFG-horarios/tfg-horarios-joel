@@ -31,7 +31,6 @@ export default defineConfig([
             'eslint.config.ts',
             'frontend/postcss.config.mjs',
             'frontend/vitest.config.mts',
-            'backend/drizzle.config.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,

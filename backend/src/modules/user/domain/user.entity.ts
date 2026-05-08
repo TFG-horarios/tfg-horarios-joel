@@ -1,4 +1,4 @@
-import { DomainException } from '../../../core/errors/app.error';
+import { ValidationError } from '@/core/errors/app.error';
 
 export interface UserProps {
   id: string;
@@ -14,22 +14,34 @@ export class User {
   public static create(
     props: Omit<UserProps, 'id' | 'createdAt' | 'updatedAt'>
   ): User {
-    if (props.name.length < 2) {
-      throw new DomainException('User name must be at least 2 characters long');
+    const normalizedEmail = props.email.trim().toLowerCase();
+    if (!normalizedEmail.includes('@')) {
+      throw new ValidationError('Invalid email format');
     }
 
-    const now = new Date();
+    if (props.name.length < 2) {
+      throw new ValidationError('Name must have at least 2 characters');
+    }
 
     return new User({
       ...props,
+      email: normalizedEmail,
       id: crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   }
 
   public static reconstitute(props: UserProps): User {
     return new User(props);
+  }
+
+  public updateName(newName: string): void {
+    if (newName.trim().length < 2) {
+      throw new ValidationError('Name must have at least 2 characters');
+    }
+    this.props.name = newName;
+    this.props.updatedAt = new Date();
   }
 
   get id(): string {
@@ -50,14 +62,5 @@ export class User {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  public updateName(name: string): void {
-    if (name.length < 2) {
-      throw new DomainException('User name must be at least 2 characters long');
-    }
-
-    this.props.name = name;
-    this.props.updatedAt = new Date();
   }
 }

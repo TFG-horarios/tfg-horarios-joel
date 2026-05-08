@@ -1,11 +1,11 @@
 {
-  "id": "f510d936-d638-463c-9f8e-c2751c5da37b",
+  "id": "9ba60223-48ab-44aa-8947-d216720f8890",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.classroom": {
-      "name": "classroom",
+    "public.user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
@@ -15,21 +15,21 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "capacity": {
-          "name": "capacity",
-          "type": "integer",
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -49,23 +49,15 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "classroom_organization_id_organization_id_fk": {
-          "name": "classroom_organization_id_organization_id_fk",
-          "tableFrom": "classroom",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "classroom_organization_id_name_unique": {
-          "name": "classroom_organization_id_name_unique",
+        "user_email_unique": {
+          "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["organization_id", "name"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -154,8 +146,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.organization_member": {
-      "name": "organization_member",
+    "public.classroom": {
+      "name": "classroom",
       "schema": "",
       "columns": {
         "id": {
@@ -171,16 +163,323 @@
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "classroom_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'theory'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "classroom_name_org_idx": {
+          "name": "classroom_name_org_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "classroom_organization_id_organization_id_fk": {
+          "name": "classroom_organization_id_organization_id_fk",
+          "tableFrom": "classroom",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.subject": {
+      "name": "subject",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "role": {
-          "name": "role",
-          "type": "role",
+        "degree_id": {
+          "name": "degree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "itinerary_id": {
+          "name": "itinerary_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "available_shifts": {
+          "name": "available_shifts",
+          "type": "shift[]",
           "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "number_of_students": {
+          "name": "number_of_students",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_year": {
+          "name": "course_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period": {
+          "name": "period",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "weekly_hours": {
+          "name": "weekly_hours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_common": {
+          "name": "is_common",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "subject_code_org_idx": {
+          "name": "subject_code_org_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "subject_organization_id_organization_id_fk": {
+          "name": "subject_organization_id_organization_id_fk",
+          "tableFrom": "subject",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "subject_degree_id_degree_id_fk": {
+          "name": "subject_degree_id_degree_id_fk",
+          "tableFrom": "subject",
+          "tableTo": "degree",
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "subject_itinerary_id_itinerary_id_fk": {
+          "name": "subject_itinerary_id_itinerary_id_fk",
+          "tableFrom": "subject",
+          "tableTo": "itinerary",
+          "columnsFrom": [
+            "itinerary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.subject_group": {
+      "name": "subject_group",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_id": {
+          "name": "subject_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_type": {
+          "name": "group_type",
+          "type": "group_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shift": {
+          "name": "shift",
+          "type": "shift",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_number": {
+          "name": "group_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weekly_hours": {
+          "name": "weekly_hours",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "number_of_students": {
+          "name": "number_of_students",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -197,37 +496,188 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "subject_group_logic_idx": {
+          "name": "subject_group_logic_idx",
+          "columns": [
+            {
+              "expression": "subject_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "group_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "group_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shift",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "organization_member_organization_id_organization_id_fk": {
-          "name": "organization_member_organization_id_organization_id_fk",
-          "tableFrom": "organization_member",
+        "subject_group_organization_id_organization_id_fk": {
+          "name": "subject_group_organization_id_organization_id_fk",
+          "tableFrom": "subject_group",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "organization_member_user_id_user_id_fk": {
-          "name": "organization_member_user_id_user_id_fk",
-          "tableFrom": "organization_member",
-          "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+        "subject_group_subject_id_subject_id_fk": {
+          "name": "subject_group_subject_id_subject_id_fk",
+          "tableFrom": "subject_group",
+          "tableTo": "subject",
+          "columnsFrom": [
+            "subject_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "organization_member_organization_id_user_id_unique": {
-          "name": "organization_member_organization_id_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["organization_id", "user_id"]
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.itinerary": {
+      "name": "itinerary",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "degree_id": {
+          "name": "degree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
+      "indexes": {
+        "itinerary_name_degree_idx": {
+          "name": "itinerary_name_degree_idx",
+          "columns": [
+            {
+              "expression": "degree_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "itinerary_organization_id_organization_id_fk": {
+          "name": "itinerary_organization_id_organization_id_fk",
+          "tableFrom": "itinerary",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "itinerary_degree_id_degree_id_fk": {
+          "name": "itinerary_degree_id_degree_id_fk",
+          "tableFrom": "itinerary",
+          "tableTo": "degree",
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -248,6 +698,18 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "degree_id": {
+          "name": "degree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "itinerary_id": {
+          "name": "itinerary_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "academic_year": {
           "name": "academic_year",
@@ -289,12 +751,6 @@
           "notNull": true,
           "default": "'v1'"
         },
-        "published_at": {
-          "name": "published_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -310,39 +766,284 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "schedule_itinerary_unique_idx": {
+          "name": "schedule_itinerary_unique_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "degree_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "itinerary_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "academic_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "course_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "period",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shift",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "version",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "itinerary_id IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "schedule_common_unique_idx": {
+          "name": "schedule_common_unique_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "degree_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "academic_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "course_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "period",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shift",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "version",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "itinerary_id IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "schedule_organization_id_organization_id_fk": {
           "name": "schedule_organization_id_organization_id_fk",
           "tableFrom": "schedule",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_degree_id_degree_id_fk": {
+          "name": "schedule_degree_id_degree_id_fk",
+          "tableFrom": "schedule",
+          "tableTo": "degree",
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_itinerary_id_itinerary_id_fk": {
+          "name": "schedule_itinerary_id_itinerary_id_fk",
+          "tableFrom": "schedule",
+          "tableTo": "itinerary",
+          "columnsFrom": [
+            "itinerary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.degree": {
+      "name": "degree",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "degree_code_org_idx": {
+          "name": "degree_code_org_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "degree_name_org_idx": {
+          "name": "degree_name_org_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "deleted_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "degree_organization_id_organization_id_fk": {
+          "name": "degree_organization_id_organization_id_fk",
+          "tableFrom": "degree",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "schedule_organization_id_academic_year_course_year_shift_period_version_unique": {
-          "name": "schedule_organization_id_academic_year_course_year_shift_period_version_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "organization_id",
-            "academic_year",
-            "course_year",
-            "shift",
-            "period",
-            "version"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.schedule_entry": {
-      "name": "schedule_entry",
+    "public.schedule_slot": {
+      "name": "schedule_slot",
       "schema": "",
       "columns": {
         "id": {
@@ -405,31 +1106,43 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "schedule_entry_schedule_id_schedule_id_fk": {
-          "name": "schedule_entry_schedule_id_schedule_id_fk",
-          "tableFrom": "schedule_entry",
+        "schedule_slot_schedule_id_schedule_id_fk": {
+          "name": "schedule_slot_schedule_id_schedule_id_fk",
+          "tableFrom": "schedule_slot",
           "tableTo": "schedule",
-          "columnsFrom": ["schedule_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "schedule_entry_subject_group_id_subject_group_id_fk": {
-          "name": "schedule_entry_subject_group_id_subject_group_id_fk",
-          "tableFrom": "schedule_entry",
+        "schedule_slot_subject_group_id_subject_group_id_fk": {
+          "name": "schedule_slot_subject_group_id_subject_group_id_fk",
+          "tableFrom": "schedule_slot",
           "tableTo": "subject_group",
-          "columnsFrom": ["subject_group_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
+          "columnsFrom": [
+            "subject_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "schedule_entry_classroom_id_classroom_id_fk": {
-          "name": "schedule_entry_classroom_id_classroom_id_fk",
-          "tableFrom": "schedule_entry",
+        "schedule_slot_classroom_id_classroom_id_fk": {
+          "name": "schedule_slot_classroom_id_classroom_id_fk",
+          "tableFrom": "schedule_slot",
           "tableTo": "classroom",
-          "columnsFrom": ["classroom_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -439,8 +1152,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.subject": {
-      "name": "subject",
+    "public.member": {
+      "name": "member",
       "schema": "",
       "columns": {
         "id": {
@@ -456,69 +1169,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "available_shifts": {
-          "name": "available_shifts",
-          "type": "shift[]",
+        "role": {
+          "name": "role",
+          "type": "role",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
-        },
-        "number_of_students": {
-          "name": "number_of_students",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "course_year": {
-          "name": "course_year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "degree": {
-          "name": "degree",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "period": {
-          "name": "period",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "weekly_hours": {
-          "name": "weekly_hours",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "is_common": {
-          "name": "is_common",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "itinerary_name": {
-          "name": "itinerary_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -537,174 +1199,42 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "subject_organization_id_organization_id_fk": {
-          "name": "subject_organization_id_organization_id_fk",
-          "tableFrom": "subject",
+        "member_organization_id_organization_id_fk": {
+          "name": "member_organization_id_organization_id_fk",
+          "tableFrom": "member",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "member_user_id_user_id_fk": {
+          "name": "member_user_id_user_id_fk",
+          "tableFrom": "member",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "subject_organization_id_code_unique": {
-          "name": "subject_organization_id_code_unique",
+        "member_organization_id_user_id_unique": {
+          "name": "member_organization_id_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": ["organization_id", "code"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.subject_group": {
-      "name": "subject_group",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "subject_id": {
-          "name": "subject_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "group_type": {
-          "name": "group_type",
-          "type": "group_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "shift": {
-          "name": "shift",
-          "type": "shift",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "group_number": {
-          "name": "group_number",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "weekly_hours": {
-          "name": "weekly_hours",
-          "type": "numeric(4, 1)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "number_of_students": {
-          "name": "number_of_students",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "subject_group_subject_id_subject_id_fk": {
-          "name": "subject_group_subject_id_subject_id_fk",
-          "tableFrom": "subject_group",
-          "tableTo": "subject",
-          "columnsFrom": ["subject_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "subject_group_subject_id_group_type_group_number_shift_unique": {
-          "name": "subject_group_subject_id_group_type_group_number_shift_unique",
-          "nullsNotDistinct": false,
-          "columns": ["subject_id", "group_type", "group_number", "shift"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
-          "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "organization_id",
+            "user_id"
+          ]
         }
       },
       "policies": {},
@@ -713,30 +1243,57 @@
     }
   },
   "enums": {
-    "public.group_type": {
-      "name": "group_type",
-      "schema": "public",
-      "values": ["theory", "problems", "practices"]
-    },
     "public.period_type": {
       "name": "period_type",
       "schema": "public",
-      "values": ["semester", "trimestral", "annual"]
+      "values": [
+        "semester",
+        "trimester",
+        "annual"
+      ]
     },
-    "public.role": {
-      "name": "role",
+    "public.classroom_type": {
+      "name": "classroom_type",
       "schema": "public",
-      "values": ["admin", "editor", "viewer"]
-    },
-    "public.schedule_status": {
-      "name": "schedule_status",
-      "schema": "public",
-      "values": ["draft", "published", "archived"]
+      "values": [
+        "theory",
+        "lab"
+      ]
     },
     "public.shift": {
       "name": "shift",
       "schema": "public",
-      "values": ["morning", "afternoon"]
+      "values": [
+        "morning",
+        "afternoon"
+      ]
+    },
+    "public.group_type": {
+      "name": "group_type",
+      "schema": "public",
+      "values": [
+        "theory",
+        "problems",
+        "practices"
+      ]
+    },
+    "public.schedule_status": {
+      "name": "schedule_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "published",
+        "archived"
+      ]
+    },
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "editor",
+        "viewer"
+      ]
     }
   },
   "schemas": {},

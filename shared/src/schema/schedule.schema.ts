@@ -55,46 +55,6 @@ export const CreateScheduleSchema = z
   })
   .openapi('CreateSchedule');
 
-export const ScheduleEntrySchema = z
-  .object({
-    id: z.uuid().openapi({
-      example: '123e4567-e89b-12d3-a456-426614174005',
-    }),
-    scheduleId: z.uuid().openapi({
-      example: '123e4567-e89b-12d3-a456-426614174000',
-    }),
-    subjectGroupId: z.uuid(),
-    classroomId: z.uuid(),
-    dayOfWeek: z.number().int().min(1).max(7),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
-    endTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-  })
-  .openapi('ScheduleEntry');
-
-export const CreateScheduleEntrySchema = z
-  .object({
-    subjectGroupId: z.uuid(),
-    classroomId: z.uuid(),
-    dayOfWeek: z.number().int().min(1).max(7),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
-    endTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
-  })
-  .refine((data) => data.endTime > data.startTime, {
-    message: 'La hora de fin debe ser posterior a la hora de inicio',
-    path: ['endTime'],
-  })
-  .openapi('CreateScheduleEntry');
-
 export const GenerateScheduleRequestSchema = z
   .object({
     organizationId: z
@@ -110,8 +70,6 @@ export const GenerateScheduleRequestSchema = z
 
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;
 export type CreateScheduleDTO = z.infer<typeof CreateScheduleSchema>;
-export type ScheduleEntryDTO = z.infer<typeof ScheduleEntrySchema>;
-export type CreateScheduleEntryDTO = z.infer<typeof CreateScheduleEntrySchema>;
 export type GenerateScheduleRequestDTO = z.infer<
   typeof GenerateScheduleRequestSchema
 >;

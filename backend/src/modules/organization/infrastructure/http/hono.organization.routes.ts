@@ -7,7 +7,7 @@ import {
 
 export const createOrgRoute = createRoute({
   method: 'post',
-  path: '/',
+  path: '/organizations',
   request: {
     body: {
       content: {
@@ -28,7 +28,7 @@ export const createOrgRoute = createRoute({
 
 export const listOrgRoute = createRoute({
   method: 'get',
-  path: '/',
+  path: '/organizations',
   responses: {
     200: {
       description: 'Listado de organizaciones',
@@ -42,10 +42,15 @@ export const listOrgRoute = createRoute({
 
 export const deleteOrgRoute = createRoute({
   method: 'delete',
-  path: '/{id}',
+  path: '/organizations/{id}',
+  request: {
+    params: z.object({
+      id: z.uuid({ message: 'Invalid organization ID' }),
+    }),
+  },
   responses: {
-    200: {
-      description: 'Organización eliminada exitosamente',
+    204: {
+      description: 'Organization deleted successfully (No Content)',
     },
     400: { description: 'Error' },
   },

@@ -6,3 +6,5 @@ export * from './schema/classroom.schema';
 export * from './schema/schedule.schema';
 export * from './schema/auth.schema';
 export * from './schema/common.schema';
+export * from './schema/member.schema';
+export * from './schema/schedule-slot.schema';

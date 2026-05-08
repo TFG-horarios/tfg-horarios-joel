@@ -1,7 +1,6 @@
 import { type IOrganizationRepository } from '../domain/organization.repository';
-import { type IOrganizationMemberRepository } from '../../organization-member/domain/organization-member.repository';
 import { Organization } from '../domain/organization.entity';
-import { OrganizationMember } from '../../organization-member/domain/organization-member.entity';
+import { Member } from '@/modules/member/domain/member.entity';
 import {
   type CreateOrganizationDTO,
   type OrganizationDTO,
@@ -10,8 +9,7 @@ import { OrganizationMapper } from './organization.mapper';
 
 export class CreateOrganizationUseCase {
   constructor(
-    private readonly organizationRepository: IOrganizationRepository,
-    private readonly organizationMemberRepository: IOrganizationMemberRepository
+    private readonly organizationRepository: IOrganizationRepository
   ) {}
 
   async execute(
@@ -28,14 +26,13 @@ export class CreateOrganizationUseCase {
       slotDurationMinutes: dto.slotDurationMinutes,
     });
 
-    const adminMember = OrganizationMember.create({
+    const adminMember = Member.create({
       organizationId: organization.id,
       userId,
       role: 'admin',
     });
 
-    await this.organizationRepository.save(organization);
-    await this.organizationMemberRepository.save(adminMember);
+    await this.organizationRepository.create(organization, adminMember);
 
     return OrganizationMapper.toDTO(organization);
   }

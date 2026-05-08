@@ -1,0 +1,50 @@
+import type { IMemberRepository } from '../domain/member.repository';
+import {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from '@/core/errors/app.error';
+import { hasPermission } from '@/core/permissions/authorization';
+import { ROLES, type AppRole } from '@/core/permissions/roles';
+
+export class EditMemberRoleUseCase {
+  constructor(private readonly memberRepository: IMemberRepository) {}
+
+  async execute(
+    organizationId: string,
+    requesterUserId: string,
+    memberUserId: string,
+    roleToUpdate: AppRole
+  ): Promise<void> {
+    const member = await this.memberRepository.findByUserAndOrg(
+      memberUserId,
+      organizationId
+    );
+    if (!member) {
+      throw new NotFoundError('Member', memberUserId);
+    }
+
+    const requester = await this.memberRepository.findByUserAndOrg(
+      requesterUserId,
+      organizationId
+    );
+    if (!requester || !hasPermission(requester.role, 'EDIT_MEMBER_ROLE')) {
+      throw new ForbiddenError(
+        'You cannot update the role of members in this organization. Only administrators can do it.'
+      );
+    }
+
+    if (member.role === ROLES.ADMIN && roleToUpdate !== ROLES.ADMIN) {
+      const adminCount =
+        await this.memberRepository.countAdmins(organizationId);
+      if (adminCount <= 1) {
+        throw new ValidationError(
+          'You cannot change the role of the last administrator in the organization. Please assign another member as administrator before changing this member role.'
+        );
+      }
+    }
+
+    member.updateRole(roleToUpdate, requesterUserId);
+    await this.memberRepository.update(member);
+  }
+}

@@ -1,10 +1,11 @@
 import type { AuthRepository } from '../domain/auth.repository';
 import type { ITokenService } from '../domain/token.service';
 import type { IPasswordHasherService } from '../domain/password-hasher.service';
-import { ConflictError } from 'src/core/errors/app.error';
+import { ConflictError } from '@/core/errors/app.error';
 import { AuthUser } from '../domain/auth.entity';
 import type { RegisterDTO, AuthResponseDTO } from '@tfg-horarios/shared';
 import { AuthMapper } from './auth.mapper';
+import { PasswordPolicy } from '../domain/password.vo';
 
 export class RegisterUseCase {
   constructor(
@@ -19,7 +20,10 @@ export class RegisterUseCase {
       throw new ConflictError('This email is already taken');
     }
 
-    const passwordHash = await this.passwordHasherService.hash(dto.password);
+    const validPassword = PasswordPolicy.create(dto.password);
+    const passwordHash = await this.passwordHasherService.hash(
+      validPassword.getValue()
+    );
 
     const newUser = AuthUser.create({
       name: dto.name,

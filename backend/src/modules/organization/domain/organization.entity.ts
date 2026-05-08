@@ -1,4 +1,4 @@
-import { ValidationError } from '../../../core/errors/app.error';
+import { ValidationError } from '@/core/errors/app.error';
 
 export type OrganizationPeriodType = 'semester' | 'trimester' | 'annual';
 
@@ -29,6 +29,13 @@ export class Organization {
 
     if (props.slotDurationMinutes <= 0) {
       throw new ValidationError('Slot duration must be greater than 0');
+    }
+
+    if (props.morningStart >= props.morningEnd) {
+      throw new ValidationError('Morning start time must be before end time');
+    }
+    if (props.afternoonStart >= props.afternoonEnd) {
+      throw new ValidationError('Afternoon start time must be before end time');
     }
 
     return new Organization({

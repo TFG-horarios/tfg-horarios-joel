@@ -12,9 +12,9 @@ bun install
 To run:
 
 ```bash
-docker compose up -d
+bun run db:up
 ```
 
 ```bash
-bun run index.ts
+bun run dev
 ```

@@ -1,4 +1,4 @@
-import { Assignment, Solution } from './types';
+import { type Assignment, type Solution } from './types';
 import { PenaltyCalculator } from './penalty-calculator';
 
 export interface GroupInitialData {

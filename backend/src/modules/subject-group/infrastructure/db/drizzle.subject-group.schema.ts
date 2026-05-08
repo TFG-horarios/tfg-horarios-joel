@@ -3,20 +3,29 @@ import {
   uuid,
   integer,
   numeric,
-  unique,
   timestamp,
   text,
+  pgEnum,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { subjectsTable } from '../../../subject/infrastructure/db/drizzle.subject.schema';
-import {
-  shiftEnum,
-  groupTypeEnum,
-} from '../../../subject/infrastructure/db/drizzle.subject.schema';
+import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
+import { sql } from 'drizzle-orm';
+
+export const groupTypeEnum = pgEnum('group_type', [
+  'theory',
+  'problems',
+  'practices',
+]);
 
 export const subjectGroupsTable = pgTable(
   'subject_group',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizationsTable.id, { onDelete: 'cascade' }),
     subjectId: uuid('subject_id')
       .notNull()
       .references(() => subjectsTable.id, { onDelete: 'cascade' }),
@@ -31,14 +40,12 @@ export const subjectGroupsTable = pgTable(
       .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    unique().on(
-      table.subjectId,
-      table.groupType,
-      table.groupNumber,
-      table.shift
-    ),
+    uniqueIndex('subject_group_logic_idx')
+      .on(table.subjectId, table.groupType, table.groupNumber, table.shift)
+      .where(sql`deleted_at IS NULL`),
   ]
 );
 

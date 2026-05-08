@@ -1,6 +1,9 @@
-import type { Context } from 'hono';
 import { LoginUseCase } from '../../application/login.usecase';
 import { RegisterUseCase } from '../../application/register.usecase';
+import type { RouteHandler } from '@hono/zod-openapi';
+import type { loginRoute, registerRoute } from './hono.auth.routes';
+import type { AppEnv } from '@/core/types/app-types';
+import { setCookie } from 'hono/cookie';
 
 export class HonoAuthController {
   constructor(
@@ -8,19 +11,21 @@ export class HonoAuthController {
     private readonly registerUseCase: RegisterUseCase
   ) {}
 
-  async login(c: Context) {
-    const body = await c.req.json();
+  login: RouteHandler<typeof loginRoute, AppEnv> = async (c) => {
+    const body = c.req.valid('json');
     const result = await this.loginUseCase.execute(body);
-    c.header(
-      'Set-Cookie',
-      `token=${result.token}; HttpOnly; Path=/; SameSite=Strict; Max-Age=86400`
-    );
+    setCookie(c, 'token', result.token, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7,
+    });
     return c.json(result, 200);
-  }
+  };
 
-  async register(c: Context) {
-    const body = await c.req.json();
+  register: RouteHandler<typeof registerRoute, AppEnv> = async (c) => {
+    const body = c.req.valid('json');
     const result = await this.registerUseCase.execute(body);
     return c.json(result, 201);
-  }
+  };
 }

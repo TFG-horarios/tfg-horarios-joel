@@ -1,0 +1,44 @@
+import z from 'zod';
+
+export const ScheduleSlotSchema = z
+  .object({
+    id: z.uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174005',
+    }),
+    scheduleId: z.uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    subjectGroupId: z.uuid(),
+    classroomId: z.uuid(),
+    dayOfWeek: z.number().int().min(1).max(7),
+    startTime: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
+    endTime: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
+  })
+  .openapi('ScheduleSlot');
+
+export const CreateScheduleSlotSchema = z
+  .object({
+    subjectGroupId: z.uuid(),
+    classroomId: z.uuid(),
+    dayOfWeek: z.number().int().min(1).max(7),
+    startTime: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
+    endTime: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)'),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: 'La hora de fin debe ser posterior a la hora de inicio',
+    path: ['endTime'],
+  })
+  .openapi('CreateScheduleSlot');
+
+export type ScheduleSlotDTO = z.infer<typeof ScheduleSlotSchema>;
+export type CreateScheduleSlotDTO = z.infer<typeof CreateScheduleSlotSchema>;

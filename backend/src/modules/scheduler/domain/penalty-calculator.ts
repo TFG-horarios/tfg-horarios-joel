@@ -1,4 +1,4 @@
-import { Assignment, ClassroomMap } from './types';
+import { type Assignment, type ClassroomMap } from './types';
 
 export class PenaltyCalculator {
   constructor(

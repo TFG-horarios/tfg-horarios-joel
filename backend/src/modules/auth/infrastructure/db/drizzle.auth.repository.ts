@@ -1,11 +1,11 @@
 import { eq } from 'drizzle-orm';
-import { type DbConnection } from 'src/core/db/connection';
+import { type DbConnection } from '@/core/db/connection';
 import { AuthUser } from '../../domain/auth.entity';
-import type { AuthRepository } from 'src/modules/auth/domain/auth.repository';
+import type { AuthRepository } from '@/modules/auth/domain/auth.repository';
 import {
   usersTable,
   type DrizzleUser,
-} from 'src/modules/user/infrastructure/db/drizzle.user.schema';
+} from '@/modules/user/infrastructure/db/drizzle.user.schema';
 
 export class DrizzleAuthRepository implements AuthRepository {
   constructor(private readonly database: DbConnection) {}
@@ -16,6 +16,8 @@ export class DrizzleAuthRepository implements AuthRepository {
       name: row.name,
       email: row.email,
       passwordHash: row.password,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     });
   }
 

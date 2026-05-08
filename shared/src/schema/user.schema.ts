@@ -20,4 +20,13 @@ export const UserSchema = z
   })
   .openapi('User');
 
+export const UpdateUserSchema = z
+  .object({
+    name: z.string().openapi({
+      example: 'John Doe',
+    }),
+  })
+  .openapi('UpdateUser');
+
 export type UserDTO = z.infer<typeof UserSchema>;
+export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;

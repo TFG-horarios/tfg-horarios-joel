@@ -4,9 +4,13 @@ import {
   text,
   integer,
   timestamp,
-  unique,
+  pgEnum,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { organizationsTable as organization } from '../../../organization/infrastructure/db/drizzle.organization.schema';
+import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
+import { sql } from 'drizzle-orm';
+
+export const classroomTypeEnum = pgEnum('classroom_type', ['theory', 'lab']);
 
 export const classroom = pgTable(
   'classroom',
@@ -14,16 +18,22 @@ export const classroom = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     organizationId: uuid('organization_id')
       .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
+      .references(() => organizationsTable.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     capacity: integer('capacity').notNull(),
+    type: classroomTypeEnum('type').notNull().default('theory'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
+    deletedAt: timestamp('deleted_at'),
   },
-  (table) => [unique().on(table.organizationId, table.name)]
+  (table) => [
+    uniqueIndex('classroom_name_org_idx')
+      .on(table.organizationId, table.name)
+      .where(sql`deleted_at IS NULL`),
+  ]
 );
 
 export type Classroom = typeof classroom.$inferSelect;

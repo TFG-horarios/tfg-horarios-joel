@@ -7,7 +7,7 @@ import {
 
 export const loginRoute = createRoute({
   method: 'post',
-  path: '/login',
+  path: '/auth/login',
   request: {
     body: {
       content: {
@@ -30,7 +30,7 @@ export const loginRoute = createRoute({
 
 export const registerRoute = createRoute({
   method: 'post',
-  path: '/register',
+  path: '/auth/register',
   request: {
     body: {
       content: {

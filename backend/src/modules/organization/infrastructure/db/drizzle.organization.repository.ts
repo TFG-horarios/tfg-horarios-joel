@@ -1,12 +1,13 @@
 import { eq } from 'drizzle-orm';
-import { type DbConnection } from '../../../../core/db/connection';
+import { type DbConnection } from '@/core/db/connection';
 import {
   organizationsTable,
   type DrizzleOrganization,
 } from './drizzle.organization.schema';
-import { organizationMembersTable } from '../../../organization-member/infrastructure/db/drizzle.organization-member.schema';
+import { membersTable } from '@/modules/member/infrastructure/db/drizzle.member.schema';
 import { type IOrganizationRepository } from '../../domain/organization.repository';
 import { Organization } from '../../domain/organization.entity';
+import type { Member } from '@/modules/member/domain/member.entity';
 
 export class DrizzleOrganizationRepository implements IOrganizationRepository {
   constructor(private readonly database: DbConnection) {}
@@ -42,33 +43,49 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
       })
       .from(organizationsTable)
       .innerJoin(
-        organizationMembersTable,
-        eq(organizationsTable.id, organizationMembersTable.organizationId)
+        membersTable,
+        eq(organizationsTable.id, membersTable.organizationId)
       )
-      .where(eq(organizationMembersTable.userId, userId));
+      .where(eq(membersTable.userId, userId));
     return rows.map((row) => this.mapToDomain(row.organization));
   }
 
-  async save(domainEntity: Organization): Promise<void> {
-    const existing = await this.findById(domainEntity.id);
+  async create(organization: Organization, adminMember: Member): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx.insert(organizationsTable).values({
+        id: organization.id,
+        name: organization.name,
+        periodType: organization.periodType,
+        morningStart: organization.morningStart,
+        afternoonStart: organization.afternoonStart,
+        morningEnd: organization.morningEnd,
+        afternoonEnd: organization.afternoonEnd,
+        slotDurationMinutes: organization.slotDurationMinutes,
+        createdAt: organization.createdAt,
+        updatedAt: organization.updatedAt,
+      });
 
-    if (existing) {
-      await this.database
-        .update(organizationsTable)
-        .set({
-          name: domainEntity.name,
-          periodType: domainEntity.periodType,
-          morningStart: domainEntity.morningStart,
-          afternoonStart: domainEntity.afternoonStart,
-          morningEnd: domainEntity.morningEnd,
-          afternoonEnd: domainEntity.afternoonEnd,
-          slotDurationMinutes: domainEntity.slotDurationMinutes,
-          updatedAt: domainEntity.updatedAt,
-        })
-        .where(eq(organizationsTable.id, domainEntity.id));
-    } else {
-      await this.database.insert(organizationsTable).values({
-        id: domainEntity.id,
+      await tx.insert(membersTable).values({
+        id: adminMember.id,
+        organizationId: adminMember.organizationId,
+        userId: adminMember.userId,
+        role: adminMember.role,
+        createdAt: adminMember.createdAt,
+        updatedAt: adminMember.updatedAt,
+      });
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.database
+      .delete(organizationsTable)
+      .where(eq(organizationsTable.id, id));
+  }
+
+  async update(domainEntity: Organization): Promise<void> {
+    await this.database
+      .update(organizationsTable)
+      .set({
         name: domainEntity.name,
         periodType: domainEntity.periodType,
         morningStart: domainEntity.morningStart,
@@ -76,15 +93,7 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
         morningEnd: domainEntity.morningEnd,
         afternoonEnd: domainEntity.afternoonEnd,
         slotDurationMinutes: domainEntity.slotDurationMinutes,
-        createdAt: domainEntity.createdAt,
-        updatedAt: domainEntity.updatedAt,
-      });
-    }
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.database
-      .delete(organizationsTable)
-      .where(eq(organizationsTable.id, id));
+      })
+      .where(eq(organizationsTable.id, domainEntity.id));
   }
 }

@@ -1,6 +1,9 @@
-import { Solution } from './types';
-import { PenaltyCalculator } from './penalty-calculator';
-import { InitialSolution, GroupInitialData } from './initial-solution';
+import { type Solution } from '../domain/types';
+import { PenaltyCalculator } from '../domain/penalty-calculator';
+import {
+  InitialSolution,
+  type GroupInitialData,
+} from '../domain/initial-solution';
 
 interface TabuMove {
   assignmentId: string;
