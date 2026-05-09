@@ -26,6 +26,12 @@ export const ScheduleSchema = z
     version: z.string().openapi({
       example: 'v1.0',
     }),
+    degreeId: z.uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174002',
+    }),
+    itineraryId: z.uuid().optional().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174003',
+    }),
     publishedAt: z.iso.datetime().optional().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
@@ -38,7 +44,19 @@ export const ScheduleSchema = z
   })
   .openapi('Schedule');
 
-export const CreateScheduleSchema = z
+export const CreateScheduleParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+  degreeId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174002',
+  }),
+  itineraryId: z.uuid().optional().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174003',
+  }),
+});
+
+export const CreateScheduleBodySchema = z
   .object({
     academicYear: z.string().openapi({
       example: '2025-2026',
@@ -55,21 +73,6 @@ export const CreateScheduleSchema = z
   })
   .openapi('CreateSchedule');
 
-export const GenerateScheduleRequestSchema = z
-  .object({
-    organizationId: z
-      .uuid()
-      .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
-    academicYear: z.string().openapi({ example: '2025-2026' }),
-    degree: z.string().openapi({ example: 'Grado en Ingeniería Informática' }),
-    courseYear: z.number().int().positive().openapi({ example: 3 }),
-    period: z.number().int().positive().openapi({ example: 1 }),
-    shift: z.enum(['morning', 'afternoon']).openapi({ example: 'morning' }),
-  })
-  .openapi('GenerateScheduleRequest');
-
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;
-export type CreateScheduleDTO = z.infer<typeof CreateScheduleSchema>;
-export type GenerateScheduleRequestDTO = z.infer<
-  typeof GenerateScheduleRequestSchema
->;
+export type CreateScheduleParamsDTO = z.infer<typeof CreateScheduleParamsSchema>;
+export type CreateScheduleDTO = z.infer<typeof CreateScheduleBodySchema>;

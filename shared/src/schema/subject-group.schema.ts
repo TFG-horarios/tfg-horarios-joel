@@ -5,6 +5,9 @@ export const SubjectGroupSchema = z
     id: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174000',
     }),
+    organizationId: z.uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
     subjectId: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174001',
     }),
@@ -35,13 +38,19 @@ export const SubjectGroupSchema = z
   })
   .openapi('SubjectGroup');
 
-export const CreateSubjectGroupSchema = z
+export const CreateDegreeParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+  subjectId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174002',
+  }),
+});
+
+export const CreateSubjectGroupBodySchema = z
   .object({
     name: z.string().min(2).openapi({
       example: 'Grupo 1 Theory',
-    }),
-    subjectId: z.uuid().openapi({
-      example: '123e4567-e89b-12d3-a456-426614174001',
     }),
     groupType: z.enum(['theory', 'problems', 'practices']).openapi({
       example: 'theory',
@@ -62,4 +71,9 @@ export const CreateSubjectGroupSchema = z
   .openapi('CreateSubjectGroup');
 
 export type SubjectGroupDTO = z.infer<typeof SubjectGroupSchema>;
-export type CreateSubjectGroupDTO = z.infer<typeof CreateSubjectGroupSchema>;
+export type CreateSubjectGroupParamsDTO = z.infer<
+  typeof CreateDegreeParamsSchema
+>;
+export type CreateSubjectGroupDTO = z.infer<
+  typeof CreateSubjectGroupBodySchema
+>;

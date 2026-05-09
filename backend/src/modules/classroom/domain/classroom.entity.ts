@@ -1,3 +1,5 @@
+import { ValidationError } from '@/core/errors/app.error';
+
 export type ClassroomType = 'theory' | 'lab';
 
 export interface ClassroomProps {
@@ -18,11 +20,11 @@ export class Classroom {
     props: Omit<ClassroomProps, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
   ): Classroom {
     if (props.capacity <= 0) {
-      throw new Error('Capacity must be a positive integer');
+      throw new ValidationError('Capacity must be a positive integer');
     }
 
     if (props.name.trim().length === 0) {
-      throw new Error('Name cannot be empty');
+      throw new ValidationError('Name cannot be empty');
     }
 
     return new Classroom({

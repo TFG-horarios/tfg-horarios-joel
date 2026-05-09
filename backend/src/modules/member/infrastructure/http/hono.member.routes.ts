@@ -1,9 +1,9 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
-  CreateMemberSchema,
+  CreateMemberBodySchema,
   MemberSchema,
-  UpdateMemberRoleSchema,
+  UpdateMemberRoleBodySchema,
 } from '@tfg-horarios/shared';
 
 export const listMembersRoute = createRoute({
@@ -32,7 +32,7 @@ export const addMemberRoute = createRoute({
       organizationId: z.uuid(),
     }),
     body: {
-      content: { 'application/json': { schema: CreateMemberSchema } },
+      content: { 'application/json': { schema: CreateMemberBodySchema } },
     },
   },
   responses: {
@@ -57,7 +57,7 @@ export const updateMemberRoleRoute = createRoute({
     }),
     body: {
       content: {
-        'application/json': { schema: UpdateMemberRoleSchema },
+        'application/json': { schema: UpdateMemberRoleBodySchema },
       },
     },
   },

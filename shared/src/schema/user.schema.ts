@@ -20,6 +20,12 @@ export const UserSchema = z
   })
   .openapi('User');
 
+export const UpdateUserParamsSchema = z.object({
+  userId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+});
+
 export const UpdateUserSchema = z
   .object({
     name: z.string().openapi({

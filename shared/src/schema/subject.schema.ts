@@ -8,10 +8,10 @@ export const SubjectSchema = z
     organizationId: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174001',
     }),
-    name: z.string().openapi({
-      example: 'Matemáticas I',
+    name: z.string().min(3).max(100).openapi({
+      example: 'Mathematics I',
     }),
-    code: z.string().openapi({
+    code: z.string().min(2).max(20).openapi({
       example: 'MAT101',
     }),
     availableShifts: z.array(z.enum(['morning', 'afternoon'])).openapi({
@@ -23,8 +23,8 @@ export const SubjectSchema = z
     courseYear: z.number().int().positive().openapi({
       example: 1,
     }),
-    degree: z.string().openapi({
-      example: 'Grado en Ingeniería Informática',
+    degreeId: z.uuid().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174002',
     }),
     period: z.number().int().nonnegative().openapi({
       example: 1,
@@ -35,8 +35,8 @@ export const SubjectSchema = z
     isCommon: z.boolean().openapi({
       example: true,
     }),
-    itineraryName: z.string().optional().openapi({
-      example: 'Itinerary A',
+    itineraryId: z.uuid().optional().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174003',
     }),
     createdAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
@@ -47,15 +47,24 @@ export const SubjectSchema = z
   })
   .openapi('Subject');
 
-export const CreateSubjectSchema = z
+export const CreateSubjectParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+  degreeId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174002',
+  }),
+  itineraryId: z.uuid().optional().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174003',
+  }),
+});
+
+export const CreateSubjectBodySchema = z
   .object({
-    name: z.string().min(2).openapi({
-      example: 'Matemáticas I',
+    name: z.string().min(3).max(100).openapi({
+      example: 'Mathematics I',
     }),
-    organizationId: z.uuid().openapi({
-      example: '123e4567-e89b-12d3-a456-426614174001',
-    }),
-    code: z.string().min(2).openapi({
+    code: z.string().min(2).max(20).openapi({
       example: 'MAT101',
     }),
     availableShifts: z.array(z.enum(['morning', 'afternoon'])).openapi({
@@ -67,9 +76,6 @@ export const CreateSubjectSchema = z
     courseYear: z.number().int().positive().openapi({
       example: 1,
     }),
-    degree: z.string().min(2).openapi({
-      example: 'Grado en Ingeniería Informática',
-    }),
     period: z.number().int().nonnegative().openapi({
       example: 1,
     }),
@@ -79,11 +85,9 @@ export const CreateSubjectSchema = z
     isCommon: z.boolean().openapi({
       example: true,
     }),
-    itineraryName: z.string().optional().openapi({
-      example: 'Itinerary A',
-    }),
   })
   .openapi('CreateSubject');
 
 export type SubjectDTO = z.infer<typeof SubjectSchema>;
-export type CreateSubjectDTO = z.infer<typeof CreateSubjectSchema>;
+export type CreateSubjectParamsDTO = z.infer<typeof CreateSubjectParamsSchema>;
+export type CreateSubjectDTO = z.infer<typeof CreateSubjectBodySchema>;

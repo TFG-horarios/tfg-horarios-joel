@@ -5,33 +5,33 @@ export const OrganizationSchema = z
     id: z.uuid().openapi({
       example: '123e4567-e89b-12d3-a456-426614174000',
     }),
-    name: z.string().openapi({
-      example: 'Facultad de Informática',
+    name: z.string().min(3).max(100).openapi({
+      example: 'Mathematics faculty',
     }),
     periodType: z.enum(['semester', 'trimester', 'annual']).openapi({
       example: 'semester',
     }),
     morningStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '08:00',
       }),
     morningEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '14:00',
       }),
     afternoonStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '14:00',
       }),
     afternoonEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '20:00',
       }),
@@ -49,33 +49,33 @@ export const OrganizationSchema = z
 
 export const CreateOrganizationSchema = z
   .object({
-    name: z.string().min(3).openapi({
-      example: 'Facultad de Matemáticas',
+    name: z.string().min(3).max(100).openapi({
+      example: 'Mathematics faculty',
     }),
     periodType: z.enum(['semester', 'trimester', 'annual']).openapi({
       example: 'semester',
     }),
     morningStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '08:00',
       }),
     morningEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '14:00',
       }),
     afternoonStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '14:00',
       }),
     afternoonEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
       .openapi({
         example: '20:00',
       }),
@@ -84,11 +84,11 @@ export const CreateOrganizationSchema = z
     }),
   })
   .refine((data) => data.afternoonEnd > data.afternoonStart, {
-    message: 'La hora de fin debe ser posterior a la hora de inicio',
+    message: 'The end time must be later than the start time',
     path: ['afternoonEnd'],
   })
   .refine((data) => data.morningEnd > data.morningStart, {
-    message: 'La hora de fin debe ser posterior a la hora de inicio',
+    message: 'The end time must be later than the start time',
     path: ['morningEnd'],
   })
   .openapi('CreateOrganization');

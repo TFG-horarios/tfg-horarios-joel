@@ -29,7 +29,22 @@ export const MemberSchema = z
   })
   .openapi('Member');
 
-export const CreateMemberSchema = z
+export const CreateMemberParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+});
+
+export const UpdateMemberRoleParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+  userId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  }),
+});
+
+export const CreateMemberBodySchema = z
   .object({
     email: z.email({ message: 'Invalid email format' }).openapi({
       example: 'john.doe@example.com',
@@ -40,7 +55,7 @@ export const CreateMemberSchema = z
   })
   .openapi('Create Member');
 
-export const UpdateMemberRoleSchema = z
+export const UpdateMemberRoleBodySchema = z
   .object({
     role: z.enum(['admin', 'editor', 'viewer']).openapi({
       example: 'viewer',
@@ -49,5 +64,9 @@ export const UpdateMemberRoleSchema = z
   .openapi('Update Member Role');
 
 export type MemberDTO = z.infer<typeof MemberSchema>;
-export type CreateMemberDTO = z.infer<typeof CreateMemberSchema>;
-export type UpdateMemberRoleDTO = z.infer<typeof UpdateMemberRoleSchema>;
+export type CreateMemberDTO = z.infer<typeof CreateMemberBodySchema>;
+export type UpdateMemberRoleDTO = z.infer<typeof UpdateMemberRoleBodySchema>;
+export type CreateMemberParamsDTO = z.infer<typeof CreateMemberParamsSchema>;
+export type UpdateMemberRoleParamsDTO = z.infer<
+  typeof UpdateMemberRoleParamsSchema
+>;
