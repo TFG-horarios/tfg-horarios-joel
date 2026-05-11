@@ -33,3 +33,6 @@ export const itinerariesTable = pgTable(
       .where(sql`deleted_at IS NULL`),
   ]
 );
+
+export type DrizzleItinerary = typeof itinerariesTable.$inferSelect;
+export type NewDrizzleItinerary = typeof itinerariesTable.$inferInsert;

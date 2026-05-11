@@ -63,7 +63,7 @@ export class HonoMemberController {
     await this.removeMemberUseCase.execute(
       organizationId,
       requesterUserId,
-      userId,
+      userId
     );
     return c.body(null, 204);
   };

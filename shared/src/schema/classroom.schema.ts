@@ -23,19 +23,28 @@ export const ClassroomSchema = z
     updatedAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
-    deleteAt: z.iso.datetime().nullable().openapi({
+    deletedAt: z.iso.datetime().nullable().openapi({
       example: null,
     }),
   })
   .openapi('Classroom');
 
-export const CreateClassroomParamsSchema = z.object({
+export const CreateAndListClassroomParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
 });
 
-export const CreateClassroomBodySchema = z
+export const DeleteGetAndUpdateClassroomParamsSchema = z.object({
+  organizationId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+  }),
+  classroomId: z.uuid().openapi({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  }),
+});
+
+export const CreateAndUpdateClassroomBodySchema = z
   .object({
     name: z.string().min(2).max(100).openapi({
       example: 'Aula 1.1',
@@ -43,11 +52,19 @@ export const CreateClassroomBodySchema = z
     capacity: z.number().int().positive().openapi({
       example: 60,
     }),
+    type: z.enum(['theory', 'lab']).openapi({
+      example: 'lab',
+    }),
   })
-  .openapi('CreateClassroom');
+  .openapi('CreateAndUpdateClassroom');
 
 export type ClassroomDTO = z.infer<typeof ClassroomSchema>;
-export type CreateClassroomParamsDTO = z.infer<
-  typeof CreateClassroomParamsSchema
+export type CreateAndListClassroomParamsDTO = z.infer<
+  typeof CreateAndListClassroomParamsSchema
 >;
-export type CreateClassroomDTO = z.infer<typeof CreateClassroomBodySchema>;
+export type DeleteGetAndUpdateClassroomParamsDTO = z.infer<
+  typeof DeleteGetAndUpdateClassroomParamsSchema
+>;
+export type CreateAndUpdateClassroomDTO = z.infer<
+  typeof CreateAndUpdateClassroomBodySchema
+>;

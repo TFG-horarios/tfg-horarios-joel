@@ -47,6 +47,12 @@ export const OrganizationSchema = z
   })
   .openapi('Organization');
 
+export const OrganizationIdParamSchema = z.object({
+  id: z
+    .uuid({ message: 'Invalid organization ID' })
+    .openapi({ example: '123e4567...' }),
+});
+
 export const CreateOrganizationSchema = z
   .object({
     name: z.string().min(3).max(100).openapi({

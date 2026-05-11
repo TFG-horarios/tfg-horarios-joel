@@ -29,13 +29,13 @@ export const MemberSchema = z
   })
   .openapi('Member');
 
-export const CreateMemberParamsSchema = z.object({
+export const CreateAndListMemberParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
 });
 
-export const UpdateMemberRoleParamsSchema = z.object({
+export const UpdateRoleAndRemoveMemberParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
@@ -66,7 +66,9 @@ export const UpdateMemberRoleBodySchema = z
 export type MemberDTO = z.infer<typeof MemberSchema>;
 export type CreateMemberDTO = z.infer<typeof CreateMemberBodySchema>;
 export type UpdateMemberRoleDTO = z.infer<typeof UpdateMemberRoleBodySchema>;
-export type CreateMemberParamsDTO = z.infer<typeof CreateMemberParamsSchema>;
+export type CreateMemberParamsDTO = z.infer<
+  typeof CreateAndListMemberParamsSchema
+>;
 export type UpdateMemberRoleParamsDTO = z.infer<
-  typeof UpdateMemberRoleParamsSchema
+  typeof UpdateRoleAndRemoveMemberParamsSchema
 >;

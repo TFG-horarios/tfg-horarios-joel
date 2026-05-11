@@ -26,6 +26,12 @@ export class HonoAuthController {
   register: RouteHandler<typeof registerRoute, AppEnv> = async (c) => {
     const body = c.req.valid('json');
     const result = await this.registerUseCase.execute(body);
+    setCookie(c, 'token', result.token, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7,
+    });
     return c.json(result, 201);
   };
 }

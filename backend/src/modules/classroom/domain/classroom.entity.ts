@@ -40,6 +40,20 @@ export class Classroom {
     return new Classroom(props);
   }
 
+  public update(name: string, capacity: number, type: ClassroomType): void {
+    if (capacity <= 0) {
+      throw new ValidationError('Capacity must be a positive integer');
+    }
+    if (name.trim().length === 0) {
+      throw new ValidationError('Name cannot be empty');
+    }
+
+    this.props.name = name;
+    this.props.capacity = capacity;
+    this.props.type = type;
+    this.props.updatedAt = new Date();
+  }
+
   get id() {
     return this.props.id;
   }

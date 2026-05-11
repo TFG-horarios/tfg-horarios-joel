@@ -23,8 +23,8 @@ export const SubjectGroupSchema = z
     groupNumber: z.number().int().positive().openapi({
       example: 1,
     }),
-    weeklyHours: z.number().int().positive().openapi({
-      example: 2,
+    weeklyHours: z.number().positive().openapi({
+      example: 2.5,
     }),
     numberOfStudents: z.number().int().nonnegative().openapi({
       example: 50,
@@ -35,10 +35,13 @@ export const SubjectGroupSchema = z
     updatedAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
+    deletedAt: z.iso.datetime().nullable().openapi({
+      example: null,
+    }),
   })
   .openapi('SubjectGroup');
 
-export const CreateDegreeParamsSchema = z.object({
+export const CreateSubjectGroupParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
@@ -61,8 +64,8 @@ export const CreateSubjectGroupBodySchema = z
     groupNumber: z.number().int().positive().openapi({
       example: 1,
     }),
-    weeklyHours: z.number().int().positive().openapi({
-      example: 2,
+    weeklyHours: z.number().positive().openapi({
+      example: 2.5,
     }),
     numberOfStudents: z.number().int().nonnegative().openapi({
       example: 50,
@@ -72,7 +75,7 @@ export const CreateSubjectGroupBodySchema = z
 
 export type SubjectGroupDTO = z.infer<typeof SubjectGroupSchema>;
 export type CreateSubjectGroupParamsDTO = z.infer<
-  typeof CreateDegreeParamsSchema
+  typeof CreateSubjectGroupParamsSchema
 >;
 export type CreateSubjectGroupDTO = z.infer<
   typeof CreateSubjectGroupBodySchema

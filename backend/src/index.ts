@@ -9,13 +9,24 @@ import { createAuthModule } from './modules/auth/auth.module';
 import { createMemberModule } from './modules/member/member.module';
 import { DrizzleUserRepository } from './modules/user/infrastructure/db/drizzle.user.repository';
 import { GetUserByEmailUseCase } from './modules/user/application/get-by-email.usecase';
+import { JwtService } from './modules/auth/infrastructure/services/jwt.service';
+import { createAuthMiddleware } from './core/middlewares/auth.middleware';
+import { createDegreeModule } from './modules/degree/degree.module';
+import { createClassroomModule } from './modules/classroom/classroom.module';
+import { createItineraryModule } from './modules/itinerary/itinerary.module';
 
-const app = new OpenAPIHono();
+const api = new OpenAPIHono();
+const protectedApi = new OpenAPIHono();
 
+const jwtSecret = Bun.env.JWT_SECRET || '';
+const jwtExpiresInSeconds = Number(Bun.env.JWT_EXPIRES_IN_SECONDS) || 86400;
+if (!jwtSecret) throw new Error('JWT_SECRET missing');
+const jwtService = new JwtService(jwtSecret, jwtExpiresInSeconds);
+const authMiddleware = createAuthMiddleware(jwtService);
 const userRepository = new DrizzleUserRepository(db);
 const getUserByEmailUseCase = new GetUserByEmailUseCase(userRepository);
 
-app.use(
+api.use(
   '/api/*',
   cors({
     origin: Bun.env.FRONTEND_URL ?? 'http://localhost:3000',
@@ -24,14 +35,21 @@ app.use(
   })
 );
 
-app.onError(globalErrorMiddleware);
+api.onError(globalErrorMiddleware);
 
-app.route('/api', createAuthModule(db));
-app.route('/api', createOrganizationModule(db));
-app.route('/api', createUserModule(db));
-app.route('/api', createMemberModule(db, getUserByEmailUseCase));
+api.route('/api', createAuthModule(db, jwtService));
 
-app.get(
+protectedApi.use('/api/*', authMiddleware);
+protectedApi.route('/api', createOrganizationModule(db));
+protectedApi.route('/api', createUserModule(db, getUserByEmailUseCase));
+protectedApi.route('/api', createMemberModule(db, getUserByEmailUseCase));
+protectedApi.route('/api', createDegreeModule(db));
+protectedApi.route('/api', createClassroomModule(db));
+protectedApi.route('/api', createItineraryModule(db));
+
+api.route('/api', protectedApi);
+
+api.get(
   '/reference',
   Scalar({
     url: '/doc',
@@ -39,7 +57,7 @@ app.get(
   })
 );
 
-app.doc('/doc', {
+api.doc('/doc', {
   openapi: '3.0.0',
   info: {
     version: '1.0.0',
@@ -49,7 +67,7 @@ app.doc('/doc', {
 
 export default {
   port: 8080,
-  fetch: app.fetch,
+  fetch: api.fetch,
 };
 
-export type AppType = typeof app;
+export type AppType = typeof api;

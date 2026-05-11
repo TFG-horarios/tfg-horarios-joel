@@ -18,13 +18,22 @@ export const DegreeSchema = z
   })
   .openapi('Degree');
 
-export const CreateDegreeParamsSchema = z.object({
+export const CreateAndListDegreeParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
 });
 
-export const CreateDegreeBodySchema = z
+export const GetDeleteAndUpdateDegreeIdParamSchema = z.object({
+  organizationId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
+  degreeId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+});
+
+export const CreateAndUpdateDegreeBodySchema = z
   .object({
     name: z
       .string()
@@ -33,8 +42,12 @@ export const CreateDegreeBodySchema = z
       .openapi({ example: 'Computing Engineering' }),
     code: z.string().min(2).max(10).openapi({ example: 'IB1' }),
   })
-  .openapi('CreateDegree');
+  .openapi('CreateAndUpdateDegree');
 
 export type DegreeDTO = z.infer<typeof DegreeSchema>;
-export type CreateDegreeParamsDTO = z.infer<typeof CreateDegreeParamsSchema>;
-export type CreateDegreeDTO = z.infer<typeof CreateDegreeBodySchema>;
+export type CreateAndListDegreeParamsDTO = z.infer<
+  typeof CreateAndListDegreeParamsSchema
+>;
+export type CreateAndUpdateDegreeDTO = z.infer<
+  typeof CreateAndUpdateDegreeBodySchema
+>;

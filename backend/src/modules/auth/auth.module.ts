@@ -12,13 +12,7 @@ import {
 } from './infrastructure/http/hono.auth.routes';
 import type { AppEnv } from '@/core/types/app-types';
 
-export const createAuthModule = (db: DbConnection) => {
-  const jwtSecret = Bun.env.JWT_SECRET || '';
-  const jwtExpiresInSeconds =
-    Number(Bun.env.JWT_EXPIRES_IN_SECONDS) || 86400;
-  if (!jwtSecret) throw new Error('JWT_SECRET missing');
-
-  const jwtService = new JwtService(jwtSecret, jwtExpiresInSeconds);
+export const createAuthModule = (db: DbConnection, jwtService: JwtService) => {
   const passwordHasherService = new PasswordHasherService();
   const authRepository = new DrizzleAuthRepository(db);
 

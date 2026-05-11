@@ -33,3 +33,6 @@ export const degreesTable = pgTable(
       .where(sql`deleted_at IS NULL`),
   ]
 );
+
+export type DrizzleDegree = typeof degreesTable.$inferSelect;
+export type DrizzleNewDegree = typeof degreesTable.$inferInsert;

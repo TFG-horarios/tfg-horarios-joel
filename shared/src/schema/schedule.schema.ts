@@ -32,9 +32,6 @@ export const ScheduleSchema = z
     itineraryId: z.uuid().optional().openapi({
       example: '123e4567-e89b-12d3-a456-426614174003',
     }),
-    publishedAt: z.iso.datetime().optional().openapi({
-      example: '2025-01-01T12:00:00Z',
-    }),
     createdAt: z.iso.datetime().openapi({
       example: '2025-01-01T12:00:00Z',
     }),
@@ -74,5 +71,7 @@ export const CreateScheduleBodySchema = z
   .openapi('CreateSchedule');
 
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;
-export type CreateScheduleParamsDTO = z.infer<typeof CreateScheduleParamsSchema>;
+export type CreateScheduleParamsDTO = z.infer<
+  typeof CreateScheduleParamsSchema
+>;
 export type CreateScheduleDTO = z.infer<typeof CreateScheduleBodySchema>;

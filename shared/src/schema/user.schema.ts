@@ -20,12 +20,6 @@ export const UserSchema = z
   })
   .openapi('User');
 
-export const UpdateUserParamsSchema = z.object({
-  userId: z.uuid().openapi({
-    example: '123e4567-e89b-12d3-a456-426614174001',
-  }),
-});
-
 export const UpdateUserSchema = z
   .object({
     name: z.string().openapi({
@@ -34,5 +28,14 @@ export const UpdateUserSchema = z
   })
   .openapi('UpdateUser');
 
+export const SearchUserQuerySchema = z
+  .object({
+    email: z.email().openapi({
+      example: 'john.doe@example.com',
+    }),
+  })
+  .openapi('SearchUserQuery');
+
 export type UserDTO = z.infer<typeof UserSchema>;
 export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;
+export type SearchUserQueryDTO = z.infer<typeof SearchUserQuerySchema>;

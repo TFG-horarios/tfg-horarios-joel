@@ -7,3 +7,5 @@ export * from './schema/schedule.schema';
 export * from './schema/auth.schema';
 export * from './schema/member.schema';
 export * from './schema/schedule-slot.schema';
+export * from './schema/itinerary.schema';
+export * from './schema/degree.schema';

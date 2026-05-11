@@ -1,6 +1,9 @@
 import { createRoute } from '@hono/zod-openapi';
-import { z } from 'zod';
-import { UpdateUserSchema, UserSchema } from '@tfg-horarios/shared';
+import {
+  SearchUserQuerySchema,
+  UpdateUserSchema,
+  UserSchema,
+} from '@tfg-horarios/shared';
 
 export const getMeRoute = createRoute({
   method: 'get',
@@ -38,9 +41,7 @@ export const getUserByEmailRoute = createRoute({
   method: 'get',
   path: '/users/search',
   request: {
-    query: z.object({
-      email: z.email({ message: 'Invalid email' }),
-    }),
+    query: SearchUserQuerySchema,
   },
   responses: {
     200: {

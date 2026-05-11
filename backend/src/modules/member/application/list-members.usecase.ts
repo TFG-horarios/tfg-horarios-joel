@@ -4,9 +4,7 @@ import { ForbiddenError } from '@/core/errors/app.error';
 import { MemberMapper } from './member.mapper';
 
 export class ListMembersUseCase {
-  constructor(
-    private readonly memberRepository: IMemberRepository
-  ) {}
+  constructor(private readonly memberRepository: IMemberRepository) {}
 
   async execute(
     organizationId: string,
@@ -20,9 +18,7 @@ export class ListMembersUseCase {
       throw new ForbiddenError('No perteneces a esta organización');
     }
     const members =
-      await this.memberRepository.findByOrganizationId(
-        organizationId
-      );
+      await this.memberRepository.findByOrganizationId(organizationId);
     return MemberMapper.toDTOList(members);
   }
 }

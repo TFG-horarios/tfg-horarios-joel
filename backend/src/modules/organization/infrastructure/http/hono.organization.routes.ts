@@ -2,6 +2,7 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   CreateOrganizationSchema,
+  OrganizationIdParamSchema,
   OrganizationSchema,
 } from '@tfg-horarios/shared';
 
@@ -44,9 +45,7 @@ export const deleteOrgRoute = createRoute({
   method: 'delete',
   path: '/organizations/{id}',
   request: {
-    params: z.object({
-      id: z.uuid({ message: 'Invalid organization ID' }),
-    }),
+    params: OrganizationIdParamSchema,
   },
   responses: {
     204: {

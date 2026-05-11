@@ -36,5 +36,5 @@ export const classroom = pgTable(
   ]
 );
 
-export type Classroom = typeof classroom.$inferSelect;
-export type NewClassroom = typeof classroom.$inferInsert;
+export type DrizzleClassroom = typeof classroom.$inferSelect;
+export type DrizzleNewClassroom = typeof classroom.$inferInsert;

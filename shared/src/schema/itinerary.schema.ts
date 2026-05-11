@@ -20,7 +20,7 @@ export const ItinerarySchema = z
   })
   .openapi('Itinerary');
 
-export const CreateItineraryParamsSchema = z.object({
+export const CreateAndListItineraryParamsSchema = z.object({
   organizationId: z.uuid().openapi({
     example: '123e4567-e89b-12d3-a456-426614174001',
   }),
@@ -29,7 +29,19 @@ export const CreateItineraryParamsSchema = z.object({
   }),
 });
 
-export const CreateItineraryBodySchema = z
+export const GetAndDeleteAndUpdateItineraryParamSchema = z.object({
+  organizationId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
+  degreeId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
+  itineraryId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+});
+
+export const CreateAndUpdateItineraryBodySchema = z
   .object({
     name: z
       .string()
@@ -37,10 +49,15 @@ export const CreateItineraryBodySchema = z
       .max(100)
       .openapi({ example: 'Software Engineering' }),
   })
-  .openapi('CreateItinerary');
+  .openapi('CreateAndUpdateItinerary');
 
 export type ItineraryDTO = z.infer<typeof ItinerarySchema>;
-export type CreateItineraryParamsDTO = z.infer<
-  typeof CreateItineraryParamsSchema
+export type CreateAndListItineraryParamsDTO = z.infer<
+  typeof CreateAndListItineraryParamsSchema
 >;
-export type CreateItineraryDTO = z.infer<typeof CreateItineraryBodySchema>;
+export type CreateAndUpdateItineraryDTO = z.infer<
+  typeof CreateAndUpdateItineraryBodySchema
+>;
+export type GetAndDeleteAndUpdateItineraryParamDTO = z.infer<
+  typeof GetAndDeleteAndUpdateItineraryParamSchema
+>;
