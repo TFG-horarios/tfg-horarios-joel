@@ -2,15 +2,15 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   DegreeSchema,
-  CreateAndListDegreeParamsSchema,
-  GetDeleteAndUpdateDegreeIdParamSchema,
-  CreateAndUpdateDegreeBodySchema,
+  DegreeBaseParamSchema,
+  DegreeIdParamSchema,
+  SaveDegreeBodySchema,
 } from '@tfg-horarios/shared';
 
 export const listDegreesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees',
-  request: { params: CreateAndListDegreeParamsSchema },
+  request: { params: DegreeBaseParamSchema },
   responses: {
     200: {
       description: 'Listado de grados',
@@ -21,8 +21,8 @@ export const listDegreesRoute = createRoute({
 
 export const getDegreeRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/degrees/{degreeId}',
-  request: { params: GetDeleteAndUpdateDegreeIdParamSchema },
+  path: '/organizations/{organizationId}/degrees/{id}',
+  request: { params: DegreeIdParamSchema },
   responses: {
     200: {
       description: 'Detalle del grado',
@@ -36,10 +36,10 @@ export const createDegreeRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees',
   request: {
-    params: CreateAndListDegreeParamsSchema,
+    params: DegreeBaseParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateDegreeBodySchema },
+        'application/json': { schema: SaveDegreeBodySchema },
       },
     },
   },
@@ -55,11 +55,11 @@ export const bulkCreateDegreesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/bulk',
   request: {
-    params: CreateAndListDegreeParamsSchema,
+    params: DegreeBaseParamSchema,
     body: {
       content: {
         'application/json': {
-          schema: z.array(CreateAndUpdateDegreeBodySchema),
+          schema: z.array(SaveDegreeBodySchema),
         },
       },
     },
@@ -74,12 +74,12 @@ export const bulkCreateDegreesRoute = createRoute({
 
 export const updateDegreeRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/degrees/{degreeId}',
+  path: '/organizations/{organizationId}/degrees/{id}',
   request: {
-    params: GetDeleteAndUpdateDegreeIdParamSchema,
+    params: DegreeIdParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateDegreeBodySchema },
+        'application/json': { schema: SaveDegreeBodySchema },
       },
     },
   },
@@ -93,7 +93,7 @@ export const updateDegreeRoute = createRoute({
 
 export const deleteDegreeRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/degrees/{degreeId}',
-  request: { params: GetDeleteAndUpdateDegreeIdParamSchema },
+  path: '/organizations/{organizationId}/degrees/{id}',
+  request: { params: DegreeIdParamSchema },
   responses: { 204: { description: 'Degree deleted' } },
 });

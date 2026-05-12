@@ -1,0 +1,87 @@
+import { eq, and, isNull } from 'drizzle-orm';
+import type { DbConnection } from '@/core/db/connection';
+import { subjectsTable, type DrizzleSubject } from './drizzle.subject.schema';
+import type { ISubjectRepository } from '../../domain/subject.repository';
+import { Subject, type Shift } from '../../domain/subject.entity';
+
+export class DrizzleSubjectRepository implements ISubjectRepository {
+  constructor(private readonly database: DbConnection) {}
+
+  private mapToDomain(row: DrizzleSubject): Subject {
+    return Subject.reconstitute({
+      id: row.id,
+      organizationId: row.organizationId,
+      degreeId: row.degreeId,
+      itineraryId: row.itineraryId,
+      name: row.name,
+      code: row.code,
+      availableShifts: row.availableShifts as Shift[],
+      numberOfStudents: row.numberOfStudents,
+      courseYear: row.courseYear,
+      period: row.period,
+      weeklyHours: row.weeklyHours,
+      isCommon: row.isCommon,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    });
+  }
+
+  async findById(id: string): Promise<Subject | null> {
+    const rows = await this.database
+      .select()
+      .from(subjectsTable)
+      .where(and(eq(subjectsTable.id, id), isNull(subjectsTable.deletedAt)))
+      .limit(1);
+    return rows[0] ? this.mapToDomain(rows[0]) : null;
+  }
+
+  async findAll(organizationId: string): Promise<Subject[]> {
+    const conditions = [
+      eq(subjectsTable.organizationId, organizationId),
+      isNull(subjectsTable.deletedAt),
+    ];
+
+    const rows = await this.database
+      .select()
+      .from(subjectsTable)
+      .where(and(...conditions));
+    return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async create(subject: Subject): Promise<void> {
+    await this.database.insert(subjectsTable).values(subject);
+  }
+
+  async createMany(subjects: Subject[]): Promise<void> {
+    if (subjects.length === 0) return;
+    await this.database.transaction(async (tx) => {
+      await tx.insert(subjectsTable).values(subjects);
+    });
+  }
+
+  async update(subject: Subject): Promise<void> {
+    await this.database
+      .update(subjectsTable)
+      .set({
+        name: subject.name,
+        code: subject.code,
+        itineraryId: subject.itineraryId,
+        availableShifts: subject.availableShifts,
+        numberOfStudents: subject.numberOfStudents,
+        courseYear: subject.courseYear,
+        period: subject.period,
+        weeklyHours: subject.weeklyHours,
+        isCommon: subject.isCommon,
+        updatedAt: new Date(),
+      })
+      .where(eq(subjectsTable.id, subject.id));
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.database
+      .update(subjectsTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(subjectsTable.id, id));
+  }
+}

@@ -1,7 +1,4 @@
-import type {
-  ClassroomDTO,
-  CreateAndUpdateClassroomDTO,
-} from '@tfg-horarios/shared';
+import type { ClassroomDTO, SaveClassroomDTO } from '@tfg-horarios/shared';
 import type { IClassroomRepository } from '../domain/classroom.repository';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
@@ -18,7 +15,7 @@ export class UpdateClassroomUseCase {
     organizationId: string,
     classroomId: string,
     requesterUserId: string,
-    dto: CreateAndUpdateClassroomDTO
+    dto: SaveClassroomDTO
   ): Promise<ClassroomDTO> {
     const requester = await this.memberRepository.findByUserAndOrg(
       requesterUserId,

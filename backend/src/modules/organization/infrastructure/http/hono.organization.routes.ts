@@ -1,7 +1,7 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
-  CreateOrganizationSchema,
+  SaveOrganizationBodySchema,
   OrganizationIdParamSchema,
   OrganizationSchema,
 } from '@tfg-horarios/shared';
@@ -12,7 +12,7 @@ export const createOrgRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: CreateOrganizationSchema },
+        'application/json': { schema: SaveOrganizationBodySchema },
       },
     },
   },
@@ -38,6 +38,24 @@ export const listOrgRoute = createRoute({
       },
     },
     400: { description: 'Error' },
+  },
+});
+
+export const updateOrgRoute = createRoute({
+  method: 'patch',
+  path: '/organizations/{id}',
+  request: {
+    params: OrganizationIdParamSchema,
+    body: {
+      content: { 'application/json': { schema: SaveOrganizationBodySchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Organization updated successfully',
+      content: { 'application/json': { schema: OrganizationSchema } },
+    },
+    404: { description: 'Organization not found' },
   },
 });
 

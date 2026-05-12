@@ -50,6 +50,35 @@ export class Organization {
     return new Organization(props);
   }
 
+  public update(
+    props: Omit<OrganizationProps, 'id' | 'createdAt' | 'updatedAt'>
+  ): void {
+    if (props.name.length < 2) {
+      throw new ValidationError(
+        'Organization name must be at least 2 characters long'
+      );
+    }
+    if (props.slotDurationMinutes <= 0) {
+      throw new ValidationError('Slot duration must be greater than 0');
+    }
+
+    if (props.morningStart >= props.morningEnd) {
+      throw new ValidationError('Morning start time must be before end time');
+    }
+    if (props.afternoonStart >= props.afternoonEnd) {
+      throw new ValidationError('Afternoon start time must be before end time');
+    }
+
+    this.props.name = props.name;
+    this.props.periodType = props.periodType;
+    this.props.morningStart = props.morningStart;
+    this.props.morningEnd = props.morningEnd;
+    this.props.afternoonStart = props.afternoonStart;
+    this.props.afternoonEnd = props.afternoonEnd;
+    this.props.slotDurationMinutes = props.slotDurationMinutes;
+    this.props.updatedAt = new Date();
+  }
+
   get id(): string {
     return this.props.id;
   }

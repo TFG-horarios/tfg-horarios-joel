@@ -13,14 +13,11 @@ export class RemoveMemberUseCase {
   async execute(
     organizationId: string,
     requesterUserId: string,
-    memberUserId: string
+    memberId: string
   ): Promise<void> {
-    const member = await this.memberRepository.findByUserAndOrg(
-      memberUserId,
-      organizationId
-    );
-    if (!member) {
-      throw new NotFoundError('Member', memberUserId);
+    const member = await this.memberRepository.findById(memberId);
+    if (!member || member.organizationId !== organizationId) {
+      throw new NotFoundError('Member', memberId);
     }
 
     const isSelfRemoval = requesterUserId === member.userId;

@@ -1,7 +1,4 @@
-import type {
-  ClassroomDTO,
-  CreateAndUpdateClassroomDTO,
-} from '@tfg-horarios/shared';
+import type { ClassroomDTO, SaveClassroomDTO } from '@tfg-horarios/shared';
 import { Classroom } from '../domain/classroom.entity';
 import type { IClassroomRepository } from '../domain/classroom.repository';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
@@ -18,7 +15,7 @@ export class BulkCreateClassroomsUseCase {
   async execute(
     organizationId: string,
     requesterUserId: string,
-    dtos: CreateAndUpdateClassroomDTO[]
+    dtos: SaveClassroomDTO[]
   ): Promise<ClassroomDTO[]> {
     if (!dtos || dtos.length === 0) {
       throw new ValidationError('No classroom data provided for bulk creation');

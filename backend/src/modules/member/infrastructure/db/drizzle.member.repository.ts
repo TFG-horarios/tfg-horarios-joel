@@ -23,6 +23,15 @@ export class DrizzleMemberRepository implements IMemberRepository {
     });
   }
 
+  async findById(id: string): Promise<Member | null> {
+    const result = await this.database
+      .select()
+      .from(membersTable)
+      .where(eq(membersTable.id, id))
+      .limit(1);
+    return result[0] ? this.mapToDomain(result[0]) : null;
+  }
+
   async findByUserAndOrg(
     userId: string,
     organizationId: string

@@ -7,6 +7,7 @@ export interface MemberWithUserDetails {
 }
 
 export interface IMemberRepository {
+  findById(id: string): Promise<Member | null>;
   findByUserAndOrg(
     userId: string,
     organizationId: string

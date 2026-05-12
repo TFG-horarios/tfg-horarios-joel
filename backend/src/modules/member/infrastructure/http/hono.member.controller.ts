@@ -45,25 +45,25 @@ export class HonoMemberController {
   updateRole: RouteHandler<typeof updateMemberRoleRoute, AppEnv> = async (
     c
   ) => {
-    const { organizationId, userId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const { role } = c.req.valid('json');
     const requesterUserId = c.get('userId');
     await this.editMemberRoleUseCase.execute(
       organizationId,
       requesterUserId,
-      userId,
+      id,
       role
     );
     return c.json({ message: 'Role updated successfully' }, 200);
   };
 
   remove: RouteHandler<typeof removeMemberRoute, AppEnv> = async (c) => {
-    const { organizationId, userId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const requesterUserId = c.get('userId');
     await this.removeMemberUseCase.execute(
       organizationId,
       requesterUserId,
-      userId
+      id
     );
     return c.body(null, 204);
   };

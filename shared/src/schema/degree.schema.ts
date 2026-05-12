@@ -18,36 +18,28 @@ export const DegreeSchema = z
   })
   .openapi('Degree');
 
-export const CreateAndListDegreeParamsSchema = z.object({
-  organizationId: z.uuid().openapi({
-    example: '123e4567-e89b-12d3-a456-426614174001',
-  }),
-});
-
-export const GetDeleteAndUpdateDegreeIdParamSchema = z.object({
+export const DegreeBaseParamSchema = z.object({
   organizationId: z
     .uuid()
     .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
-  degreeId: z
-    .uuid()
-    .openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
-export const CreateAndUpdateDegreeBodySchema = z
+export const DegreeIdParamSchema = DegreeBaseParamSchema.extend({
+  id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+});
+
+export const SaveDegreeBodySchema = z
   .object({
     name: z
       .string()
       .min(3)
       .max(100)
-      .openapi({ example: 'Computing Engineering' }),
+      .openapi({ example: 'Computer Engineering' }),
     code: z.string().min(2).max(10).openapi({ example: 'IB1' }),
   })
-  .openapi('CreateAndUpdateDegree');
+  .openapi('SaveDegree');
 
 export type DegreeDTO = z.infer<typeof DegreeSchema>;
-export type CreateAndListDegreeParamsDTO = z.infer<
-  typeof CreateAndListDegreeParamsSchema
->;
-export type CreateAndUpdateDegreeDTO = z.infer<
-  typeof CreateAndUpdateDegreeBodySchema
->;
+export type DegreeBaseParamDTO = z.infer<typeof DegreeBaseParamSchema>;
+export type DegreeIdParamDTO = z.infer<typeof DegreeIdParamSchema>;
+export type SaveDegreeDTO = z.infer<typeof SaveDegreeBodySchema>;

@@ -2,15 +2,15 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   ItinerarySchema,
-  CreateAndListItineraryParamsSchema,
-  CreateAndUpdateItineraryBodySchema,
-  GetAndDeleteAndUpdateItineraryParamSchema,
+  ItineraryBaseParamSchema,
+  SaveItineraryBodySchema,
+  ItineraryIdParamSchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries',
-  request: { params: CreateAndListItineraryParamsSchema },
+  request: { params: ItineraryBaseParamSchema },
   responses: {
     200: {
       description: 'Itinerary list',
@@ -21,8 +21,8 @@ export const listItinerariesRoute = createRoute({
 
 export const getItineraryRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{itineraryId}',
-  request: { params: GetAndDeleteAndUpdateItineraryParamSchema },
+  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
+  request: { params: ItineraryIdParamSchema },
   responses: {
     200: {
       description: 'Itinerary details',
@@ -36,10 +36,10 @@ export const createItineraryRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries',
   request: {
-    params: CreateAndListItineraryParamsSchema,
+    params: ItineraryBaseParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateItineraryBodySchema },
+        'application/json': { schema: SaveItineraryBodySchema },
       },
     },
   },
@@ -55,11 +55,11 @@ export const bulkCreateItinerariesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/bulk',
   request: {
-    params: CreateAndListItineraryParamsSchema,
+    params: ItineraryBaseParamSchema,
     body: {
       content: {
         'application/json': {
-          schema: z.array(CreateAndUpdateItineraryBodySchema),
+          schema: z.array(SaveItineraryBodySchema),
         },
       },
     },
@@ -74,12 +74,12 @@ export const bulkCreateItinerariesRoute = createRoute({
 
 export const updateItineraryRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{itineraryId}',
+  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
   request: {
-    params: GetAndDeleteAndUpdateItineraryParamSchema,
+    params: ItineraryIdParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateItineraryBodySchema },
+        'application/json': { schema: SaveItineraryBodySchema },
       },
     },
   },
@@ -93,7 +93,7 @@ export const updateItineraryRoute = createRoute({
 
 export const deleteItineraryRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{itineraryId}',
-  request: { params: GetAndDeleteAndUpdateItineraryParamSchema },
+  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
+  request: { params: ItineraryIdParamSchema },
   responses: { 204: { description: 'Itinerary deleted' } },
 });

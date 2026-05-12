@@ -1,7 +1,7 @@
 import type { AppEnv } from '@/core/types/app-types';
 import { GetUserByEmailUseCase } from '../../application/get-by-email.usecase';
 import { GetUserByIdUseCase } from '../../application/get-by-id.usecase';
-import type { UpdateUserUseCase } from '../../application/update.usecase';
+import type { UpdateUserUseCase } from '../../application/update-user.usecase';
 import type { RouteHandler } from '@hono/zod-openapi';
 import type {
   getUserByEmailRoute,

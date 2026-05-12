@@ -26,11 +26,11 @@ export class HonoClassroomController {
   ) {}
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
-    const { organizationId, classroomId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const requesterUserId = c.get('userId');
     const classroom = await this.getClassroomUseCase.execute(
       organizationId,
-      classroomId,
+      id,
       requesterUserId
     );
     return c.json(classroom, 200);
@@ -73,12 +73,12 @@ export class HonoClassroomController {
   };
 
   update: RouteHandler<typeof updateClassroomRoute, AppEnv> = async (c) => {
-    const { organizationId, classroomId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const body = c.req.valid('json');
     const requesterUserId = c.get('userId');
     const updatedClassroom = await this.updateClassroomUseCase.execute(
       organizationId,
-      classroomId,
+      id,
       requesterUserId,
       body
     );
@@ -86,11 +86,11 @@ export class HonoClassroomController {
   };
 
   delete: RouteHandler<typeof deleteClassroomRoute, AppEnv> = async (c) => {
-    const { organizationId, classroomId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const requesterUserId = c.get('userId');
     await this.deleteClassroomUseCase.execute(
       organizationId,
-      classroomId,
+      id,
       requesterUserId
     );
     return c.json({ message: 'Classroom deleted successfully' });

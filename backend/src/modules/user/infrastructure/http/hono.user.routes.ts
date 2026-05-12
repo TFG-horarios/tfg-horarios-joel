@@ -1,7 +1,7 @@
 import { createRoute } from '@hono/zod-openapi';
 import {
   SearchUserQuerySchema,
-  UpdateUserSchema,
+  SaveUserBodySchema,
   UserSchema,
 } from '@tfg-horarios/shared';
 
@@ -23,7 +23,7 @@ export const updateMeRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: UpdateUserSchema },
+        'application/json': { schema: SaveUserBodySchema },
       },
     },
   },

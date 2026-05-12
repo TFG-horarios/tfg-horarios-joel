@@ -2,17 +2,17 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   CreateMemberBodySchema,
-  CreateAndListMemberParamsSchema,
+  MemberBaseParamSchema,
   MemberSchema,
   UpdateMemberRoleBodySchema,
-  UpdateRoleAndRemoveMemberParamsSchema,
+  MemberIdParamSchema,
 } from '@tfg-horarios/shared';
 
 export const listMembersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/members',
   request: {
-    params: CreateAndListMemberParamsSchema,
+    params: MemberBaseParamSchema,
   },
   responses: {
     200: {
@@ -28,7 +28,7 @@ export const addMemberRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/members',
   request: {
-    params: CreateAndListMemberParamsSchema,
+    params: MemberBaseParamSchema,
     body: {
       content: { 'application/json': { schema: CreateMemberBodySchema } },
     },
@@ -47,9 +47,9 @@ export const addMemberRoute = createRoute({
 
 export const updateMemberRoleRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/members/{userId}',
+  path: '/organizations/{organizationId}/members/{id}',
   request: {
-    params: UpdateRoleAndRemoveMemberParamsSchema,
+    params: MemberIdParamSchema,
     body: {
       content: {
         'application/json': { schema: UpdateMemberRoleBodySchema },
@@ -74,9 +74,9 @@ export const updateMemberRoleRoute = createRoute({
 
 export const removeMemberRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/members/{userId}',
+  path: '/organizations/{organizationId}/members/{id}',
   request: {
-    params: UpdateRoleAndRemoveMemberParamsSchema,
+    params: MemberIdParamSchema,
   },
   responses: {
     204: {

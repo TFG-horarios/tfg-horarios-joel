@@ -1,4 +1,4 @@
-import type { DegreeDTO, CreateAndUpdateDegreeDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import { Degree } from '../domain/degree.entity';
 import type { IDegreeRepository } from '../domain/degree.repository';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
@@ -15,7 +15,7 @@ export class CreateDegreeUseCase {
   async execute(
     organizationId: string,
     requesterUserId: string,
-    dto: CreateAndUpdateDegreeDTO
+    dto: SaveDegreeDTO
   ): Promise<DegreeDTO> {
     const requester = await this.memberRepository.findByUserAndOrg(
       requesterUserId,

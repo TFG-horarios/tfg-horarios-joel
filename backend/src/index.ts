@@ -14,6 +14,8 @@ import { createAuthMiddleware } from './core/middlewares/auth.middleware';
 import { createDegreeModule } from './modules/degree/degree.module';
 import { createClassroomModule } from './modules/classroom/classroom.module';
 import { createItineraryModule } from './modules/itinerary/itinerary.module';
+import { createSubjectModule } from './modules/subject/subject.module';
+import { createSubjectGroupModule } from './modules/subject-group/subject-group.module';
 
 const api = new OpenAPIHono();
 const protectedApi = new OpenAPIHono();
@@ -46,6 +48,8 @@ protectedApi.route('/api', createMemberModule(db, getUserByEmailUseCase));
 protectedApi.route('/api', createDegreeModule(db));
 protectedApi.route('/api', createClassroomModule(db));
 protectedApi.route('/api', createItineraryModule(db));
+protectedApi.route('/api', createSubjectModule(db));
+protectedApi.route('/api', createSubjectGroupModule(db));
 
 api.route('/api', protectedApi);
 

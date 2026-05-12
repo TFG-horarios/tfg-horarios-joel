@@ -1,7 +1,4 @@
-import type {
-  ClassroomDTO,
-  CreateAndUpdateClassroomDTO,
-} from '@tfg-horarios/shared';
+import type { ClassroomDTO, SaveClassroomDTO } from '@tfg-horarios/shared';
 import { Classroom } from '../domain/classroom.entity';
 import type { IClassroomRepository } from '../domain/classroom.repository';
 import { ClassroomMapper } from './classroom.mapper';
@@ -18,7 +15,7 @@ export class CreateClassroomUseCase {
   async execute(
     organizationId: string,
     requesterUserId: string,
-    dto: CreateAndUpdateClassroomDTO
+    dto: SaveClassroomDTO
   ): Promise<ClassroomDTO> {
     const requester = await this.memberRepository.findByUserAndOrg(
       requesterUserId,

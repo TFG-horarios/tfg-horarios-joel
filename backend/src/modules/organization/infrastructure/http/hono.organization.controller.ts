@@ -6,13 +6,16 @@ import {
   createOrgRoute,
   listOrgRoute,
   deleteOrgRoute,
+  updateOrgRoute,
 } from './hono.organization.routes';
 import type { AppEnv } from '@/core/types/app-types';
+import type { UpdateOrganizationUseCase } from '../../application/update-organization.usecase';
 
 export class HonoOrganizationController {
   constructor(
     private readonly createOrganizationUseCase: CreateOrganizationUseCase,
     private readonly listOrganizationsUseCase: ListOrganizationsUseCase,
+    private readonly updateOrganizationUseCase: UpdateOrganizationUseCase,
     private readonly deleteOrganizationUseCase: DeleteOrganizationUseCase
   ) {}
 
@@ -29,10 +32,22 @@ export class HonoOrganizationController {
     return c.json(result, 200);
   };
 
-  delete: RouteHandler<typeof deleteOrgRoute, AppEnv> = async (c) => {
-    const organizationId = c.req.param('id');
+  update: RouteHandler<typeof updateOrgRoute, AppEnv> = async (c) => {
+    const { id } = c.req.valid('param');
+    const body = c.req.valid('json');
     const userId = c.get('userId');
-    await this.deleteOrganizationUseCase.execute(organizationId, userId);
+    const result = await this.updateOrganizationUseCase.execute(
+      id,
+      userId,
+      body
+    );
+    return c.json(result, 200);
+  };
+
+  delete: RouteHandler<typeof deleteOrgRoute, AppEnv> = async (c) => {
+    const { id } = c.req.valid('param');
+    const userId = c.get('userId');
+    await this.deleteOrganizationUseCase.execute(id, userId);
     return c.body(null, 204);
   };
 }

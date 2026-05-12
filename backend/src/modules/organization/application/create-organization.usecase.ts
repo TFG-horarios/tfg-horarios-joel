@@ -2,7 +2,7 @@ import { type IOrganizationRepository } from '../domain/organization.repository'
 import { Organization } from '../domain/organization.entity';
 import { Member } from '@/modules/member/domain/member.entity';
 import {
-  type CreateOrganizationDTO,
+  type SaveOrganizationDTO,
   type OrganizationDTO,
 } from '@tfg-horarios/shared';
 import { OrganizationMapper } from './organization.mapper';
@@ -13,7 +13,7 @@ export class CreateOrganizationUseCase {
   ) {}
 
   async execute(
-    dto: CreateOrganizationDTO,
+    dto: SaveOrganizationDTO,
     userId: string
   ): Promise<OrganizationDTO> {
     const organization = Organization.create({

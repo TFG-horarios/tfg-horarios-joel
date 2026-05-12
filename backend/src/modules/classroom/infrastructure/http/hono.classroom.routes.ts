@@ -2,15 +2,15 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   ClassroomSchema,
-  CreateAndUpdateClassroomBodySchema,
-  CreateAndListClassroomParamsSchema,
-  DeleteGetAndUpdateClassroomParamsSchema,
+  SaveClassroomBodySchema,
+  ClassroomBaseParamSchema,
+  ClassroomIdParamSchema,
 } from '@tfg-horarios/shared';
 
 export const listClassroomsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms',
-  request: { params: CreateAndListClassroomParamsSchema },
+  request: { params: ClassroomBaseParamSchema },
   responses: {
     200: {
       description: 'Classroom list',
@@ -21,8 +21,8 @@ export const listClassroomsRoute = createRoute({
 
 export const getClassroomRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/classrooms/{classroomId}',
-  request: { params: DeleteGetAndUpdateClassroomParamsSchema },
+  path: '/organizations/{organizationId}/classrooms/{id}',
+  request: { params: ClassroomIdParamSchema },
   responses: {
     200: {
       description: 'Classroom found',
@@ -36,10 +36,10 @@ export const createClassroomRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/classrooms',
   request: {
-    params: CreateAndListClassroomParamsSchema,
+    params: ClassroomBaseParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateClassroomBodySchema },
+        'application/json': { schema: SaveClassroomBodySchema },
       },
     },
   },
@@ -55,11 +55,11 @@ export const createManyClassroomsRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/classrooms/batch',
   request: {
-    params: CreateAndListClassroomParamsSchema,
+    params: ClassroomBaseParamSchema,
     body: {
       content: {
         'application/json': {
-          schema: z.array(CreateAndUpdateClassroomBodySchema),
+          schema: z.array(SaveClassroomBodySchema),
         },
       },
     },
@@ -74,12 +74,12 @@ export const createManyClassroomsRoute = createRoute({
 
 export const updateClassroomRoute = createRoute({
   method: 'put',
-  path: '/organizations/{organizationId}/classrooms/{classroomId}',
+  path: '/organizations/{organizationId}/classrooms/{id}',
   request: {
-    params: DeleteGetAndUpdateClassroomParamsSchema,
+    params: ClassroomIdParamSchema,
     body: {
       content: {
-        'application/json': { schema: CreateAndUpdateClassroomBodySchema },
+        'application/json': { schema: SaveClassroomBodySchema },
       },
     },
   },
@@ -93,8 +93,8 @@ export const updateClassroomRoute = createRoute({
 
 export const deleteClassroomRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/classrooms/{classroomId}',
-  request: { params: DeleteGetAndUpdateClassroomParamsSchema },
+  path: '/organizations/{organizationId}/classrooms/{id}',
+  request: { params: ClassroomIdParamSchema },
   responses: {
     204: { description: 'Classroom deleted' },
   },

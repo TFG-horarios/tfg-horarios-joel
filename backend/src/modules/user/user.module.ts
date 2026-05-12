@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { HonoUserController } from './infrastructure/http/hono.user.controller';
 import { DrizzleUserRepository } from './infrastructure/db/drizzle.user.repository';
 import type { DbConnection } from '@/core/db/connection';
-import { UpdateUserUseCase } from './application/update.usecase';
+import { UpdateUserUseCase } from './application/update-user.usecase';
 import { GetUserByEmailUseCase } from './application/get-by-email.usecase';
 import { GetUserByIdUseCase } from './application/get-by-id.usecase';
 import type { AppEnv } from '@/core/types/app-types';

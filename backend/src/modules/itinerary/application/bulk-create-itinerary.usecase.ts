@@ -1,7 +1,4 @@
-import type {
-  ItineraryDTO,
-  CreateAndUpdateItineraryDTO,
-} from '@tfg-horarios/shared';
+import type { ItineraryDTO, SaveItineraryDTO } from '@tfg-horarios/shared';
 import { Itinerary } from '../domain/itinerary.entity';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
@@ -19,7 +16,7 @@ export class BulkCreateItinerariesUseCase {
     organizationId: string,
     degreeId: string,
     requesterUserId: string,
-    dtos: CreateAndUpdateItineraryDTO[]
+    dtos: SaveItineraryDTO[]
   ): Promise<ItineraryDTO[]> {
     if (!dtos || dtos.length === 0)
       throw new ValidationError(

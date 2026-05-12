@@ -35,10 +35,10 @@ export class HonoDegreeController {
   };
 
   get: RouteHandler<typeof getDegreeRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const degree = await this.getDegreeUseCase.execute(
       organizationId,
-      degreeId,
+      id,
       c.get('userId')
     );
     return c.json(degree, 200);
@@ -69,11 +69,11 @@ export class HonoDegreeController {
   };
 
   update: RouteHandler<typeof updateDegreeRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const body = c.req.valid('json');
     const updatedDegree = await this.updateDegreeUseCase.execute(
       organizationId,
-      degreeId,
+      id,
       c.get('userId'),
       body
     );
@@ -81,12 +81,8 @@ export class HonoDegreeController {
   };
 
   delete: RouteHandler<typeof deleteDegreeRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId } = c.req.valid('param');
-    await this.deleteDegreeUseCase.execute(
-      organizationId,
-      degreeId,
-      c.get('userId')
-    );
+    const { organizationId, id } = c.req.valid('param');
+    await this.deleteDegreeUseCase.execute(organizationId, id, c.get('userId'));
     return c.body(null, 204);
   };
 }

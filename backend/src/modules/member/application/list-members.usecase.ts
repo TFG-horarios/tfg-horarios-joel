@@ -15,7 +15,7 @@ export class ListMembersUseCase {
       organizationId
     );
     if (!requester) {
-      throw new ForbiddenError('No perteneces a esta organización');
+      throw new ForbiddenError('You do not belong to this organization.');
     }
     const members =
       await this.memberRepository.findByOrganizationId(organizationId);

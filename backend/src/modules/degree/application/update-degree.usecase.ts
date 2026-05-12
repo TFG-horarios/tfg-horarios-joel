@@ -1,4 +1,4 @@
-import type { DegreeDTO, CreateAndUpdateDegreeDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
@@ -15,7 +15,7 @@ export class UpdateDegreeUseCase {
     organizationId: string,
     degreeId: string,
     requesterUserId: string,
-    dto: CreateAndUpdateDegreeDTO
+    dto: SaveDegreeDTO
   ): Promise<DegreeDTO> {
     const requester = await this.memberRepository.findByUserAndOrg(
       requesterUserId,
