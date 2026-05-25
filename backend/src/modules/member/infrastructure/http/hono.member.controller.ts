@@ -60,11 +60,7 @@ export class HonoMemberController {
   remove: RouteHandler<typeof removeMemberRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     const requesterUserId = c.get('userId');
-    await this.removeMemberUseCase.execute(
-      organizationId,
-      requesterUserId,
-      id
-    );
+    await this.removeMemberUseCase.execute(organizationId, requesterUserId, id);
     return c.body(null, 204);
   };
 }

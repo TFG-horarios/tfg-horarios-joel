@@ -1,116 +1,98 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { getTranslations } from 'next-intl/server';
 import {
-  OrganizationSchema,
-  CreateOrganizationSchema,
-  type CreateOrganizationDTO,
+  SaveOrganizationBodySchema,
+  type SaveOrganizationDTO,
   type OrganizationDTO,
 } from '@tfg-horarios/shared';
-import type { Organization } from '@/types/organization';
-import { api } from '@/lib/api';
-import { getFieldErrors } from '@/lib/zod';
-import { parseJsonResponse } from '@/lib/api-utils';
+import { getServerClient } from '@/lib/api/server';
 
-const apiClient = api as unknown as {
-  api: {
-    organizations: {
-      $get: () => Promise<Response>;
-      $post: (params: { json: CreateOrganizationDTO }) => Promise<Response>;
-    };
-  };
-};
-
-export type OrganizationActionState = {
+export type ActionResponse<T = undefined> = {
   success: boolean;
-  message: string;
-  fieldErrors: Record<string, string[] | undefined>;
-  organization: Organization | null;
-};
-
-const initialState: OrganizationActionState = {
-  success: false,
-  message: '',
-  fieldErrors: {},
-  organization: null,
+  message?: string;
+  data?: T;
 };
 
 export async function createOrganization(
-  dto: CreateOrganizationDTO
+  dto: SaveOrganizationDTO
 ): Promise<OrganizationDTO> {
-  const response = await apiClient.api.organizations.$post({
+  const tErrors = await getTranslations('Common.errors');
+  const client = await getServerClient();
+  const response = await client.api.organizations.$post({ json: dto });
+
+  if (!response.ok) {
+    throw new Error(tErrors('server'));
+  }
+
+  return await response.json();
+}
+
+export async function updateOrganization(
+  organizationId: string,
+  dto: SaveOrganizationDTO
+): Promise<OrganizationDTO> {
+  const tErrors = await getTranslations('Common.errors');
+  const client = await getServerClient();
+  const response = await client.api.organizations[':id'].$patch({
+    param: { id: organizationId },
     json: dto,
   });
 
-  const payload = await parseJsonResponse(
-    response,
-    'Failed to create organization'
-  );
-
-  const parsed = OrganizationSchema.safeParse(payload);
-  if (!parsed.success) {
-    throw new Error('Invalid organization data');
+  if (!response.ok) {
+    throw new Error(tErrors('server'));
   }
 
-  return parsed.data;
+  return await response.json();
 }
 
-export async function fetchOrganizations(): Promise<OrganizationDTO[]> {
-  const response = await apiClient.api.organizations.$get();
+export async function removeOrganization(
+  organizationId: string
+): Promise<void> {
+  const tErrors = await getTranslations('Common.errors');
+  const client = await getServerClient();
+  const response = await client.api.organizations[':id'].$delete({
+    param: { id: organizationId },
+  });
 
-  if (response.status === 401) {
-    return [];
+  if (!response.ok) {
+    throw new Error(tErrors('server'));
   }
-
-  const payload = await parseJsonResponse(
-    response,
-    'Failed to fetch organizations'
-  );
-
-  const parsed = OrganizationSchema.array().safeParse(payload);
-  if (!parsed.success) {
-    throw new Error('Invalid organization data');
-  }
-
-  return parsed.data;
 }
 
 export async function createOrganizationAction(
-  _prevState: OrganizationActionState,
-  formData: FormData
-): Promise<OrganizationActionState> {
-  const raw = Object.fromEntries(formData);
-  const parsedInput = CreateOrganizationSchema.safeParse({
-    ...raw,
-    slotDurationMinutes: Number(raw.slotDurationMinutes),
-  });
+  dto: SaveOrganizationDTO
+): Promise<ActionResponse<OrganizationDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = SaveOrganizationBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return {
-      ...initialState,
-      message: 'Revisa los campos e intenta de nuevo.',
-      fieldErrors: getFieldErrors(parsedInput.error),
-    };
+    return { success: false, message: tErrors('validation') };
   }
 
   try {
-    const organization = await createOrganization(parsedInput.data);
+    const client = await getServerClient();
+
+    const response = await client.api.organizations.$post({
+      json: parsedInput.data,
+    });
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const organization = await response.json();
 
     revalidatePath('/organizations');
 
     return {
       success: true,
-      message: 'Organización creada exitosamente',
-      fieldErrors: {},
-      organization,
+      data: organization,
     };
   } catch (error) {
     return {
-      ...initialState,
-      message:
-        error instanceof Error
-          ? error.message
-          : 'No se pudo crear la organización',
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }
 }

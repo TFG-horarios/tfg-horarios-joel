@@ -32,14 +32,13 @@ export const createSubjectModule = (db: DbConnection) => {
     new DeleteSubjectUseCase(subjectRepository, memberRepository)
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(listSubjectsRoute, controller.list);
-  router.openapi(getSubjectRoute, controller.get);
-  router.openapi(createSubjectRoute, controller.create);
-  router.openapi(bulkCreateSubjectsRoute, controller.bulkCreate);
-  router.openapi(updateSubjectRoute, controller.update);
-  router.openapi(deleteSubjectRoute, controller.delete);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(listSubjectsRoute, controller.list)
+    .openapi(getSubjectRoute, controller.get)
+    .openapi(createSubjectRoute, controller.create)
+    .openapi(bulkCreateSubjectsRoute, controller.bulkCreate)
+    .openapi(updateSubjectRoute, controller.update)
+    .openapi(deleteSubjectRoute, controller.delete);
+  return routes;
 };

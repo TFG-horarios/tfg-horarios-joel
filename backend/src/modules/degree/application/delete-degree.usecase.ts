@@ -27,10 +27,12 @@ export class DeleteDegreeUseCase {
       );
     }
 
-    const degree = await this.degreeRepository.findById(degreeId);
-    if (!degree || degree.organizationId !== organizationId)
-      throw new NotFoundError('Degree', degreeId);
+    const degree = await this.degreeRepository.findById(
+      degreeId,
+      organizationId
+    );
+    if (!degree) throw new NotFoundError('Degree', degreeId);
 
-    await this.degreeRepository.delete(degreeId);
+    await this.degreeRepository.delete(degreeId, organizationId);
   }
 }

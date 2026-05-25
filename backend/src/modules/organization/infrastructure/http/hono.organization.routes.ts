@@ -27,6 +27,23 @@ export const createOrgRoute = createRoute({
   },
 });
 
+export const getOrgRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{id}',
+  request: {
+    params: OrganizationIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Organización obtenida exitosamente',
+      content: {
+        'application/json': { schema: OrganizationSchema },
+      },
+    },
+    404: { description: 'Organización no encontrada' },
+  },
+});
+
 export const listOrgRoute = createRoute({
   method: 'get',
   path: '/organizations',

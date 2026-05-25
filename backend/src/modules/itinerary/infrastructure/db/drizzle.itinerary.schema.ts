@@ -20,6 +20,7 @@ export const itinerariesTable = pgTable(
       .notNull()
       .references(() => degreesTable.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
+    code: text('code').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()
@@ -28,8 +29,8 @@ export const itinerariesTable = pgTable(
     deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    uniqueIndex('itinerary_name_degree_idx')
-      .on(table.degreeId, table.name)
+    uniqueIndex('itinerary_code_degree_idx')
+      .on(table.degreeId, table.code)
       .where(sql`deleted_at IS NULL`),
   ]
 );

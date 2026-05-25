@@ -13,7 +13,6 @@ export class UpdateItineraryUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     itineraryId: string,
     requesterUserId: string,
     dto: SaveItineraryDTO
@@ -31,16 +30,15 @@ export class UpdateItineraryUseCase {
       );
     }
 
-    const itinerary = await this.itineraryRepository.findById(itineraryId);
-    if (
-      !itinerary ||
-      itinerary.organizationId !== organizationId ||
-      itinerary.degreeId !== degreeId
-    ) {
+    const itinerary = await this.itineraryRepository.findById(
+      itineraryId,
+      organizationId
+    );
+    if (!itinerary) {
       throw new NotFoundError('Itinerary', itineraryId);
     }
 
-    itinerary.update(dto.name);
+    itinerary.update(dto.name, dto.code);
     await this.itineraryRepository.update(itinerary);
     return ItineraryMapper.toDTO(itinerary);
   }

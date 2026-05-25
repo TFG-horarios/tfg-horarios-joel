@@ -27,10 +27,15 @@ export const SubjectGroupBaseParamSchema = z.object({
   organizationId: z
     .uuid()
     .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
-  subjectId: z
-    .uuid()
-    .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
 });
+
+export const SubjectGroupCreateParamSchema = SubjectGroupBaseParamSchema.extend(
+  {
+    subjectId: z
+      .uuid()
+      .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
+  }
+);
 
 export const SubjectGroupIdParamSchema = SubjectGroupBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
@@ -52,6 +57,9 @@ export const SaveSubjectGroupBodySchema = z
 export type SubjectGroupDTO = z.infer<typeof SubjectGroupSchema>;
 export type SubjectGroupBaseParamDTO = z.infer<
   typeof SubjectGroupBaseParamSchema
+>;
+export type SubjectGroupCreateParamDTO = z.infer<
+  typeof SubjectGroupCreateParamSchema
 >;
 export type SubjectGroupIdParamDTO = z.infer<typeof SubjectGroupIdParamSchema>;
 export type SaveSubjectGroupDTO = z.infer<typeof SaveSubjectGroupBodySchema>;

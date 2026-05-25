@@ -29,9 +29,7 @@ export const MemberIdParamSchema = MemberBaseParamSchema.extend({
 
 export const CreateMemberBodySchema = z
   .object({
-    email: z
-      .email({ message: 'Invalid email format' })
-      .openapi({ example: 'john.doe@example.com' }),
+    email: z.email().openapi({ example: 'john.doe@example.com' }),
     role: z.enum(['admin', 'editor', 'viewer']).openapi({ example: 'editor' }),
   })
   .openapi('CreateMember');

@@ -18,9 +18,7 @@ export const SaveUserBodySchema = z
 
 export const SearchUserQuerySchema = z
   .object({
-    email: z
-      .email({ message: 'Invalid email' })
-      .openapi({ example: 'john.doe@example.com' }),
+    email: z.email().openapi({ example: 'john.doe@example.com' }),
   })
   .openapi('SearchUserQuery');
 

@@ -5,15 +5,18 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import {
   createOrgRoute,
   listOrgRoute,
+  getOrgRoute,
   deleteOrgRoute,
   updateOrgRoute,
 } from './hono.organization.routes';
 import type { AppEnv } from '@/core/types/app-types';
+import type { GetOrganizationUseCase } from '../../application/get-organization.usecase';
 import type { UpdateOrganizationUseCase } from '../../application/update-organization.usecase';
 
 export class HonoOrganizationController {
   constructor(
     private readonly createOrganizationUseCase: CreateOrganizationUseCase,
+    private readonly getOrganizationUseCase: GetOrganizationUseCase,
     private readonly listOrganizationsUseCase: ListOrganizationsUseCase,
     private readonly updateOrganizationUseCase: UpdateOrganizationUseCase,
     private readonly deleteOrganizationUseCase: DeleteOrganizationUseCase
@@ -24,6 +27,13 @@ export class HonoOrganizationController {
     const body = c.req.valid('json');
     const newOrg = await this.createOrganizationUseCase.execute(body, userId);
     return c.json(newOrg, 201);
+  };
+
+  get: RouteHandler<typeof getOrgRoute, AppEnv> = async (c) => {
+    const { id } = c.req.valid('param');
+    const userId = c.get('userId');
+    const org = await this.getOrganizationUseCase.execute(id, userId);
+    return c.json(org, 200);
   };
 
   list: RouteHandler<typeof listOrgRoute, AppEnv> = async (c) => {

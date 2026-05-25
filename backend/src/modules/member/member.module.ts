@@ -36,12 +36,11 @@ export const createMemberModule = (
     removeUseCase
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(addMemberRoute, controller.add);
-  router.openapi(listMembersRoute, controller.list);
-  router.openapi(updateMemberRoleRoute, controller.updateRole);
-  router.openapi(removeMemberRoute, controller.remove);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(addMemberRoute, controller.add)
+    .openapi(listMembersRoute, controller.list)
+    .openapi(updateMemberRoleRoute, controller.updateRole)
+    .openapi(removeMemberRoute, controller.remove);
+  return routes;
 };

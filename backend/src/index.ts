@@ -41,37 +41,27 @@ api.onError(globalErrorMiddleware);
 
 api.route('/api', createAuthModule(db, jwtService));
 
-protectedApi.use('/api/*', authMiddleware);
-protectedApi.route('/api', createOrganizationModule(db));
-protectedApi.route('/api', createUserModule(db, getUserByEmailUseCase));
-protectedApi.route('/api', createMemberModule(db, getUserByEmailUseCase));
-protectedApi.route('/api', createDegreeModule(db));
-protectedApi.route('/api', createClassroomModule(db));
-protectedApi.route('/api', createItineraryModule(db));
-protectedApi.route('/api', createSubjectModule(db));
-protectedApi.route('/api', createSubjectGroupModule(db));
+protectedApi.use('/*', authMiddleware);
+const protectedRoutes = protectedApi
+  .route('/', createOrganizationModule(db))
+  .route('/', createUserModule(db, getUserByEmailUseCase))
+  .route('/', createMemberModule(db, getUserByEmailUseCase))
+  .route('/', createDegreeModule(db))
+  .route('/', createClassroomModule(db))
+  .route('/', createItineraryModule(db))
+  .route('/', createSubjectModule(db))
+  .route('/', createSubjectGroupModule(db));
 
-api.route('/api', protectedApi);
+const routes = api
+  .route('/api', createAuthModule(db, jwtService))
+  .route('/api', protectedRoutes);
 
-api.get(
-  '/reference',
-  Scalar({
-    url: '/doc',
-    theme: 'moon',
-  })
-);
-
-api.doc('/doc', {
-  openapi: '3.0.0',
-  info: {
-    version: '1.0.0',
-    title: 'TFG Horarios API',
-  },
-});
+api.get('/reference', Scalar({ url: '/doc', theme: 'moon' }));
+api.doc('/doc', { openapi: '3.0.0', info: { version: '1.0.0', title: 'TFG' } });
 
 export default {
   port: 8080,
-  fetch: api.fetch,
+  fetch: routes.fetch,
 };
 
-export type AppType = typeof api;
+export type AppType = typeof routes;

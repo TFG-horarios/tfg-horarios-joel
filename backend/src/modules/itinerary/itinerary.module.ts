@@ -32,14 +32,13 @@ export const createItineraryModule = (db: DbConnection) => {
     new DeleteItineraryUseCase(itineraryRepository, memberRepository)
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(listItinerariesRoute, controller.list);
-  router.openapi(getItineraryRoute, controller.get);
-  router.openapi(createItineraryRoute, controller.create);
-  router.openapi(bulkCreateItinerariesRoute, controller.bulkCreate);
-  router.openapi(updateItineraryRoute, controller.update);
-  router.openapi(deleteItineraryRoute, controller.delete);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(listItinerariesRoute, controller.list)
+    .openapi(getItineraryRoute, controller.get)
+    .openapi(createItineraryRoute, controller.create)
+    .openapi(bulkCreateItinerariesRoute, controller.bulkCreate)
+    .openapi(updateItineraryRoute, controller.update)
+    .openapi(deleteItineraryRoute, controller.delete);
+  return routes;
 };

@@ -13,19 +13,19 @@ export const OrganizationSchema = z
       .openapi({ example: 'semester' }),
     morningStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
     morningEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '14:00' }),
     afternoonStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '14:00' }),
     afternoonEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '20:00' }),
     slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
@@ -34,9 +34,7 @@ export const OrganizationSchema = z
   .openapi('Organization');
 
 export const OrganizationIdParamSchema = z.object({
-  id: z
-    .uuid({ message: 'Invalid organization ID' })
-    .openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+  id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
 export const SaveOrganizationBodySchema = z
@@ -51,19 +49,19 @@ export const SaveOrganizationBodySchema = z
       .openapi({ example: 'semester' }),
     morningStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
     morningEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '14:00' }),
     afternoonStart: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '14:00' }),
     afternoonEnd: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '20:00' }),
     slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
   })

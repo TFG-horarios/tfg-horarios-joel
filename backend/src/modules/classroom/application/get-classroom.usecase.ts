@@ -23,9 +23,12 @@ export class GetClassroomUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const classroom = await this.classroomRepository.findById(classroomId);
+    const classroom = await this.classroomRepository.findById(
+      classroomId,
+      organizationId
+    );
 
-    if (!classroom || classroom.organizationId !== organizationId) {
+    if (!classroom) {
       throw new NotFoundError('Classroom', classroomId);
     }
 

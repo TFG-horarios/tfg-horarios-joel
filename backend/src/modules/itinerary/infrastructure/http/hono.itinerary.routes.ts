@@ -5,11 +5,12 @@ import {
   ItineraryBaseParamSchema,
   SaveItineraryBodySchema,
   ItineraryIdParamSchema,
+  ItineraryCreateParamSchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries',
+  path: '/organizations/{organizationId}/itineraries',
   request: { params: ItineraryBaseParamSchema },
   responses: {
     200: {
@@ -21,7 +22,7 @@ export const listItinerariesRoute = createRoute({
 
 export const getItineraryRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
+  path: '/organizations/{organizationId}/itineraries/{id}',
   request: { params: ItineraryIdParamSchema },
   responses: {
     200: {
@@ -36,7 +37,7 @@ export const createItineraryRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries',
   request: {
-    params: ItineraryBaseParamSchema,
+    params: ItineraryCreateParamSchema,
     body: {
       content: {
         'application/json': { schema: SaveItineraryBodySchema },
@@ -55,7 +56,7 @@ export const bulkCreateItinerariesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/bulk',
   request: {
-    params: ItineraryBaseParamSchema,
+    params: ItineraryCreateParamSchema,
     body: {
       content: {
         'application/json': {
@@ -74,7 +75,7 @@ export const bulkCreateItinerariesRoute = createRoute({
 
 export const updateItineraryRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
+  path: '/organizations/{organizationId}/itineraries/{id}',
   request: {
     params: ItineraryIdParamSchema,
     body: {
@@ -93,7 +94,7 @@ export const updateItineraryRoute = createRoute({
 
 export const deleteItineraryRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/{id}',
+  path: '/organizations/{organizationId}/itineraries/{id}',
   request: { params: ItineraryIdParamSchema },
   responses: { 204: { description: 'Itinerary deleted' } },
 });

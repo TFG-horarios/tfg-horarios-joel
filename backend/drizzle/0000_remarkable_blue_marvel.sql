@@ -76,6 +76,7 @@ CREATE TABLE "itinerary" (
 	"organization_id" uuid NOT NULL,
 	"degree_id" uuid NOT NULL,
 	"name" text NOT NULL,
+	"code" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
@@ -148,7 +149,7 @@ ALTER TABLE "member" ADD CONSTRAINT "member_user_id_user_id_fk" FOREIGN KEY ("us
 CREATE UNIQUE INDEX "classroom_name_org_idx" ON "classroom" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_code_org_idx" ON "subject" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_group_logic_idx" ON "subject_group" USING btree ("subject_id","group_type","group_number","shift") WHERE deleted_at IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "itinerary_name_degree_idx" ON "itinerary" USING btree ("degree_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "itinerary_code_degree_idx" ON "itinerary" USING btree ("degree_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_itinerary_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","itinerary_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NOT NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_common_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "degree_code_org_idx" ON "degree" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint

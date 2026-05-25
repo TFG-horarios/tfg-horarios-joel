@@ -3,6 +3,7 @@ import type { DbConnection } from '@/core/db/connection';
 import {
   classroom as classroomTable,
   type DrizzleClassroom,
+  type DrizzleNewClassroom,
 } from './drizzle.classroom.schema';
 import type { IClassroomRepository } from '../../domain/classroom.repository';
 import { Classroom } from '../../domain/classroom.entity';
@@ -23,11 +24,33 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
     });
   }
 
-  async findById(id: string): Promise<Classroom | null> {
+  private mapToPersistence(classroom: Classroom): DrizzleNewClassroom {
+    return {
+      id: classroom.id,
+      organizationId: classroom.organizationId,
+      name: classroom.name,
+      capacity: classroom.capacity,
+      type: classroom.type,
+      createdAt: classroom.createdAt,
+      updatedAt: classroom.updatedAt,
+      deletedAt: classroom.deletedAt,
+    };
+  }
+
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<Classroom | null> {
     const rows = await this.database
       .select()
       .from(classroomTable)
-      .where(and(eq(classroomTable.id, id), isNull(classroomTable.deletedAt)))
+      .where(
+        and(
+          eq(classroomTable.id, id),
+          eq(classroomTable.organizationId, organizationId),
+          isNull(classroomTable.deletedAt)
+        )
+      )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
@@ -46,32 +69,50 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   }
 
   async create(classroom: Classroom): Promise<void> {
-    await this.database.insert(classroomTable).values(classroom);
+    await this.database
+      .insert(classroomTable)
+      .values(this.mapToPersistence(classroom));
   }
 
   async createMany(classrooms: Classroom[]): Promise<void> {
     if (classrooms.length === 0) return;
+    const valuesToInsert = classrooms.map((c) => this.mapToPersistence(c));
     await this.database.transaction(async (tx) => {
-      await tx.insert(classroomTable).values(classrooms);
+      await tx
+        .insert(classroomTable)
+        .values(valuesToInsert)
+        .onConflictDoNothing();
     });
   }
 
   async update(classroom: Classroom): Promise<void> {
+    const rawData = this.mapToPersistence(classroom);
+
     await this.database
       .update(classroomTable)
       .set({
-        name: classroom.name,
-        capacity: classroom.capacity,
-        type: classroom.type,
+        name: rawData.name,
+        capacity: rawData.capacity,
+        type: rawData.type,
         updatedAt: new Date(),
       })
-      .where(eq(classroomTable.id, classroom.id));
+      .where(
+        and(
+          eq(classroomTable.id, classroom.id),
+          eq(classroomTable.organizationId, classroom.organizationId)
+        )
+      );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, organizationId: string): Promise<void> {
     await this.database
       .update(classroomTable)
       .set({ deletedAt: new Date() })
-      .where(eq(classroomTable.id, id));
+      .where(
+        and(
+          eq(classroomTable.id, id),
+          eq(classroomTable.organizationId, organizationId)
+        )
+      );
   }
 }

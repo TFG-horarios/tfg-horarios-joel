@@ -55,6 +55,6 @@ describe('AuthShell', () => {
     );
 
     const cardElement = container.firstChild;
-    expect(cardElement).toHaveClass('max-w-md', 'backdrop-blur');
+    expect(cardElement).toHaveClass('max-w-md');
   });
 });

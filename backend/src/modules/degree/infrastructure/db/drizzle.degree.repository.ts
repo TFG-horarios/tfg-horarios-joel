@@ -1,6 +1,10 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
-import { degreesTable, type DrizzleDegree } from './drizzle.degree.schema';
+import {
+  degreesTable,
+  type DrizzleDegree,
+  type DrizzleNewDegree,
+} from './drizzle.degree.schema';
 import type { IDegreeRepository } from '../../domain/degree.repository';
 import { Degree } from '../../domain/degree.entity';
 
@@ -19,11 +23,29 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
     });
   }
 
-  async findById(id: string): Promise<Degree | null> {
+  private mapToPersistence(domain: Degree): DrizzleNewDegree {
+    return {
+      id: domain.id,
+      organizationId: domain.organizationId,
+      name: domain.name,
+      code: domain.code,
+      createdAt: domain.createdAt,
+      updatedAt: domain.updatedAt,
+      deletedAt: domain.deletedAt,
+    };
+  }
+
+  async findById(id: string, organizationId: string): Promise<Degree | null> {
     const rows = await this.database
       .select()
       .from(degreesTable)
-      .where(and(eq(degreesTable.id, id), isNull(degreesTable.deletedAt)))
+      .where(
+        and(
+          eq(degreesTable.id, id),
+          eq(degreesTable.organizationId, organizationId),
+          isNull(degreesTable.deletedAt)
+        )
+      )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
@@ -42,31 +64,48 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
   }
 
   async create(degree: Degree): Promise<void> {
-    await this.database.insert(degreesTable).values(degree);
+    await this.database
+      .insert(degreesTable)
+      .values(this.mapToPersistence(degree));
   }
 
   async createMany(degrees: Degree[]): Promise<void> {
     if (degrees.length === 0) return;
+    const valuesToInsert = degrees.map((d) => this.mapToPersistence(d));
     await this.database.transaction(async (tx) => {
-      await tx.insert(degreesTable).values(degrees);
+      await tx
+        .insert(degreesTable)
+        .values(valuesToInsert)
+        .onConflictDoNothing();
     });
   }
 
   async update(degree: Degree): Promise<void> {
+    const rawData = this.mapToPersistence(degree);
     await this.database
       .update(degreesTable)
       .set({
-        name: degree.name,
-        code: degree.code,
+        name: rawData.name,
+        code: rawData.code,
         updatedAt: new Date(),
       })
-      .where(eq(degreesTable.id, degree.id));
+      .where(
+        and(
+          eq(degreesTable.id, degree.id),
+          eq(degreesTable.organizationId, degree.organizationId)
+        )
+      );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, organizationId: string): Promise<void> {
     await this.database
       .update(degreesTable)
       .set({ deletedAt: new Date() })
-      .where(eq(degreesTable.id, id));
+      .where(
+        and(
+          eq(degreesTable.id, id),
+          eq(degreesTable.organizationId, organizationId)
+        )
+      );
   }
 }

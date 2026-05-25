@@ -1,6 +1,10 @@
 import { eq, and, count } from 'drizzle-orm';
 import { type DbConnection } from '@/core/db/connection';
-import { membersTable, type DrizzleMember } from './drizzle.member.schema';
+import {
+  membersTable,
+  type DrizzleMember,
+  type NewDrizzleMember,
+} from './drizzle.member.schema';
 import {
   type IMemberRepository,
   type MemberWithUserDetails,
@@ -23,11 +27,27 @@ export class DrizzleMemberRepository implements IMemberRepository {
     });
   }
 
-  async findById(id: string): Promise<Member | null> {
+  private mapToPersistence(domain: Member): NewDrizzleMember {
+    return {
+      id: domain.id,
+      organizationId: domain.organizationId,
+      userId: domain.userId,
+      role: domain.role,
+      createdAt: domain.createdAt,
+      updatedAt: domain.updatedAt,
+    };
+  }
+
+  async findById(id: string, organizationId: string): Promise<Member | null> {
     const result = await this.database
       .select()
       .from(membersTable)
-      .where(eq(membersTable.id, id))
+      .where(
+        and(
+          eq(membersTable.id, id),
+          eq(membersTable.organizationId, organizationId)
+        )
+      )
       .limit(1);
     return result[0] ? this.mapToDomain(result[0]) : null;
   }
@@ -69,28 +89,36 @@ export class DrizzleMemberRepository implements IMemberRepository {
   }
 
   async create(domainEntity: Member): Promise<void> {
-    await this.database.insert(membersTable).values({
-      id: domainEntity.id,
-      organizationId: domainEntity.organizationId,
-      userId: domainEntity.userId,
-      role: domainEntity.role,
-      createdAt: domainEntity.createdAt,
-      updatedAt: domainEntity.updatedAt,
-    });
+    await this.database
+      .insert(membersTable)
+      .values(this.mapToPersistence(domainEntity));
   }
 
   async update(domainEntity: Member): Promise<void> {
+    const rawData = this.mapToPersistence(domainEntity);
     await this.database
       .update(membersTable)
       .set({
-        role: domainEntity.role,
-        updatedAt: domainEntity.updatedAt,
+        role: rawData.role,
+        updatedAt: rawData.updatedAt,
       })
-      .where(eq(membersTable.id, domainEntity.id));
+      .where(
+        and(
+          eq(membersTable.id, domainEntity.id),
+          eq(membersTable.organizationId, domainEntity.organizationId)
+        )
+      );
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.delete(membersTable).where(eq(membersTable.id, id));
+  async delete(id: string, organizationId: string): Promise<void> {
+    await this.database
+      .delete(membersTable)
+      .where(
+        and(
+          eq(membersTable.id, id),
+          eq(membersTable.organizationId, organizationId)
+        )
+      );
   }
 
   async countAdmins(organizationId: string): Promise<number> {

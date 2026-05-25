@@ -1,141 +1,96 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import {
-  AuthResponseSchema,
   LoginSchema,
   RegisterSchema,
-  type AuthResponseDTO,
   type LoginDTO,
   type RegisterDTO,
 } from '@tfg-horarios/shared';
-import type { User } from '@/types/user';
-import { api } from '@/lib/api';
+import { getServerClient } from '@/lib/api/server';
 import { redirect } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-import { getFieldErrors } from '@/lib/zod';
-import { parseJsonResponse } from '@/lib/api-utils';
 
-const apiClient = api as unknown as {
-  api: {
-    auth: {
-      login: { $post: (params: { json: LoginDTO }) => Promise<Response> };
-      register: { $post: (params: { json: RegisterDTO }) => Promise<Response> };
-    };
-  };
-};
-
-export type AuthActionState = {
+export type ActionResponse = {
   success: boolean;
-  message: string;
-  fieldErrors: Record<string, string[] | undefined>;
-  user: User | null;
+  message?: string;
 };
 
-const initialState: AuthActionState = {
-  success: false,
-  message: '',
-  fieldErrors: {},
-  user: null,
-};
-
-export async function login(dto: LoginDTO): Promise<AuthResponseDTO> {
-  const response = await apiClient.api.auth.login.$post({
-    json: dto,
+async function setAuthCookie(token: string) {
+  const cookieStore = await cookies();
+  cookieStore.set('auth-token', token, {
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
   });
-
-  const payload = await parseJsonResponse(
-    response,
-    'No se pudo iniciar sesión'
-  );
-
-  const parsed = AuthResponseSchema.safeParse(payload);
-  if (!parsed.success) {
-    throw new Error('Respuesta de autenticación inválida');
-  }
-
-  return parsed.data;
 }
 
-export async function register(dto: RegisterDTO): Promise<AuthResponseDTO> {
-  const response = await apiClient.api.auth.register.$post({
-    json: dto,
-  });
-
-  const payload = await parseJsonResponse(
-    response,
-    'No se pudo crear la cuenta'
-  );
-
-  const parsed = AuthResponseSchema.safeParse(payload);
-  if (!parsed.success) {
-    throw new Error('Respuesta de autenticación inválida');
-  }
-
-  return parsed.data;
-}
-
-export async function loginAction(
-  _prevState: AuthActionState,
-  formData: FormData
-): Promise<AuthActionState> {
-  const parsedInput = LoginSchema.safeParse(Object.fromEntries(formData));
-  if (!parsedInput.success) {
-    return {
-      ...initialState,
-      message: 'Revisa los campos e intenta de nuevo.',
-      fieldErrors: getFieldErrors(parsedInput.error),
-    };
-  }
+export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
+  const tErrors = await getTranslations('Common.errors');
+  const tLogin = await getTranslations('Auth.login');
+  const parsedInput = LoginSchema.safeParse(dto);
+  if (!parsedInput.success)
+    return { success: false, message: tErrors('validation') };
 
   try {
-    const result = await login(parsedInput.data);
-    const cookieStore = await cookies();
-    cookieStore.set('auth-token', result.token, {
-      path: '/',
-      sameSite: 'lax',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7,
+    const client = await getServerClient();
+    const response = await client.api.auth.login.$post({
+      json: parsedInput.data,
     });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, message: tLogin('invalidCredentials') };
+      }
+
+      let responseMessage = tErrors('server');
+      try {
+        const errorBody = (await response.json()) as { message?: string };
+        responseMessage = errorBody.message ?? responseMessage;
+      } catch {
+        // ignore JSON parsing errors and use generic message
+      }
+
+      return { success: false, message: responseMessage };
+    }
+
+    const { token } = await response.json();
+
+    await setAuthCookie(token);
   } catch (error) {
     return {
-      ...initialState,
-      message:
-        error instanceof Error ? error.message : 'No se pudo iniciar sesión',
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }
   redirect('/organizations');
 }
 
 export async function registerAction(
-  _prevState: AuthActionState,
-  formData: FormData
-): Promise<AuthActionState> {
-  const parsedInput = RegisterSchema.safeParse(Object.fromEntries(formData));
-  if (!parsedInput.success) {
-    return {
-      ...initialState,
-      message: 'Revisa los campos e intenta de nuevo.',
-      fieldErrors: getFieldErrors(parsedInput.error),
-    };
-  }
+  dto: RegisterDTO
+): Promise<ActionResponse> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = RegisterSchema.safeParse(dto);
+  if (!parsedInput.success)
+    return { success: false, message: tErrors('validation') };
 
   try {
-    const result = await register(parsedInput.data);
-    const cookieStore = await cookies();
-    cookieStore.set('auth-token', result.token, {
-      path: '/',
-      sameSite: 'lax',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7,
+    const client = await getServerClient();
+    const response = await client.api.auth.register.$post({
+      json: parsedInput.data,
     });
+
+    if (!response.ok) throw new Error(tErrors('server'));
+
+    const { token } = await response.json();
+
+    await setAuthCookie(token);
   } catch (error) {
     return {
-      ...initialState,
-      message:
-        error instanceof Error ? error.message : 'No se pudo crear la cuenta',
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }
   redirect('/organizations');
@@ -144,20 +99,5 @@ export async function registerAction(
 export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete('auth-token');
-}
-
-export async function getSessionUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth-token')?.value;
-  if (!token) return null;
-
-  try {
-    const decoded = jwtDecode(token);
-    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-      return null;
-    }
-    return decoded as User;
-  } catch {
-    return null;
-  }
+  redirect('/login');
 }

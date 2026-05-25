@@ -11,15 +11,21 @@ import {
   deleteOrgRoute,
   updateOrgRoute,
   listOrgRoute,
+  getOrgRoute,
 } from './infrastructure/http/hono.organization.routes';
 import type { AppEnv } from '@/core/types/app-types';
 import { UpdateOrganizationUseCase } from './application/update-organization.usecase';
+import { GetOrganizationUseCase } from './application/get-organization.usecase';
 
 export const createOrganizationModule = (db: DbConnection) => {
   const organizationRepository = new DrizzleOrganizationRepository(db);
   const memberRepository = new DrizzleMemberRepository(db);
 
   const createUseCase = new CreateOrganizationUseCase(organizationRepository);
+  const getUseCase = new GetOrganizationUseCase(
+    organizationRepository,
+    memberRepository
+  );
   const listUseCase = new ListOrganizationsUseCase(organizationRepository);
   const updateUseCase = new UpdateOrganizationUseCase(
     organizationRepository,
@@ -32,16 +38,18 @@ export const createOrganizationModule = (db: DbConnection) => {
 
   const controller = new HonoOrganizationController(
     createUseCase,
+    getUseCase,
     listUseCase,
     updateUseCase,
     deleteUseCase
   );
-  const router = new OpenAPIHono<AppEnv>();
 
-  router.openapi(createOrgRoute, controller.create);
-  router.openapi(listOrgRoute, controller.list);
-  router.openapi(updateOrgRoute, controller.update);
-  router.openapi(deleteOrgRoute, controller.delete);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(createOrgRoute, controller.create)
+    .openapi(getOrgRoute, controller.get)
+    .openapi(listOrgRoute, controller.list)
+    .openapi(updateOrgRoute, controller.update)
+    .openapi(deleteOrgRoute, controller.delete);
+  return routes;
 };

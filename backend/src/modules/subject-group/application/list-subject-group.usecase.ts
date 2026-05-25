@@ -12,7 +12,6 @@ export class ListSubjectGroupsUseCase {
 
   async execute(
     organizationId: string,
-    subjectId: string,
     requesterUserId: string
   ): Promise<SubjectGroupDTO[]> {
     const requester = await this.memberRepository.findByUserAndOrg(
@@ -23,7 +22,7 @@ export class ListSubjectGroupsUseCase {
       throw new ForbiddenError('You do not have access to this organization.');
     }
 
-    const groups = await this.subjectGroupRepository.findAll(subjectId);
+    const groups = await this.subjectGroupRepository.findAll(organizationId);
     return SubjectGroupMapper.toDTOList(groups);
   }
 }

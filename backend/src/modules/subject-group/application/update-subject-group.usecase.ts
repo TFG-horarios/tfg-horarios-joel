@@ -16,7 +16,6 @@ export class UpdateSubjectGroupUseCase {
 
   async execute(
     organizationId: string,
-    subjectId: string,
     id: string,
     requesterUserId: string,
     dto: SaveSubjectGroupDTO
@@ -34,13 +33,12 @@ export class UpdateSubjectGroupUseCase {
       );
     }
 
-    const group = await this.subjectGroupRepository.findById(id);
+    const group = await this.subjectGroupRepository.findById(
+      id,
+      organizationId
+    );
 
-    if (
-      !group ||
-      group.organizationId !== organizationId ||
-      group.subjectId !== subjectId
-    ) {
+    if (!group) {
       throw new NotFoundError('SubjectGroup', id);
     }
 

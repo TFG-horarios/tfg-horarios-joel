@@ -30,8 +30,11 @@ export class UpdateClassroomUseCase {
       );
     }
 
-    const classroom = await this.classroomRepository.findById(classroomId);
-    if (!classroom || classroom.organizationId !== organizationId) {
+    const classroom = await this.classroomRepository.findById(
+      classroomId,
+      organizationId
+    );
+    if (!classroom) {
       throw new NotFoundError('Classroom', classroomId);
     }
 

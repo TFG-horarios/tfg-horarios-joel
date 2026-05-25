@@ -28,11 +28,10 @@ export function proxy(request: NextRequest) {
   );
 
   if (isProtectedRoute && !isTokenValid) {
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    if (token) {
-      response.cookies.delete('auth-token');
-    }
-    return response;
+    const loginUrl = new URL('/login', request.url);
+    const redirectRes = NextResponse.redirect(loginUrl);
+    if (token) redirectRes.cookies.delete('auth-token');
+    return redirectRes;
   }
 
   if (isPublicRoute && isTokenValid) {

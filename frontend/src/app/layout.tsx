@@ -1,27 +1,31 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme/theme-provider';
-import { getSessionUser } from '@/features/auth/actions';
-import { AuthInitializer } from '@/features/auth/components/auth-initializer';
+import { getSessionUser } from '@/features/auth/queries';
+import { SessionProvider } from '@/components/providers/session-provider';
 import { Background } from '@/components/layout/background';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
 import './globals.css';
 
-const spaceGrotesk = Space_Grotesk({
+const geistSans = Geist({
   variable: '--font-login-sans',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const geistMono = Geist_Mono({
   variable: '--font-login-mono',
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
 });
 
-export const metadata: Metadata = {
-  title: 'TFG Horarios',
-  description: 'Planificacion de horarios con acceso seguro',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Metadata');
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -29,23 +33,28 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getSessionUser();
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Background />
-          <AuthInitializer user={user} />
-          {children}
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SessionProvider initialUser={user}>
+              <Background />
+              {children}
+            </SessionProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

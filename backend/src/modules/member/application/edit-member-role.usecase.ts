@@ -16,8 +16,11 @@ export class EditMemberRoleUseCase {
     memberId: string,
     roleToUpdate: AppRole
   ): Promise<void> {
-    const member = await this.memberRepository.findById(memberId);
-    if (!member || member.organizationId !== organizationId) {
+    const member = await this.memberRepository.findById(
+      memberId,
+      organizationId
+    );
+    if (!member) {
       throw new NotFoundError('Member', memberId);
     }
 

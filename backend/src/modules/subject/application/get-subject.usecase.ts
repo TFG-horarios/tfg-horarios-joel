@@ -12,7 +12,6 @@ export class GetSubjectUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     subjectId: string,
     requesterUserId: string
   ): Promise<SubjectDTO> {
@@ -24,12 +23,11 @@ export class GetSubjectUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const subject = await this.subjectRepository.findById(subjectId);
-    if (
-      !subject ||
-      subject.organizationId !== organizationId ||
-      subject.degreeId !== degreeId
-    ) {
+    const subject = await this.subjectRepository.findById(
+      subjectId,
+      organizationId
+    );
+    if (!subject) {
       throw new NotFoundError('Subject', subjectId);
     }
 

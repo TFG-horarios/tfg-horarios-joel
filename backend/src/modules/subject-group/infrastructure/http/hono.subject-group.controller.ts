@@ -26,20 +26,18 @@ export class HonoSubjectGroupController {
   ) {}
 
   list: RouteHandler<typeof listSubjectGroupsRoute, AppEnv> = async (c) => {
-    const { organizationId, subjectId } = c.req.valid('param');
+    const { organizationId } = c.req.valid('param');
     const result = await this.listUseCase.execute(
       organizationId,
-      subjectId,
       c.get('userId')
     );
     return c.json(result, 200);
   };
 
   get: RouteHandler<typeof getSubjectGroupRoute, AppEnv> = async (c) => {
-    const { organizationId, subjectId, id } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const result = await this.getUseCase.execute(
       organizationId,
-      subjectId,
       id,
       c.get('userId')
     );
@@ -72,11 +70,10 @@ export class HonoSubjectGroupController {
     };
 
   update: RouteHandler<typeof updateSubjectGroupRoute, AppEnv> = async (c) => {
-    const { organizationId, subjectId, id } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const body = c.req.valid('json');
     const result = await this.updateUseCase.execute(
       organizationId,
-      subjectId,
       id,
       c.get('userId'),
       body
@@ -85,13 +82,8 @@ export class HonoSubjectGroupController {
   };
 
   delete: RouteHandler<typeof deleteSubjectGroupRoute, AppEnv> = async (c) => {
-    const { organizationId, subjectId, id } = c.req.valid('param');
-    await this.deleteUseCase.execute(
-      organizationId,
-      subjectId,
-      id,
-      c.get('userId')
-    );
+    const { organizationId, id } = c.req.valid('param');
+    await this.deleteUseCase.execute(organizationId, id, c.get('userId'));
     return c.body(null, 204);
   };
 }

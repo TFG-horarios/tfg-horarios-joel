@@ -1,6 +1,10 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
-import { subjectsTable, type DrizzleSubject } from './drizzle.subject.schema';
+import {
+  subjectsTable,
+  type DrizzleSubject,
+  type NewDrizzleSubject,
+} from './drizzle.subject.schema';
 import type { ISubjectRepository } from '../../domain/subject.repository';
 import { Subject, type Shift } from '../../domain/subject.entity';
 
@@ -27,11 +31,37 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     });
   }
 
-  async findById(id: string): Promise<Subject | null> {
+  private mapToPersistence(domain: Subject): NewDrizzleSubject {
+    return {
+      id: domain.id,
+      organizationId: domain.organizationId,
+      degreeId: domain.degreeId,
+      itineraryId: domain.itineraryId,
+      name: domain.name,
+      code: domain.code,
+      availableShifts: domain.availableShifts,
+      numberOfStudents: domain.numberOfStudents,
+      courseYear: domain.courseYear,
+      period: domain.period,
+      weeklyHours: domain.weeklyHours,
+      isCommon: domain.isCommon,
+      createdAt: domain.createdAt,
+      updatedAt: domain.updatedAt,
+      deletedAt: domain.deletedAt,
+    };
+  }
+
+  async findById(id: string, organizationId: string): Promise<Subject | null> {
     const rows = await this.database
       .select()
       .from(subjectsTable)
-      .where(and(eq(subjectsTable.id, id), isNull(subjectsTable.deletedAt)))
+      .where(
+        and(
+          eq(subjectsTable.id, id),
+          eq(subjectsTable.organizationId, organizationId),
+          isNull(subjectsTable.deletedAt)
+        )
+      )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
@@ -50,38 +80,55 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
   }
 
   async create(subject: Subject): Promise<void> {
-    await this.database.insert(subjectsTable).values(subject);
+    await this.database
+      .insert(subjectsTable)
+      .values(this.mapToPersistence(subject));
   }
 
   async createMany(subjects: Subject[]): Promise<void> {
     if (subjects.length === 0) return;
+    const valuesToInsert = subjects.map((s) => this.mapToPersistence(s));
     await this.database.transaction(async (tx) => {
-      await tx.insert(subjectsTable).values(subjects);
+      await tx
+        .insert(subjectsTable)
+        .values(valuesToInsert)
+        .onConflictDoNothing();
     });
   }
 
   async update(subject: Subject): Promise<void> {
+    const rawData = this.mapToPersistence(subject);
     await this.database
       .update(subjectsTable)
       .set({
-        name: subject.name,
-        code: subject.code,
-        itineraryId: subject.itineraryId,
-        availableShifts: subject.availableShifts,
-        numberOfStudents: subject.numberOfStudents,
-        courseYear: subject.courseYear,
-        period: subject.period,
-        weeklyHours: subject.weeklyHours,
-        isCommon: subject.isCommon,
+        name: rawData.name,
+        code: rawData.code,
+        itineraryId: rawData.itineraryId,
+        availableShifts: rawData.availableShifts,
+        numberOfStudents: rawData.numberOfStudents,
+        courseYear: rawData.courseYear,
+        period: rawData.period,
+        weeklyHours: rawData.weeklyHours,
+        isCommon: rawData.isCommon,
         updatedAt: new Date(),
       })
-      .where(eq(subjectsTable.id, subject.id));
+      .where(
+        and(
+          eq(subjectsTable.id, subject.id),
+          eq(subjectsTable.organizationId, subject.organizationId)
+        )
+      );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, organizationId: string): Promise<void> {
     await this.database
       .update(subjectsTable)
       .set({ deletedAt: new Date() })
-      .where(eq(subjectsTable.id, id));
+      .where(
+        and(
+          eq(subjectsTable.id, id),
+          eq(subjectsTable.organizationId, organizationId)
+        )
+      );
   }
 }

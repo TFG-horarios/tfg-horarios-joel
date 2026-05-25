@@ -1,4 +1,6 @@
-export function getFieldErrors(error: any) {
+import type { ZodError } from 'zod';
+
+export function getFieldErrors(error: ZodError) {
   const formatted = error.format();
   const fieldErrors: Record<string, string[]> = {};
 

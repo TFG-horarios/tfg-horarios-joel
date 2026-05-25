@@ -27,11 +27,14 @@ export class DeleteClassroomUseCase {
       );
     }
 
-    const classroom = await this.classroomRepository.findById(classroomId);
-    if (!classroom || classroom.organizationId !== organizationId) {
+    const classroom = await this.classroomRepository.findById(
+      classroomId,
+      organizationId
+    );
+    if (!classroom) {
       throw new NotFoundError('Classroom', classroomId);
     }
 
-    await this.classroomRepository.delete(classroomId);
+    await this.classroomRepository.delete(classroomId, organizationId);
   }
 }

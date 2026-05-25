@@ -5,6 +5,7 @@ export interface ItineraryProps {
   organizationId: string;
   degreeId: string;
   name: string;
+  code: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -21,7 +22,9 @@ export class Itinerary {
         'Itinerary name must be at least 3 characters long'
       );
     }
-
+    if (props.code.trim().length < 1) {
+      throw new ValidationError('Itinerary code is required');
+    }
     return new Itinerary({
       ...props,
       id: crypto.randomUUID(),
@@ -35,13 +38,17 @@ export class Itinerary {
     return new Itinerary(props);
   }
 
-  public update(name: string): void {
+  public update(name: string, code: string): void {
     if (name.trim().length < 3) {
       throw new ValidationError(
         'Itinerary name must be at least 3 characters long'
       );
     }
+    if (code.trim().length < 1) {
+      throw new ValidationError('Itinerary code is required');
+    }
     this.props.name = name;
+    this.props.code = code.toUpperCase();
     this.props.updatedAt = new Date();
   }
 
@@ -56,6 +63,9 @@ export class Itinerary {
   }
   get name() {
     return this.props.name;
+  }
+  get code() {
+    return this.props.code;
   }
   get createdAt() {
     return this.props.createdAt;

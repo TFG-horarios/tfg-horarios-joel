@@ -3,13 +3,14 @@ import { z } from 'zod';
 import {
   SubjectGroupSchema,
   SubjectGroupBaseParamSchema,
+  SubjectGroupCreateParamSchema,
   SubjectGroupIdParamSchema,
   SaveSubjectGroupBodySchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectGroupsRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/subjects/{subjectId}/groups',
+  path: '/organizations/{organizationId}/subject-groups',
   request: { params: SubjectGroupBaseParamSchema },
   responses: {
     200: {
@@ -21,7 +22,7 @@ export const listSubjectGroupsRoute = createRoute({
 
 export const getSubjectGroupRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/subjects/{subjectId}/groups/{id}',
+  path: '/organizations/{organizationId}/subject-groups/{id}',
   request: { params: SubjectGroupIdParamSchema },
   responses: {
     200: {
@@ -35,7 +36,7 @@ export const createSubjectGroupRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/subjects/{subjectId}/groups',
   request: {
-    params: SubjectGroupBaseParamSchema,
+    params: SubjectGroupCreateParamSchema,
     body: {
       content: { 'application/json': { schema: SaveSubjectGroupBodySchema } },
     },
@@ -52,7 +53,7 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/subjects/{subjectId}/groups/bulk',
   request: {
-    params: SubjectGroupBaseParamSchema,
+    params: SubjectGroupCreateParamSchema,
     body: {
       content: {
         'application/json': { schema: z.array(SaveSubjectGroupBodySchema) },
@@ -69,7 +70,7 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
 
 export const updateSubjectGroupRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/subjects/{subjectId}/groups/{id}',
+  path: '/organizations/{organizationId}/subject-groups/{id}',
   request: {
     params: SubjectGroupIdParamSchema,
     body: {
@@ -86,7 +87,7 @@ export const updateSubjectGroupRoute = createRoute({
 
 export const deleteSubjectGroupRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/subjects/{subjectId}/groups/{id}',
+  path: '/organizations/{organizationId}/subject-groups/{id}',
   request: { params: SubjectGroupIdParamSchema },
   responses: { 204: { description: 'Group deleted' } },
 });

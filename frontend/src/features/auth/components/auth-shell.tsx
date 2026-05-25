@@ -20,17 +20,17 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-2xl shadow-zinc-900/10 backdrop-blur dark:border-zinc-800/70 dark:bg-zinc-950/80 dark:shadow-black/20">
-      <CardHeader className="space-y-2">
+    <Card className="w-full max-w-md border-border bg-card shadow-card-elevated-light dark:shadow-none dark:border-border dark:bg-card">
+      <CardHeader className="space-y-2 pb-4">
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground dark:text-muted-foreground">
             {eyebrow}
           </p>
         )}
         <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="pt-0">{children}</CardContent>
     </Card>
   );
 }

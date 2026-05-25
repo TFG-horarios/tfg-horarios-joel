@@ -8,6 +8,7 @@ export class ItineraryMapper {
       organizationId: itinerary.organizationId,
       degreeId: itinerary.degreeId,
       name: itinerary.name,
+      code: itinerary.code,
       createdAt: itinerary.createdAt.toISOString(),
       updatedAt: itinerary.updatedAt.toISOString(),
       deletedAt: itinerary.deletedAt ? itinerary.deletedAt.toISOString() : null,

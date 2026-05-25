@@ -11,7 +11,6 @@ export class DeleteItineraryUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     itineraryId: string,
     requesterUserId: string
   ): Promise<void> {
@@ -28,15 +27,14 @@ export class DeleteItineraryUseCase {
       );
     }
 
-    const itinerary = await this.itineraryRepository.findById(itineraryId);
-    if (
-      !itinerary ||
-      itinerary.organizationId !== organizationId ||
-      itinerary.degreeId !== degreeId
-    ) {
+    const itinerary = await this.itineraryRepository.findById(
+      itineraryId,
+      organizationId
+    );
+    if (!itinerary) {
       throw new NotFoundError('Itinerary', itineraryId);
     }
 
-    await this.itineraryRepository.delete(itineraryId);
+    await this.itineraryRepository.delete(itineraryId, organizationId);
   }
 }

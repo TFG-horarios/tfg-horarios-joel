@@ -11,7 +11,6 @@ export class DeleteSubjectGroupUseCase {
 
   async execute(
     organizationId: string,
-    subjectId: string,
     id: string,
     requesterUserId: string
   ): Promise<void> {
@@ -28,16 +27,15 @@ export class DeleteSubjectGroupUseCase {
       );
     }
 
-    const group = await this.subjectGroupRepository.findById(id);
+    const group = await this.subjectGroupRepository.findById(
+      id,
+      organizationId
+    );
 
-    if (
-      !group ||
-      group.organizationId !== organizationId ||
-      group.subjectId !== subjectId
-    ) {
+    if (!group) {
       throw new NotFoundError('SubjectGroup', id);
     }
 
-    await this.subjectGroupRepository.delete(id);
+    await this.subjectGroupRepository.delete(id, organizationId);
   }
 }

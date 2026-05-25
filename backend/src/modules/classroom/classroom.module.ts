@@ -57,14 +57,14 @@ export const createClassroomModule = (db: DbConnection) => {
     getUseCase,
     createManyUseCase
   );
-  const router = new OpenAPIHono<AppEnv>();
 
-  router.openapi(createClassroomRoute, controller.create);
-  router.openapi(listClassroomsRoute, controller.list);
-  router.openapi(updateClassroomRoute, controller.update);
-  router.openapi(deleteClassroomRoute, controller.delete);
-  router.openapi(getClassroomRoute, controller.get);
-  router.openapi(createManyClassroomsRoute, controller.createMany);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(createClassroomRoute, controller.create)
+    .openapi(listClassroomsRoute, controller.list)
+    .openapi(updateClassroomRoute, controller.update)
+    .openapi(deleteClassroomRoute, controller.delete)
+    .openapi(getClassroomRoute, controller.get)
+    .openapi(createManyClassroomsRoute, controller.createMany);
+  return routes;
 };

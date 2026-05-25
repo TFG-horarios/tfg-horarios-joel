@@ -1,26 +1,33 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, startTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import type { CreateOrganizationDTO } from '@tfg-horarios/shared';
-import { cn } from '@/lib/utils';
 import {
-  createOrganizationAction,
-  type OrganizationActionState,
-} from '../actions';
-
-type FormData = Omit<CreateOrganizationDTO, 'createdAt' | 'updatedAt' | 'id'>;
-
-type FieldErrors = Partial<Record<keyof FormData, string[]>>;
-
-const initialState: OrganizationActionState = {
-  success: false,
-  message: '',
-  fieldErrors: {},
-  organization: null,
-};
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  SaveOrganizationBodySchema,
+  type OrganizationDTO,
+  type SaveOrganizationDTO,
+} from '@tfg-horarios/shared';
+import { createOrganizationAction, type ActionResponse } from '../actions';
+import { useZodErrorMap } from '@/lib/i18n/zod-errors';
 
 type CreateOrganizationFormProps = {
   onSuccess?: () => void;
@@ -29,175 +36,208 @@ type CreateOrganizationFormProps = {
 export function CreateOrganizationForm({
   onSuccess,
 }: CreateOrganizationFormProps) {
+  const t = useTranslations('Organizations.form');
+  const zodErrorMap = useZodErrorMap();
+
+  type FormState = ActionResponse<OrganizationDTO> | null;
   const [state, formAction, isPending] = useActionState(
-    createOrganizationAction,
-    initialState
+    async (prevState: FormState, formData: SaveOrganizationDTO) => {
+      return await createOrganizationAction(formData);
+    },
+    null
   );
 
+  const form = useForm<SaveOrganizationDTO>({
+    resolver: zodResolver(SaveOrganizationBodySchema, {
+      error: zodErrorMap,
+    }),
+    mode: 'onChange',
+    defaultValues: {
+      name: '',
+      periodType: 'semester',
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '14:00',
+      afternoonEnd: '20:00',
+      slotDurationMinutes: 60,
+    },
+  });
+
+  function onSubmit(data: SaveOrganizationDTO) {
+    startTransition(() => {
+      formAction(data);
+    });
+  }
+
   useEffect(() => {
-    if (state.success) {
+    if (state?.success) {
       onSuccess?.();
     }
-  }, [onSuccess, state.success]);
-
-  const fieldErrors = state.fieldErrors as FieldErrors;
+  }, [state, onSuccess]);
 
   return (
-    <form className="space-y-5" action={formAction}>
-      <div className="space-y-2">
-        <Label htmlFor="name" className="text-white">
-          Nombre de la organización *
-        </Label>
-        <Input
-          id="name"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          control={form.control}
           name="name"
-          type="text"
-          placeholder="Ej: Instituto Técnico San Juan"
-          required
-          className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-        />
-        {fieldErrors.name?.length ? (
-          <p className="text-xs text-rose-300">{fieldErrors.name[0]}</p>
-        ) : null}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="periodType" className="text-white">
-          Tipo de período *
-        </Label>
-        <select
-          id="periodType"
-          name="periodType"
-          className="w-full px-3 py-2 border border-zinc-700 rounded-lg dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-        >
-          <option value="semester">Semestral</option>
-          <option value="trimester">Trimestral</option>
-          <option value="annual">Anual</option>
-        </select>
-        {fieldErrors.periodType?.length ? (
-          <p className="text-xs text-rose-300">{fieldErrors.periodType[0]}</p>
-        ) : null}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="morningStart" className="text-white">
-            Inicio mañana *
-          </Label>
-          <Input
-            id="morningStart"
-            name="morningStart"
-            type="time"
-            required
-            defaultValue="08:00"
-            className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-          />
-          {fieldErrors.morningStart?.length ? (
-            <p className="text-xs text-rose-300">
-              {fieldErrors.morningStart[0]}
-            </p>
-          ) : null}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="morningEnd" className="text-white">
-            Fin mañana *
-          </Label>
-          <Input
-            id="morningEnd"
-            name="morningEnd"
-            type="time"
-            required
-            defaultValue="14:00"
-            className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-          />
-          {fieldErrors.morningEnd?.length ? (
-            <p className="text-xs text-rose-300">{fieldErrors.morningEnd[0]}</p>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="afternoonStart" className="text-white">
-            Inicio tarde *
-          </Label>
-          <Input
-            id="afternoonStart"
-            name="afternoonStart"
-            type="time"
-            required
-            defaultValue="14:00"
-            className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-          />
-          {fieldErrors.afternoonStart?.length ? (
-            <p className="text-xs text-rose-300">
-              {fieldErrors.afternoonStart[0]}
-            </p>
-          ) : null}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="afternoonEnd" className="text-white">
-            Fin tarde *
-          </Label>
-          <Input
-            id="afternoonEnd"
-            name="afternoonEnd"
-            type="time"
-            required
-            defaultValue="20:00"
-            className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-          />
-          {fieldErrors.afternoonEnd?.length ? (
-            <p className="text-xs text-rose-300">
-              {fieldErrors.afternoonEnd[0]}
-            </p>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="slotDurationMinutes" className="text-white">
-          Duración por clase (minutos) *
-        </Label>
-        <Input
-          id="slotDurationMinutes"
-          name="slotDurationMinutes"
-          defaultValue={60}
-          type="number"
-          min="15"
-          max="240"
-          step="15"
-          required
-          className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
-        />
-        {fieldErrors.slotDurationMinutes?.length ? (
-          <p className="text-xs text-rose-300">
-            {fieldErrors.slotDurationMinutes[0]}
-          </p>
-        ) : null}
-      </div>
-
-      {state.message && (
-        <div
-          aria-live="polite"
-          className={cn(
-            'rounded-lg border px-3 py-2 text-sm',
-            state.success
-              ? 'border-emerald-900/50 bg-emerald-950/40 text-emerald-300'
-              : 'border-rose-900/50 bg-rose-950/40 text-rose-300'
+          render={({ field, fieldState }) => (
+            <FormItem>
+              <FormLabel>{t('name.label')}</FormLabel>
+              <FormControl>
+                <Input placeholder={t('name.placeholder')} {...field} />
+              </FormControl>
+              <FormMessage />
+              {fieldState.error && (
+                <p className="text-xs font-medium text-destructive">
+                  {fieldState.error.message}
+                </p>
+              )}
+            </FormItem>
           )}
-        >
-          {state.message}
-        </div>
-      )}
+        />
 
-      <Button
-        type="submit"
-        className="w-full h-10 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 text-white font-medium"
-        disabled={isPending}
-      >
-        {isPending ? 'Creando organización...' : 'Crear organización'}
-      </Button>
-    </form>
+        <FormField
+          control={form.control}
+          name="periodType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('periodType.label')}</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('periodType.placeholder')} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="semester">
+                    {t('periodType.options.semester')}
+                  </SelectItem>
+                  <SelectItem value="trimester">
+                    {t('periodType.options.trimester')}
+                  </SelectItem>
+                  <SelectItem value="annual">
+                    {t('periodType.options.annual')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="morningStart"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('morningStart.label')}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    placeholder={t('morningStart.placeholder')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="morningEnd"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('morningEnd.label')}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    placeholder={t('morningEnd.placeholder')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="afternoonStart"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('afternoonStart.label')}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    placeholder={t('afternoonStart.placeholder')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="afternoonEnd"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('afternoonEnd.label')}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    placeholder={t('afternoonEnd.placeholder')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="slotDurationMinutes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('slotDurationMinutes.label')}</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min="15"
+                  max="240"
+                  step="15"
+                  placeholder={t('slotDurationMinutes.placeholder')}
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                />
+              </FormControl>
+              <FormMessage />
+              <p className="text-xs text-muted-foreground">
+                {t('slotDurationMinutes.help')}
+              </p>
+            </FormItem>
+          )}
+        />
+
+        {state?.success === false && (
+          <div
+            aria-live="polite"
+            className="rounded-lg border px-3 py-2 text-sm text-destructive border-destructive/50 bg-destructive/10"
+          >
+            {state.message}
+          </div>
+        )}
+
+        <Button type="submit" className="w-full h-10" disabled={isPending}>
+          {isPending ? t('submitting') : t('submit')}
+        </Button>
+      </form>
+    </Form>
   );
 }

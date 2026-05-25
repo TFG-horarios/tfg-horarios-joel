@@ -53,7 +53,7 @@ export const createClassroomRoute = createRoute({
 
 export const createManyClassroomsRoute = createRoute({
   method: 'post',
-  path: '/organizations/{organizationId}/classrooms/batch',
+  path: '/organizations/{organizationId}/classrooms/bulk',
   request: {
     params: ClassroomBaseParamSchema,
     body: {

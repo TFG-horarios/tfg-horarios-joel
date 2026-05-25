@@ -22,9 +22,11 @@ export class GetDegreeUseCase {
     if (!requester)
       throw new ForbiddenError('You do not have access to this organization');
 
-    const degree = await this.degreeRepository.findById(degreeId);
-    if (!degree || degree.organizationId !== organizationId)
-      throw new NotFoundError('Degree', degreeId);
+    const degree = await this.degreeRepository.findById(
+      degreeId,
+      organizationId
+    );
+    if (!degree) throw new NotFoundError('Degree', degreeId);
 
     return DegreeMapper.toDTO(degree);
   }

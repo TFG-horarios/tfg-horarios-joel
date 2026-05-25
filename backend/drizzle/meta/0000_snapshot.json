@@ -1,5 +1,5 @@
 {
-  "id": "9ba60223-48ab-44aa-8947-d216720f8890",
+  "id": "bfd3cb96-1647-474d-a7a9-a36de85852bc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -603,6 +603,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -625,8 +631,8 @@
         }
       },
       "indexes": {
-        "itinerary_name_degree_idx": {
-          "name": "itinerary_name_degree_idx",
+        "itinerary_code_degree_idx": {
+          "name": "itinerary_code_degree_idx",
           "columns": [
             {
               "expression": "degree_id",
@@ -635,7 +641,7 @@
               "nulls": "last"
             },
             {
-              "expression": "name",
+              "expression": "code",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

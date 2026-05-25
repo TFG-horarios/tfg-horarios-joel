@@ -41,7 +41,7 @@ export const SubjectCreateParamSchema = SubjectListParamSchema.extend({
     .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
 });
 
-export const SubjectIdParamSchema = SubjectCreateParamSchema.extend({
+export const SubjectIdParamSchema = SubjectListParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 

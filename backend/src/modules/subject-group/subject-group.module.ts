@@ -57,14 +57,13 @@ export const createSubjectGroupModule = (db: DbConnection) => {
     deleteUseCase
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(listSubjectGroupsRoute, controller.list);
-  router.openapi(getSubjectGroupRoute, controller.get);
-  router.openapi(createSubjectGroupRoute, controller.create);
-  router.openapi(bulkCreateSubjectGroupsRoute, controller.bulkCreate);
-  router.openapi(updateSubjectGroupRoute, controller.update);
-  router.openapi(deleteSubjectGroupRoute, controller.delete);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(listSubjectGroupsRoute, controller.list)
+    .openapi(getSubjectGroupRoute, controller.get)
+    .openapi(createSubjectGroupRoute, controller.create)
+    .openapi(bulkCreateSubjectGroupsRoute, controller.bulkCreate)
+    .openapi(updateSubjectGroupRoute, controller.update)
+    .openapi(deleteSubjectGroupRoute, controller.delete);
+  return routes;
 };

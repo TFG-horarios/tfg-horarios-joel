@@ -28,10 +28,10 @@ export const createAuthModule = (db: DbConnection, jwtService: JwtService) => {
   );
 
   const controller = new HonoAuthController(loginUseCase, registerUseCase);
-  const router = new OpenAPIHono<AppEnv>();
 
-  router.openapi(loginRoute, controller.login);
-  router.openapi(registerRoute, controller.register);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(loginRoute, controller.login)
+    .openapi(registerRoute, controller.register);
+  return routes;
 };

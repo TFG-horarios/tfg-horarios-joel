@@ -14,7 +14,7 @@ export class HonoAuthController {
   login: RouteHandler<typeof loginRoute, AppEnv> = async (c) => {
     const body = c.req.valid('json');
     const result = await this.loginUseCase.execute(body);
-    setCookie(c, 'token', result.token, {
+    setCookie(c, 'auth-token', result.token, {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',
@@ -26,7 +26,7 @@ export class HonoAuthController {
   register: RouteHandler<typeof registerRoute, AppEnv> = async (c) => {
     const body = c.req.valid('json');
     const result = await this.registerUseCase.execute(body);
-    setCookie(c, 'token', result.token, {
+    setCookie(c, 'auth-token', result.token, {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',

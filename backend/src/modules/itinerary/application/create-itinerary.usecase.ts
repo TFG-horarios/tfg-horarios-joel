@@ -35,6 +35,7 @@ export class CreateItineraryUseCase {
       organizationId,
       degreeId,
       name: dto.name,
+      code: dto.code,
     });
 
     await this.itineraryRepository.create(itinerary);

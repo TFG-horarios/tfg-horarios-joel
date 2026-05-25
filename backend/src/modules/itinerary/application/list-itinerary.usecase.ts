@@ -12,7 +12,6 @@ export class ListItinerariesUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     requesterUserId: string
   ): Promise<ItineraryDTO[]> {
     const requester = await this.memberRepository.findByUserAndOrg(
@@ -22,7 +21,7 @@ export class ListItinerariesUseCase {
     if (!requester)
       throw new ForbiddenError('You do not have access to this organization');
 
-    const itineraries = await this.itineraryRepository.findAll(degreeId);
+    const itineraries = await this.itineraryRepository.findAll(organizationId);
     return ItineraryMapper.toDTOList(itineraries);
   }
 }

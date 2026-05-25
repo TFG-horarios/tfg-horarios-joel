@@ -11,7 +11,6 @@ export class DeleteSubjectUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     subjectId: string,
     requesterUserId: string
   ): Promise<void> {
@@ -28,15 +27,14 @@ export class DeleteSubjectUseCase {
       );
     }
 
-    const subject = await this.subjectRepository.findById(subjectId);
-    if (
-      !subject ||
-      subject.organizationId !== organizationId ||
-      subject.degreeId !== degreeId
-    ) {
+    const subject = await this.subjectRepository.findById(
+      subjectId,
+      organizationId
+    );
+    if (!subject) {
       throw new NotFoundError('Subject', subjectId);
     }
 
-    await this.subjectRepository.delete(subjectId);
+    await this.subjectRepository.delete(subjectId, organizationId);
   }
 }

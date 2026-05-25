@@ -15,8 +15,11 @@ export class RemoveMemberUseCase {
     requesterUserId: string,
     memberId: string
   ): Promise<void> {
-    const member = await this.memberRepository.findById(memberId);
-    if (!member || member.organizationId !== organizationId) {
+    const member = await this.memberRepository.findById(
+      memberId,
+      organizationId
+    );
+    if (!member) {
       throw new NotFoundError('Member', memberId);
     }
 
@@ -46,6 +49,6 @@ export class RemoveMemberUseCase {
       }
     }
 
-    await this.memberRepository.delete(member.id);
+    await this.memberRepository.delete(member.id, member.organizationId);
   }
 }

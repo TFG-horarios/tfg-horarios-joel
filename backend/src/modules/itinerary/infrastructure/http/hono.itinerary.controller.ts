@@ -26,20 +26,18 @@ export class HonoItineraryController {
   ) {}
 
   list: RouteHandler<typeof listItinerariesRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId } = c.req.valid('param');
+    const { organizationId } = c.req.valid('param');
     const itineraries = await this.listItinerariesUseCase.execute(
       organizationId,
-      degreeId,
       c.get('userId')
     );
     return c.json(itineraries, 200);
   };
 
   get: RouteHandler<typeof getItineraryRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId, id } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const itinerary = await this.getItineraryUseCase.execute(
       organizationId,
-      degreeId,
       id,
       c.get('userId')
     );
@@ -73,11 +71,10 @@ export class HonoItineraryController {
   };
 
   update: RouteHandler<typeof updateItineraryRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId, id } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     const body = c.req.valid('json');
     const updatedItinerary = await this.updateItineraryUseCase.execute(
       organizationId,
-      degreeId,
       id,
       c.get('userId'),
       body
@@ -86,10 +83,9 @@ export class HonoItineraryController {
   };
 
   delete: RouteHandler<typeof deleteItineraryRoute, AppEnv> = async (c) => {
-    const { organizationId, degreeId, id } = c.req.valid('param');
+    const { organizationId, id } = c.req.valid('param');
     await this.deleteItineraryUseCase.execute(
       organizationId,
-      degreeId,
       id,
       c.get('userId')
     );

@@ -15,11 +15,11 @@ export const ScheduleSlotSchema = z
     dayOfWeek: z.number().int().min(1).max(7).openapi({ example: 1 }),
     startTime: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
     endTime: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '10:00' }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
@@ -47,11 +47,11 @@ export const SaveScheduleSlotBodySchema = z
     dayOfWeek: z.number().int().min(1).max(7).openapi({ example: 1 }),
     startTime: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
     endTime: z
       .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)')
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '10:00' }),
   })
   .refine((data) => data.endTime > data.startTime, {

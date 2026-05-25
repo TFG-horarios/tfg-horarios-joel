@@ -41,6 +41,7 @@ export class BulkCreateItinerariesUseCase {
         organizationId,
         degreeId,
         name: dto.name,
+        code: dto.code,
       })
     );
 

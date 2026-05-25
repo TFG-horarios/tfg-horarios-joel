@@ -25,11 +25,10 @@ export const createUserModule = (
     updateUserUseCase
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(getMeRoute, controller.getMe);
-  router.openapi(updateMeRoute, controller.updateMe);
-  router.openapi(getUserByEmailRoute, controller.getByEmail);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(getMeRoute, controller.getMe)
+    .openapi(updateMeRoute, controller.updateMe)
+    .openapi(getUserByEmailRoute, controller.getByEmail);
+  return routes;
 };

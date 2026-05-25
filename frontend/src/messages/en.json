@@ -1,0 +1,549 @@
+{
+	"ZodErrors": {
+		"invalid_type": "The {path} field has an invalid type or is required.",
+		"invalid_string": "The {path} field has an invalid format.",
+		"invalid_format": "The {path} field has an invalid format.",
+		"invalid_date": "The {path} field contains an invalid date.",
+		"invalid_value": "The value for {path} is invalid.",
+		"invalid_literal": "The value for {path} does not match the expected value.",
+		"invalid_union": "The {path} field does not match any of the allowed options.",
+		"invalid_intersection_types": "The {path} field does not satisfy all combined constraints.",
+		"invalid_enum_value": "The value for {path} is not one of the allowed options.",
+		"unrecognized_keys": "The form contains unrecognized fields.",
+		"too_small": "The {path} field does not meet the minimum allowed value or length.",
+		"too_big": "The {path} field exceeds the maximum allowed value or length.",
+		"not_multiple_of": "The {path} field must be an allowed multiple.",
+		"not_finite": "The {path} field must be a finite number.",
+		"custom": "The {path} field is invalid.",
+		"invalid_key": "The {path} field contains an invalid key.",
+		"invalid_element": "The {path} field contains an invalid element."
+	},
+	"Common": {
+		"actions": {
+			"create": "Create",
+			"createNew": "Create new",
+			"save": "Save",
+			"saveChanges": "Save changes",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"delete": "Delete",
+			"close": "Close",
+			"back": "Back",
+			"continue": "Continue",
+			"retry": "Retry",
+			"login": "Sign in",
+			"register": "Create account",
+			"signOut": "Sign out",
+			"toggleTheme": "Toggle theme",
+			"toggleLanguage": "Toggle language"
+		},
+		"languages": {
+			"es": "Spanish",
+			"en": "English"
+		},
+		"status": {
+			"loading": "Loading...",
+			"saving": "Saving...",
+			"creating": "Creating...",
+			"deleting": "Deleting...",
+			"processing": "Processing...",
+			"searching": "Searching..."
+		},
+		"errors": {
+			"generic": "An unexpected error occurred.",
+			"server": "The request could not be completed. Please try again later.",
+			"network": "Could not connect to the server.",
+			"validation": "Check the highlighted fields and try again."
+		},
+		"success": {
+			"created": "Created successfully.",
+			"updated": "Updated successfully.",
+			"deleted": "Deleted successfully."
+		},
+		"navigation": {
+			"contextual": "Contextual navigation"
+		},
+		"brand": "TFG Horarios",
+		"bulkUploader": {
+			"reviewTitle": "File review",
+			"reviewDescription": "Review the data before sending it to the database.",
+			"ready": "Ready",
+			"errors": "Errors",
+			"warnings": "Warnings",
+			"issuesTab": "Conflicts",
+			"validTab": "Data to import",
+			"row": "Row",
+			"type": "Type",
+			"column": "Column",
+			"value": "Read value",
+			"description": "Description",
+			"valid": "Valid",
+			"noValidRows": "There are no valid rows to import.",
+			"cancel": "Cancel",
+			"importRecords": "Import {count} records",
+			"importAnother": "Import another file",
+			"successTitle": "Import completed",
+			"successDescription": "{count} records were imported successfully.",
+			"analyzing": "Analyzing data...",
+			"columns": "Columns",
+			"structureMissing": "Incorrect structure. Missing columns: {columns}",
+			"structureExtra": "The file contains columns that are not recognized for this module: {columns}",
+			"transformError": "Error transforming the row. Check the columns.",
+			"saveError": "An error occurred while saving to the database.",
+			"readValueFallback": "N/A"
+		},
+		"bulkUploaders": {
+			"classrooms": {
+				"title": "Import classrooms",
+				"description": "Upload a CSV file with classrooms. Columns: name, capacity, type.",
+				"duplicate": "The classroom {name} already exists. It will be skipped."
+			},
+			"degrees": {
+				"title": "Import degrees",
+				"description": "CSV: name, code",
+				"duplicateCode": "The code {code} already exists. It will be skipped.",
+				"duplicateName": "The degree {name} already exists. It will be skipped."
+			},
+			"itineraries": {
+				"title": "Import itineraries",
+				"description": "Upload a CSV file with itineraries. Columns: degreeCode, code, name.",
+				"missingDegree": "The degree with code \"{degreeCode}\" does not exist in the organization.",
+				"duplicate": "The itinerary \"{code}\" already exists in degree {degreeCode}. It will be skipped."
+			},
+			"subjects": {
+				"title": "Import subjects",
+				"description": "CSV: degreeCode, name, code, availableShifts, courseYear, weeklyHours, numberOfStudents, period, isCommon, itineraryCode",
+				"missingDegree": "Degree not found.",
+				"missingItineraryCode": "Since it is not common, you must provide the itineraryCode.",
+				"missingItinerary": "The itinerary does not exist in this degree.",
+				"duplicate": "Duplicate subject. It will be skipped."
+			},
+			"subjectGroups": {
+				"title": "Import groups",
+				"description": "CSV: subjectCode, name, numberOfStudents, weeklyHours, groupType, shift, groupNumber",
+				"missingSubject": "The subject does not exist.",
+				"duplicate": "This group already exists for this subject. It will be skipped."
+			}
+		},
+		"membersManagement": {
+			"addTitle": "Add member",
+			"addDescription": "Add existing users to {organizationName} and assign their initial role.",
+			"emailLabel": "Email",
+			"emailPlaceholder": "user@example.com",
+			"roleLabel": "Initial role",
+			"rolePlaceholder": "Select a role",
+			"roleOptions": {
+				"admin": "Admin",
+				"editor": "Editor",
+				"viewer": "Viewer"
+			},
+			"adding": "Adding...",
+			"addButton": "Add member",
+			"readOnlyTitle": "Read-only access",
+			"readOnlyDescription": "Only administrators can add, edit, or remove members.",
+			"tableTitle": "Registered members",
+			"tableDescription": "Review the current members and, if you have permissions, adjust their roles or remove them.",
+			"headers": {
+				"name": "Name",
+				"email": "Email",
+				"role": "Role",
+				"updated": "Updated",
+				"actions": "Actions"
+			},
+			"self": "(you)",
+			"roles": {
+				"admin": "Admin",
+				"editor": "Editor",
+				"viewer": "Viewer"
+			},
+			"saving": "Saving",
+			"save": "Save",
+			"delete": "Delete",
+			"empty": "There are no registered members yet.",
+			"deleteTitle": "Delete member",
+			"deleteDescription": "You are about to remove {name} from {organizationName}. This action cannot be undone.",
+			"cancel": "Cancel",
+			"confirmDelete": "Delete",
+			"message": {
+				"invalidEmail": "You must provide a valid email to add the member.",
+				"added": "Member added successfully.",
+				"addFailed": "Could not add the member.",
+				"roleUnchanged": "The role is already up to date.",
+				"roleUpdated": "Role updated successfully.",
+				"roleUpdateFailed": "Could not update the role.",
+				"removed": "Member removed successfully.",
+				"removeFailed": "Could not remove the member."
+			}
+		},
+		"empty": {
+			"title": "No results",
+			"description": "There are no items to display right now."
+		}
+	},
+	"Metadata": {
+		"title": "TFG Horarios",
+		"description": "Schedule planning with secure access"
+	},
+	"Landing": {
+		"eyebrow": "TFG Horarios",
+		"title": "Plan schedules with a clean, fast, and serious interface.",
+		"description": "A modern foundation for managing organizations, classrooms, subjects, and users with JWT authentication and a consistent visual experience from end to end.",
+		"primaryCta": "Sign in",
+		"secondaryCta": "Create account",
+		"accessLabel": "Access",
+		"panelTitle": "Sign in or register",
+		"panelDescription": "Continue along the path that best fits your current state.",
+		"panelNote": "The login styling stays consistent across all authentication screens.",
+		"panelLogin": "Go to login",
+		"panelRegister": "Open registration",
+		"highlights": {
+			"centralized": {
+				"title": "Centralized schedule",
+				"description": "View and organize time slots, classrooms, and subjects in one place."
+			},
+			"secure": {
+				"title": "Secure access",
+				"description": "JWT, role-based permissions, and a session flow ready to grow with the team."
+			},
+			"teamwork": {
+				"title": "Teamwork",
+				"description": "Built to coordinate organizations, members, and changes without friction."
+			}
+		}
+	},
+	"Auth": {
+		"login": {
+			"eyebrow": "TFG Horarios",
+			"title": "Sign in",
+			"description": "Access your account to manage academic scheduling.",
+			"invalidCredentials": "Invalid email or password.",
+			"fields": {
+				"email": {
+					"label": "Email",
+					"placeholder": "you@example.com"
+				},
+				"password": {
+					"label": "Password",
+					"placeholder": "Minimum 10 characters"
+				}
+			},
+			"submit": "Sign in",
+			"submitting": "Signing in...",
+			"error": "Unable to sign in.",
+			"footer": {
+				"prompt": "Don't have an account?",
+				"link": "Create one now"
+			}
+		},
+		"register": {
+			"eyebrow": "TFG Horarios",
+			"title": "Create account",
+			"description": "Create an account to start managing your schedules.",
+			"fields": {
+				"name": {
+					"label": "Name",
+					"placeholder": "First and last name"
+				},
+				"email": {
+					"label": "Email",
+					"placeholder": "you@example.com"
+				},
+				"password": {
+					"label": "Password",
+					"placeholder": "Minimum 10 characters"
+				},
+				"confirmPassword": {
+					"label": "Confirm password",
+					"placeholder": "Repeat your password"
+				}
+			},
+			"submit": "Create account",
+			"submitting": "Creating account...",
+			"success": "Account created successfully.",
+			"error": "Unable to create the account.",
+			"footer": {
+				"prompt": "Already have an account?",
+				"link": "Back to login"
+			}
+		}
+	},
+	"Organizations": {
+		"page": {
+			"title": "Your organizations",
+			"description": "Select an organization to manage its academic schedules.",
+			"emptyTitle": "You don't have any organizations yet",
+			"emptyDescription": "Create your first organization to start configuring schedules, degrees, and classrooms.",
+			"count": {
+				"one": "1 organization",
+				"other": "{count} organizations"
+			}
+		},
+		"actions": {
+			"create": "Create organization",
+			"createNew": "Create new organization",
+			"open": "Open organization"
+		},
+		"navigation": {
+			"summary": "Summary",
+			"classrooms": "Classrooms",
+			"degrees": "Degrees",
+			"itineraries": "Itineraries",
+			"subjects": "Subjects",
+			"subjectGroups": "Groups",
+			"members": "Members"
+		},
+		"dialog": {
+			"title": "New organization",
+			"description": "Set up the basic parameters for your organization."
+		},
+		"detail": {
+			"label": "Organization details",
+			"title": "Organization: {organization}",
+			"eyebrow": "Organization",
+			"description": "Detailed view of the selected organization.",
+			"periodType": "Period type",
+			"morning": "Morning",
+			"afternoon": "Afternoon",
+			"slotDuration": "Class duration"
+		},
+		"classrooms": {
+			"label": "Classrooms",
+			"title": "Classrooms in {organization}",
+			"description": "List of classrooms available within this organization.",
+			"countLabel": "classrooms",
+			"actions": {
+				"deleteAllTitle": "Delete all classrooms?",
+				"deleteAllDescription": "This action will permanently delete all classrooms in the organization.",
+				"cancel": "Cancel",
+				"deleting": "Deleting...",
+				"deleteAllConfirm": "Delete all",
+				"import": "Import",
+				"addFromCsv": "Add from CSV",
+				"replaceAll": "Replace all",
+				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
+				"create": "Create classroom"
+			},
+			"type": {
+				"theory": "Theory",
+				"lab": "Lab"
+			},
+			"capacity": "Capacity",
+			"organization": "Organization",
+			"empty": "There are no classrooms registered yet."
+		},
+		"degrees": {
+			"label": "Degrees",
+			"title": "Degrees in {organization}",
+			"description": "List of degrees available within this organization.",
+			"countLabel": "degrees",
+			"actions": {
+				"deleteAllTitle": "Delete all degrees?",
+				"deleteAllDescription": "This action will permanently delete all degrees in the organization.",
+				"cancel": "Cancel",
+				"deleting": "Deleting...",
+				"deleteAllConfirm": "Delete all",
+				"import": "Import",
+				"addFromCsv": "Add from CSV",
+				"replaceAll": "Replace all",
+				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
+				"create": "Create degree"
+			},
+			"code": "Code",
+			"organization": "Organization",
+			"empty": "There are no degrees registered yet."
+		},
+		"subjects": {
+			"label": "Subjects",
+			"title": "Subjects in {organization}",
+			"description": "Full list of all subjects registered in the organization.",
+			"countLabel": "subjects",
+			"actions": {
+				"deleteAllTitle": "Delete all subjects?",
+				"deleteAllDescription": "This action will permanently delete all subjects in the organization.",
+				"cancel": "Cancel",
+				"deleting": "Deleting...",
+				"deleteAllConfirm": "Delete all",
+				"import": "Import",
+				"addFromCsv": "Add from CSV",
+				"replaceAll": "Replace all",
+				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
+				"create": "Create subject"
+			},
+			"degree": "Degree",
+			"unknownDegree": "Unknown",
+			"course": "Course",
+			"weeklyHours": "hours",
+			"common": "Common",
+			"empty": "There are no subjects registered yet."
+		},
+		"itineraries": {
+			"label": "Itineraries",
+			"title": "Itineraries in {organization}",
+			"description": "Complete list of all tracks and itineraries in the organization, grouped by their corresponding degree.",
+			"countLabel": "itineraries",
+			"actions": {
+				"deleteAllTitle": "Delete all itineraries?",
+				"deleteAllDescription": "This action will permanently delete all itineraries in the organization.",
+				"cancel": "Cancel",
+				"deleting": "Deleting...",
+				"deleteAllConfirm": "Delete all",
+				"import": "Import",
+				"addFromCsv": "Add from CSV",
+				"replaceAll": "Replace all",
+				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
+				"create": "Create itinerary"
+			},
+			"degree": "Degree",
+			"degreeCode": "Degree code",
+			"unassigned": "Unassigned",
+			"noCode": "No degree code",
+			"empty": "No itineraries have been registered in the organization yet."
+		},
+		"subjectGroups": {
+			"label": "Subject groups",
+			"title": "Subject groups in {organization}",
+			"description": "Groups are organized by subject to preserve the context of each degree.",
+			"countLabel": "groups",
+			"groupCount": "groups",
+			"actions": {
+				"deleteAllTitle": "Delete all groups?",
+				"deleteAllDescription": "This action will permanently delete all subject groups in the organization.",
+				"cancel": "Cancel",
+				"deleting": "Deleting...",
+				"deleteAllConfirm": "Delete all",
+				"import": "Import",
+				"addFromCsv": "Add from CSV",
+				"replaceAll": "Replace all",
+				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
+				"create": "Create group"
+			},
+			"type": "Type",
+			"typeOptions": {
+				"theory": "Theory",
+				"problems": "Problems",
+				"practices": "Practices"
+			},
+			"shift": "Shift",
+			"shiftOptions": {
+				"morning": "Morning",
+				"afternoon": "Afternoon"
+			},
+			"students": "Students",
+			"hours": "Hours/week",
+			"unknownDegree": "Unknown degree",
+			"empty": "There are no groups yet. Go to a subject to add groups."
+		},
+		"members": {
+			"label": "Members",
+			"title": "Members in {organization}",
+			"description": {
+				"admin": "As an admin, you can invite, change roles, and remove members from this organization.",
+				"viewer": "You can review the current organization composition and the roles assigned to each member."
+			},
+			"countLabel": "members",
+			"empty": "There are no members registered yet."
+		},
+		"membersManagement": {
+			"addTitle": "Add member",
+			"addDescription": "Add existing users to {organizationName} and assign their initial role.",
+			"emailLabel": "Email",
+			"emailPlaceholder": "user@example.com",
+			"roleLabel": "Initial role",
+			"rolePlaceholder": "Select a role",
+			"roleOptions": {
+				"admin": "Admin",
+				"editor": "Editor",
+				"viewer": "Viewer"
+			},
+			"adding": "Adding...",
+			"addButton": "Add member",
+			"readOnlyTitle": "Read-only access",
+			"readOnlyDescription": "Only administrators can add, edit, or remove members.",
+			"tableTitle": "Registered members",
+			"tableDescription": "Review the current members and, if you have permissions, adjust their roles or remove them.",
+			"headers": {
+				"name": "Name",
+				"email": "Email",
+				"role": "Role",
+				"updated": "Updated",
+				"actions": "Actions"
+			},
+			"self": "(you)",
+			"roles": {
+				"admin": "Admin",
+				"editor": "Editor",
+				"viewer": "Viewer"
+			},
+			"saving": "Saving",
+			"save": "Save",
+			"delete": "Delete",
+			"empty": "There are no registered members yet.",
+			"deleteTitle": "Delete member",
+			"deleteDescription": "You are about to remove {name} from {organizationName}. This action cannot be undone.",
+			"cancel": "Cancel",
+			"confirmDelete": "Delete",
+			"message": {
+				"invalidEmail": "You must provide a valid email to add the member.",
+				"added": "Member added successfully.",
+				"addFailed": "Could not add the member.",
+				"roleUnchanged": "The role is already up to date.",
+				"roleUpdated": "Role updated successfully.",
+				"roleUpdateFailed": "Could not update the role.",
+				"removed": "Member removed successfully.",
+				"removeFailed": "Could not remove the member."
+			}
+		},
+		"form": {
+			"name": {
+				"label": "Organization name",
+				"placeholder": "e.g. Technical Institute San Juan"
+			},
+			"periodType": {
+				"label": "Period type",
+				"placeholder": "Select a period type",
+				"options": {
+					"semester": "Semester",
+					"trimester": "Trimester",
+					"annual": "Annual"
+				}
+			},
+			"morningStart": {
+				"label": "Morning start",
+				"placeholder": "08:00"
+			},
+			"morningEnd": {
+				"label": "Morning end",
+				"placeholder": "14:00"
+			},
+			"afternoonStart": {
+				"label": "Afternoon start",
+				"placeholder": "14:00"
+			},
+			"afternoonEnd": {
+				"label": "Afternoon end",
+				"placeholder": "20:00"
+			},
+			"slotDurationMinutes": {
+				"label": "Class duration (minutes)",
+				"placeholder": "60",
+				"help": "The duration will apply to every generated slot.",
+				"suffix": "min"
+			},
+			"submit": "Create organization",
+			"submitting": "Creating organization...",
+			"error": "Unable to create the organization."
+		},
+		"table": {
+			"name": "Name",
+			"periodType": "Period type",
+			"morning": "Morning",
+			"afternoon": "Afternoon",
+			"slotDuration": "Slot duration",
+			"actions": "Actions"
+		},
+		"empty": {
+			"title": "No organizations yet",
+			"description": "Once you create an organization, it will appear here so you can open its details."
+		}
+	}
+}

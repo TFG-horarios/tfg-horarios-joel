@@ -12,7 +12,6 @@ export class GetItineraryUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     itineraryId: string,
     requesterUserId: string
   ): Promise<ItineraryDTO> {
@@ -23,12 +22,11 @@ export class GetItineraryUseCase {
     if (!requester)
       throw new ForbiddenError('You do not have access to this organization');
 
-    const itinerary = await this.itineraryRepository.findById(itineraryId);
-    if (
-      !itinerary ||
-      itinerary.organizationId !== organizationId ||
-      itinerary.degreeId !== degreeId
-    ) {
+    const itinerary = await this.itineraryRepository.findById(
+      itineraryId,
+      organizationId
+    );
+    if (!itinerary) {
       throw new NotFoundError('Itinerary', itineraryId);
     }
 

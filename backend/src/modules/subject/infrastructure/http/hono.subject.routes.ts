@@ -22,7 +22,7 @@ export const listSubjectsRoute = createRoute({
 
 export const getSubjectRoute = createRoute({
   method: 'get',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/subjects/{id}',
+  path: '/organizations/{organizationId}/subjects/{id}',
   request: { params: SubjectIdParamSchema },
   responses: {
     200: {
@@ -71,7 +71,7 @@ export const bulkCreateSubjectsRoute = createRoute({
 
 export const updateSubjectRoute = createRoute({
   method: 'patch',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/subjects/{id}',
+  path: '/organizations/{organizationId}/subjects/{id}',
   request: {
     params: SubjectIdParamSchema,
     body: {
@@ -89,7 +89,7 @@ export const updateSubjectRoute = createRoute({
 
 export const deleteSubjectRoute = createRoute({
   method: 'delete',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/subjects/{id}',
+  path: '/organizations/{organizationId}/subjects/{id}',
   request: { params: SubjectIdParamSchema },
   responses: { 204: { description: 'Deleted' } },
 });

@@ -3,6 +3,7 @@ import type { DbConnection } from '@/core/db/connection';
 import {
   subjectGroupsTable,
   type DrizzleSubjectGroup,
+  type NewDrizzleSubjectGroup,
 } from './drizzle.subject-group.schema';
 import type { ISubjectGroupRepository } from '../../domain/subject-group.repository';
 import {
@@ -31,24 +32,48 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     });
   }
 
-  async findById(id: string): Promise<SubjectGroup | null> {
-    const rows = await this.database
-      .select()
-      .from(subjectGroupsTable)
-      .where(
-        and(eq(subjectGroupsTable.id, id), isNull(subjectGroupsTable.deletedAt))
-      )
-      .limit(1);
-    return rows[0] ? this.mapToDomain(rows[0]) : null;
+  private mapToPersistence(domain: SubjectGroup): NewDrizzleSubjectGroup {
+    return {
+      id: domain.id,
+      organizationId: domain.organizationId,
+      subjectId: domain.subjectId,
+      name: domain.name,
+      groupType: domain.groupType,
+      shift: domain.shift,
+      groupNumber: domain.groupNumber,
+      weeklyHours: domain.weeklyHours.toString(),
+      numberOfStudents: domain.numberOfStudents,
+      createdAt: domain.createdAt,
+      updatedAt: domain.updatedAt,
+      deletedAt: domain.deletedAt,
+    };
   }
 
-  async findAll(subjectId: string): Promise<SubjectGroup[]> {
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<SubjectGroup | null> {
     const rows = await this.database
       .select()
       .from(subjectGroupsTable)
       .where(
         and(
-          eq(subjectGroupsTable.subjectId, subjectId),
+          eq(subjectGroupsTable.id, id),
+          eq(subjectGroupsTable.organizationId, organizationId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      )
+      .limit(1);
+    return rows[0] ? this.mapToDomain(rows[0]) : null;
+  }
+
+  async findAll(organizationId: string): Promise<SubjectGroup[]> {
+    const rows = await this.database
+      .select()
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
           isNull(subjectGroupsTable.deletedAt)
         )
       );
@@ -56,42 +81,52 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
   }
 
   async create(subjectGroup: SubjectGroup): Promise<void> {
-    await this.database.insert(subjectGroupsTable).values({
-      ...subjectGroup,
-      weeklyHours: subjectGroup.weeklyHours.toString(),
-    } as any);
+    await this.database
+      .insert(subjectGroupsTable)
+      .values(this.mapToPersistence(subjectGroup));
   }
 
   async createMany(subjectGroups: SubjectGroup[]): Promise<void> {
     if (subjectGroups.length === 0) return;
-    const values = subjectGroups.map((g) => ({
-      ...g,
-      weeklyHours: g.weeklyHours.toString(),
-    }));
+    const valuesToInsert = subjectGroups.map((g) => this.mapToPersistence(g));
     await this.database.transaction(async (tx) => {
-      await tx.insert(subjectGroupsTable).values(values as any);
+      await tx
+        .insert(subjectGroupsTable)
+        .values(valuesToInsert)
+        .onConflictDoNothing();
     });
   }
 
   async update(subjectGroup: SubjectGroup): Promise<void> {
+    const rawData = this.mapToPersistence(subjectGroup);
     await this.database
       .update(subjectGroupsTable)
       .set({
-        name: subjectGroup.name,
-        groupType: subjectGroup.groupType,
-        shift: subjectGroup.shift,
-        groupNumber: subjectGroup.groupNumber,
-        weeklyHours: subjectGroup.weeklyHours.toString(),
-        numberOfStudents: subjectGroup.numberOfStudents,
+        name: rawData.name,
+        groupType: rawData.groupType,
+        shift: rawData.shift,
+        groupNumber: rawData.groupNumber,
+        weeklyHours: rawData.weeklyHours,
+        numberOfStudents: rawData.numberOfStudents,
         updatedAt: new Date(),
       })
-      .where(eq(subjectGroupsTable.id, subjectGroup.id));
+      .where(
+        and(
+          eq(subjectGroupsTable.id, subjectGroup.id),
+          eq(subjectGroupsTable.organizationId, subjectGroup.organizationId)
+        )
+      );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, organizationId: string): Promise<void> {
     await this.database
       .update(subjectGroupsTable)
       .set({ deletedAt: new Date() })
-      .where(eq(subjectGroupsTable.id, id));
+      .where(
+        and(
+          eq(subjectGroupsTable.id, id),
+          eq(subjectGroupsTable.organizationId, organizationId)
+        )
+      );
   }
 }

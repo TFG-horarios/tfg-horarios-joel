@@ -32,14 +32,13 @@ export const createDegreeModule = (db: DbConnection) => {
     new DeleteDegreeUseCase(degreeRepository, memberRepository)
   );
 
-  const router = new OpenAPIHono<AppEnv>();
-
-  router.openapi(listDegreesRoute, controller.list);
-  router.openapi(getDegreeRoute, controller.get);
-  router.openapi(createDegreeRoute, controller.create);
-  router.openapi(bulkCreateDegreesRoute, controller.bulkCreate);
-  router.openapi(updateDegreeRoute, controller.update);
-  router.openapi(deleteDegreeRoute, controller.delete);
-
-  return router;
+  const app = new OpenAPIHono<AppEnv>();
+  const routes = app
+    .openapi(listDegreesRoute, controller.list)
+    .openapi(getDegreeRoute, controller.get)
+    .openapi(createDegreeRoute, controller.create)
+    .openapi(bulkCreateDegreesRoute, controller.bulkCreate)
+    .openapi(updateDegreeRoute, controller.update)
+    .openapi(deleteDegreeRoute, controller.delete);
+  return routes;
 };

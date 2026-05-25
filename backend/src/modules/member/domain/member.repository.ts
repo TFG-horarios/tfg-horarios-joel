@@ -7,7 +7,7 @@ export interface MemberWithUserDetails {
 }
 
 export interface IMemberRepository {
-  findById(id: string): Promise<Member | null>;
+  findById(id: string, organizationId: string): Promise<Member | null>;
   findByUserAndOrg(
     userId: string,
     organizationId: string
@@ -17,6 +17,6 @@ export interface IMemberRepository {
   ): Promise<MemberWithUserDetails[]>;
   create(member: Member): Promise<void>;
   update(member: Member): Promise<void>;
-  delete(id: string): Promise<void>;
+  delete(id: string, organizationId: string): Promise<void>;
   countAdmins(organizationId: string): Promise<number>;
 }
