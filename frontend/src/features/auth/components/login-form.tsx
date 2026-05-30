@@ -1,104 +1,47 @@
 'use client';
 
-import { useActionState, startTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { LoginSchema, type LoginDTO } from '@tfg-horarios/shared';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/shared/form/form-input';
 import { loginAction } from '@/features/auth/actions';
 import { cn } from '@/lib/utils';
-import { useZodErrorMap } from '@/lib/i18n/zod-errors';
-
-type ActionState = { success: boolean; message?: string } | null;
+import { useActionForm } from '@/hooks/use-action-form';
 
 export function LoginForm() {
   const t = useTranslations('Auth.login');
   const tCommon = useTranslations('Common');
-  const zodErrorMap = useZodErrorMap();
 
-  const [state, formAction, isPending] = useActionState(
-    async (prevState: ActionState, formData: LoginDTO) => {
-      return await loginAction(formData);
-    },
-    null
-  );
-
-  const form = useForm<LoginDTO>({
-    resolver: zodResolver(LoginSchema, {
-      error: zodErrorMap,
-    }),
-    mode: 'onChange',
+  const { form, state, isPending, handleSubmit } = useActionForm<
+    LoginDTO,
+    void
+  >({
+    action: loginAction,
+    schema: LoginSchema,
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  function onSubmit(data: LoginDTO) {
-    startTransition(() => {
-      formAction(data);
-    });
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormInput
           name="email"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel>{t('fields.email.label')}</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  autoComplete="email"
-                  placeholder={t('fields.email.placeholder')}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-              {fieldState.error && (
-                <p className="text-xs font-medium text-destructive">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </FormItem>
-          )}
+          type="email"
+          label={t('fields.email.label')}
+          placeholder={t('fields.email.placeholder')}
+          autoComplete="email"
         />
 
-        <FormField
-          control={form.control}
+        <FormInput
           name="password"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel>{t('fields.password.label')}</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder={t('fields.password.placeholder')}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-              {fieldState.error && (
-                <p className="text-xs font-medium text-destructive">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </FormItem>
-          )}
+          type="password"
+          label={t('fields.password.label')}
+          placeholder={t('fields.password.placeholder')}
+          autoComplete="current-password"
         />
 
         {state?.success === false ? (

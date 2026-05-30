@@ -1,4 +1,4 @@
-import type { GetUserByEmailUseCase } from '@/modules/user/application/get-by-email.usecase';
+import type { IMemberUserProvider } from '../domain/member-user.provider';
 import type { IMemberRepository } from '../domain/member.repository';
 import type { MemberDTO as MemberDTO } from '@tfg-horarios/shared';
 import { type AppRole } from '@/core/permissions/roles';
@@ -14,7 +14,7 @@ import { hasPermission } from '@/core/permissions/authorization';
 export class AddMemberUseCase {
   constructor(
     private readonly memberRepository: IMemberRepository,
-    private readonly getUserByEmailUseCase: GetUserByEmailUseCase
+    private readonly userProvider: IMemberUserProvider
   ) {}
 
   async execute(
@@ -33,7 +33,7 @@ export class AddMemberUseCase {
       );
     }
 
-    const userToAdd = await this.getUserByEmailUseCase.execute(email);
+    const userToAdd = await this.userProvider.getUserByEmail(email);
     if (!userToAdd) {
       throw new NotFoundError('Usuario', email);
     }

@@ -24,8 +24,6 @@ export default async function OrganizationDegreesPage({
   }
   const degrees = await fetchDegrees(id);
   const translations = {
-    code: t('code'),
-    organization: t('organization'),
     empty: t('empty'),
   };
 
@@ -44,11 +42,7 @@ export default async function OrganizationDegreesPage({
       <ResourceGrid
         items={degrees}
         renderItem={(degree) => (
-          <DegreeCard
-            degree={degree}
-            organizationName={organization.name}
-            translations={translations}
-          />
+          <DegreeCard degree={degree} translations={translations} />
         )}
         emptyState={<ResourceEmptyState message={t('empty')} />}
         keyExtractor={(degree) => degree.id}

@@ -13,18 +13,17 @@ import {
   updateMemberRoleRoute,
 } from './infrastructure/http/hono.member.routes';
 import type { AppEnv } from '@/core/types/app-types';
-import type { GetUserByEmailUseCase } from '@/modules/user/application/get-by-email.usecase';
+import type { IUserRepository } from '@/modules/user/domain/user.repository';
+import { MemberUserAdapter } from './infrastructure/adapters/member-user.adapter';
 
 export const createMemberModule = (
   db: DbConnection,
-  getUserByEmailUseCase: GetUserByEmailUseCase
+  userRepository: IUserRepository
 ) => {
   const memberRepository = new DrizzleMemberRepository(db);
+  const userProvider = new MemberUserAdapter(userRepository);
 
-  const addUseCase = new AddMemberUseCase(
-    memberRepository,
-    getUserByEmailUseCase
-  );
+  const addUseCase = new AddMemberUseCase(memberRepository, userProvider);
   const listUseCase = new ListMembersUseCase(memberRepository);
   const removeUseCase = new RemoveMemberUseCase(memberRepository);
   const editRoleUseCase = new EditMemberRoleUseCase(memberRepository);

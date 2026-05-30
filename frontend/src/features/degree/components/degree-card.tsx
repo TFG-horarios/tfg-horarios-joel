@@ -1,9 +1,5 @@
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
@@ -12,28 +8,22 @@ import type { DegreeDTO } from '@tfg-horarios/shared';
 
 export interface DegreeCardProps {
   degree: DegreeDTO;
-  organizationName: string;
   translations: Record<string, string>;
 }
 
-export function DegreeCard({
-  degree,
-  organizationName,
-  translations,
-}: DegreeCardProps) {
+export function DegreeCard({ degree }: DegreeCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">
-        <CardDescription>{translations.code}</CardDescription>
+        <Badge
+          variant="outline"
+          className="w-fit font-mono uppercase tracking-[0.2em] border-purple-500/20 bg-purple-500/5 text-purple-500"
+        >
+          {degree.code}
+        </Badge>
         <CardTitle className={`text-xl ${organizationHoverCardTitleClassName}`}>
           {degree.name}
         </CardTitle>
-        <div className="space-y-1 pt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          <p>{degree.code}</p>
-          <p>
-            {translations.organization}: {organizationName}
-          </p>
-        </div>
       </CardHeader>
     </Card>
   );

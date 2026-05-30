@@ -1,5 +1,7 @@
 import { eq } from 'drizzle-orm';
-import { type DbConnection } from '@/core/db/connection';
+import type { DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import { usersTable, type DrizzleUser } from './drizzle.user.schema';
 import { type IUserRepository } from '../../domain/user.repository';
 import { User } from '../../domain/user.entity';
@@ -12,6 +14,7 @@ export class DrizzleUserRepository implements IUserRepository {
       id: row.id,
       name: row.name,
       email: row.email,
+      passwordHash: row.password,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -40,12 +43,37 @@ export class DrizzleUserRepository implements IUserRepository {
     await this.database.delete(usersTable).where(eq(usersTable.id, id));
   }
 
-  async update(user: User): Promise<void> {
-    await this.database
-      .update(usersTable)
-      .set({
+  async create(user: User): Promise<void> {
+    try {
+      await this.database.insert(usersTable).values({
+        id: user.id,
         name: user.name,
-      })
-      .where(eq(usersTable.id, user.id));
+        email: user.email,
+        password: user.passwordHash,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      });
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError('A user with this email already exists.');
+      }
+      throw error;
+    }
+  }
+
+  async update(user: User): Promise<void> {
+    try {
+      await this.database
+        .update(usersTable)
+        .set({
+          name: user.name,
+        })
+        .where(eq(usersTable.id, user.id));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError('A user with this email already exists.');
+      }
+      throw error;
+    }
   }
 }

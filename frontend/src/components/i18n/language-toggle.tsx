@@ -28,6 +28,7 @@ export function LanguageToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          id="language-toggle-trigger"
           variant="outline"
           size="icon"
           className="relative size-9 cursor-pointer"

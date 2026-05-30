@@ -1,16 +1,17 @@
+'use client';
+
 export interface ResourceToolbarProps {
   search?: React.ReactNode;
   filters?: React.ReactNode;
 }
 
-export async function ResourceToolbar({
-  search,
-  filters,
-}: ResourceToolbarProps) {
+export function ResourceToolbar({ search, filters }: ResourceToolbarProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center flex-1 w-full">
-      {search && <div className="w-full flex-1 sm:max-w-md">{search}</div>}
-      {filters && <div className="flex items-center gap-2">{filters}</div>}
+    <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-end">
+      {search && (
+        <div className="w-full min-w-0 lg:w-72 lg:flex-none">{search}</div>
+      )}
+      {filters && <div className="w-full min-w-0 lg:flex-1">{filters}</div>}
     </div>
   );
 }

@@ -7,10 +7,14 @@ export async function fetchSubjectGroups(
 ): Promise<SubjectGroupDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!['subject-groups'].$get();
+  const response = await client.api.organizations[':organizationId']![
+    'subject-groups'
+  ].$get({
+    param: { organizationId },
+  });
 
-  if (response.status === 401 || response.status === 403) return [];
+  const status = response.status as number;
+  if (status === 401 || status === 403) return [];
 
   if (!response.ok) {
     throw new Error(t('server'));

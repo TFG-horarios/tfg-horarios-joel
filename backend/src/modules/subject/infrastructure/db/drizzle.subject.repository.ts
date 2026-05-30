@@ -1,5 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import {
   subjectsTable,
   type DrizzleSubject,
@@ -80,44 +82,66 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
   }
 
   async create(subject: Subject): Promise<void> {
-    await this.database
-      .insert(subjectsTable)
-      .values(this.mapToPersistence(subject));
+    try {
+      await this.database
+        .insert(subjectsTable)
+        .values(this.mapToPersistence(subject));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Una asignatura con el código '${subject.code}' ya existe en esta organización`
+        );
+      }
+      throw error;
+    }
   }
 
   async createMany(subjects: Subject[]): Promise<void> {
     if (subjects.length === 0) return;
     const valuesToInsert = subjects.map((s) => this.mapToPersistence(s));
-    await this.database.transaction(async (tx) => {
-      await tx
-        .insert(subjectsTable)
-        .values(valuesToInsert)
-        .onConflictDoNothing();
-    });
+    try {
+      await this.database.insert(subjectsTable).values(valuesToInsert);
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          'Una o más asignaturas con el mismo código ya existen en esta organización'
+        );
+      }
+      throw error;
+    }
   }
 
   async update(subject: Subject): Promise<void> {
     const rawData = this.mapToPersistence(subject);
-    await this.database
-      .update(subjectsTable)
-      .set({
-        name: rawData.name,
-        code: rawData.code,
-        itineraryId: rawData.itineraryId,
-        availableShifts: rawData.availableShifts,
-        numberOfStudents: rawData.numberOfStudents,
-        courseYear: rawData.courseYear,
-        period: rawData.period,
-        weeklyHours: rawData.weeklyHours,
-        isCommon: rawData.isCommon,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(subjectsTable.id, subject.id),
-          eq(subjectsTable.organizationId, subject.organizationId)
-        )
-      );
+    try {
+      await this.database
+        .update(subjectsTable)
+        .set({
+          name: rawData.name,
+          code: rawData.code,
+          itineraryId: rawData.itineraryId,
+          availableShifts: rawData.availableShifts,
+          numberOfStudents: rawData.numberOfStudents,
+          courseYear: rawData.courseYear,
+          period: rawData.period,
+          weeklyHours: rawData.weeklyHours,
+          isCommon: rawData.isCommon,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(subjectsTable.id, subject.id),
+            eq(subjectsTable.organizationId, subject.organizationId)
+          )
+        );
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Una asignatura con el código '${subject.code}' ya existe en esta organización`
+        );
+      }
+      throw error;
+    }
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

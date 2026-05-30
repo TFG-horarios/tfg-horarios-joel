@@ -112,7 +112,7 @@
 			},
 			"subjects": {
 				"title": "Import subjects",
-				"description": "CSV: degreeCode, name, code, availableShifts, courseYear, weeklyHours, numberOfStudents, period, isCommon, itineraryCode",
+				"description": "CSV: degreeCode, name, code, availableShifts, courseYear, weeklyHours, numberOfStudents, period, isCommon, itineraryCode. In availableShifts, use a comma-separated list inside the same cell, for example \"morning,afternoon\".",
 				"missingDegree": "Degree not found.",
 				"missingItineraryCode": "Since it is not common, you must provide the itineraryCode.",
 				"missingItinerary": "The itinerary does not exist in this degree.",
@@ -290,7 +290,10 @@
 			"itineraries": "Itineraries",
 			"subjects": "Subjects",
 			"subjectGroups": "Groups",
-			"members": "Members"
+			"schedules": "Schedules",
+			"members": "Members",
+			"classroomSchedules": "Classroom schedules",
+			"reserve": "Reserve"
 		},
 		"dialog": {
 			"title": "New organization",
@@ -328,6 +331,14 @@
 				"lab": "Lab"
 			},
 			"capacity": "Capacity",
+			"searchLabel": "Search by name",
+			"searchPlaceholder": "Search classrooms...",
+			"typeFilterLabel": "Type",
+			"allTypes": "All types",
+			"capacityMinLabel": "Min capacity",
+			"capacityMaxLabel": "Max capacity",
+			"resetFilters": "Reset filters",
+			"filteredEmpty": "No classrooms match your filters.",
 			"organization": "Organization",
 			"empty": "There are no classrooms registered yet."
 		},
@@ -442,6 +453,43 @@
 			},
 			"countLabel": "members",
 			"empty": "There are no members registered yet."
+		},
+		"schedules": {
+			"label": "Schedules",
+			"title": "Schedules in {organization}",
+			"description": "Generate and manage interactive schedules massively or by segment with version control and smart conflict resolution.",
+			"countLabel": "schedules",
+			"empty": "No schedules have been generated for this organization yet.",
+			"generate": "Generate schedules",
+			"version": "Version",
+			"status": "Status",
+			"published": "Published",
+			"draft": "Draft",
+			"archived": "Archived",
+			"actions": {
+				"publish": "Publish",
+				"generating": "Generating schedules...",
+				"publishSuccess": "Schedule published successfully.",
+				"generateSuccess": "Schedules generated successfully."
+			},
+			"form": {
+				"academicYear": "Academic Year",
+				"period": "Period / Semester",
+				"degrees": "Selected Degrees",
+				"degreesPlaceholder": "All degrees",
+				"itineraries": "Selected Itineraries",
+				"itinerariesPlaceholder": "All itineraries",
+				"courseYears": "Selected Course Years",
+				"courseYearsPlaceholder": "All course years",
+				"submit": "Generate"
+			},
+			"grid": {
+				"unassignedTitle": "Reserves (Unassigned Slots)",
+				"unassignedDescription": "Drag and drop these slots onto the calendar.",
+				"emptyUnassigned": "No unassigned slots in reserve.",
+				"classroom": "Classroom",
+				"capacity": "Capacity"
+			}
 		},
 		"membersManagement": {
 			"addTitle": "Add member",

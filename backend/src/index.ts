@@ -8,7 +8,6 @@ import { createUserModule } from './modules/user/user.module';
 import { createAuthModule } from './modules/auth/auth.module';
 import { createMemberModule } from './modules/member/member.module';
 import { DrizzleUserRepository } from './modules/user/infrastructure/db/drizzle.user.repository';
-import { GetUserByEmailUseCase } from './modules/user/application/get-by-email.usecase';
 import { JwtService } from './modules/auth/infrastructure/services/jwt.service';
 import { createAuthMiddleware } from './core/middlewares/auth.middleware';
 import { createDegreeModule } from './modules/degree/degree.module';
@@ -16,6 +15,9 @@ import { createClassroomModule } from './modules/classroom/classroom.module';
 import { createItineraryModule } from './modules/itinerary/itinerary.module';
 import { createSubjectModule } from './modules/subject/subject.module';
 import { createSubjectGroupModule } from './modules/subject-group/subject-group.module';
+import { createScheduleModule } from './modules/schedule/schedule.module';
+import { DrizzleMemberRepository } from './modules/member/infrastructure/db/drizzle.member.repository';
+import { DrizzleSubjectRepository } from './modules/subject/infrastructure/db/drizzle.subject.repository';
 
 const api = new OpenAPIHono();
 const protectedApi = new OpenAPIHono();
@@ -26,7 +28,8 @@ if (!jwtSecret) throw new Error('JWT_SECRET missing');
 const jwtService = new JwtService(jwtSecret, jwtExpiresInSeconds);
 const authMiddleware = createAuthMiddleware(jwtService);
 const userRepository = new DrizzleUserRepository(db);
-const getUserByEmailUseCase = new GetUserByEmailUseCase(userRepository);
+const memberRepository = new DrizzleMemberRepository(db);
+const subjectRepository = new DrizzleSubjectRepository(db);
 
 api.use(
   '/api/*',
@@ -39,21 +42,20 @@ api.use(
 
 api.onError(globalErrorMiddleware);
 
-api.route('/api', createAuthModule(db, jwtService));
-
 protectedApi.use('/*', authMiddleware);
 const protectedRoutes = protectedApi
-  .route('/', createOrganizationModule(db))
-  .route('/', createUserModule(db, getUserByEmailUseCase))
-  .route('/', createMemberModule(db, getUserByEmailUseCase))
-  .route('/', createDegreeModule(db))
-  .route('/', createClassroomModule(db))
-  .route('/', createItineraryModule(db))
-  .route('/', createSubjectModule(db))
-  .route('/', createSubjectGroupModule(db));
+  .route('/', createOrganizationModule(db, memberRepository))
+  .route('/', createUserModule(db))
+  .route('/', createMemberModule(db, userRepository))
+  .route('/', createDegreeModule(db, memberRepository))
+  .route('/', createClassroomModule(db, memberRepository))
+  .route('/', createItineraryModule(db, memberRepository))
+  .route('/', createSubjectModule(db, memberRepository))
+  .route('/', createSubjectGroupModule(db, memberRepository, subjectRepository))
+  .route('/', createScheduleModule(db));
 
 const routes = api
-  .route('/api', createAuthModule(db, jwtService))
+  .route('/api', createAuthModule(jwtService, userRepository))
   .route('/api', protectedRoutes);
 
 api.get('/reference', Scalar({ url: '/doc', theme: 'moon' }));

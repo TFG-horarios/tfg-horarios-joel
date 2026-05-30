@@ -8,6 +8,8 @@ import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import './globals.css';
 
+import { Toaster } from '@/components/ui/sonner';
+
 const geistSans = Geist({
   variable: '--font-login-sans',
   subsets: ['latin'],
@@ -40,7 +42,6 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ThemeProvider
@@ -52,6 +53,7 @@ export default async function RootLayout({
             <SessionProvider initialUser={user}>
               <Background />
               {children}
+              <Toaster position="bottom-right" richColors />
             </SessionProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

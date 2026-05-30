@@ -1,12 +1,13 @@
 import type { IClassroomRepository } from '../domain/classroom.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { AppRole } from '@/core/permissions/roles';
 
 export class DeleteClassroomUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IClassroomMemberProvider
   ) {}
 
   async execute(
@@ -14,14 +15,11 @@ export class DeleteClassroomUseCase {
     classroomId: string,
     requesterUserId: string
   ): Promise<void> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'DELETE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to delete classrooms in this organization.'
       );

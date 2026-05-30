@@ -63,10 +63,7 @@ export default async function Home() {
             {highlights.map((item) => {
               const Icon = item.icon;
               return (
-                <Card
-                  key={item.title}
-                  className="border-border bg-card shadow-card-light dark:shadow-none dark:border-border dark:bg-card hover-lift"
-                >
+                <Card key={item.title} className="hover-lift">
                   <CardHeader className="space-y-3">
                     <div className="flex size-10 items-center justify-center rounded-full border border-border bg-muted text-foreground dark:border-border dark:bg-muted dark:text-foreground">
                       <Icon className="size-4" />
@@ -81,7 +78,7 @@ export default async function Home() {
         </section>
 
         <aside className="lg:justify-self-end">
-          <Card className="w-full max-w-md border-border bg-card shadow-card-elevated-light dark:shadow-none dark:border-border dark:bg-card">
+          <Card className="w-full max-w-md">
             <CardHeader className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground dark:text-muted-foreground">
                 {t('accessLabel')}

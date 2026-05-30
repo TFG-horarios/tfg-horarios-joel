@@ -17,6 +17,7 @@ export const listSubjectGroupsRoute = createRoute({
       description: 'Groups list',
       content: { 'application/json': { schema: z.array(SubjectGroupSchema) } },
     },
+    403: { description: 'Forbidden' },
   },
 });
 
@@ -29,6 +30,8 @@ export const getSubjectGroupRoute = createRoute({
       description: 'Group details',
       content: { 'application/json': { schema: SubjectGroupSchema } },
     },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
   },
 });
 
@@ -46,6 +49,10 @@ export const createSubjectGroupRoute = createRoute({
       description: 'Group created',
       content: { 'application/json': { schema: SubjectGroupSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -65,6 +72,10 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
       description: 'Groups created in bulk',
       content: { 'application/json': { schema: z.array(SubjectGroupSchema) } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -82,6 +93,10 @@ export const updateSubjectGroupRoute = createRoute({
       description: 'Group updated',
       content: { 'application/json': { schema: SubjectGroupSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -89,5 +104,9 @@ export const deleteSubjectGroupRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subject-groups/{id}',
   request: { params: SubjectGroupIdParamSchema },
-  responses: { 204: { description: 'Group deleted' } },
+  responses: {
+    204: { description: 'Group deleted' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+  },
 });

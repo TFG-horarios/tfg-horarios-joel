@@ -27,6 +27,7 @@ export class Itinerary {
     }
     return new Itinerary({
       ...props,
+      code: props.code.toUpperCase(),
       id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),

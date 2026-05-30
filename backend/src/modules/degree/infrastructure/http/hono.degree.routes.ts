@@ -16,6 +16,7 @@ export const listDegreesRoute = createRoute({
       description: 'Listado de grados',
       content: { 'application/json': { schema: z.array(DegreeSchema) } },
     },
+    403: { description: 'Forbidden' },
   },
 });
 
@@ -28,6 +29,7 @@ export const getDegreeRoute = createRoute({
       description: 'Detalle del grado',
       content: { 'application/json': { schema: DegreeSchema } },
     },
+    403: { description: 'Forbidden' },
     404: { description: 'Grado no encontrado' },
   },
 });
@@ -45,9 +47,12 @@ export const createDegreeRoute = createRoute({
   },
   responses: {
     201: {
-      description: 'Grado creado',
+      description: 'Degree created',
       content: { 'application/json': { schema: DegreeSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -66,9 +71,12 @@ export const bulkCreateDegreesRoute = createRoute({
   },
   responses: {
     201: {
-      description: 'Grados creados masivamente',
+      description: 'Degrees created in bulk',
       content: { 'application/json': { schema: z.array(DegreeSchema) } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -85,9 +93,13 @@ export const updateDegreeRoute = createRoute({
   },
   responses: {
     200: {
-      description: 'Grado actualizado',
+      description: 'Degree updated',
       content: { 'application/json': { schema: DegreeSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Grado no encontrado' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -95,5 +107,9 @@ export const deleteDegreeRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/degrees/{id}',
   request: { params: DegreeIdParamSchema },
-  responses: { 204: { description: 'Degree deleted' } },
+  responses: {
+    204: { description: 'Degree deleted' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Grado no encontrado' },
+  },
 });

@@ -21,7 +21,6 @@ export default defineConfig([
     ],
   },
 
-  // Común a todo el proyecto
   {
     files: ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'],
     languageOptions: {
@@ -38,7 +37,6 @@ export default defineConfig([
     },
   },
 
-  // Backend, Shared y scripts en la raíz
   {
     files: ['backend/**/*.{js,ts}', 'shared/**/*.{js,ts}', '*.{js,ts}'],
     languageOptions: {
@@ -48,7 +46,6 @@ export default defineConfig([
     },
   },
 
-  // Frontend
   {
     files: ['frontend/**/*.{js,jsx,ts,tsx,mjs}'],
     languageOptions: {

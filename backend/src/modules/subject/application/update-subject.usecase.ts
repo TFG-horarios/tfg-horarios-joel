@@ -1,4 +1,4 @@
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
 import type { ISubjectRepository } from '../domain/subject.repository';
 import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
@@ -8,7 +8,7 @@ import { SubjectMapper } from './subject.mapper';
 export class UpdateSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectMemberProvider
   ) {}
 
   async execute(
@@ -17,14 +17,11 @@ export class UpdateSubjectUseCase {
     requesterUserId: string,
     dto: SaveSubjectDTO
   ): Promise<SubjectDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'UPDATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError('You do not have access to this organization');
     }
 

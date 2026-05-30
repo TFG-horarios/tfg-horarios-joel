@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
 import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { Subject } from '../domain/subject.entity';
 import { SubjectMapper } from './subject.mapper';
@@ -9,7 +9,7 @@ import { hasPermission } from '@/core/permissions/authorization';
 export class CreateSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectMemberProvider
   ) {}
 
   async execute(
@@ -18,14 +18,11 @@ export class CreateSubjectUseCase {
     requesterUserId: string,
     dto: SaveSubjectDTO
   ): Promise<SubjectDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create a subject in this organization.'
       );

@@ -4,12 +4,13 @@ import type { IClassroomRepository } from '../domain/classroom.repository';
 import { ClassroomMapper } from './classroom.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 
 export class CreateClassroomUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IClassroomMemberProvider
   ) {}
 
   async execute(
@@ -17,14 +18,11 @@ export class CreateClassroomUseCase {
     requesterUserId: string,
     dto: SaveClassroomDTO
   ): Promise<ClassroomDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create new classrooms in this organization'
       );

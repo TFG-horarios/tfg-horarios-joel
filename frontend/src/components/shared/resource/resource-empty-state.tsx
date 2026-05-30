@@ -4,7 +4,7 @@ export interface ResourceEmptyStateProps {
   message: string;
 }
 
-export async function ResourceEmptyState({ message }: ResourceEmptyStateProps) {
+export function ResourceEmptyState({ message }: ResourceEmptyStateProps) {
   return (
     <Card className="border-dashed border-zinc-300 bg-transparent p-6 dark:border-zinc-700">
       <CardHeader className="p-0">

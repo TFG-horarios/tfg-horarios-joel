@@ -13,8 +13,11 @@ export async function fetchMembers(
 ): Promise<MemberDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!.members.$get();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.members.$get({
+    param: { organizationId },
+  });
 
   if (response.status === 401 || response.status === 403) return [];
 

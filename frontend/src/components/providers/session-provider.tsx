@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { UserDTO } from '@tfg-horarios/shared';
 
 type SessionContextType = {
@@ -19,15 +19,16 @@ export function SessionProvider({
   children,
   initialUser,
 }: SessionProviderProps) {
+  const value = useMemo(
+    () => ({
+      user: initialUser,
+      isAuthenticated: !!initialUser,
+    }),
+    [initialUser]
+  );
+
   return (
-    <SessionContext.Provider
-      value={{
-        user: initialUser,
-        isAuthenticated: !!initialUser,
-      }}
-    >
-      {children}
-    </SessionContext.Provider>
+    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
   );
 }
 

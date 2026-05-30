@@ -2,7 +2,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
 import type { AppEnv } from '@/core/types/app-types';
 import { DrizzleDegreeRepository } from './infrastructure/db/drizzle.degree.repository';
-import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
 import { CreateDegreeUseCase } from './application/create-degree.usecase';
 import { BulkCreateDegreesUseCase } from './application/bulk-create-degree.usecase';
 import { GetDegreeUseCase } from './application/get-degree.usecase';
@@ -18,18 +17,23 @@ import {
   updateDegreeRoute,
   deleteDegreeRoute,
 } from './infrastructure/http/hono.degree.routes';
+import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { DegreeMemberAdapter } from './infrastructure/adapters/degree-member.adapter';
 
-export const createDegreeModule = (db: DbConnection) => {
+export const createDegreeModule = (
+  db: DbConnection,
+  memberRepository: IMemberRepository
+) => {
   const degreeRepository = new DrizzleDegreeRepository(db);
-  const memberRepository = new DrizzleMemberRepository(db);
+  const memberProvider = new DegreeMemberAdapter(memberRepository);
 
   const controller = new HonoDegreeController(
-    new CreateDegreeUseCase(degreeRepository, memberRepository),
-    new BulkCreateDegreesUseCase(degreeRepository, memberRepository),
-    new GetDegreeUseCase(degreeRepository, memberRepository),
-    new ListDegreesUseCase(degreeRepository, memberRepository),
-    new UpdateDegreeUseCase(degreeRepository, memberRepository),
-    new DeleteDegreeUseCase(degreeRepository, memberRepository)
+    new CreateDegreeUseCase(degreeRepository, memberProvider),
+    new BulkCreateDegreesUseCase(degreeRepository, memberProvider),
+    new GetDegreeUseCase(degreeRepository, memberProvider),
+    new ListDegreesUseCase(degreeRepository, memberProvider),
+    new UpdateDegreeUseCase(degreeRepository, memberProvider),
+    new DeleteDegreeUseCase(degreeRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -40,5 +44,6 @@ export const createDegreeModule = (db: DbConnection) => {
     .openapi(bulkCreateDegreesRoute, controller.bulkCreate)
     .openapi(updateDegreeRoute, controller.update)
     .openapi(deleteDegreeRoute, controller.delete);
+
   return routes;
 };

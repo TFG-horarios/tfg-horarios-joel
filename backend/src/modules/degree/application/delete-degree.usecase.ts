@@ -1,12 +1,13 @@
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IDegreeMemberProvider
   ) {}
 
   async execute(
@@ -14,14 +15,11 @@ export class DeleteDegreeUseCase {
     degreeId: string,
     requesterUserId: string
   ): Promise<void> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'DELETE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to delete degrees in this organization.'
       );

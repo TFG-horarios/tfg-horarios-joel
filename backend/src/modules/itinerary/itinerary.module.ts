@@ -2,7 +2,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
 import type { AppEnv } from '@/core/types/app-types';
 import { DrizzleItineraryRepository } from './infrastructure/db/drizzle.itinerary.repository';
-import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
 import { CreateItineraryUseCase } from './application/create-itinerary.usecase';
 import { BulkCreateItinerariesUseCase } from './application/bulk-create-itinerary.usecase';
 import { GetItineraryUseCase } from './application/get-itinerary.usecase';
@@ -18,18 +17,23 @@ import {
   updateItineraryRoute,
   deleteItineraryRoute,
 } from './infrastructure/http/hono.itinerary.routes';
+import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { ItineraryMemberAdapter } from './infrastructure/adapters/itinerary-member.adapter';
 
-export const createItineraryModule = (db: DbConnection) => {
+export const createItineraryModule = (
+  db: DbConnection,
+  memberRepository: IMemberRepository
+) => {
   const itineraryRepository = new DrizzleItineraryRepository(db);
-  const memberRepository = new DrizzleMemberRepository(db);
+  const memberProvider = new ItineraryMemberAdapter(memberRepository);
 
   const controller = new HonoItineraryController(
-    new CreateItineraryUseCase(itineraryRepository, memberRepository),
-    new BulkCreateItinerariesUseCase(itineraryRepository, memberRepository),
-    new GetItineraryUseCase(itineraryRepository, memberRepository),
-    new ListItinerariesUseCase(itineraryRepository, memberRepository),
-    new UpdateItineraryUseCase(itineraryRepository, memberRepository),
-    new DeleteItineraryUseCase(itineraryRepository, memberRepository)
+    new CreateItineraryUseCase(itineraryRepository, memberProvider),
+    new BulkCreateItinerariesUseCase(itineraryRepository, memberProvider),
+    new GetItineraryUseCase(itineraryRepository, memberProvider),
+    new ListItinerariesUseCase(itineraryRepository, memberProvider),
+    new UpdateItineraryUseCase(itineraryRepository, memberProvider),
+    new DeleteItineraryUseCase(itineraryRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();

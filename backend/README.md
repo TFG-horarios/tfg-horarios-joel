@@ -15,6 +15,7 @@ To update database schema:
 ```bash
 bun run db:generate
 ```
+
 ```bash
 bun run db:migrate
 ```

@@ -2,7 +2,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
 import type { AppEnv } from '@/core/types/app-types';
 import { DrizzleSubjectGroupRepository } from './infrastructure/db/drizzle.subject-group.repository';
-import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
 import { HonoSubjectGroupController } from './infrastructure/http/hono.subject-group.controller';
 import {
   listSubjectGroupsRoute,
@@ -18,34 +17,46 @@ import { DeleteSubjectGroupUseCase } from './application/delete-subject-group.us
 import { GetSubjectGroupUseCase } from './application/get-subject-group.usecase';
 import { ListSubjectGroupsUseCase } from './application/list-subject-group.usecase';
 import { UpdateSubjectGroupUseCase } from './application/update-subject-group.usecase';
+import type { IMemberRepository } from '../member/domain/member.repository';
+import type { ISubjectRepository } from '../subject/domain/subject.repository';
+import { SubjectGroupMemberAdapter } from './infrastructure/adapters/subject-group-member.adapter';
+import { SubjectAdapter } from './infrastructure/adapters/subject.adapter';
 
-export const createSubjectGroupModule = (db: DbConnection) => {
+export const createSubjectGroupModule = (
+  db: DbConnection,
+  memberRepository: IMemberRepository,
+  subjectRepository: ISubjectRepository
+) => {
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
-  const memberRepository = new DrizzleMemberRepository(db);
+  const memberProvider = new SubjectGroupMemberAdapter(memberRepository);
+  const subjectProvider = new SubjectAdapter(subjectRepository);
 
   const listUseCase = new ListSubjectGroupsUseCase(
     subjectGroupRepository,
-    memberRepository
+    memberProvider
   );
   const getUseCase = new GetSubjectGroupUseCase(
     subjectGroupRepository,
-    memberRepository
+    memberProvider
   );
   const createUseCase = new CreateSubjectGroupUseCase(
     subjectGroupRepository,
-    memberRepository
+    subjectProvider,
+    memberProvider
   );
   const bulkCreateUseCase = new BulkCreateSubjectGroupUseCase(
     subjectGroupRepository,
-    memberRepository
+    subjectProvider,
+    memberProvider
   );
   const updateUseCase = new UpdateSubjectGroupUseCase(
     subjectGroupRepository,
-    memberRepository
+    subjectProvider,
+    memberProvider
   );
   const deleteUseCase = new DeleteSubjectGroupUseCase(
     subjectGroupRepository,
-    memberRepository
+    memberProvider
   );
 
   const controller = new HonoSubjectGroupController(

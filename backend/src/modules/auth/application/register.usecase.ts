@@ -1,22 +1,21 @@
-import type { AuthRepository } from '../domain/auth.repository';
+import type { IAuthUserRepository } from '../domain/auth-user.provider';
 import type { ITokenService } from '../domain/token.service';
 import type { IPasswordHasherService } from '../domain/password-hasher.service';
 import { ConflictError } from '@/core/errors/app.error';
-import { AuthUser } from '../domain/auth.entity';
 import type { RegisterDTO, AuthResponseDTO } from '@tfg-horarios/shared';
 import { AuthMapper } from './auth.mapper';
 import { PasswordPolicy } from '../domain/password.vo';
 
 export class RegisterUseCase {
   constructor(
-    private readonly authRepository: AuthRepository,
+    private readonly authUserRepository: IAuthUserRepository,
     private readonly tokenService: ITokenService,
     private readonly passwordHasherService: IPasswordHasherService
   ) {}
 
   async execute(dto: RegisterDTO): Promise<AuthResponseDTO> {
-    const user = await this.authRepository.findByEmail(dto.email);
-    if (user) {
+    const userExists = await this.authUserRepository.findByEmail(dto.email);
+    if (userExists) {
       throw new ConflictError('This email is already taken');
     }
 
@@ -25,19 +24,18 @@ export class RegisterUseCase {
       validPassword.getValue()
     );
 
-    const newUser = AuthUser.create({
+    const registeredUser = await this.authUserRepository.create({
       name: dto.name,
       email: dto.email,
-      passwordHash,
+      passwordHash: passwordHash,
     });
-    await this.authRepository.create(newUser);
 
     const token = await this.tokenService.generate({
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
+      id: registeredUser.id,
+      name: registeredUser.name,
+      email: registeredUser.email,
     });
 
-    return AuthMapper.toDTO(newUser, token);
+    return AuthMapper.toDTO(registeredUser, token);
   }
 }

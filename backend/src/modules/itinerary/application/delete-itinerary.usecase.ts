@@ -1,12 +1,13 @@
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteItineraryUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IItineraryMemberProvider
   ) {}
 
   async execute(
@@ -14,14 +15,11 @@ export class DeleteItineraryUseCase {
     itineraryId: string,
     requesterUserId: string
   ): Promise<void> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'DELETE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to delete itineraries in this organization.'
       );

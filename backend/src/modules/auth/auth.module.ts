@@ -1,28 +1,31 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { DrizzleAuthRepository } from './infrastructure/db/drizzle.auth.repository';
+import { AuthUserAdapter } from './infrastructure/adapters/auth-user.adapter';
 import { JwtService } from './infrastructure/services/jwt.service';
 import { PasswordHasherService } from './infrastructure/services/password-hasher.service';
 import { LoginUseCase } from './application/login.usecase';
 import { RegisterUseCase } from './application/register.usecase';
 import { HonoAuthController } from './infrastructure/http/hono.auth.controller';
-import type { DbConnection } from '@/core/db/connection';
 import {
   loginRoute,
   registerRoute,
 } from './infrastructure/http/hono.auth.routes';
 import type { AppEnv } from '@/core/types/app-types';
+import type { IUserRepository } from '../user/domain/user.repository';
 
-export const createAuthModule = (db: DbConnection, jwtService: JwtService) => {
+export const createAuthModule = (
+  jwtService: JwtService,
+  userRepository: IUserRepository
+) => {
   const passwordHasherService = new PasswordHasherService();
-  const authRepository = new DrizzleAuthRepository(db);
+  const authUserAdapter = new AuthUserAdapter(userRepository);
 
   const loginUseCase = new LoginUseCase(
-    authRepository,
+    authUserAdapter,
     jwtService,
     passwordHasherService
   );
   const registerUseCase = new RegisterUseCase(
-    authRepository,
+    authUserAdapter,
     jwtService,
     passwordHasherService
   );

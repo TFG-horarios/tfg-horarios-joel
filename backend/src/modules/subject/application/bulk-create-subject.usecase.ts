@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
 import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { Subject } from '../domain/subject.entity';
 import { SubjectMapper } from './subject.mapper';
@@ -9,7 +9,7 @@ import { hasPermission } from '@/core/permissions/authorization';
 export class BulkCreateSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectMemberProvider
   ) {}
 
   async execute(
@@ -19,17 +19,23 @@ export class BulkCreateSubjectUseCase {
     dtos: SaveSubjectDTO[]
   ): Promise<SubjectDTO[]> {
     if (!dtos || dtos.length === 0) {
-      throw new ValidationError('No classroom data provided for bulk creation');
+      throw new ValidationError('No subject data provided for bulk creation');
     }
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const uniqueCodes = new Set<string>();
+    for (const dto of dtos) {
+      const code = dto.code.trim();
+      if (uniqueCodes.has(code)) {
+        throw new ValidationError(`Duplicate subject code in request: ${code}`);
+      }
+      uniqueCodes.add(code);
+    }
+
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create a subject in this organization.'
       );

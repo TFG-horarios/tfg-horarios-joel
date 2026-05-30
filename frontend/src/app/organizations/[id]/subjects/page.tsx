@@ -30,6 +30,9 @@ export default async function OrganizationSubjectsPage({
     fetchItineraries(id),
   ]);
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
+  const itineraryMap = new Map(
+    itineraries.map((itinerary) => [itinerary.id, itinerary])
+  );
   const translations = {
     degree: t('degree'),
     unknownDegree: t('unknownDegree'),
@@ -63,6 +66,11 @@ export default async function OrganizationSubjectsPage({
             subject={subject}
             degreeName={
               degreeMap.get(subject.degreeId)?.name ?? t('unknownDegree')
+            }
+            itineraryName={
+              subject.itineraryId
+                ? itineraryMap.get(subject.itineraryId)?.name
+                : undefined
             }
             translations={translations}
           />

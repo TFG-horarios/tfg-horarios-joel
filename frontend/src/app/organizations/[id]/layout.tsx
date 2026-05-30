@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Sidebar, type NavItem } from '@/components/layout/sidebar';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -61,6 +60,11 @@ export default async function OrganizationDetailLayout({
       href: `/organizations/${organization.id}/subject-groups`,
       icon: 'subjectGroup',
     },
+    {
+      label: t('schedules'),
+      href: `/organizations/${organization.id}/schedules`,
+      icon: 'schedules',
+    },
     ...(memberRole && memberRole !== 'viewer'
       ? [
           {
@@ -70,18 +74,24 @@ export default async function OrganizationDetailLayout({
           } as const,
         ]
       : []),
+    {
+      label: t('classroomSchedules'),
+      href: `/organizations/${organization.id}/classroom-schedules`,
+      icon: 'classroomSchedules',
+    },
+    {
+      label: t('reserve'),
+      href: `/organizations/${organization.id}/reserve`,
+      icon: 'reserve',
+    },
   ];
 
   return (
-    <div className="relative h-screen w-full overflow-hidden text-foreground">
-      <div className="relative z-10 flex h-full w-full flex-col gap-6 p-4 lg:flex-row lg:p-6">
-        <Sidebar navItems={navItems} />
-        <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-border bg-card shadow-card-light dark:shadow-none dark:border-border dark:bg-card">
-          <ScrollArea className="h-full w-full">
-            <div className="p-6 lg:p-8">{children}</div>
-          </ScrollArea>
-        </main>
-      </div>
+    <div className="relative z-10 flex h-full w-full min-h-0 flex-col gap-2 lg:flex-row lg:gap-3">
+      <Sidebar navItems={navItems} />
+      <main className="p-6 lg:p-8 h-full w-full overflow-y-auto hide-scrollbar relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 shadow-lg shadow-black/10 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:shadow-black/60">
+        {children}
+      </main>
     </div>
   );
 }

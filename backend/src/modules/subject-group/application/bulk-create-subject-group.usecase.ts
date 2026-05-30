@@ -1,18 +1,24 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
 import type {
   SaveSubjectGroupDTO,
   SubjectGroupDTO,
 } from '@tfg-horarios/shared';
 import { SubjectGroup } from '../domain/subject-group.entity';
 import { SubjectGroupMapper } from './subject-group.mapper';
-import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
+import {
+  ForbiddenError,
+  ValidationError,
+  NotFoundError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { ISubjectProvider } from '../domain/subject.provider';
 
 export class BulkCreateSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly subjectProvider: ISubjectProvider,
+    private readonly memberProvider: ISubjectGroupMemberProvider
   ) {}
 
   async execute(
@@ -25,17 +31,39 @@ export class BulkCreateSubjectGroupUseCase {
       throw new ValidationError('No data provided for bulk creation');
     }
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const uniqueGroups = new Set<string>();
+    for (const dto of dtos) {
+      const key = `${dto.groupType}-${dto.groupNumber}-${dto.shift}`;
+      if (uniqueGroups.has(key)) {
+        throw new ValidationError(`Duplicate subject group in request: ${key}`);
+      }
+      uniqueGroups.add(key);
+    }
+
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create groups in this organization.'
       );
+    }
+
+    const availableShifts = await this.subjectProvider.getAvailableShifts(
+      subjectId,
+      organizationId
+    );
+    if (!availableShifts) {
+      throw new NotFoundError('Subject', subjectId);
+    }
+
+    for (const dto of dtos) {
+      if (!availableShifts.includes(dto.shift)) {
+        throw new ValidationError(
+          `Shift ${dto.shift} is not available for this subject.`
+        );
+      }
     }
 
     const groups = dtos.map((dto) =>
@@ -52,6 +80,7 @@ export class BulkCreateSubjectGroupUseCase {
     );
 
     await this.subjectGroupRepository.createMany(groups);
+
     return SubjectGroupMapper.toDTOList(groups);
   }
 }

@@ -7,10 +7,15 @@ export async function fetchClassrooms(
 ): Promise<ClassroomDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!.classrooms.$get();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.classrooms.$get({
+    param: { organizationId },
+  });
 
-  if (response.status === 401 || response.status === 403) return [];
+  const status = response.status + 0;
+
+  if (status === 401 || status === 403) return [];
 
   if (!response.ok) {
     throw new Error(t('server'));

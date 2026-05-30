@@ -27,7 +27,7 @@ export function MemberCard({ member, currentUserId }: MemberCardProps) {
   const isSelf = member.userId === currentUserId;
 
   return (
-    <Card className="h-full flex flex-col hover:border-primary/50 transition-colors">
+    <Card className="h-full flex flex-col hover-lift hover:border-primary/50 transition-colors">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1 truncate">

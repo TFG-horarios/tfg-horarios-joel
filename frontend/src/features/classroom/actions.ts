@@ -9,41 +9,8 @@ import {
   type ClassroomDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { getFieldErrors } from '@/lib/zod';
 
-export type ClassroomActionState = {
-  success: boolean;
-  message: string;
-  fieldErrors: Record<string, string[] | undefined>;
-  classroom: ClassroomDTO | null;
-};
-
-const initialState: ClassroomActionState = {
-  success: false,
-  message: '',
-  fieldErrors: {},
-  classroom: null,
-};
-
-export async function createClassroom(
-  organizationId: string,
-  dto: SaveClassroomDTO
-): Promise<ClassroomDTO> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[
-    organizationId
-  ]!.classrooms.$post({
-    json: dto,
-  });
-
-  if (!response.ok) {
-    throw new Error(t('server'));
-  }
-
-  const payload = await response.json();
-  return ClassroomSchema.parse(payload);
-}
+import { type ActionResponse } from '@/types/actions';
 
 export async function bulkCreateClassrooms(
   organizationId: string,
@@ -53,14 +20,15 @@ export async function bulkCreateClassrooms(
   try {
     const client = await getServerClient();
     const response = await client.api.organizations[
-      organizationId
+      ':organizationId'
     ]!.classrooms.bulk.$post({
+      param: { organizationId },
       json: dtos,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ ERROR DEL BACKEND DE HONO (Aulas):', errorText);
+      console.error('ERROR DEL BACKEND DE HONO (Aulas):', errorText);
       throw new Error(t('server'));
     }
 
@@ -70,47 +38,49 @@ export async function bulkCreateClassrooms(
 
     return ClassroomSchema.array().parse(payload);
   } catch (error) {
-    console.error('❌ ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
+    console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
     throw error;
   }
 }
 
 export async function createClassroomAction(
   organizationId: string,
-  _prevState: ClassroomActionState,
-  formData: FormData
-): Promise<ClassroomActionState> {
+  dto: SaveClassroomDTO
+): Promise<ActionResponse<ClassroomDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
-  const raw = Object.fromEntries(formData);
-
-  const parsedInput = SaveClassroomBodySchema.safeParse({
-    name: raw.name,
-    capacity: Number(raw.capacity),
-    type: raw.type,
-  });
+  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return {
-      ...initialState,
-      message: tErrors('validation'),
-      fieldErrors: getFieldErrors(parsedInput.error),
-    };
+    return { success: false, message: tErrors('validation') };
   }
 
   try {
-    const classroom = await createClassroom(organizationId, parsedInput.data);
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms.$post({
+      param: { organizationId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const classroom = ClassroomSchema.parse(payload);
+
     revalidatePath(`/organizations/${organizationId}/classrooms`);
 
     return {
       success: true,
       message: tSuccess('created'),
-      fieldErrors: {},
-      classroom,
+      data: classroom,
     };
   } catch (error) {
     return {
-      ...initialState,
+      success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }

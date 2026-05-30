@@ -24,7 +24,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export type ErrorSeverity = 'error' | 'warning';
 export type ErrorCategory =
@@ -234,8 +233,9 @@ export function GenericBulkUploader<TData>({
     const errorCount = issues.filter((i) => i.severity === 'error').length;
     const warningCount = issues.filter((i) => i.severity === 'warning').length;
     const reviewCardClassName =
-      'overflow-hidden border-border bg-card shadow-sm';
-    const tableShellClassName = 'overflow-hidden border border-border bg-card';
+      'flex w-full max-w-full flex-col overflow-hidden';
+    const tableShellClassName =
+      'overflow-hidden border border-white/10 bg-white/5';
     const tableHeaderClassName =
       'sticky top-0 bg-muted text-foreground backdrop-blur supports-[backdrop-filter]:bg-muted/95';
     const tableHeadClassName =
@@ -245,229 +245,232 @@ export function GenericBulkUploader<TData>({
     const mutedCellClassName = 'font-mono text-xs text-muted-foreground';
     const rowClassName =
       'transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted';
-    const reviewScrollAreaClassName = 'max-h-[min(70dvh,44rem)] w-full';
+    const reviewTableViewportClassName =
+      'max-h-[min(70dvh,32rem)] w-full overflow-auto';
 
     return (
-      <Card className={reviewCardClassName}>
-        <CardHeader className="border-b border-border bg-muted/50 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>{t('reviewTitle')}</CardTitle>
-              <CardDescription>{t('reviewDescription')}</CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Badge
-                variant="outline"
-                className="border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-700 shadow-sm dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200"
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
-                {validData.length} {t('ready')}
-              </Badge>
-              {errorCount > 0 && (
+      <div className="w-full max-h-[calc(100dvh-2rem)] overflow-hidden">
+        <Card className={reviewCardClassName}>
+          <CardHeader className="border-b border-white/10 bg-white/5 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('reviewTitle')}</CardTitle>
+                <CardDescription>{t('reviewDescription')}</CardDescription>
+              </div>
+              <div className="flex gap-2">
                 <Badge
                   variant="outline"
-                  className="border-red-200 bg-red-50 px-3 py-1 text-red-700 shadow-sm dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+                  className="border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-700 shadow-sm dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200"
                 >
-                  <span className="w-2 h-2 rounded-full bg-red-500 mr-2" />
-                  {errorCount} {t('errors')}
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
+                  {validData.length} {t('ready')}
                 </Badge>
-              )}
-              {warningCount > 0 && (
-                <Badge
-                  variant="outline"
-                  className="border-amber-200 bg-amber-50 px-3 py-1 text-amber-700 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
-                >
-                  <span className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
-                  {warningCount} {t('warnings')}
-                </Badge>
-              )}
+                {errorCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="border-red-200 bg-red-50 px-3 py-1 text-red-700 shadow-sm dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-red-500 mr-2" />
+                    {errorCount} {t('errors')}
+                  </Badge>
+                )}
+                {warningCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="border-amber-200 bg-amber-50 px-3 py-1 text-amber-700 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                    {warningCount} {t('warnings')}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Tabs
-            defaultValue={issues.length > 0 ? 'issues' : 'valid'}
-            className="w-full"
-          >
-            <div className="px-6 pt-4">
-              <TabsList>
-                <TabsTrigger value="issues" disabled={issues.length === 0}>
-                  {t('issuesTab')} ({issues.length})
-                </TabsTrigger>
-                <TabsTrigger value="valid" disabled={validData.length === 0}>
-                  {t('validTab')} ({validData.length})
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Tabs
+              defaultValue={issues.length > 0 ? 'issues' : 'valid'}
+              className="w-full"
+            >
+              <div className="px-6 pt-4">
+                <TabsList>
+                  <TabsTrigger value="issues" disabled={issues.length === 0}>
+                    {t('issuesTab')} ({issues.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="valid" disabled={validData.length === 0}>
+                    {t('validTab')} ({validData.length})
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-            <TabsContent value="issues" className="m-0 mt-4 border-t">
-              <ScrollArea className={reviewScrollAreaClassName}>
-                <div className={`${tableShellClassName} w-full`}>
-                  <Table>
-                    <TableHeader className={tableHeaderClassName}>
-                      <TableRow className="border-zinc-200/70 dark:border-zinc-800/80">
-                        <TableHead className={`${tableHeadClassName} w-16`}>
-                          {t('row')}
-                        </TableHead>
-                        <TableHead className={`${tableHeadClassName} w-24`}>
-                          {t('type')}
-                        </TableHead>
-                        <TableHead className={`${tableHeadClassName} w-32`}>
-                          {t('column')}
-                        </TableHead>
-                        <TableHead className={`${tableHeadClassName} w-32`}>
-                          {t('value')}
-                        </TableHead>
-                        <TableHead>{t('description')}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {issues.map((issue, idx) => (
-                        <TableRow key={idx} className={rowClassName}>
-                          <TableCell
-                            className={
-                              tableCellClassName + ' ' + mutedCellClassName
-                            }
-                          >
-                            {issue.rowNumber ?? '-'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                issue.severity === 'error'
-                                  ? 'destructive'
-                                  : 'secondary'
-                              }
-                              className="border-transparent bg-muted text-muted-foreground shadow-none dark:bg-muted dark:text-muted-foreground"
-                            >
-                              {issue.category}
-                            </Badge>
-                          </TableCell>
-                          <TableCell
-                            className={
-                              tableCellClassName + ' ' + mutedCellClassName
-                            }
-                          >
-                            {issue.column ?? '-'}
-                          </TableCell>
-                          <TableCell
-                            className={`${tableCellClassName} ${mutedCellClassName} max-w-30 truncate`}
-                            title={issue.providedValue}
-                          >
-                            {issue.providedValue ?? '-'}
-                          </TableCell>
-                          <TableCell
-                            className={`${tableCellClassName} ${
-                              issue.severity === 'error'
-                                ? 'text-red-600 dark:text-red-300'
-                                : 'text-amber-600 dark:text-amber-300'
-                            }`}
-                          >
-                            {issue.message}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="valid" className="m-0 mt-4 border-t">
-              <ScrollArea className={reviewScrollAreaClassName}>
-                {validData.length > 0 ? (
+              <TabsContent value="issues" className="m-0 mt-4 border-t">
+                <div className={reviewTableViewportClassName}>
                   <div className={`${tableShellClassName} w-full`}>
                     <Table>
                       <TableHeader className={tableHeaderClassName}>
                         <TableRow className="border-zinc-200/70 dark:border-zinc-800/80">
-                          <TableHead className={`${tableHeadClassName} w-24`}>
-                            Estado
+                          <TableHead className={`${tableHeadClassName} w-16`}>
+                            {t('row')}
                           </TableHead>
-                          {expectedColumns.map((col) => (
-                            <TableHead
-                              key={col}
-                              className={`${tableHeadClassName} whitespace-nowrap`}
-                            >
-                              {col}
-                            </TableHead>
-                          ))}
+                          <TableHead className={`${tableHeadClassName} w-24`}>
+                            {t('type')}
+                          </TableHead>
+                          <TableHead className={`${tableHeadClassName} w-32`}>
+                            {t('column')}
+                          </TableHead>
+                          <TableHead className={`${tableHeadClassName} w-32`}>
+                            {t('value')}
+                          </TableHead>
+                          <TableHead>{t('description')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {validData.map((row, idx) => (
+                        {issues.map((issue, idx) => (
                           <TableRow key={idx} className={rowClassName}>
+                            <TableCell
+                              className={
+                                tableCellClassName + ' ' + mutedCellClassName
+                              }
+                            >
+                              {issue.rowNumber ?? '-'}
+                            </TableCell>
                             <TableCell>
                               <Badge
-                                variant="outline"
-                                className="border-emerald-200 bg-emerald-50 text-emerald-700 shadow-none dark:border-emerald-900/60 dark:bg-emerald-950/50 dark:text-emerald-300"
+                                variant={
+                                  issue.severity === 'error'
+                                    ? 'destructive'
+                                    : 'secondary'
+                                }
+                                className="border-transparent bg-muted text-muted-foreground shadow-none dark:bg-muted dark:text-muted-foreground"
                               >
-                                Válido
+                                {issue.category}
                               </Badge>
                             </TableCell>
-
-                            {expectedColumns.map((col) => {
-                              const rawValue = (row as Record<string, unknown>)[
-                                col
-                              ];
-                              let displayValue = '-';
-
-                              if (Array.isArray(rawValue)) {
-                                displayValue = rawValue.join(', ');
-                              } else if (typeof rawValue === 'boolean') {
-                                displayValue = rawValue ? 'true' : 'false';
-                              } else if (
-                                rawValue !== undefined &&
-                                rawValue !== null
-                              ) {
-                                displayValue = String(rawValue);
+                            <TableCell
+                              className={
+                                tableCellClassName + ' ' + mutedCellClassName
                               }
-
-                              return (
-                                <TableCell
-                                  key={col}
-                                  className={`${tableCellClassName} max-w-50 truncate text-xs`}
-                                  title={displayValue}
-                                >
-                                  {displayValue}
-                                </TableCell>
-                              );
-                            })}
+                            >
+                              {issue.column ?? '-'}
+                            </TableCell>
+                            <TableCell
+                              className={`${tableCellClassName} ${mutedCellClassName} max-w-30 truncate`}
+                              title={issue.providedValue}
+                            >
+                              {issue.providedValue ?? '-'}
+                            </TableCell>
+                            <TableCell
+                              className={`${tableCellClassName} ${
+                                issue.severity === 'error'
+                                  ? 'text-red-600 dark:text-red-300'
+                                  : 'text-amber-600 dark:text-amber-300'
+                              }`}
+                            >
+                              {issue.message}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
                   </div>
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center space-y-2 py-20 text-muted-foreground dark:text-muted-foreground">
-                    <FileSpreadsheet className="h-10 w-10 text-emerald-500 opacity-50 dark:text-emerald-400" />
-                    <p>{t('noValidRows')}</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+                </div>
+              </TabsContent>
 
-        <div className="flex items-center justify-end gap-3 border-t border-border bg-muted/50 p-4 dark:border-border dark:bg-muted/50">
-          <Button variant="outline" onClick={reset}>
-            {t('cancel')}
-          </Button>
-          <Button
-            onClick={handleConfirmUpload}
-            disabled={validData.length === 0 || step === 'uploading'}
-          >
-            {step === 'uploading' && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {t('importRecords', { count: validData.length })}
-          </Button>
-        </div>
-      </Card>
+              <TabsContent value="valid" className="m-0 mt-4 border-t">
+                <div className={reviewTableViewportClassName}>
+                  {validData.length > 0 ? (
+                    <div className={`${tableShellClassName} w-full`}>
+                      <Table>
+                        <TableHeader className={tableHeaderClassName}>
+                          <TableRow className="border-zinc-200/70 dark:border-zinc-800/80">
+                            <TableHead className={`${tableHeadClassName} w-24`}>
+                              Estado
+                            </TableHead>
+                            {expectedColumns.map((col) => (
+                              <TableHead
+                                key={col}
+                                className={`${tableHeadClassName} whitespace-nowrap`}
+                              >
+                                {col}
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {validData.map((row, idx) => (
+                            <TableRow key={idx} className={rowClassName}>
+                              <TableCell>
+                                <Badge
+                                  variant="outline"
+                                  className="border-emerald-200 bg-emerald-50 text-emerald-700 shadow-none dark:border-emerald-900/60 dark:bg-emerald-950/50 dark:text-emerald-300"
+                                >
+                                  Válido
+                                </Badge>
+                              </TableCell>
+
+                              {expectedColumns.map((col) => {
+                                const rawValue = (
+                                  row as Record<string, unknown>
+                                )[col];
+                                let displayValue = '-';
+
+                                if (Array.isArray(rawValue)) {
+                                  displayValue = rawValue.join(', ');
+                                } else if (typeof rawValue === 'boolean') {
+                                  displayValue = rawValue ? 'true' : 'false';
+                                } else if (
+                                  rawValue !== undefined &&
+                                  rawValue !== null
+                                ) {
+                                  displayValue = String(rawValue);
+                                }
+
+                                return (
+                                  <TableCell
+                                    key={col}
+                                    className={`${tableCellClassName} max-w-50 truncate text-xs`}
+                                    title={displayValue}
+                                  >
+                                    {displayValue}
+                                  </TableCell>
+                                );
+                              })}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center space-y-2 py-20 text-muted-foreground dark:text-muted-foreground">
+                      <FileSpreadsheet className="h-10 w-10 text-emerald-500 opacity-50 dark:text-emerald-400" />
+                      <p>{t('noValidRows')}</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+
+          <div className="flex items-center justify-end gap-3 border-t border-white/10 bg-white/5 p-4">
+            <Button variant="outline" onClick={reset}>
+              {t('cancel')}
+            </Button>
+            <Button
+              onClick={handleConfirmUpload}
+              disabled={validData.length === 0 || step === 'uploading'}
+            >
+              {step === 'uploading' && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {t('importRecords', { count: validData.length })}
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="border-2 border-dashed border-border bg-card transition-colors hover:border-primary/80 dark:border-border dark:bg-card dark:hover:border-primary/80">
+    <Card className="border-2 border-dashed border-white/20 bg-white/5 transition-colors hover:border-white/30">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>

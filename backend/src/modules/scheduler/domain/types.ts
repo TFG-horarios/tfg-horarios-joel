@@ -5,11 +5,14 @@ export interface Assignment {
   shift: 'morning' | 'afternoon';
   groupType: 'theory' | 'practices' | 'problems';
   isCommon: boolean;
-  itineraryName?: string | null;
+  itineraryName: string | null;
   numberOfStudents: number;
-  classroomId: string;
-  dayOfWeek: number;
-  startSlot: number;
+  degreeId: string;
+  courseYear: number;
+  classroomId: string | null;
+  dayOfWeek: number | null;
+  slotIndex: number | null;
+  duration: number;
 }
 
 export interface Solution {
@@ -20,5 +23,6 @@ export interface Solution {
 export interface ClassroomMap {
   [classroomId: string]: {
     capacity: number;
+    type: 'theory' | 'lab';
   };
 }

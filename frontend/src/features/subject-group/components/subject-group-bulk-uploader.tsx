@@ -38,9 +38,9 @@ export function SubjectGroupBulkUploader({
   onBeforeUpload,
 }: Props) {
   const t = useTranslations('Common.bulkUploaders.subjectGroups');
-  const subjectMap = new Map(subjects.map((s) => [s.code.toLowerCase(), s.id]));
-  const existingSet = new Set(
-    existingGroups.map((g) => `${g.subjectId}-${g.name.toLowerCase()}`)
+  const subjectMap = new Map(subjects.map((s) => [s.code.toLowerCase(), s]));
+  const existingSet = new Map(
+    existingGroups.map((g) => [`${g.subjectId}-${g.name.toLowerCase()}`, g])
   );
 
   return (
@@ -73,11 +73,11 @@ export function SubjectGroupBulkUploader({
       })}
       onAnalyze={async (validData) => {
         const issues: CsvRowIssue[] = [];
-        const finalValidData: typeof validData = [];
+        let finalValidData: typeof validData = [];
 
         validData.forEach((row, idx) => {
-          const subjectId = subjectMap.get(row.subjectCode.toLowerCase());
-          if (!subjectId) {
+          const subject = subjectMap.get(row.subjectCode.toLowerCase());
+          if (!subject) {
             issues.push({
               rowNumber: idx + 2,
               category: 'reference',
@@ -86,8 +86,17 @@ export function SubjectGroupBulkUploader({
               providedValue: row.subjectCode,
               message: t('missingSubject'),
             });
+          } else if (!subject.availableShifts.includes(row.shift)) {
+            issues.push({
+              rowNumber: idx + 2,
+              category: 'validation',
+              severity: 'error',
+              column: 'shift',
+              providedValue: row.shift,
+              message: 'Turno no disponible para esta asignatura',
+            });
           } else if (
-            existingSet.has(`${subjectId}-${row.name.toLowerCase()}`)
+            existingSet.has(`${subject.id}-${row.name.toLowerCase()}`)
           ) {
             issues.push({
               rowNumber: idx + 2,
@@ -101,6 +110,84 @@ export function SubjectGroupBulkUploader({
             finalValidData.push(row);
           }
         });
+
+        const hoursBySubjectShift = new Map<
+          string,
+          {
+            theory: number;
+            practices: number;
+            problems: number;
+            rows: number[];
+          }
+        >();
+
+        if (mode !== 'overwrite') {
+          existingGroups.forEach((g) => {
+            const key = `${g.subjectId}|${g.shift}`;
+            if (!hoursBySubjectShift.has(key)) {
+              hoursBySubjectShift.set(key, {
+                theory: 0,
+                practices: 0,
+                problems: 0,
+                rows: [],
+              });
+            }
+            const data = hoursBySubjectShift.get(key)!;
+            if (g.groupType === 'theory')
+              data.theory = Math.max(data.theory, g.weeklyHours);
+            if (g.groupType === 'practices')
+              data.practices = Math.max(data.practices, g.weeklyHours);
+            if (g.groupType === 'problems')
+              data.problems = Math.max(data.problems, g.weeklyHours);
+          });
+        }
+
+        finalValidData.forEach((row) => {
+          const subject = subjectMap.get(row.subjectCode.toLowerCase())!;
+          const key = `${subject.id}|${row.shift}`;
+          if (!hoursBySubjectShift.has(key)) {
+            hoursBySubjectShift.set(key, {
+              theory: 0,
+              practices: 0,
+              problems: 0,
+              rows: [],
+            });
+          }
+          const data = hoursBySubjectShift.get(key)!;
+          const originalIdx = validData.indexOf(row);
+          data.rows.push(originalIdx + 2);
+
+          if (row.groupType === 'theory')
+            data.theory = Math.max(data.theory, row.weeklyHours);
+          if (row.groupType === 'practices')
+            data.practices = Math.max(data.practices, row.weeklyHours);
+          if (row.groupType === 'problems')
+            data.problems = Math.max(data.problems, row.weeklyHours);
+        });
+
+        for (const [key, data] of hoursBySubjectShift.entries()) {
+          const subjectId = key.split('|')[0];
+          const subject = subjects.find((s) => s.id === subjectId)!;
+          const totalCalculated = data.theory + data.practices + data.problems;
+
+          if (totalCalculated !== subject.weeklyHours) {
+            data.rows.forEach((rowNumber) => {
+              issues.push({
+                rowNumber,
+                category: 'validation',
+                severity: 'error',
+                column: 'weeklyHours',
+                providedValue: totalCalculated.toString(),
+                message: `Las horas de los grupos (${totalCalculated}) no coinciden con la asignatura (${subject.weeklyHours})`,
+              });
+            });
+            finalValidData = finalValidData.filter((r) => {
+              const origIdx = validData.indexOf(r) + 2;
+              return !data.rows.includes(origIdx);
+            });
+          }
+        }
+
         return { finalValidData, issues };
       }}
       mode={mode}
@@ -125,9 +212,9 @@ export function SubjectGroupBulkUploader({
           z.infer<typeof SaveSubjectGroupBodySchema>[]
         >();
         finalData.forEach(({ subjectCode, ...dto }) => {
-          const subjectId = subjectMap.get(subjectCode.toLowerCase())!;
-          if (!groups.has(subjectId)) groups.set(subjectId, []);
-          groups.get(subjectId)!.push(dto);
+          const subject = subjectMap.get(subjectCode.toLowerCase())!;
+          if (!groups.has(subject.id)) groups.set(subject.id, []);
+          groups.get(subject.id)!.push(dto);
         });
         await Promise.all(
           Array.from(groups.entries()).map(([subId, dtos]) =>

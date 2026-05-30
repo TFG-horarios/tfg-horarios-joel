@@ -5,7 +5,7 @@ export interface ResourceGridProps<T> {
   keyExtractor?: (item: T) => string | number;
 }
 
-export async function ResourceGrid<T>({
+export function ResourceGrid<T>({
   items,
   renderItem,
   emptyState,

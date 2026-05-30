@@ -9,28 +9,7 @@ import {
   type SaveItineraryDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { getFieldErrors } from '@/lib/zod';
-
-export async function createItinerary(
-  organizationId: string,
-  degreeId: string,
-  dto: SaveItineraryDTO
-): Promise<ItineraryDTO> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[organizationId]!.degrees[
-    degreeId
-  ]!.itineraries.$post({
-    json: dto,
-  });
-
-  if (!response.ok) {
-    throw new Error(t('server'));
-  }
-
-  const payload = await response.json();
-  return ItinerarySchema.parse(payload);
-}
+import { type ActionResponse } from '@/types/actions';
 
 export async function bulkCreateItineraries(
   organizationId: string,
@@ -40,15 +19,16 @@ export async function bulkCreateItineraries(
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
-    const response = await client.api.organizations[organizationId]!.degrees[
-      degreeId
+    const response = await client.api.organizations[':organizationId']!.degrees[
+      ':degreeId'
     ]!.itineraries.bulk.$post({
+      param: { organizationId, degreeId },
       json: dtos,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ ERROR DEL BACKEND DE HONO (Itinerarios):', errorText);
+      console.error('ERROR DEL BACKEND DE HONO (Itinerarios):', errorText);
       throw new Error(t('server'));
     }
 
@@ -62,81 +42,40 @@ export async function bulkCreateItineraries(
 
     return ItinerarySchema.array().parse(payload);
   } catch (error) {
-    console.error('❌ ERROR EN EL SERVER ACTION (Itinerarios Bulk):', error);
+    console.error('ERROR EN EL SERVER ACTION (Itinerarios Bulk):', error);
     throw error;
   }
 }
 
-export async function updateItinerary(
-  organizationId: string,
-  itineraryId: string,
-  dto: SaveItineraryDTO
-): Promise<ItineraryDTO> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[organizationId]!.itineraries[
-    itineraryId
-  ]!.$patch({
-    json: dto,
-  });
-
-  if (!response.ok) {
-    throw new Error(t('server'));
-  }
-
-  const payload = await response.json();
-  return ItinerarySchema.parse(payload);
-}
-
-export async function removeItinerary(
-  organizationId: string,
-  itineraryId: string
-): Promise<void> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!.itineraries[
-      itineraryId
-    ]!.$delete();
-
-  if (!response.ok) {
-    throw new Error(t('server'));
-  }
-}
-
-export type ItineraryActionState = {
-  success: boolean;
-  message: string;
-  fieldErrors: Record<string, string[] | undefined>;
-  itinerary: ItineraryDTO | null;
-};
-
 export async function createItineraryAction(
   organizationId: string,
   degreeId: string,
-  _prevState: ItineraryActionState,
-  formData: FormData
-): Promise<ItineraryActionState> {
+  dto: SaveItineraryDTO
+): Promise<ActionResponse<ItineraryDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
-  const raw = Object.fromEntries(formData);
-  const parsedInput = SaveItineraryBodySchema.safeParse(raw);
+  const parsedInput = SaveItineraryBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return {
-      success: false,
-      message: tErrors('validation'),
-      fieldErrors: getFieldErrors(parsedInput.error),
-      itinerary: null,
-    };
+    return { success: false, message: tErrors('validation') };
   }
 
   try {
-    const itinerary = await createItinerary(
-      organizationId,
-      degreeId,
-      parsedInput.data
-    );
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']!.degrees[
+      ':degreeId'
+    ]!.itineraries.$post({
+      param: { organizationId, degreeId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const itinerary = ItinerarySchema.parse(payload);
+
     revalidatePath(
       `/organizations/${organizationId}/degrees/${degreeId}/itineraries`
     );
@@ -144,15 +83,85 @@ export async function createItineraryAction(
     return {
       success: true,
       message: tSuccess('created'),
-      fieldErrors: {},
-      itinerary,
+      data: itinerary,
     };
   } catch (error) {
     return {
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
-      fieldErrors: {},
-      itinerary: null,
+    };
+  }
+}
+
+export async function updateItineraryAction(
+  organizationId: string,
+  degreeId: string,
+  itineraryId: string,
+  dto: SaveItineraryDTO
+): Promise<ActionResponse<ItineraryDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = SaveItineraryBodySchema.safeParse(dto);
+
+  if (!parsedInput.success) {
+    return { success: false, message: tErrors('validation') };
+  }
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.itineraries[':id']!.$patch({
+      param: { organizationId, id: itineraryId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const itinerary = ItinerarySchema.parse(payload);
+
+    revalidatePath(
+      `/organizations/${organizationId}/degrees/${degreeId}/itineraries`
+    );
+
+    return { success: true, data: itinerary };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function removeItineraryAction(
+  organizationId: string,
+  degreeId: string,
+  itineraryId: string
+): Promise<ActionResponse> {
+  const tErrors = await getTranslations('Common.errors');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.itineraries[':id']!.$delete({
+      param: { organizationId, id: itineraryId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(
+      `/organizations/${organizationId}/degrees/${degreeId}/itineraries`
+    );
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }
 }

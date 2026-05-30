@@ -1,5 +1,5 @@
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { ISubjectRepository } from '../domain/subject.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
 import type { SubjectDTO } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { SubjectMapper } from './subject.mapper';
@@ -7,7 +7,7 @@ import { SubjectMapper } from './subject.mapper';
 export class GetSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectMemberProvider
   ) {}
 
   async execute(
@@ -15,11 +15,11 @@ export class GetSubjectUseCase {
     subjectId: string,
     requesterUserId: string
   ): Promise<SubjectDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (!requester) {
+    if (!role) {
       throw new ForbiddenError('You do not have access to this organization');
     }
 

@@ -1,33 +1,17 @@
 'use client';
 
-import { useActionState, useEffect, startTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/shared/form/form-input';
+import { FormSelect } from '@/components/shared/form/form-select';
 import {
   SaveOrganizationBodySchema,
-  type OrganizationDTO,
   type SaveOrganizationDTO,
+  type OrganizationDTO,
 } from '@tfg-horarios/shared';
-import { createOrganizationAction, type ActionResponse } from '../actions';
-import { useZodErrorMap } from '@/lib/i18n/zod-errors';
+import { createOrganizationAction } from '../actions';
+import { useActionForm } from '@/hooks/use-action-form';
 
 type CreateOrganizationFormProps = {
   onSuccess?: () => void;
@@ -37,21 +21,13 @@ export function CreateOrganizationForm({
   onSuccess,
 }: CreateOrganizationFormProps) {
   const t = useTranslations('Organizations.form');
-  const zodErrorMap = useZodErrorMap();
 
-  type FormState = ActionResponse<OrganizationDTO> | null;
-  const [state, formAction, isPending] = useActionState(
-    async (prevState: FormState, formData: SaveOrganizationDTO) => {
-      return await createOrganizationAction(formData);
-    },
-    null
-  );
-
-  const form = useForm<SaveOrganizationDTO>({
-    resolver: zodResolver(SaveOrganizationBodySchema, {
-      error: zodErrorMap,
-    }),
-    mode: 'onChange',
+  const { form, state, isPending, handleSubmit } = useActionForm<
+    SaveOrganizationDTO,
+    OrganizationDTO
+  >({
+    action: createOrganizationAction,
+    schema: SaveOrganizationBodySchema,
     defaultValues: {
       name: '',
       periodType: 'semester',
@@ -61,168 +37,71 @@ export function CreateOrganizationForm({
       afternoonEnd: '20:00',
       slotDurationMinutes: 60,
     },
+    onSuccess: () => onSuccess?.(),
   });
-
-  function onSubmit(data: SaveOrganizationDTO) {
-    startTransition(() => {
-      formAction(data);
-    });
-  }
-
-  useEffect(() => {
-    if (state?.success) {
-      onSuccess?.();
-    }
-  }, [state, onSuccess]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <FormInput
           name="name"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel>{t('name.label')}</FormLabel>
-              <FormControl>
-                <Input placeholder={t('name.placeholder')} {...field} />
-              </FormControl>
-              <FormMessage />
-              {fieldState.error && (
-                <p className="text-xs font-medium text-destructive">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </FormItem>
-          )}
+          label={t('name.label')}
+          placeholder={t('name.placeholder')}
         />
 
-        <FormField
-          control={form.control}
+        <FormSelect
           name="periodType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('periodType.label')}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('periodType.placeholder')} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="semester">
-                    {t('periodType.options.semester')}
-                  </SelectItem>
-                  <SelectItem value="trimester">
-                    {t('periodType.options.trimester')}
-                  </SelectItem>
-                  <SelectItem value="annual">
-                    {t('periodType.options.annual')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={t('periodType.label')}
+          placeholder={t('periodType.placeholder')}
+          options={[
+            { label: t('periodType.options.semester'), value: 'semester' },
+            { label: t('periodType.options.trimester'), value: 'trimester' },
+            { label: t('periodType.options.annual'), value: 'annual' },
+          ]}
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
+          <FormInput
             name="morningStart"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('morningStart.label')}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    placeholder={t('morningStart.placeholder')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="time"
+            label={t('morningStart.label')}
+            placeholder={t('morningStart.placeholder')}
           />
-          <FormField
-            control={form.control}
+          <FormInput
             name="morningEnd"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('morningEnd.label')}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    placeholder={t('morningEnd.placeholder')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="time"
+            label={t('morningEnd.label')}
+            placeholder={t('morningEnd.placeholder')}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
+          <FormInput
             name="afternoonStart"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('afternoonStart.label')}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    placeholder={t('afternoonStart.placeholder')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="time"
+            label={t('afternoonStart.label')}
+            placeholder={t('afternoonStart.placeholder')}
           />
-          <FormField
-            control={form.control}
+          <FormInput
             name="afternoonEnd"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('afternoonEnd.label')}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    placeholder={t('afternoonEnd.placeholder')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="time"
+            label={t('afternoonEnd.label')}
+            placeholder={t('afternoonEnd.placeholder')}
           />
         </div>
 
-        <FormField
-          control={form.control}
+        <FormInput
           name="slotDurationMinutes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('slotDurationMinutes.label')}</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="15"
-                  max="240"
-                  step="15"
-                  placeholder={t('slotDurationMinutes.placeholder')}
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
-                />
-              </FormControl>
-              <FormMessage />
-              <p className="text-xs text-muted-foreground">
-                {t('slotDurationMinutes.help')}
-              </p>
-            </FormItem>
-          )}
+          type="number"
+          min="15"
+          max="240"
+          step="15"
+          label={t('slotDurationMinutes.label')}
+          placeholder={t('slotDurationMinutes.placeholder')}
+          helpText={t('slotDurationMinutes.help')}
+          onChange={(e) =>
+            form.setValue('slotDurationMinutes', e.target.valueAsNumber || 0)
+          }
         />
 
         {state?.success === false && (

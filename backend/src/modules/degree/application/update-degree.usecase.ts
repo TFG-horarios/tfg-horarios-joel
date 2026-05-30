@@ -1,6 +1,7 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { DegreeMapper } from './degree.mapper';
@@ -8,7 +9,7 @@ import { DegreeMapper } from './degree.mapper';
 export class UpdateDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IDegreeMemberProvider
   ) {}
 
   async execute(
@@ -17,14 +18,11 @@ export class UpdateDegreeUseCase {
     requesterUserId: string,
     dto: SaveDegreeDTO
   ): Promise<DegreeDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'UPDATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to update degrees in this organization.'
       );

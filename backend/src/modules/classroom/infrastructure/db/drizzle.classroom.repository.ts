@@ -1,5 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import {
   classroom as classroomTable,
   type DrizzleClassroom,
@@ -69,39 +71,61 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   }
 
   async create(classroom: Classroom): Promise<void> {
-    await this.database
-      .insert(classroomTable)
-      .values(this.mapToPersistence(classroom));
+    try {
+      await this.database
+        .insert(classroomTable)
+        .values(this.mapToPersistence(classroom));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Classroom with name '${classroom.name}' already exists in this organization`
+        );
+      }
+      throw error;
+    }
   }
 
   async createMany(classrooms: Classroom[]): Promise<void> {
     if (classrooms.length === 0) return;
     const valuesToInsert = classrooms.map((c) => this.mapToPersistence(c));
-    await this.database.transaction(async (tx) => {
-      await tx
-        .insert(classroomTable)
-        .values(valuesToInsert)
-        .onConflictDoNothing();
-    });
+    try {
+      await this.database.insert(classroomTable).values(valuesToInsert);
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          'One or more classrooms with the same name already exist in this organization'
+        );
+      }
+      throw error;
+    }
   }
 
   async update(classroom: Classroom): Promise<void> {
     const rawData = this.mapToPersistence(classroom);
 
-    await this.database
-      .update(classroomTable)
-      .set({
-        name: rawData.name,
-        capacity: rawData.capacity,
-        type: rawData.type,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(classroomTable.id, classroom.id),
-          eq(classroomTable.organizationId, classroom.organizationId)
-        )
-      );
+    try {
+      await this.database
+        .update(classroomTable)
+        .set({
+          name: rawData.name,
+          capacity: rawData.capacity,
+          type: rawData.type,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(classroomTable.id, classroom.id),
+            eq(classroomTable.organizationId, classroom.organizationId)
+          )
+        );
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Classroom with name '${classroom.name}' already exists in this organization`
+        );
+      }
+      throw error;
+    }
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

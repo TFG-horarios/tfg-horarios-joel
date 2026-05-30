@@ -1,8 +1,10 @@
 import { type AuthResponseDTO } from '@tfg-horarios/shared';
-import { AuthUser } from '../domain/auth.entity';
 
 export class AuthMapper {
-  static toDTO(user: AuthUser, token: string): AuthResponseDTO {
+  static toDTO(
+    user: { id: string; name: string; email: string },
+    token: string
+  ): AuthResponseDTO {
     return {
       user: {
         id: user.id,

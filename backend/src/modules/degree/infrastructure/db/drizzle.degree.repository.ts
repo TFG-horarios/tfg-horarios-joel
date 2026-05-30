@@ -1,5 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import {
   degreesTable,
   type DrizzleDegree,
@@ -64,37 +66,59 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
   }
 
   async create(degree: Degree): Promise<void> {
-    await this.database
-      .insert(degreesTable)
-      .values(this.mapToPersistence(degree));
+    try {
+      await this.database
+        .insert(degreesTable)
+        .values(this.mapToPersistence(degree));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Un grado con el nombre '${degree.name}' o código '${degree.code}' ya existe en esta organización`
+        );
+      }
+      throw error;
+    }
   }
 
   async createMany(degrees: Degree[]): Promise<void> {
     if (degrees.length === 0) return;
     const valuesToInsert = degrees.map((d) => this.mapToPersistence(d));
-    await this.database.transaction(async (tx) => {
-      await tx
-        .insert(degreesTable)
-        .values(valuesToInsert)
-        .onConflictDoNothing();
-    });
+    try {
+      await this.database.insert(degreesTable).values(valuesToInsert);
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          'Uno o más grados con el mismo nombre o código ya existen en esta organización'
+        );
+      }
+      throw error;
+    }
   }
 
   async update(degree: Degree): Promise<void> {
     const rawData = this.mapToPersistence(degree);
-    await this.database
-      .update(degreesTable)
-      .set({
-        name: rawData.name,
-        code: rawData.code,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(degreesTable.id, degree.id),
-          eq(degreesTable.organizationId, degree.organizationId)
-        )
-      );
+    try {
+      await this.database
+        .update(degreesTable)
+        .set({
+          name: rawData.name,
+          code: rawData.code,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(degreesTable.id, degree.id),
+            eq(degreesTable.organizationId, degree.organizationId)
+          )
+        );
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Un grado con el nombre '${degree.name}' o código '${degree.code}' ya existe en esta organización`
+        );
+      }
+      throw error;
+    }
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

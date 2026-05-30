@@ -1,6 +1,6 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { type IOrganizationRepository } from '../domain/organization.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IOrganizationMemberProvider } from '../domain/organization-member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 import { OrganizationMapper } from './organization.mapper';
 import {
@@ -11,7 +11,7 @@ import {
 export class UpdateOrganizationUseCase {
   constructor(
     private readonly organizationRepository: IOrganizationRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IOrganizationMemberProvider
   ) {}
 
   async execute(
@@ -24,11 +24,11 @@ export class UpdateOrganizationUseCase {
       throw new NotFoundError('Organization', organizationId);
     }
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (!requester || !hasPermission(requester.role, 'UPDATE_ORGANIZATION')) {
+    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION')) {
       throw new ForbiddenError(
         'You do not have permission to update this organization'
       );

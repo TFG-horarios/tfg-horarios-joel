@@ -1,5 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import {
   itinerariesTable,
   type DrizzleItinerary,
@@ -69,38 +71,60 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
   }
 
   async create(itinerary: Itinerary): Promise<void> {
-    await this.database
-      .insert(itinerariesTable)
-      .values(this.mapToPersistence(itinerary));
+    try {
+      await this.database
+        .insert(itinerariesTable)
+        .values(this.mapToPersistence(itinerary));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Un itinerario con el código '${itinerary.code}' ya existe en este grado`
+        );
+      }
+      throw error;
+    }
   }
 
   async createMany(itineraries: Itinerary[]): Promise<void> {
     if (itineraries.length === 0) return;
     const valuesToInsert = itineraries.map((i) => this.mapToPersistence(i));
-    await this.database.transaction(async (tx) => {
-      await tx
-        .insert(itinerariesTable)
-        .values(valuesToInsert)
-        .onConflictDoNothing();
-    });
+    try {
+      await this.database.insert(itinerariesTable).values(valuesToInsert);
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          'Uno o más itinerarios con el mismo código ya existen en este grado'
+        );
+      }
+      throw error;
+    }
   }
 
   async update(itinerary: Itinerary): Promise<void> {
     const rawData = this.mapToPersistence(itinerary);
 
-    await this.database
-      .update(itinerariesTable)
-      .set({
-        name: rawData.name,
-        code: rawData.code,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(itinerariesTable.id, itinerary.id),
-          eq(itinerariesTable.organizationId, itinerary.organizationId)
-        )
-      );
+    try {
+      await this.database
+        .update(itinerariesTable)
+        .set({
+          name: rawData.name,
+          code: rawData.code,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(itinerariesTable.id, itinerary.id),
+            eq(itinerariesTable.organizationId, itinerary.organizationId)
+          )
+        );
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError(
+          `Un itinerario con el código '${itinerary.code}' ya existe en este grado`
+        );
+      }
+      throw error;
+    }
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

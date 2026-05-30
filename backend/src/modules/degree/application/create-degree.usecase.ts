@@ -1,7 +1,8 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import { Degree } from '../domain/degree.entity';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { DegreeMapper } from './degree.mapper';
@@ -9,7 +10,7 @@ import { DegreeMapper } from './degree.mapper';
 export class CreateDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IDegreeMemberProvider
   ) {}
 
   async execute(
@@ -17,14 +18,11 @@ export class CreateDegreeUseCase {
     requesterUserId: string,
     dto: SaveDegreeDTO
   ): Promise<DegreeDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create a degree in this organization.'
       );

@@ -17,21 +17,19 @@ export function OrganizationSectionShell({
 }: OrganizationSectionShellProps) {
   return (
     <div className="space-y-4">
-      <div className="space-y-2 border-b border-zinc-200/80 pb-5 dark:border-zinc-800/80">
-        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-400">
+      <div className="space-y-2 border-b border-black/10 pb-5 dark:border-white/10">
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
           {label}
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               {title}
             </h1>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              {description}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{description}</p>
           </div>
           {typeof count === 'number' && (
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:bg-primary/20 dark:text-primary">
+            <span className="inline-flex items-center rounded-full border border-purple-500/40 bg-purple-500/15 px-3 py-1 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
               {count}
               {countLabel ? ` ${countLabel}` : ''}
             </span>

@@ -18,12 +18,13 @@ export const createOrgRoute = createRoute({
   },
   responses: {
     201: {
-      description: 'Organización creada exitosamente',
+      description: 'Organization created successfully',
       content: {
         'application/json': { schema: OrganizationSchema },
       },
     },
-    400: { description: 'Error de validación o reglas de negocio' },
+    400: { description: 'Validation or business rule error' },
+    401: { description: 'Unauthorized' },
   },
 });
 
@@ -35,12 +36,14 @@ export const getOrgRoute = createRoute({
   },
   responses: {
     200: {
-      description: 'Organización obtenida exitosamente',
+      description: 'Organization retrieved successfully',
       content: {
         'application/json': { schema: OrganizationSchema },
       },
     },
-    404: { description: 'Organización no encontrada' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Organization not found' },
   },
 });
 
@@ -54,7 +57,8 @@ export const listOrgRoute = createRoute({
         'application/json': { schema: z.array(OrganizationSchema) },
       },
     },
-    400: { description: 'Error' },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
   },
 });
 
@@ -72,6 +76,9 @@ export const updateOrgRoute = createRoute({
       description: 'Organization updated successfully',
       content: { 'application/json': { schema: OrganizationSchema } },
     },
+    400: { description: 'Bad Request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
     404: { description: 'Organization not found' },
   },
 });
@@ -86,6 +93,9 @@ export const deleteOrgRoute = createRoute({
     204: {
       description: 'Organization deleted successfully (No Content)',
     },
-    400: { description: 'Error' },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Organization not found' },
   },
 });

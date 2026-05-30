@@ -17,6 +17,7 @@ export const listSubjectsRoute = createRoute({
       description: 'Subjects list',
       content: { 'application/json': { schema: z.array(SubjectSchema) } },
     },
+    403: { description: 'Forbidden' },
   },
 });
 
@@ -29,6 +30,7 @@ export const getSubjectRoute = createRoute({
       description: 'Subject detail',
       content: { 'application/json': { schema: SubjectSchema } },
     },
+    403: { description: 'Forbidden' },
     404: { description: 'Not found' },
   },
 });
@@ -47,6 +49,9 @@ export const createSubjectRoute = createRoute({
       description: 'Subject created',
       content: { 'application/json': { schema: SubjectSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -66,6 +71,9 @@ export const bulkCreateSubjectsRoute = createRoute({
       description: 'Subjects bulk created',
       content: { 'application/json': { schema: z.array(SubjectSchema) } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -83,7 +91,10 @@ export const updateSubjectRoute = createRoute({
       description: 'Subject updated',
       content: { 'application/json': { schema: SubjectSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -91,5 +102,9 @@ export const deleteSubjectRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subjects/{id}',
   request: { params: SubjectIdParamSchema },
-  responses: { 204: { description: 'Deleted' } },
+  responses: {
+    204: { description: 'Deleted' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+  },
 });

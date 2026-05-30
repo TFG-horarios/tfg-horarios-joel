@@ -7,10 +7,15 @@ export async function fetchItineraries(
 ): Promise<ItineraryDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!.itineraries.$get();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.itineraries.$get({
+    param: { organizationId },
+  });
 
-  if (response.status === 401 || response.status === 403) return [];
+  const status = response.status + 0;
+
+  if (status === 401 || status === 403) return [];
 
   if (!response.ok) {
     throw new Error(t('server'));

@@ -17,6 +17,7 @@ export const listItinerariesRoute = createRoute({
       description: 'Itinerary list',
       content: { 'application/json': { schema: z.array(ItinerarySchema) } },
     },
+    403: { description: 'Forbidden' },
   },
 });
 
@@ -29,6 +30,7 @@ export const getItineraryRoute = createRoute({
       description: 'Itinerary details',
       content: { 'application/json': { schema: ItinerarySchema } },
     },
+    403: { description: 'Forbidden' },
     404: { description: 'Itinerary not found' },
   },
 });
@@ -49,6 +51,9 @@ export const createItineraryRoute = createRoute({
       description: 'Itinerary created',
       content: { 'application/json': { schema: ItinerarySchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -70,6 +75,9 @@ export const bulkCreateItinerariesRoute = createRoute({
       description: 'Itineraries created in bulk',
       content: { 'application/json': { schema: z.array(ItinerarySchema) } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -89,6 +97,10 @@ export const updateItineraryRoute = createRoute({
       description: 'Itinerary updated',
       content: { 'application/json': { schema: ItinerarySchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Itinerary not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -96,5 +108,9 @@ export const deleteItineraryRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/itineraries/{id}',
   request: { params: ItineraryIdParamSchema },
-  responses: { 204: { description: 'Itinerary deleted' } },
+  responses: {
+    204: { description: 'Itinerary deleted' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Itinerary not found' },
+  },
 });

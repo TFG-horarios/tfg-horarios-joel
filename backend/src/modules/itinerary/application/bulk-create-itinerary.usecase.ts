@@ -1,7 +1,8 @@
 import type { ItineraryDTO, SaveItineraryDTO } from '@tfg-horarios/shared';
 import { Itinerary } from '../domain/itinerary.entity';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ItineraryMapper } from './itinerary.mapper';
@@ -9,7 +10,7 @@ import { ItineraryMapper } from './itinerary.mapper';
 export class BulkCreateItinerariesUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IItineraryMemberProvider
   ) {}
 
   async execute(
@@ -23,14 +24,22 @@ export class BulkCreateItinerariesUseCase {
         'At least one itinerary must be provided for bulk creation.'
       );
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const uniqueCodes = new Set<string>();
+    for (const dto of dtos) {
+      const code = dto.code.trim();
+      if (uniqueCodes.has(code)) {
+        throw new ValidationError(
+          `Duplicate itinerary code in request: ${code}`
+        );
+      }
+      uniqueCodes.add(code);
+    }
+
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create itineraries in this organization.'
       );

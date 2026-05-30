@@ -1,9 +1,5 @@
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardTitle, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
@@ -30,12 +26,14 @@ export function SubjectGroupCard({
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">
-        <CardDescription className="capitalize">
-          {translations.type}:{' '}
+        <Badge
+          variant="outline"
+          className="w-fit uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
+        >
           {group.groupType
             ? translations[`typeOptions.${group.groupType}`]
             : translations['typeOptions.theory']}
-        </CardDescription>
+        </Badge>
         <CardTitle className={`text-xl ${organizationHoverCardTitleClassName}`}>
           {group.name}
         </CardTitle>

@@ -1,18 +1,24 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
 import type {
   SaveSubjectGroupDTO,
   SubjectGroupDTO,
 } from '@tfg-horarios/shared';
 import { SubjectGroup } from '../domain/subject-group.entity';
 import { SubjectGroupMapper } from './subject-group.mapper';
-import { ForbiddenError } from '@/core/errors/app.error';
+import {
+  ForbiddenError,
+  ValidationError,
+  NotFoundError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { ISubjectProvider } from '../domain/subject.provider';
 
 export class CreateSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly subjectProvider: ISubjectProvider,
+    private readonly memberProvider: ISubjectGroupMemberProvider
   ) {}
 
   async execute(
@@ -21,16 +27,27 @@ export class CreateSubjectGroupUseCase {
     requesterUserId: string,
     dto: SaveSubjectGroupDTO
   ): Promise<SubjectGroupDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create a group in this organization.'
+      );
+    }
+
+    const availableShifts = await this.subjectProvider.getAvailableShifts(
+      subjectId,
+      organizationId
+    );
+    if (!availableShifts) {
+      throw new NotFoundError('Subject', subjectId);
+    }
+
+    if (!availableShifts.includes(dto.shift)) {
+      throw new ValidationError(
+        `Shift ${dto.shift} is not available for this subject.`
       );
     }
 
@@ -46,6 +63,7 @@ export class CreateSubjectGroupUseCase {
     });
 
     await this.subjectGroupRepository.create(subjectGroup);
+
     return SubjectGroupMapper.toDTO(subjectGroup);
   }
 }

@@ -112,7 +112,7 @@
 			},
 			"subjects": {
 				"title": "Importar asignaturas",
-				"description": "CSV: degreeCode, name, code, availableShifts, courseYear, weeklyHours, numberOfStudents, period, isCommon, itineraryCode",
+				"description": "CSV: degreeCode, name, code, availableShifts, courseYear, weeklyHours, numberOfStudents, period, isCommon, itineraryCode. En availableShifts, usa una lista separada por comas dentro de la misma celda, por ejemplo \"morning,afternoon\".",
 				"missingDegree": "Grado no encontrado.",
 				"missingItineraryCode": "Al no ser común, debes indicar el itineraryCode.",
 				"missingItinerary": "El itinerario no existe en este grado.",
@@ -290,7 +290,10 @@
 			"itineraries": "Itinerarios",
 			"subjects": "Asignaturas",
 			"subjectGroups": "Grupos",
-			"members": "Miembros"
+			"schedules": "Horarios",
+			"members": "Miembros",
+			"classroomSchedules": "Horarios por aula",
+			"reserve": "Reserva de aulas"
 		},
 		"dialog": {
 			"title": "Nueva organización",
@@ -328,6 +331,14 @@
 				"lab": "Laboratorio"
 			},
 			"capacity": "Capacidad",
+			"searchLabel": "Buscar por nombre",
+			"searchPlaceholder": "Buscar aulas...",
+			"typeFilterLabel": "Tipo",
+			"allTypes": "Todos los tipos",
+			"capacityMinLabel": "Capacidad mínima",
+			"capacityMaxLabel": "Capacidad máxima",
+			"resetFilters": "Limpiar filtros",
+			"filteredEmpty": "Ninguna aula coincide con tus filtros.",
 			"organization": "Organización",
 			"empty": "No hay aulas registradas todavía."
 		},
@@ -442,6 +453,43 @@
 			},
 			"countLabel": "miembros",
 			"empty": "No hay miembros registrados todavía."
+		},
+		"schedules": {
+			"label": "Horarios",
+			"title": "Horarios de {organization}",
+			"description": "Genera y administra horarios interactivos de forma masiva o segmentada con control de versiones y resolución inteligente de conflictos.",
+			"countLabel": "horarios",
+			"empty": "Aún no se han generado horarios para esta organización.",
+			"generate": "Generar horarios",
+			"version": "Versión",
+			"status": "Estado",
+			"published": "Publicado",
+			"draft": "Borrador",
+			"archived": "Archivado",
+			"actions": {
+				"publish": "Publicar",
+				"generating": "Generando horarios...",
+				"publishSuccess": "Horario publicado correctamente.",
+				"generateSuccess": "Horarios generados correctamente."
+			},
+			"form": {
+				"academicYear": "Año Académico",
+				"period": "Período / Cuatrimestre",
+				"degrees": "Grados seleccionados",
+				"degreesPlaceholder": "Todos los grados",
+				"itineraries": "Itinerarios seleccionados",
+				"itinerariesPlaceholder": "Todos los itinerarios",
+				"courseYears": "Cursos seleccionados",
+				"courseYearsPlaceholder": "Todos los cursos",
+				"submit": "Generar"
+			},
+			"grid": {
+				"unassignedTitle": "Bandeja de Reserva (No Asignados)",
+				"unassignedDescription": "Arrastra y coloca estas asignaciones en el calendario.",
+				"emptyUnassigned": "No hay asignaciones en reserva.",
+				"classroom": "Aula",
+				"capacity": "Capacidad"
+			}
 		},
 		"membersManagement": {
 			"addTitle": "Añadir miembro",

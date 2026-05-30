@@ -1,12 +1,12 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectGroupMemberProvider
   ) {}
 
   async execute(
@@ -14,14 +14,11 @@ export class DeleteSubjectGroupUseCase {
     id: string,
     requesterUserId: string
   ): Promise<void> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'DELETE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to delete groups in this organization.'
       );

@@ -47,7 +47,7 @@ export function SubjectBulkUploader({
     existingSubjects.map((s) => s.code.toLowerCase())
   );
   const itineraryMap = new Map(
-    itineraries.map((i) => [`${i.degreeId}-${i.name.toLowerCase()}`, i.id])
+    itineraries.map((i) => [`${i.degreeId}-${i.code.toLowerCase()}`, i.id])
   );
 
   return (
@@ -150,9 +150,7 @@ export function SubjectBulkUploader({
         if (onBeforeUpload) return onBeforeUpload(m, validData);
         if (m === 'overwrite') {
           try {
-            await fetch(`/api/organizations/${organizationId}/subjects`, {
-              method: 'DELETE',
-            });
+            // await deleteAllSubjects(organizationId);
           } catch (err) {
             console.error('Error deleting subjects before overwrite', err);
           }

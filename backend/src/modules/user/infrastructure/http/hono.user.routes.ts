@@ -34,6 +34,7 @@ export const updateMeRoute = createRoute({
     },
     400: { description: 'Invalid update data' },
     401: { description: 'Unauthorized' },
+    404: { description: 'User not found' },
   },
 });
 

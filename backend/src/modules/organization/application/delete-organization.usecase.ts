@@ -1,12 +1,12 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { type IOrganizationRepository } from '../domain/organization.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IOrganizationMemberProvider } from '../domain/organization-member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteOrganizationUseCase {
   constructor(
     private readonly organizationRepository: IOrganizationRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IOrganizationMemberProvider
   ) {}
 
   async execute(
@@ -18,11 +18,11 @@ export class DeleteOrganizationUseCase {
       throw new NotFoundError('Organization', organizationId);
     }
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (!requester || !hasPermission(requester.role, 'DELETE_ORGANIZATION')) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION')) {
       throw new ForbiddenError(
         'You can not delete this organization. Only administrators can do it.'
       );

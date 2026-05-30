@@ -1,4 +1,4 @@
-import type { AuthRepository } from '../domain/auth.repository';
+import type { IAuthUserRepository } from '../domain/auth-user.provider';
 import type { ITokenService } from '../domain/token.service';
 import type { IPasswordHasherService } from '../domain/password-hasher.service';
 import { UnauthorizedError } from '@/core/errors/app.error';
@@ -7,13 +7,13 @@ import { AuthMapper } from './auth.mapper';
 
 export class LoginUseCase {
   constructor(
-    private readonly authRepository: AuthRepository,
+    private readonly authUserRepository: IAuthUserRepository,
     private readonly tokenService: ITokenService,
     private readonly passwordHasherService: IPasswordHasherService
   ) {}
 
   async execute(dto: LoginDTO): Promise<AuthResponseDTO> {
-    const user = await this.authRepository.findByEmail(dto.email);
+    const user = await this.authUserRepository.findByEmail(dto.email);
     if (!user) {
       throw new UnauthorizedError('Invalid credentials');
     }

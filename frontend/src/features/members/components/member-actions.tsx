@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
-import { addMember } from '@/features/members/actions';
+import { addMemberAction } from '@/features/members/actions';
 import type { MemberDTO } from '@tfg-horarios/shared';
 
 interface MemberActionsProps {
@@ -59,7 +59,11 @@ export function MemberActions({
 
     setIsAdding(true);
     try {
-      await addMember(organizationId, { email, role: newMemberRole });
+      const result = await addMemberAction(organizationId, {
+        email,
+        role: newMemberRole,
+      });
+      if (!result.success) throw new Error(result.message);
       setIsOpen(false);
       setNewMemberRole('viewer');
       router.refresh();
@@ -74,8 +78,14 @@ export function MemberActions({
     <ResourceActions>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> {t('addTitle')}
+          <Button
+            size="icon"
+            className="size-9 cursor-pointer"
+            title={t('addTitle')}
+            aria-label={t('addTitle')}
+          >
+            <Plus className="h-4 w-4" />
+            <span className="sr-only">{t('addTitle')}</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">

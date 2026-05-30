@@ -1,6 +1,5 @@
 import { type IOrganizationRepository } from '../domain/organization.repository';
 import { Organization } from '../domain/organization.entity';
-import { Member } from '@/modules/member/domain/member.entity';
 import {
   type SaveOrganizationDTO,
   type OrganizationDTO,
@@ -26,13 +25,7 @@ export class CreateOrganizationUseCase {
       slotDurationMinutes: dto.slotDurationMinutes,
     });
 
-    const adminMember = Member.create({
-      organizationId: organization.id,
-      userId,
-      role: 'admin',
-    });
-
-    await this.organizationRepository.create(organization, adminMember);
+    await this.organizationRepository.create(organization, userId);
 
     return OrganizationMapper.toDTO(organization);
   }

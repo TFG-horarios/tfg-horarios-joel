@@ -3,7 +3,6 @@ import { HonoOrganizationController } from './infrastructure/http/hono.organizat
 import { CreateOrganizationUseCase } from './application/create-organization.usecase';
 import { ListOrganizationsUseCase } from './application/list-organizations.usecase';
 import { DrizzleOrganizationRepository } from './infrastructure/db/drizzle.organization.repository';
-import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
 import type { DbConnection } from '@/core/db/connection';
 import { DeleteOrganizationUseCase } from './application/delete-organization.usecase';
 import {
@@ -16,24 +15,29 @@ import {
 import type { AppEnv } from '@/core/types/app-types';
 import { UpdateOrganizationUseCase } from './application/update-organization.usecase';
 import { GetOrganizationUseCase } from './application/get-organization.usecase';
+import type { IMemberRepository } from '../member/domain/member.repository';
+import { OrganizationMemberAdapter } from './infrastructure/adapters/organization-member.adapter';
 
-export const createOrganizationModule = (db: DbConnection) => {
+export const createOrganizationModule = (
+  db: DbConnection,
+  memberRepository: IMemberRepository
+) => {
   const organizationRepository = new DrizzleOrganizationRepository(db);
-  const memberRepository = new DrizzleMemberRepository(db);
+  const memberProvider = new OrganizationMemberAdapter(memberRepository);
 
   const createUseCase = new CreateOrganizationUseCase(organizationRepository);
   const getUseCase = new GetOrganizationUseCase(
     organizationRepository,
-    memberRepository
+    memberProvider
   );
   const listUseCase = new ListOrganizationsUseCase(organizationRepository);
   const updateUseCase = new UpdateOrganizationUseCase(
     organizationRepository,
-    memberRepository
+    memberProvider
   );
   const deleteUseCase = new DeleteOrganizationUseCase(
     organizationRepository,
-    memberRepository
+    memberProvider
   );
 
   const controller = new HonoOrganizationController(

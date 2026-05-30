@@ -46,6 +46,14 @@ export function OrganizationsDashboard({
   };
 
   const organizations = initialOrganizations;
+  const searchQuery = useOrganizationStore((s) => s.searchQuery) ?? '';
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredOrganizations =
+    normalizedQuery.length > 0
+      ? organizations.filter((o) =>
+          o.name.toLowerCase().includes(normalizedQuery)
+        )
+      : organizations;
   const error = initialError;
   const organizationCountLabel =
     organizations.length === 1
@@ -65,74 +73,78 @@ export function OrganizationsDashboard({
 
   return (
     <div className="space-y-8">
-      <div className="mb-8 mt-2 flex flex-col justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800 sm:flex-row sm:items-end">
+      <div className="mb-8 mt-2 flex flex-col justify-between gap-4 border-b border-black/10 pb-6 dark:border-white/10 sm:flex-row sm:items-end">
         <div>
           <div className="mb-2 flex items-center gap-3">
-            <div className="rounded-lg border border-border bg-card p-2 dark:border-border dark:bg-card">
-              <Building2 className="size-5 text-primary dark:text-primary" />
+            <div className="rounded-lg border border-black/10 bg-white/70 p-2 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+              <Building2 className="size-5 text-purple-600 dark:text-purple-200" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-foreground dark:text-foreground">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
               {t('page.title')}
             </h2>
-            <span className="flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary dark:bg-primary/20 dark:text-primary">
+            <span className="flex items-center justify-center rounded-full border border-purple-500/40 bg-purple-500/15 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
               {organizationCountLabel}
             </span>
           </div>
-          <p className="text-muted-foreground dark:text-muted-foreground">
-            {t('page.description')}
-          </p>
+          <p className="text-muted-foreground">{t('page.description')}</p>
         </div>
 
         <Button
           onClick={() => handleModalChange(true)}
-          className="h-11 shrink-0 cursor-pointer bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
+          className="h-11 shrink-0 cursor-pointer bg-purple-600/90 px-5 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600/80 dark:bg-purple-500/80 dark:hover:bg-purple-500/70"
         >
-          <Plus className="mr-2 size-4" />
           {t('actions.create')}
         </Button>
       </div>
 
       {error && (
-        <Card className="border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
-          <p className="text-red-800 dark:text-red-200">{error}</p>
+        <Card className="border-red-500/30 bg-red-500/10 p-4">
+          <p className="text-red-700 dark:text-red-200">{error}</p>
         </Card>
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {organizations.map((org) => (
+        {filteredOrganizations.map((org) => (
           <Card
             key={org.id}
-            className="group cursor-pointer p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-lg dark:hover:border-primary/40 dark:hover:shadow-primary/20"
+            className="group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
             onClick={() => handleSelectOrganization(org.id)}
           >
-            <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors group-hover:text-primary dark:text-foreground dark:group-hover:text-primary">
+            <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
               {org.name}
             </h3>
-
-            <div className="space-y-2 text-sm text-muted-foreground dark:text-muted-foreground">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>
-                <span className="font-medium text-zinc-800 dark:text-zinc-300">
+                <span className="font-medium text-muted-foreground">
                   {t('detail.periodType')}:
                 </span>{' '}
-                {periodTypeLabels[org.periodType]}
+                <span className="font-medium text-foreground">
+                  {periodTypeLabels[org.periodType]}
+                </span>
               </p>
               <p>
-                <span className="font-medium text-zinc-800 dark:text-zinc-300">
+                <span className="font-medium text-muted-foreground">
                   {t('detail.morning')}:
                 </span>{' '}
-                {org.morningStart} - {org.morningEnd}
+                <span className="font-medium text-foreground">
+                  {org.morningStart} - {org.morningEnd}
+                </span>
               </p>
               <p>
-                <span className="font-medium text-zinc-800 dark:text-zinc-300">
+                <span className="font-medium text-muted-foreground">
                   {t('detail.afternoon')}:
                 </span>{' '}
-                {org.afternoonStart} - {org.afternoonEnd}
+                <span className="font-medium text-foreground">
+                  {org.afternoonStart} - {org.afternoonEnd}
+                </span>
               </p>
               <p>
-                <span className="font-medium text-zinc-800 dark:text-zinc-300">
+                <span className="font-medium text-muted-foreground">
                   {t('detail.slotDuration')}:
                 </span>{' '}
-                {org.slotDurationMinutes} min
+                <span className="font-medium text-foreground">
+                  {org.slotDurationMinutes} min
+                </span>
               </p>
             </div>
           </Card>
@@ -148,13 +160,13 @@ export function OrganizationsDashboard({
               handleModalChange(true);
             }
           }}
-          className="group h-full min-h-48 cursor-pointer border-2 border-dashed border-border/50 bg-transparent p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg dark:border-border/50 dark:hover:border-primary/60"
+          className="group hover-lift h-full min-h-48 cursor-pointer border-2 border-dashed border-black/10 bg-transparent p-6 transition-all duration-300 hover:border-purple-400/40 hover:shadow-lg hover:shadow-black/10 dark:border-white/20 dark:hover:shadow-black/50"
         >
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-border bg-card text-primary shadow-sm transition-colors group-hover:border-primary group-hover:bg-primary/10 group-hover:text-primary dark:border-border dark:bg-card dark:text-primary dark:group-hover:border-primary dark:group-hover:bg-primary/20 dark:group-hover:text-primary">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 dark:text-purple-200">
               <Plus className="size-8" />
             </div>
-            <p className="text-lg font-medium text-foreground dark:text-foreground">
+            <p className="text-lg font-medium text-foreground">
               {t('actions.createNew')}
             </p>
           </div>

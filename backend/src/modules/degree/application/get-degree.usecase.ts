@@ -1,13 +1,14 @@
 import type { DegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { DegreeMapper } from './degree.mapper';
 
 export class GetDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IDegreeMemberProvider
   ) {}
 
   async execute(
@@ -15,12 +16,13 @@ export class GetDegreeUseCase {
     degreeId: string,
     requesterUserId: string
   ): Promise<DegreeDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (!requester)
+    if (!role) {
       throw new ForbiddenError('You do not have access to this organization');
+    }
 
     const degree = await this.degreeRepository.findById(
       degreeId,

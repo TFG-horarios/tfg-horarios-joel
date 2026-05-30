@@ -1,15 +1,16 @@
 import type { ClassroomDTO, SaveClassroomDTO } from '@tfg-horarios/shared';
 import { Classroom } from '../domain/classroom.entity';
 import type { IClassroomRepository } from '../domain/classroom.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ClassroomMapper } from './classroom.mapper';
+import type { AppRole } from '@/core/permissions/roles';
 
 export class BulkCreateClassroomsUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IClassroomMemberProvider
   ) {}
 
   async execute(
@@ -21,14 +22,22 @@ export class BulkCreateClassroomsUseCase {
       throw new ValidationError('No classroom data provided for bulk creation');
     }
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const uniqueNames = new Set<string>();
+    for (const dto of dtos) {
+      const name = dto.name.trim();
+      if (uniqueNames.has(name)) {
+        throw new ValidationError(
+          `Duplicate classroom name in request: ${name}`
+        );
+      }
+      uniqueNames.add(name);
+    }
+
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to create new classrooms in this organization'
       );

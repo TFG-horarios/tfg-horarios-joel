@@ -7,12 +7,17 @@ export async function fetchDegrees(
 ): Promise<DegreeDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
-  const response =
-    await client.api.organizations[organizationId]!.degrees.$get();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.degrees.$get({
+    param: { organizationId },
+  });
 
-  if (response.status === 401 || response.status === 403) return [];
+  const status = Number(response.status);
 
-  if (!response.ok) {
+  if (status === 401 || status === 403) return [];
+
+  if (status !== 200) {
     throw new Error(t('server'));
   }
 

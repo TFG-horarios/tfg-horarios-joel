@@ -11,16 +11,17 @@ export const ScheduleSlotSchema = z
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
     classroomId: z
       .uuid()
+      .nullable()
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
-    dayOfWeek: z.number().int().min(1).max(7).openapi({ example: 1 }),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '08:00' }),
-    endTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '10:00' }),
+    dayOfWeek: z
+      .number()
+      .int()
+      .min(1)
+      .max(7)
+      .nullable()
+      .openapi({ example: 1 }),
+    slotIndex: z.number().int().min(0).nullable().openapi({ example: 0 }),
+    duration: z.number().positive().default(1).openapi({ example: 1.5 }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
   })
@@ -40,23 +41,29 @@ export const SaveScheduleSlotBodySchema = z
   .object({
     subjectGroupId: z
       .uuid()
+      .optional()
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
     classroomId: z
       .uuid()
+      .nullable()
+      .optional()
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
-    dayOfWeek: z.number().int().min(1).max(7).openapi({ example: 1 }),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '08:00' }),
-    endTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '10:00' }),
-  })
-  .refine((data) => data.endTime > data.startTime, {
-    message: 'End time must be after start time',
-    path: ['endTime'],
+    dayOfWeek: z
+      .number()
+      .int()
+      .min(1)
+      .max(7)
+      .nullable()
+      .optional()
+      .openapi({ example: 1 }),
+    slotIndex: z
+      .number()
+      .int()
+      .min(0)
+      .nullable()
+      .optional()
+      .openapi({ example: 0 }),
+    duration: z.number().positive().optional().openapi({ example: 1.5 }),
   })
   .openapi('SaveScheduleSlot');
 

@@ -2,7 +2,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
 import type { AppEnv } from '@/core/types/app-types';
 import { DrizzleClassroomRepository } from './infrastructure/db/drizzle.classroom.repository';
-import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
 import { CreateClassroomUseCase } from './application/create-classroom.usecase';
 import { HonoClassroomController } from './infrastructure/http/hono.classroom.controller';
 import {
@@ -18,35 +17,40 @@ import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
 import { ListClassroomsUseCase } from './application/list-classroom.usecase';
 import { GetClassroomUseCase } from './application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from './application/bulk-create-classroom.usecase';
+import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { ClassroomMemberAdapter } from './infrastructure/adapters/classroom-member.adapter';
 
-export const createClassroomModule = (db: DbConnection) => {
+export const createClassroomModule = (
+  db: DbConnection,
+  memberRepository: IMemberRepository
+) => {
   const classroomRepository = new DrizzleClassroomRepository(db);
-  const memberRepository = new DrizzleMemberRepository(db);
+  const memberProvider = new ClassroomMemberAdapter(memberRepository);
 
   const createUseCase = new CreateClassroomUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
   const listUseCase = new ListClassroomsUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
   const updateUseCase = new UpdateClassroomUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
   const deleteUseCase = new DeleteClassroomUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
   const getUseCase = new GetClassroomUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
 
   const createManyUseCase = new BulkCreateClassroomsUseCase(
     classroomRepository,
-    memberRepository
+    memberProvider
   );
 
   const controller = new HonoClassroomController(
@@ -66,5 +70,6 @@ export const createClassroomModule = (db: DbConnection) => {
     .openapi(deleteClassroomRoute, controller.delete)
     .openapi(getClassroomRoute, controller.get)
     .openapi(createManyClassroomsRoute, controller.createMany);
+
   return routes;
 };

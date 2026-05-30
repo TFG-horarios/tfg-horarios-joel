@@ -11,10 +11,7 @@ import {
 import { getServerClient } from '@/lib/api/server';
 import { redirect } from 'next/navigation';
 
-export type ActionResponse = {
-  success: boolean;
-  message?: string;
-};
+import { type ActionResponse } from '@/types/actions';
 
 async function setAuthCookie(token: string) {
   const cookieStore = await cookies();

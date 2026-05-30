@@ -1,13 +1,14 @@
 import type { ItineraryDTO } from '@tfg-horarios/shared';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { ItineraryMapper } from './itinerary.mapper';
 
 export class GetItineraryUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IItineraryMemberProvider
   ) {}
 
   async execute(
@@ -15,12 +16,13 @@ export class GetItineraryUseCase {
     itineraryId: string,
     requesterUserId: string
   ): Promise<ItineraryDTO> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (!requester)
+    if (!role) {
       throw new ForbiddenError('You do not have access to this organization');
+    }
 
     const itinerary = await this.itineraryRepository.findById(
       itineraryId,

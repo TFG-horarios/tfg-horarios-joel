@@ -1,5 +1,7 @@
 import { eq, and, count } from 'drizzle-orm';
 import { type DbConnection } from '@/core/db/connection';
+import { ConflictError } from '@/core/errors/app.error';
+import { isPostgresError } from '@/core/db/db-errors';
 import {
   membersTable,
   type DrizzleMember,
@@ -89,25 +91,39 @@ export class DrizzleMemberRepository implements IMemberRepository {
   }
 
   async create(domainEntity: Member): Promise<void> {
-    await this.database
-      .insert(membersTable)
-      .values(this.mapToPersistence(domainEntity));
+    try {
+      await this.database
+        .insert(membersTable)
+        .values(this.mapToPersistence(domainEntity));
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError('El usuario ya pertenece a esta organización');
+      }
+      throw error;
+    }
   }
 
   async update(domainEntity: Member): Promise<void> {
     const rawData = this.mapToPersistence(domainEntity);
-    await this.database
-      .update(membersTable)
-      .set({
-        role: rawData.role,
-        updatedAt: rawData.updatedAt,
-      })
-      .where(
-        and(
-          eq(membersTable.id, domainEntity.id),
-          eq(membersTable.organizationId, domainEntity.organizationId)
-        )
-      );
+    try {
+      await this.database
+        .update(membersTable)
+        .set({
+          role: rawData.role,
+          updatedAt: rawData.updatedAt,
+        })
+        .where(
+          and(
+            eq(membersTable.id, domainEntity.id),
+            eq(membersTable.organizationId, domainEntity.organizationId)
+          )
+        );
+    } catch (error: unknown) {
+      if (isPostgresError(error) && error.code === '23505') {
+        throw new ConflictError('El usuario ya pertenece a esta organización');
+      }
+      throw error;
+    }
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

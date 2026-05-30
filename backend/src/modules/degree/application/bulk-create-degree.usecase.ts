@@ -1,7 +1,8 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import { Degree } from '../domain/degree.entity';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { DegreeMapper } from './degree.mapper';
@@ -9,7 +10,7 @@ import { DegreeMapper } from './degree.mapper';
 export class BulkCreateDegreesUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: IDegreeMemberProvider
   ) {}
 
   async execute(
@@ -18,16 +19,27 @@ export class BulkCreateDegreesUseCase {
     dtos: SaveDegreeDTO[]
   ): Promise<DegreeDTO[]> {
     if (!dtos || dtos.length === 0)
-      throw new ValidationError('La lista de grados no puede estar vacía');
+      throw new ValidationError('Degrees list cannot be empty');
 
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const uniqueNames = new Set<string>();
+    const uniqueCodes = new Set<string>();
+    for (const dto of dtos) {
+      const name = dto.name.trim();
+      const code = dto.code.trim();
+      if (uniqueNames.has(name) || uniqueCodes.has(code)) {
+        throw new ValidationError(
+          `Duplicate degree name or code in request: ${name} / ${code}`
+        );
+      }
+      uniqueNames.add(name);
+      uniqueCodes.add(code);
+    }
+
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'CREATE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to perform this action'
       );

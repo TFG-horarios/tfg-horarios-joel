@@ -16,6 +16,7 @@ export const listClassroomsRoute = createRoute({
       description: 'Classroom list',
       content: { 'application/json': { schema: z.array(ClassroomSchema) } },
     },
+    403: { description: 'Forbidden' },
   },
 });
 
@@ -28,6 +29,7 @@ export const getClassroomRoute = createRoute({
       description: 'Classroom found',
       content: { 'application/json': { schema: ClassroomSchema } },
     },
+    403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
   },
 });
@@ -48,6 +50,9 @@ export const createClassroomRoute = createRoute({
       description: 'Classroom created',
       content: { 'application/json': { schema: ClassroomSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -69,6 +74,9 @@ export const createManyClassroomsRoute = createRoute({
       description: 'Classrooms created',
       content: { 'application/json': { schema: z.array(ClassroomSchema) } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -88,6 +96,10 @@ export const updateClassroomRoute = createRoute({
       description: 'Classroom updated',
       content: { 'application/json': { schema: ClassroomSchema } },
     },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Classroom not found' },
+    409: { description: 'Conflict' },
   },
 });
 
@@ -97,5 +109,7 @@ export const deleteClassroomRoute = createRoute({
   request: { params: ClassroomIdParamSchema },
   responses: {
     204: { description: 'Classroom deleted' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Classroom not found' },
   },
 });

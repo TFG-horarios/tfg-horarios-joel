@@ -4,6 +4,7 @@ export interface UserProps {
   id: string;
   name: string;
   email: string;
+  passwordHash: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,6 +55,10 @@ export class User {
 
   get email(): string {
     return this.props.email;
+  }
+
+  get passwordHash(): string {
+    return this.props.passwordHash;
   }
 
   get createdAt(): Date {

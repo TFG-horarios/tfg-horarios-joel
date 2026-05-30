@@ -1,12 +1,12 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
 import type { ISubjectRepository } from '../domain/subject.repository';
 
 export class DeleteSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberRepository: IMemberRepository
+    private readonly memberProvider: ISubjectMemberProvider
   ) {}
 
   async execute(
@@ -14,14 +14,11 @@ export class DeleteSubjectUseCase {
     subjectId: string,
     requesterUserId: string
   ): Promise<void> {
-    const requester = await this.memberRepository.findByUserAndOrg(
+    const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );
-    if (
-      !requester ||
-      !hasPermission(requester.role, 'DELETE_ORGANIZATION_COMPONENTS')
-    ) {
+    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to delete subjects in this organization.'
       );

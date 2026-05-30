@@ -12,13 +12,12 @@ import {
   getUserByEmailRoute,
 } from './infrastructure/http/hono.user.routes';
 
-export const createUserModule = (
-  db: DbConnection,
-  getUserByEmailUseCase: GetUserByEmailUseCase
-) => {
+export const createUserModule = (db: DbConnection) => {
   const userRepository = new DrizzleUserRepository(db);
   const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+  const getUserByEmailUseCase = new GetUserByEmailUseCase(userRepository);
   const updateUserUseCase = new UpdateUserUseCase(userRepository);
+
   const controller = new HonoUserController(
     getUserByEmailUseCase,
     getUserByIdUseCase,
@@ -30,5 +29,6 @@ export const createUserModule = (
     .openapi(getMeRoute, controller.getMe)
     .openapi(updateMeRoute, controller.updateMe)
     .openapi(getUserByEmailRoute, controller.getByEmail);
+
   return routes;
 };

@@ -1,9 +1,7 @@
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+'use client';
+
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
@@ -12,32 +10,29 @@ import type { ClassroomDTO } from '@tfg-horarios/shared';
 
 export interface ClassroomCardProps {
   classroom: ClassroomDTO;
-  organizationName: string;
   translations: Record<string, string>;
 }
 
-export function ClassroomCard({
-  classroom,
-  organizationName,
-  translations,
-}: ClassroomCardProps) {
+export function ClassroomCard({ classroom, translations }: ClassroomCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
-      <CardHeader className="space-y-2 p-5">
-        <CardDescription>
+      <CardHeader className="space-y-2 p-4">
+        <Badge
+          variant="outline"
+          className="w-fit mb-2 uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
+        >
           {classroom.type === 'theory'
             ? translations['type.theory']
             : translations['type.lab']}
-        </CardDescription>
-        <CardTitle className={`text-xl ${organizationHoverCardTitleClassName}`}>
+        </Badge>
+        <CardTitle
+          className={`text-xl font-semibold ${organizationHoverCardTitleClassName}`}
+        >
           {classroom.name}
         </CardTitle>
-        <div className="space-y-1 pt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="space-y-1 pt-1 text-sm text-muted-foreground">
           <p>
             {translations.capacity}: {classroom.capacity} estudiantes
-          </p>
-          <p>
-            {translations.organization}: {organizationName}
           </p>
         </div>
       </CardHeader>
