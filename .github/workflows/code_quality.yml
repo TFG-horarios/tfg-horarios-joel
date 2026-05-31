@@ -12,7 +12,10 @@ jobs:
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      DATABASE_URL: "postgres://dummy_user:dummy_pass@localhost:5432/dummy_db"
+      DATABASE_URL: "postgres://root:rootpassword@localhost:5432/tfg_test_db"
+      FRONTEND_URL: "http://localhost:3000"
+      JWT_SECRET: "super_secret_dummy_key_for_testing_purposes"
+      JWT_EXPIRES_IN_SECONDS: "86400"
 
     steps:
       - name: Checkout code
