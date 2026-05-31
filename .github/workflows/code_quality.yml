@@ -12,6 +12,7 @@ jobs:
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DATABASE_URL: "postgres://dummy_user:dummy_pass@localhost:5432/dummy_db"
 
     steps:
       - name: Checkout code
