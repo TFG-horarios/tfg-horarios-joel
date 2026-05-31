@@ -52,7 +52,11 @@ export class Subject {
       | 'deletedAt'
     >
   ): void {
-    Subject.validateBusinessRules({ ...this.props, ...props });
+    const nextProps = { ...this.props, ...props };
+    if (nextProps.isCommon) {
+      nextProps.itineraryId = null;
+    }
+    Subject.validateBusinessRules(nextProps);
 
     this.props.name = props.name;
     this.props.code = props.code;
@@ -61,8 +65,8 @@ export class Subject {
     this.props.courseYear = props.courseYear;
     this.props.period = props.period;
     this.props.weeklyHours = props.weeklyHours;
-    this.props.isCommon = props.isCommon;
-    this.props.itineraryId = props.isCommon ? null : props.itineraryId;
+    this.props.isCommon = nextProps.isCommon;
+    this.props.itineraryId = nextProps.itineraryId;
     this.props.updatedAt = new Date();
   }
 

@@ -14,8 +14,19 @@ export class ScheduleSlot {
   private constructor(private readonly props: ScheduleSlotProps) {}
 
   public static create(
-    props: Omit<ScheduleSlotProps, 'id' | 'createdAt' | 'updatedAt'> & {
+    props: Omit<
+      ScheduleSlotProps,
+      | 'id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'classroomId'
+      | 'dayOfWeek'
+      | 'slotIndex'
+    > & {
       id?: string;
+      classroomId?: string | null;
+      dayOfWeek?: number | null;
+      slotIndex?: number | null;
     }
   ): ScheduleSlot {
     return new ScheduleSlot({

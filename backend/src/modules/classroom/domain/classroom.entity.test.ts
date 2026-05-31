@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
 import { ValidationError } from '@/core/errors/app.error';
-
 import { Classroom, type ClassroomProps } from './classroom.entity';
 
 describe('Classroom', () => {

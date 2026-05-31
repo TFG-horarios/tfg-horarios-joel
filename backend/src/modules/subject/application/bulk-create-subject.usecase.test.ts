@@ -1,0 +1,97 @@
+import { describe, expect, test, mock } from 'bun:test';
+import { BulkCreateSubjectUseCase } from './bulk-create-subject.usecase';
+import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
+
+describe('BulkCreateSubjectUseCase', () => {
+  const repositoryMock = {
+    findById: mock(),
+    findAll: mock(),
+    create: mock(),
+    createMany: mock(),
+    update: mock(),
+    delete: mock(),
+  };
+  const memberProviderMock = {
+    getMemberRole: mock(),
+  };
+  const useCase = new BulkCreateSubjectUseCase(
+    repositoryMock,
+    memberProviderMock
+  );
+
+  test('should bulk create subjects successfully', async () => {
+    (
+      memberProviderMock.getMemberRole as ReturnType<typeof mock>
+    ).mockResolvedValueOnce('admin');
+    const dtos = [
+      {
+        name: 'Math',
+        code: 'M1',
+        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        numberOfStudents: 30,
+        courseYear: 1,
+        period: 1,
+        weeklyHours: 4,
+        isCommon: true,
+      },
+    ];
+    const result = await useCase.execute('org-1', 'deg-1', 'user-1', dtos);
+    expect(result).toHaveLength(1);
+    expect(repositoryMock.createMany).toHaveBeenCalled();
+  });
+
+  test('should throw ValidationError if empty list provided', async () => {
+    expect(useCase.execute('org-1', 'deg-1', 'user-1', [])).rejects.toThrow(
+      ValidationError
+    );
+  });
+
+  test('should throw ValidationError on duplicate code', async () => {
+    const dtos = [
+      {
+        name: 'Math',
+        code: 'M1',
+        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        numberOfStudents: 30,
+        courseYear: 1,
+        period: 1,
+        weeklyHours: 4,
+        isCommon: true,
+      },
+      {
+        name: 'Math 2',
+        code: 'M1',
+        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        numberOfStudents: 30,
+        courseYear: 1,
+        period: 1,
+        weeklyHours: 4,
+        isCommon: true,
+      },
+    ];
+    expect(useCase.execute('org-1', 'deg-1', 'user-1', dtos)).rejects.toThrow(
+      ValidationError
+    );
+  });
+
+  test('should throw ForbiddenError if lacking permission', async () => {
+    (
+      memberProviderMock.getMemberRole as ReturnType<typeof mock>
+    ).mockResolvedValueOnce('viewer');
+    const dtos = [
+      {
+        name: 'Math',
+        code: 'M1',
+        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        numberOfStudents: 30,
+        courseYear: 1,
+        period: 1,
+        weeklyHours: 4,
+        isCommon: true,
+      },
+    ];
+    expect(useCase.execute('org-1', 'deg-1', 'user-1', dtos)).rejects.toThrow(
+      ForbiddenError
+    );
+  });
+});
