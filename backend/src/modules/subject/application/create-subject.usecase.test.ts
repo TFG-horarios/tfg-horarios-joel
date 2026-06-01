@@ -10,6 +10,8 @@ describe('CreateSubjectUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
 
   const memberProviderMock = { getMemberRole: mock() };

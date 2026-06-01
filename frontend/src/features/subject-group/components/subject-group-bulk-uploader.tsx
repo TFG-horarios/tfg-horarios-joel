@@ -7,7 +7,10 @@ import {
   type SubjectDTO,
   type SubjectGroupDTO,
 } from '@tfg-horarios/shared';
-import { bulkCreateSubjectGroups } from '@/features/subject-group/actions';
+import {
+  bulkCreateSubjectGroups,
+  replaceSubjectGroupsAction,
+} from '@/features/subject-group/actions';
 import {
   GenericBulkUploader,
   type CsvRowIssue,
@@ -96,6 +99,7 @@ export function SubjectGroupBulkUploader({
               message: 'Turno no disponible para esta asignatura',
             });
           } else if (
+            mode !== 'overwrite' &&
             existingSet.has(`${subject.id}-${row.name.toLowerCase()}`)
           ) {
             issues.push({
@@ -193,34 +197,21 @@ export function SubjectGroupBulkUploader({
       mode={mode}
       onBeforeUpload={async (m, validData) => {
         if (onBeforeUpload) return onBeforeUpload(m, validData);
-        if (m === 'overwrite') {
-          try {
-            await fetch(`/api/organizations/${organizationId}/subject-groups`, {
-              method: 'DELETE',
-            });
-          } catch (err) {
-            console.error(
-              'Error deleting subject groups before overwrite',
-              err
-            );
-          }
-        }
       }}
       onUpload={async (finalData) => {
-        const groups = new Map<
-          string,
-          z.infer<typeof SaveSubjectGroupBodySchema>[]
-        >();
-        finalData.forEach(({ subjectCode, ...dto }) => {
+        const dtos = finalData.map(({ subjectCode, ...dto }) => {
           const subject = subjectMap.get(subjectCode.toLowerCase())!;
-          if (!groups.has(subject.id)) groups.set(subject.id, []);
-          groups.get(subject.id)!.push(dto);
+          return {
+            ...dto,
+            subjectId: subject.id,
+          };
         });
-        await Promise.all(
-          Array.from(groups.entries()).map(([subId, dtos]) =>
-            bulkCreateSubjectGroups(organizationId, subId, dtos)
-          )
-        );
+
+        if (mode === 'overwrite') {
+          await replaceSubjectGroupsAction(organizationId, dtos);
+        } else {
+          await bulkCreateSubjectGroups(organizationId, dtos);
+        }
       }}
     />
   );

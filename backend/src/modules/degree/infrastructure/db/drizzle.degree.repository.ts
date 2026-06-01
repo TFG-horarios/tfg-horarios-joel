@@ -132,4 +132,44 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
         )
       );
   }
+
+  async deleteAll(organizationId: string): Promise<void> {
+    await this.database
+      .update(degreesTable)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(degreesTable.organizationId, organizationId),
+          isNull(degreesTable.deletedAt)
+        )
+      );
+  }
+
+  async replace(degrees: Degree[], organizationId: string): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(degreesTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(degreesTable.organizationId, organizationId),
+            isNull(degreesTable.deletedAt)
+          )
+        );
+
+      if (degrees.length > 0) {
+        const valuesToInsert = degrees.map((d) => this.mapToPersistence(d));
+        try {
+          await tx.insert(degreesTable).values(valuesToInsert);
+        } catch (error: unknown) {
+          if (getPostgresErrorCode(error) === '23505') {
+            throw new ConflictError(
+              'One or more degrees with the same name or code already exist in this organization'
+            );
+          }
+          throw error;
+        }
+      }
+    });
+  }
 }

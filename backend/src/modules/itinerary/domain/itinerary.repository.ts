@@ -7,4 +7,6 @@ export interface IItineraryRepository {
   createMany(itineraries: Itinerary[]): Promise<void>;
   update(itinerary: Itinerary): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;
+  deleteAll(organizationId: string): Promise<void>;
+  replace(itineraries: Itinerary[], organizationId: string): Promise<void>;
 }

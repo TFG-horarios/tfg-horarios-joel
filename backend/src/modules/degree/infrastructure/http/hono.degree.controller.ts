@@ -13,7 +13,11 @@ import type {
   listDegreesRoute,
   updateDegreeRoute,
   deleteDegreeRoute,
+  deleteAllDegreesRoute,
+  replaceDegreesRoute,
 } from './hono.degree.routes';
+import type { DeleteAllDegreesUseCase } from '../../application/delete-all-degrees.usecase';
+import type { ReplaceDegreesUseCase } from '../../application/replace-degrees.usecase';
 
 export class HonoDegreeController {
   constructor(
@@ -22,7 +26,9 @@ export class HonoDegreeController {
     private readonly getDegreeUseCase: GetDegreeUseCase,
     private readonly listDegreesUseCase: ListDegreesUseCase,
     private readonly updateDegreeUseCase: UpdateDegreeUseCase,
-    private readonly deleteDegreeUseCase: DeleteDegreeUseCase
+    private readonly deleteDegreeUseCase: DeleteDegreeUseCase,
+    private readonly deleteAllDegreesUseCase: DeleteAllDegreesUseCase,
+    private readonly replaceDegreesUseCase: ReplaceDegreesUseCase
   ) {}
 
   list: RouteHandler<typeof listDegreesRoute, AppEnv> = async (c) => {
@@ -68,6 +74,17 @@ export class HonoDegreeController {
     return c.json(newDegrees, 201);
   };
 
+  replace: RouteHandler<typeof replaceDegreesRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const bodyArray = c.req.valid('json');
+    const replacedDegrees = await this.replaceDegreesUseCase.execute(
+      organizationId,
+      c.get('userId'),
+      bodyArray
+    );
+    return c.json(replacedDegrees, 200);
+  };
+
   update: RouteHandler<typeof updateDegreeRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     const body = c.req.valid('json');
@@ -83,6 +100,12 @@ export class HonoDegreeController {
   delete: RouteHandler<typeof deleteDegreeRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     await this.deleteDegreeUseCase.execute(organizationId, id, c.get('userId'));
+    return c.body(null, 204);
+  };
+
+  deleteAll: RouteHandler<typeof deleteAllDegreesRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    await this.deleteAllDegreesUseCase.execute(organizationId, c.get('userId'));
     return c.body(null, 204);
   };
 }

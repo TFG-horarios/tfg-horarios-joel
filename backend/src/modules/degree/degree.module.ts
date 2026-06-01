@@ -8,6 +8,8 @@ import { GetDegreeUseCase } from './application/get-degree.usecase';
 import { ListDegreesUseCase } from './application/list-degree.usecase';
 import { UpdateDegreeUseCase } from './application/update-degree.usecase';
 import { DeleteDegreeUseCase } from './application/delete-degree.usecase';
+import { DeleteAllDegreesUseCase } from './application/delete-all-degrees.usecase';
+import { ReplaceDegreesUseCase } from './application/replace-degrees.usecase';
 import { HonoDegreeController } from './infrastructure/http/hono.degree.controller';
 import {
   createDegreeRoute,
@@ -16,6 +18,8 @@ import {
   listDegreesRoute,
   updateDegreeRoute,
   deleteDegreeRoute,
+  deleteAllDegreesRoute,
+  replaceDegreesRoute,
 } from './infrastructure/http/hono.degree.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { DegreeMemberAdapter } from './infrastructure/adapters/degree-member.adapter';
@@ -33,7 +37,9 @@ export const createDegreeModule = (
     new GetDegreeUseCase(degreeRepository, memberProvider),
     new ListDegreesUseCase(degreeRepository, memberProvider),
     new UpdateDegreeUseCase(degreeRepository, memberProvider),
-    new DeleteDegreeUseCase(degreeRepository, memberProvider)
+    new DeleteDegreeUseCase(degreeRepository, memberProvider),
+    new DeleteAllDegreesUseCase(degreeRepository, memberProvider),
+    new ReplaceDegreesUseCase(degreeRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -42,8 +48,10 @@ export const createDegreeModule = (
     .openapi(getDegreeRoute, controller.get)
     .openapi(createDegreeRoute, controller.create)
     .openapi(bulkCreateDegreesRoute, controller.bulkCreate)
+    .openapi(replaceDegreesRoute, controller.replace)
     .openapi(updateDegreeRoute, controller.update)
-    .openapi(deleteDegreeRoute, controller.delete);
+    .openapi(deleteDegreeRoute, controller.delete)
+    .openapi(deleteAllDegreesRoute, controller.deleteAll);
 
   return routes;
 };

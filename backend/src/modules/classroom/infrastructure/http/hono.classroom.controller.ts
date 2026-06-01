@@ -8,12 +8,16 @@ import {
   deleteClassroomRoute,
   getClassroomRoute,
   createManyClassroomsRoute,
+  deleteAllClassroomsRoute,
+  replaceClassroomsRoute,
 } from './hono.classroom.routes';
 import { ListClassroomsUseCase } from '../../application/list-classroom.usecase';
 import { UpdateClassroomUseCase } from '../../application/update-classroom.usecase';
 import { DeleteClassroomUseCase } from '../../application/delete-classroom.usecase';
 import { GetClassroomUseCase } from '../../application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from '../../application/bulk-create-classroom.usecase';
+import { DeleteAllClassroomsUseCase } from '../../application/delete-all-classrooms.usecase';
+import { ReplaceClassroomsUseCase } from '../../application/replace-classrooms.usecase';
 
 export class HonoClassroomController {
   constructor(
@@ -22,7 +26,9 @@ export class HonoClassroomController {
     private readonly updateClassroomUseCase: UpdateClassroomUseCase,
     private readonly deleteClassroomUseCase: DeleteClassroomUseCase,
     private readonly getClassroomUseCase: GetClassroomUseCase,
-    private readonly bulkCreateClassroomsUseCase: BulkCreateClassroomsUseCase
+    private readonly bulkCreateClassroomsUseCase: BulkCreateClassroomsUseCase,
+    private readonly deleteAllClassroomsUseCase: DeleteAllClassroomsUseCase,
+    private readonly replaceClassroomsUseCase: ReplaceClassroomsUseCase
   ) {}
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
@@ -62,6 +68,18 @@ export class HonoClassroomController {
     return c.json(newClassrooms, 201);
   };
 
+  replace: RouteHandler<typeof replaceClassroomsRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const bodyArray = c.req.valid('json');
+    const requesterUserId = c.get('userId');
+    const replacedClassrooms = await this.replaceClassroomsUseCase.execute(
+      organizationId,
+      requesterUserId,
+      bodyArray
+    );
+    return c.json(replacedClassrooms, 200);
+  };
+
   list: RouteHandler<typeof listClassroomsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
     const requesterUserId = c.get('userId');
@@ -94,5 +112,17 @@ export class HonoClassroomController {
       requesterUserId
     );
     return c.json({ message: 'Classroom deleted successfully' });
+  };
+
+  deleteAll: RouteHandler<typeof deleteAllClassroomsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    const requesterUserId = c.get('userId');
+    await this.deleteAllClassroomsUseCase.execute(
+      organizationId,
+      requesterUserId
+    );
+    return c.json({ message: 'All classrooms deleted successfully' });
   };
 }

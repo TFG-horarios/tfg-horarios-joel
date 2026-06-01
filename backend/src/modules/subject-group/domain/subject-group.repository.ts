@@ -29,4 +29,6 @@ export interface ISubjectGroupRepository {
   createMany(subjectGroups: SubjectGroup[]): Promise<void>;
   update(subjectGroup: SubjectGroup): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;
+  deleteAll(organizationId: string): Promise<void>;
+  replace(subjectGroups: SubjectGroup[], organizationId: string): Promise<void>;
 }

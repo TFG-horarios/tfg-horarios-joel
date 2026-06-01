@@ -6,6 +6,7 @@ import {
   SubjectCreateParamSchema,
   SubjectIdParamSchema,
   SaveSubjectBodySchema,
+  BulkSaveSubjectBodySchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectsRoute = createRoute({
@@ -57,18 +58,40 @@ export const createSubjectRoute = createRoute({
 
 export const bulkCreateSubjectsRoute = createRoute({
   method: 'post',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/subjects/bulk',
+  path: '/organizations/{organizationId}/subjects/bulk',
   request: {
-    params: SubjectCreateParamSchema,
+    params: SubjectListParamSchema,
     body: {
       content: {
-        'application/json': { schema: z.array(SaveSubjectBodySchema) },
+        'application/json': { schema: z.array(BulkSaveSubjectBodySchema) },
       },
     },
   },
   responses: {
     201: {
       description: 'Subjects bulk created',
+      content: { 'application/json': { schema: z.array(SubjectSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
+  },
+});
+
+export const replaceSubjectsRoute = createRoute({
+  method: 'put',
+  path: '/organizations/{organizationId}/subjects/bulk',
+  request: {
+    params: SubjectListParamSchema,
+    body: {
+      content: {
+        'application/json': { schema: z.array(BulkSaveSubjectBodySchema) },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Subjects replaced',
       content: { 'application/json': { schema: z.array(SubjectSchema) } },
     },
     400: { description: 'Bad request' },
@@ -106,5 +129,15 @@ export const deleteSubjectRoute = createRoute({
     204: { description: 'Deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+  },
+});
+
+export const deleteAllSubjectsRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/subjects',
+  request: { params: SubjectListParamSchema },
+  responses: {
+    204: { description: 'All subjects deleted' },
+    403: { description: 'Forbidden' },
   },
 });

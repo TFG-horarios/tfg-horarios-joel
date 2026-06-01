@@ -11,6 +11,8 @@ describe('ListSubjectUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
   const memberProviderMock = { getMemberRole: mock() };
   const useCase = new ListSubjectUseCase(repositoryMock, memberProviderMock);

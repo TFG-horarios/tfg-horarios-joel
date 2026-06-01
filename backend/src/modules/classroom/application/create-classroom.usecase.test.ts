@@ -10,6 +10,8 @@ describe('CreateClassroomUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
 
   const memberProviderMock = {

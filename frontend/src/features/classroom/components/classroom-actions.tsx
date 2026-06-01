@@ -4,7 +4,7 @@ import { ResourceActionsToolbar } from '@/components/shared/resource/resource-ac
 import { ClassroomBulkUploader } from '@/features/classroom/components/classroom-bulk-uploader';
 import type { ClassroomDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
-// import { deleteAllClassroomsAction } from '@/features/classroom/actions';
+import { deleteAllClassroomsAction } from '@/features/classroom/actions';
 
 interface ClassroomActionsProps {
   organizationId: string;
@@ -19,7 +19,7 @@ export function ClassroomActions({
 
   return (
     <ResourceActionsToolbar
-      /*onDeleteAll={() => deleteAllClassroomsAction(organizationId)}*/
+      onDeleteAll={() => deleteAllClassroomsAction(organizationId)}
       translations={{
         deleteAllConfirm: t('deleteAllConfirm'),
         deleteAllTitle: t('deleteAllTitle'),

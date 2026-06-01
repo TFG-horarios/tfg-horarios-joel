@@ -10,6 +10,8 @@ import {
   listDegreesRoute,
   updateDegreeRoute,
   deleteDegreeRoute,
+  deleteAllDegreesRoute,
+  replaceDegreesRoute,
 } from './hono.degree.routes';
 
 describe('HonoDegreeController Integration', () => {
@@ -19,6 +21,8 @@ describe('HonoDegreeController Integration', () => {
   const listMock = { execute: mock() };
   const updateMock = { execute: mock() };
   const deleteMock = { execute: mock() };
+  const deleteAllMock = { execute: mock() };
+  const replaceMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoDegreeController>;
   const controller = new HonoDegreeController(
@@ -27,7 +31,9 @@ describe('HonoDegreeController Integration', () => {
     getMock as unknown as Params[2],
     listMock as unknown as Params[3],
     updateMock as unknown as Params[4],
-    deleteMock as unknown as Params[5]
+    deleteMock as unknown as Params[5],
+    deleteAllMock as unknown as Params[6],
+    replaceMock as unknown as Params[7]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -37,6 +43,8 @@ describe('HonoDegreeController Integration', () => {
   router.openapi(listDegreesRoute, controller.list);
   router.openapi(updateDegreeRoute, controller.update);
   router.openapi(deleteDegreeRoute, controller.delete);
+  router.openapi(deleteAllDegreesRoute, controller.deleteAll);
+  router.openapi(replaceDegreesRoute, controller.replace);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -129,5 +137,29 @@ describe('HonoDegreeController Integration', () => {
     expect(res.status).toBe(204);
     expect(await res.text()).toBe('');
     expect(deleteMock.execute).toHaveBeenCalledWith(orgId, degreeId, 'u-admin');
+  });
+
+  test('DELETE /organizations/:organizationId/degrees should return 204 for deleteAll', async () => {
+    deleteAllMock.execute.mockResolvedValueOnce(undefined);
+    const res = await app.request(`/api/organizations/${orgId}/degrees`, {
+      method: 'DELETE',
+    });
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe('');
+    expect(deleteAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('PUT /organizations/:organizationId/degrees/bulk should return 200 with replaced degrees', async () => {
+    replaceMock.execute.mockResolvedValueOnce([{ id: degreeId, ...validBody }]);
+    const res = await app.request(`/api/organizations/${orgId}/degrees/bulk`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([validBody]),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([{ id: degreeId, ...validBody }]);
+    expect(replaceMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      validBody,
+    ]);
   });
 });

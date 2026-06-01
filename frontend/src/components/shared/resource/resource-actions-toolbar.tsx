@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
@@ -29,7 +30,7 @@ import {
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
 
 export interface ResourceActionsToolbarProps {
-  /*onDeleteAll: () => Promise<{ success: boolean; message?: string }>;*/
+  onDeleteAll: () => Promise<{ success: boolean; message?: string }>;
   appendModalContent: React.ReactNode;
   overwriteModalContent: React.ReactNode;
   onCreateClick?: () => void;
@@ -48,16 +49,16 @@ export interface ResourceActionsToolbarProps {
 }
 
 export function ResourceActionsToolbar({
-  /*onDeleteAll,*/
+  onDeleteAll,
   appendModalContent,
   overwriteModalContent,
   onCreateClick,
   translations,
 }: ResourceActionsToolbarProps) {
-  // const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /*const handleDeleteAll = async () => {
+  const handleDeleteAll = async () => {
     try {
       setIsDeleting(true);
       setError(null);
@@ -71,7 +72,7 @@ export function ResourceActionsToolbar({
     } finally {
       setIsDeleting(false);
     }
-  };*/
+  };
 
   return (
     <ResourceActions>
@@ -102,7 +103,7 @@ export function ResourceActionsToolbar({
           )}
           <AlertDialogFooter>
             <AlertDialogCancel>{translations.cancel}</AlertDialogCancel>
-            {/* <AlertDialogAction
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 void handleDeleteAll();
@@ -113,7 +114,7 @@ export function ResourceActionsToolbar({
               {isDeleting
                 ? translations.deleting
                 : translations.deleteAllConfirm}
-            </AlertDialogAction> */}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -10,6 +10,8 @@ import {
   listClassroomsRoute,
   updateClassroomRoute,
   deleteClassroomRoute,
+  deleteAllClassroomsRoute,
+  replaceClassroomsRoute,
 } from './hono.classroom.routes';
 
 describe('HonoClassroomController Integration', () => {
@@ -19,6 +21,8 @@ describe('HonoClassroomController Integration', () => {
   const listMock = { execute: mock() };
   const updateMock = { execute: mock() };
   const deleteMock = { execute: mock() };
+  const deleteAllMock = { execute: mock() };
+  const replaceMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoClassroomController>;
   const controller = new HonoClassroomController(
@@ -27,16 +31,20 @@ describe('HonoClassroomController Integration', () => {
     updateMock as unknown as Params[2],
     deleteMock as unknown as Params[3],
     getMock as unknown as Params[4],
-    bulkCreateMock as unknown as Params[5]
+    bulkCreateMock as unknown as Params[5],
+    deleteAllMock as unknown as Params[6],
+    replaceMock as unknown as Params[7]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createClassroomRoute, controller.create);
   router.openapi(createManyClassroomsRoute, controller.createMany);
+  router.openapi(replaceClassroomsRoute, controller.replace);
   router.openapi(getClassroomRoute, controller.get);
   router.openapi(listClassroomsRoute, controller.list);
   router.openapi(updateClassroomRoute, controller.update);
   router.openapi(deleteClassroomRoute, controller.delete);
+  router.openapi(deleteAllClassroomsRoute, controller.deleteAll);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -142,5 +150,36 @@ describe('HonoClassroomController Integration', () => {
       classroomId,
       'u-admin'
     );
+  });
+
+  test('DELETE /organizations/:organizationId/classrooms should return 204 for deleteAll', async () => {
+    deleteAllMock.execute.mockResolvedValueOnce(undefined);
+    const res = await app.request(`/api/organizations/${orgId}/classrooms`, {
+      method: 'DELETE',
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      message: 'All classrooms deleted successfully',
+    });
+    expect(deleteAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('PUT /organizations/:organizationId/classrooms/bulk should return 200 with replaced classrooms', async () => {
+    replaceMock.execute.mockResolvedValueOnce([
+      { id: classroomId, ...validBody },
+    ]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/bulk`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([validBody]),
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([{ id: classroomId, ...validBody }]);
+    expect(replaceMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      validBody,
+    ]);
   });
 });

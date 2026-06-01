@@ -102,7 +102,6 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
 
   async update(classroom: Classroom): Promise<void> {
     const rawData = this.mapToPersistence(classroom);
-
     try {
       await this.database
         .update(classroomsTable)
@@ -138,5 +137,48 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
           eq(classroomsTable.organizationId, organizationId)
         )
       );
+  }
+
+  async deleteAll(organizationId: string): Promise<void> {
+    await this.database
+      .update(classroomsTable)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(classroomsTable.organizationId, organizationId),
+          isNull(classroomsTable.deletedAt)
+        )
+      );
+  }
+
+  async replace(
+    classrooms: Classroom[],
+    organizationId: string
+  ): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(classroomsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(classroomsTable.organizationId, organizationId),
+            isNull(classroomsTable.deletedAt)
+          )
+        );
+
+      if (classrooms.length > 0) {
+        const valuesToInsert = classrooms.map((c) => this.mapToPersistence(c));
+        try {
+          await tx.insert(classroomsTable).values(valuesToInsert);
+        } catch (error: unknown) {
+          if (getPostgresErrorCode(error) === '23505') {
+            throw new ConflictError(
+              'One or more classrooms with the same name already exist in this organization'
+            );
+          }
+          throw error;
+        }
+      }
+    });
   }
 }

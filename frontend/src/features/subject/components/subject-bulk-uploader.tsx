@@ -8,7 +8,10 @@ import {
   type SubjectDTO,
   type ItineraryDTO,
 } from '@tfg-horarios/shared';
-import { bulkCreateSubjects } from '@/features/subject/actions';
+import {
+  bulkCreateSubjects,
+  replaceSubjectsAction,
+} from '@/features/subject/actions';
 import {
   GenericBulkUploader,
   type CsvRowIssue,
@@ -129,7 +132,10 @@ export function SubjectBulkUploader({
           }
 
           if (isRowValid) {
-            if (existingCodes.has(row.code.toLowerCase())) {
+            if (
+              mode !== 'overwrite' &&
+              existingCodes.has(row.code.toLowerCase())
+            ) {
               issues.push({
                 rowNumber: idx + 2,
                 category: 'duplicate',
@@ -148,32 +154,27 @@ export function SubjectBulkUploader({
       mode={mode}
       onBeforeUpload={async (m, validData) => {
         if (onBeforeUpload) return onBeforeUpload(m, validData);
-        if (m === 'overwrite') {
-          try {
-            // await deleteAllSubjects(organizationId);
-          } catch (err) {
-            console.error('Error deleting subjects before overwrite', err);
-          }
-        }
       }}
       onUpload={async (finalData) => {
-        const groups = new Map<
-          string,
-          z.infer<typeof SaveSubjectBodySchema>[]
-        >();
-        finalData.forEach(({ degreeCode, itineraryCode, ...subject }) => {
-          const degreeId = degreeMap.get(degreeCode.toLowerCase())!;
-          const itineraryId = subject.isCommon
-            ? undefined
-            : itineraryMap.get(`${degreeId}-${itineraryCode!.toLowerCase()}`);
-          if (!groups.has(degreeId)) groups.set(degreeId, []);
-          groups.get(degreeId)!.push({ ...subject, itineraryId });
-        });
-        await Promise.all(
-          Array.from(groups.entries()).map(([dId, items]) =>
-            bulkCreateSubjects(organizationId, dId, items)
-          )
+        const dtos = finalData.map(
+          ({ degreeCode, itineraryCode, ...subject }) => {
+            const degreeId = degreeMap.get(degreeCode.toLowerCase())!;
+            const itineraryId = subject.isCommon
+              ? undefined
+              : itineraryMap.get(`${degreeId}-${itineraryCode!.toLowerCase()}`);
+            return {
+              ...subject,
+              degreeId,
+              itineraryId,
+            };
+          }
         );
+
+        if (mode === 'overwrite') {
+          await replaceSubjectsAction(organizationId, dtos);
+        } else {
+          await bulkCreateSubjects(organizationId, dtos);
+        }
       }}
     />
   );

@@ -7,7 +7,11 @@ import {
   bulkCreateSubjectGroupsRoute,
   updateSubjectGroupRoute,
   deleteSubjectGroupRoute,
+  deleteAllSubjectGroupsRoute,
+  replaceSubjectGroupsRoute,
 } from './hono.subject-group.routes';
+import type { DeleteAllSubjectGroupsUseCase } from '../../application/delete-all-subject-groups.usecase';
+import type { ReplaceSubjectGroupsUseCase } from '../../application/replace-subject-groups.usecase';
 import type { BulkCreateSubjectGroupUseCase } from '../../application/bulk-create-subject-group.usecase';
 import type { ListSubjectGroupsUseCase } from '../../application/list-subject-group.usecase';
 import type { GetSubjectGroupUseCase } from '../../application/get-subject-group.usecase';
@@ -22,7 +26,9 @@ export class HonoSubjectGroupController {
     private readonly createUseCase: CreateSubjectGroupUseCase,
     private readonly bulkCreateUseCase: BulkCreateSubjectGroupUseCase,
     private readonly updateUseCase: UpdateSubjectGroupUseCase,
-    private readonly deleteUseCase: DeleteSubjectGroupUseCase
+    private readonly deleteUseCase: DeleteSubjectGroupUseCase,
+    private readonly deleteAllUseCase: DeleteAllSubjectGroupsUseCase,
+    private readonly replaceUseCase: ReplaceSubjectGroupsUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectGroupsRoute, AppEnv> = async (c) => {
@@ -30,6 +36,19 @@ export class HonoSubjectGroupController {
     const result = await this.listUseCase.execute(
       organizationId,
       c.get('userId')
+    );
+    return c.json(result, 200);
+  };
+
+  replace: RouteHandler<typeof replaceSubjectGroupsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    const body = c.req.valid('json');
+    const result = await this.replaceUseCase.execute(
+      organizationId,
+      c.get('userId'),
+      body
     );
     return c.json(result, 200);
   };
@@ -58,11 +77,10 @@ export class HonoSubjectGroupController {
 
   bulkCreate: RouteHandler<typeof bulkCreateSubjectGroupsRoute, AppEnv> =
     async (c) => {
-      const { organizationId, subjectId } = c.req.valid('param');
+      const { organizationId } = c.req.valid('param');
       const body = c.req.valid('json');
       const result = await this.bulkCreateUseCase.execute(
         organizationId,
-        subjectId,
         c.get('userId'),
         body
       );
@@ -84,6 +102,14 @@ export class HonoSubjectGroupController {
   delete: RouteHandler<typeof deleteSubjectGroupRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     await this.deleteUseCase.execute(organizationId, id, c.get('userId'));
+    return c.body(null, 204);
+  };
+
+  deleteAll: RouteHandler<typeof deleteAllSubjectGroupsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    await this.deleteAllUseCase.execute(organizationId, c.get('userId'));
     return c.body(null, 204);
   };
 }

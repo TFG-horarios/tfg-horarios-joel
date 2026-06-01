@@ -6,7 +6,10 @@ import {
   type ClassroomDTO,
   type SaveClassroomDTO,
 } from '@tfg-horarios/shared';
-import { bulkCreateClassrooms } from '@/features/classroom/actions';
+import {
+  bulkCreateClassrooms,
+  replaceClassroomsAction,
+} from '@/features/classroom/actions';
 import {
   GenericBulkUploader,
   type CsvRowIssue,
@@ -49,7 +52,10 @@ export function ClassroomBulkUploader({
         const finalValidData: typeof validData = [];
 
         validData.forEach((row, idx) => {
-          if (existingNames.has(row.name.toLowerCase())) {
+          if (
+            mode !== 'overwrite' &&
+            existingNames.has(row.name.toLowerCase())
+          ) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',
@@ -66,20 +72,13 @@ export function ClassroomBulkUploader({
         return { finalValidData, issues };
       }}
       mode={mode}
-      onBeforeUpload={async (m, validData) => {
-        if (onBeforeUpload) return onBeforeUpload(m, validData);
-        if (m === 'overwrite') {
-          try {
-            await fetch(`/api/organizations/${organizationId}/classrooms`, {
-              method: 'DELETE',
-            });
-          } catch (err) {
-            console.error('Error deleting classrooms before overwrite', err);
-          }
-        }
-      }}
+      onBeforeUpload={onBeforeUpload}
       onUpload={async (finalData) => {
-        await bulkCreateClassrooms(organizationId, finalData);
+        if (mode === 'overwrite') {
+          await replaceClassroomsAction(organizationId, finalData);
+        } else {
+          await bulkCreateClassrooms(organizationId, finalData);
+        }
       }}
     />
   );

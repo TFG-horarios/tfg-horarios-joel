@@ -8,6 +8,8 @@ import { GetItineraryUseCase } from './application/get-itinerary.usecase';
 import { ListItinerariesUseCase } from './application/list-itinerary.usecase';
 import { UpdateItineraryUseCase } from './application/update-itinerary.usecase';
 import { DeleteItineraryUseCase } from './application/delete-itinerary.usecase';
+import { DeleteAllItinerariesUseCase } from './application/delete-all-itineraries.usecase';
+import { ReplaceItinerariesUseCase } from './application/replace-itineraries.usecase';
 import { HonoItineraryController } from './infrastructure/http/hono.itinerary.controller';
 import {
   createItineraryRoute,
@@ -16,6 +18,8 @@ import {
   listItinerariesRoute,
   updateItineraryRoute,
   deleteItineraryRoute,
+  deleteAllItinerariesRoute,
+  replaceItinerariesRoute,
 } from './infrastructure/http/hono.itinerary.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ItineraryMemberAdapter } from './infrastructure/adapters/itinerary-member.adapter';
@@ -33,7 +37,9 @@ export const createItineraryModule = (
     new GetItineraryUseCase(itineraryRepository, memberProvider),
     new ListItinerariesUseCase(itineraryRepository, memberProvider),
     new UpdateItineraryUseCase(itineraryRepository, memberProvider),
-    new DeleteItineraryUseCase(itineraryRepository, memberProvider)
+    new DeleteItineraryUseCase(itineraryRepository, memberProvider),
+    new DeleteAllItinerariesUseCase(itineraryRepository, memberProvider),
+    new ReplaceItinerariesUseCase(itineraryRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -42,7 +48,9 @@ export const createItineraryModule = (
     .openapi(getItineraryRoute, controller.get)
     .openapi(createItineraryRoute, controller.create)
     .openapi(bulkCreateItinerariesRoute, controller.bulkCreate)
+    .openapi(replaceItinerariesRoute, controller.replace)
     .openapi(updateItineraryRoute, controller.update)
-    .openapi(deleteItineraryRoute, controller.delete);
+    .openapi(deleteItineraryRoute, controller.delete)
+    .openapi(deleteAllItinerariesRoute, controller.deleteAll);
   return routes;
 };

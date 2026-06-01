@@ -1,6 +1,6 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
 import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
-import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
+import type { BulkSaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { Subject } from '../domain/subject.entity';
 import { SubjectMapper } from './subject.mapper';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
@@ -14,9 +14,8 @@ export class BulkCreateSubjectUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     requesterUserId: string,
-    dtos: SaveSubjectDTO[]
+    dtos: BulkSaveSubjectDTO[]
   ): Promise<SubjectDTO[]> {
     if (!dtos || dtos.length === 0) {
       throw new ValidationError('No subject data provided for bulk creation');
@@ -44,7 +43,7 @@ export class BulkCreateSubjectUseCase {
     const subjects = dtos.map((dto) =>
       Subject.create({
         organizationId,
-        degreeId,
+        degreeId: dto.degreeId,
         itineraryId: dto.isCommon ? null : dto.itineraryId || null,
         name: dto.name,
         code: dto.code,

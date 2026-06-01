@@ -46,6 +46,35 @@ export async function bulkCreateDegrees(
   }
 }
 
+export async function replaceDegreesAction(
+  organizationId: string,
+  dtos: SaveDegreeDTO[]
+): Promise<DegreeDTO[]> {
+  const t = await getTranslations('Common.errors');
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.degrees.bulk.$put({
+      param: { organizationId },
+      json: dtos,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('ERROR DEL BACKEND DE HONO (Grados Replace):', errorText);
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    revalidatePath(`/organizations/${organizationId}/degrees`);
+    return DegreeSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Grados Replace):', error);
+    throw error;
+  }
+}
+
 export async function createDegreeAction(
   organizationId: string,
   dto: SaveDegreeDTO
@@ -129,7 +158,7 @@ export async function updateDegreeAction(
   }
 }
 
-export async function removeDegreeAction(
+export async function deleteDegreeAction(
   organizationId: string,
   degreeId: string
 ): Promise<ActionResponse> {
@@ -149,6 +178,38 @@ export async function removeDegreeAction(
 
     revalidatePath(`/organizations/${organizationId}/degrees`);
     return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function deleteAllDegreesAction(
+  organizationId: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.degrees.$delete({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}/degrees`);
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
   } catch (error) {
     return {
       success: false,

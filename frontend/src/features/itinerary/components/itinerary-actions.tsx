@@ -4,7 +4,7 @@ import { ResourceActionsToolbar } from '@/components/shared/resource/resource-ac
 import { ItineraryBulkUploader } from '@/features/itinerary/components/itinerary-bulk-uploader';
 import type { ItineraryDTO, DegreeDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
-// import { deleteAllItinerariesAction } from '@/features/itinerary/actions';
+import { deleteAllItinerariesAction } from '@/features/itinerary/actions';
 
 interface ItineraryActionsProps {
   organizationId: string;
@@ -21,7 +21,7 @@ export function ItineraryActions({
 
   return (
     <ResourceActionsToolbar
-      /*onDeleteAll={() => deleteAllItinerariesAction(organizationId)}*/
+      onDeleteAll={() => deleteAllItinerariesAction(organizationId)}
       translations={{
         deleteAllConfirm: t('deleteAllConfirm'),
         deleteAllTitle: t('deleteAllTitle'),

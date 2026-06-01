@@ -80,6 +80,30 @@ export const createManyClassroomsRoute = createRoute({
   },
 });
 
+export const replaceClassroomsRoute = createRoute({
+  method: 'put',
+  path: '/organizations/{organizationId}/classrooms/bulk',
+  request: {
+    params: ClassroomBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: z.array(SaveClassroomBodySchema),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Classrooms replaced',
+      content: { 'application/json': { schema: z.array(ClassroomSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
+  },
+});
+
 export const updateClassroomRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/classrooms/{id}',
@@ -111,5 +135,15 @@ export const deleteClassroomRoute = createRoute({
     204: { description: 'Classroom deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
+  },
+});
+
+export const deleteAllClassroomsRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/classrooms',
+  request: { params: ClassroomBaseParamSchema },
+  responses: {
+    204: { description: 'All classrooms deleted' },
+    403: { description: 'Forbidden' },
   },
 });

@@ -11,12 +11,16 @@ import {
   updateClassroomRoute,
   getClassroomRoute,
   createManyClassroomsRoute,
+  deleteAllClassroomsRoute,
+  replaceClassroomsRoute,
 } from './infrastructure/http/hono.classroom.routes';
 import { DeleteClassroomUseCase } from './application/delete-classroom.usecase';
 import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
 import { ListClassroomsUseCase } from './application/list-classroom.usecase';
 import { GetClassroomUseCase } from './application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from './application/bulk-create-classroom.usecase';
+import { DeleteAllClassroomsUseCase } from './application/delete-all-classrooms.usecase';
+import { ReplaceClassroomsUseCase } from './application/replace-classrooms.usecase';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ClassroomMemberAdapter } from './infrastructure/adapters/classroom-member.adapter';
 
@@ -53,23 +57,37 @@ export const createClassroomModule = (
     memberProvider
   );
 
+  const deleteAllUseCase = new DeleteAllClassroomsUseCase(
+    classroomRepository,
+    memberProvider
+  );
+
+  const replaceUseCase = new ReplaceClassroomsUseCase(
+    classroomRepository,
+    memberProvider
+  );
+
   const controller = new HonoClassroomController(
     createUseCase,
     listUseCase,
     updateUseCase,
     deleteUseCase,
     getUseCase,
-    createManyUseCase
+    createManyUseCase,
+    deleteAllUseCase,
+    replaceUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(createClassroomRoute, controller.create)
+    .openapi(createManyClassroomsRoute, controller.createMany)
+    .openapi(replaceClassroomsRoute, controller.replace)
     .openapi(listClassroomsRoute, controller.list)
+    .openapi(getClassroomRoute, controller.get)
     .openapi(updateClassroomRoute, controller.update)
     .openapi(deleteClassroomRoute, controller.delete)
-    .openapi(getClassroomRoute, controller.get)
-    .openapi(createManyClassroomsRoute, controller.createMany);
+    .openapi(deleteAllClassroomsRoute, controller.deleteAll);
 
   return routes;
 };

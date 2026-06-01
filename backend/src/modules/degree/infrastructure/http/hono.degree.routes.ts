@@ -80,6 +80,30 @@ export const bulkCreateDegreesRoute = createRoute({
   },
 });
 
+export const replaceDegreesRoute = createRoute({
+  method: 'put',
+  path: '/organizations/{organizationId}/degrees/bulk',
+  request: {
+    params: DegreeBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: z.array(SaveDegreeBodySchema),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Degrees replaced',
+      content: { 'application/json': { schema: z.array(DegreeSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
+  },
+});
+
 export const updateDegreeRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/degrees/{id}',
@@ -111,5 +135,15 @@ export const deleteDegreeRoute = createRoute({
     204: { description: 'Degree deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Grado no encontrado' },
+  },
+});
+
+export const deleteAllDegreesRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/degrees',
+  request: { params: DegreeBaseParamSchema },
+  responses: {
+    204: { description: 'All degrees deleted' },
+    403: { description: 'Forbidden' },
   },
 });

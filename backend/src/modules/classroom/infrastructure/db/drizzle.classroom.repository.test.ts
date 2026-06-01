@@ -108,4 +108,36 @@ describe('DrizzleClassroomRepository Integration', () => {
     const allClassrooms = await repository.findAll(testOrgId);
     expect(allClassrooms.length).toBe(1);
   });
+
+  test('should soft delete all classrooms successfully', async () => {
+    const classroom1 = createValidClassroom();
+    const classroom2 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'A-102',
+      capacity: 30,
+      type: 'theory',
+    });
+    await repository.createMany([classroom1, classroom2]);
+    const beforeDelete = await repository.findAll(testOrgId);
+    expect(beforeDelete.length).toBeGreaterThan(0);
+    await repository.deleteAll(testOrgId);
+    const afterDelete = await repository.findAll(testOrgId);
+    expect(afterDelete.length).toBe(0);
+  });
+
+  test('should replace classrooms successfully', async () => {
+    const classroom1 = createValidClassroom();
+    await repository.create(classroom1);
+    const newClassroom = Classroom.create({
+      organizationId: testOrgId,
+      name: 'R-999',
+      capacity: 50,
+      type: 'theory',
+    });
+    await repository.replace([newClassroom], testOrgId);
+    const allClassrooms = await repository.findAll(testOrgId);
+    expect(allClassrooms.length).toBe(1);
+    expect(allClassrooms[0]?.id).toBe(newClassroom.id);
+    expect(allClassrooms[0]?.name).toBe('R-999');
+  });
 });

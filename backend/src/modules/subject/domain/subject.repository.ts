@@ -7,4 +7,6 @@ export interface ISubjectRepository {
   createMany(subjects: Subject[]): Promise<void>;
   update(subject: Subject): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;
+  deleteAll(organizationId: string): Promise<void>;
+  replace(subjects: Subject[], organizationId: string): Promise<void>;
 }

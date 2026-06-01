@@ -159,6 +159,51 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       );
   }
 
+  async deleteAll(organizationId: string): Promise<void> {
+    await this.database
+      .update(subjectGroupsTable)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+  }
+
+  async replace(
+    subjectGroups: SubjectGroup[],
+    organizationId: string
+  ): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(subjectGroupsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectGroupsTable.organizationId, organizationId),
+            isNull(subjectGroupsTable.deletedAt)
+          )
+        );
+
+      if (subjectGroups.length > 0) {
+        const valuesToInsert = subjectGroups.map((g) =>
+          this.mapToPersistence(g)
+        );
+        try {
+          await tx.insert(subjectGroupsTable).values(valuesToInsert);
+        } catch (error: unknown) {
+          if (getPostgresErrorCode(error) === '23505') {
+            throw new ConflictError(
+              'One or more groups with the same type, number, and shift already exist for these subjects.'
+            );
+          }
+          throw error;
+        }
+      }
+    });
+  }
+
   async findGroupsWithSubjectsInScope(
     organizationId: string,
     period: number,

@@ -10,6 +10,8 @@ describe('BulkCreateSubjectUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
 
   const memberProviderMock = { getMemberRole: mock() };
@@ -31,15 +33,16 @@ describe('BulkCreateSubjectUseCase', () => {
         period: 1,
         weeklyHours: 4,
         isCommon: true,
+        degreeId: 'deg-1',
       },
     ];
-    const result = await useCase.execute('org-1', 'deg-1', 'user-1', dtos);
+    const result = await useCase.execute('org-1', 'user-1', dtos);
     expect(result).toHaveLength(1);
     expect(repositoryMock.createMany).toHaveBeenCalled();
   });
 
   test('should throw ValidationError if empty list provided', async () => {
-    expect(useCase.execute('org-1', 'deg-1', 'user-1', [])).rejects.toThrow(
+    expect(useCase.execute('org-1', 'user-1', [])).rejects.toThrow(
       ValidationError
     );
   });
@@ -55,6 +58,7 @@ describe('BulkCreateSubjectUseCase', () => {
         period: 1,
         weeklyHours: 4,
         isCommon: true,
+        degreeId: 'deg-1',
       },
       {
         name: 'Math 2',
@@ -65,9 +69,10 @@ describe('BulkCreateSubjectUseCase', () => {
         period: 1,
         weeklyHours: 4,
         isCommon: true,
+        degreeId: 'deg-1',
       },
     ];
-    expect(useCase.execute('org-1', 'deg-1', 'user-1', dtos)).rejects.toThrow(
+    expect(useCase.execute('org-1', 'user-1', dtos)).rejects.toThrow(
       ValidationError
     );
   });
@@ -84,9 +89,10 @@ describe('BulkCreateSubjectUseCase', () => {
         period: 1,
         weeklyHours: 4,
         isCommon: true,
+        degreeId: 'deg-1',
       },
     ];
-    expect(useCase.execute('org-1', 'deg-1', 'user-1', dtos)).rejects.toThrow(
+    expect(useCase.execute('org-1', 'user-1', dtos)).rejects.toThrow(
       ForbiddenError
     );
   });

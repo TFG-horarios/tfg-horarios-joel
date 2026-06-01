@@ -155,4 +155,44 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
         )
       );
   }
+
+  async deleteAll(organizationId: string): Promise<void> {
+    await this.database
+      .update(subjectsTable)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(subjectsTable.organizationId, organizationId),
+          isNull(subjectsTable.deletedAt)
+        )
+      );
+  }
+
+  async replace(subjects: Subject[], organizationId: string): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(subjectsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectsTable.organizationId, organizationId),
+            isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      if (subjects.length > 0) {
+        const valuesToInsert = subjects.map((s) => this.mapToPersistence(s));
+        try {
+          await tx.insert(subjectsTable).values(valuesToInsert);
+        } catch (error: unknown) {
+          if (getPostgresErrorCode(error) === '23505') {
+            throw new ConflictError(
+              'One or more subjects with the same code already exist in this organization'
+            );
+          }
+          throw error;
+        }
+      }
+    });
+  }
 }

@@ -51,6 +51,12 @@ export const SaveItineraryBodySchema = z
   })
   .openapi('SaveItinerary');
 
+export const BulkSaveItineraryBodySchema = SaveItineraryBodySchema.extend({
+  degreeId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
+}).openapi('BulkSaveItinerary');
+
 export type ItineraryDTO = z.infer<typeof ItinerarySchema>;
 export type ItineraryBaseParamDTO = z.infer<typeof ItineraryBaseParamSchema>;
 export type ItineraryIdParamDTO = z.infer<typeof ItineraryIdParamSchema>;
@@ -58,3 +64,4 @@ export type ItineraryCreateParamDTO = z.infer<
   typeof ItineraryCreateParamSchema
 >;
 export type SaveItineraryDTO = z.infer<typeof SaveItineraryBodySchema>;
+export type BulkSaveItineraryDTO = z.infer<typeof BulkSaveItineraryBodySchema>;

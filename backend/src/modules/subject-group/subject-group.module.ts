@@ -10,6 +10,8 @@ import {
   bulkCreateSubjectGroupsRoute,
   updateSubjectGroupRoute,
   deleteSubjectGroupRoute,
+  deleteAllSubjectGroupsRoute,
+  replaceSubjectGroupsRoute,
 } from './infrastructure/http/hono.subject-group.routes';
 import { BulkCreateSubjectGroupUseCase } from './application/bulk-create-subject-group.usecase';
 import { CreateSubjectGroupUseCase } from './application/create-subject-group.usecase';
@@ -17,6 +19,8 @@ import { DeleteSubjectGroupUseCase } from './application/delete-subject-group.us
 import { GetSubjectGroupUseCase } from './application/get-subject-group.usecase';
 import { ListSubjectGroupsUseCase } from './application/list-subject-group.usecase';
 import { UpdateSubjectGroupUseCase } from './application/update-subject-group.usecase';
+import { DeleteAllSubjectGroupsUseCase } from './application/delete-all-subject-groups.usecase';
+import { ReplaceSubjectGroupsUseCase } from './application/replace-subject-groups.usecase';
 import type { IMemberRepository } from '../member/domain/member.repository';
 import type { ISubjectRepository } from '../subject/domain/subject.repository';
 import { SubjectGroupMemberAdapter } from './infrastructure/adapters/subject-group-member.adapter';
@@ -58,6 +62,15 @@ export const createSubjectGroupModule = (
     subjectGroupRepository,
     memberProvider
   );
+  const deleteAllUseCase = new DeleteAllSubjectGroupsUseCase(
+    subjectGroupRepository,
+    memberProvider
+  );
+  const replaceUseCase = new ReplaceSubjectGroupsUseCase(
+    subjectGroupRepository,
+    memberProvider,
+    subjectProvider
+  );
 
   const controller = new HonoSubjectGroupController(
     listUseCase,
@@ -65,7 +78,9 @@ export const createSubjectGroupModule = (
     createUseCase,
     bulkCreateUseCase,
     updateUseCase,
-    deleteUseCase
+    deleteUseCase,
+    deleteAllUseCase,
+    replaceUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -74,7 +89,9 @@ export const createSubjectGroupModule = (
     .openapi(getSubjectGroupRoute, controller.get)
     .openapi(createSubjectGroupRoute, controller.create)
     .openapi(bulkCreateSubjectGroupsRoute, controller.bulkCreate)
+    .openapi(replaceSubjectGroupsRoute, controller.replace)
     .openapi(updateSubjectGroupRoute, controller.update)
-    .openapi(deleteSubjectGroupRoute, controller.delete);
+    .openapi(deleteSubjectGroupRoute, controller.delete)
+    .openapi(deleteAllSubjectGroupsRoute, controller.deleteAll);
   return routes;
 };

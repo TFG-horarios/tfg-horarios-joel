@@ -1,0 +1,62 @@
+import type { ISubjectRepository } from '../domain/subject.repository';
+import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
+import type { BulkSaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
+import { Subject } from '../domain/subject.entity';
+import { SubjectMapper } from './subject.mapper';
+import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
+import { hasPermission } from '@/core/permissions/authorization';
+
+export class ReplaceSubjectsUseCase {
+  constructor(
+    private readonly subjectRepository: ISubjectRepository,
+    private readonly memberProvider: ISubjectMemberProvider
+  ) {}
+
+  async execute(
+    organizationId: string,
+    requesterUserId: string,
+    dtos: BulkSaveSubjectDTO[]
+  ): Promise<SubjectDTO[]> {
+    const role = await this.memberProvider.getMemberRole(
+      requesterUserId,
+      organizationId
+    );
+    if (
+      !role ||
+      !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS') ||
+      !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')
+    ) {
+      throw new ForbiddenError(
+        'You do not have permission to replace subjects in this organization.'
+      );
+    }
+
+    const uniqueCodes = new Set<string>();
+    for (const dto of dtos) {
+      const code = dto.code.trim();
+      if (uniqueCodes.has(code)) {
+        throw new ValidationError(`Duplicate subject code in request: ${code}`);
+      }
+      uniqueCodes.add(code);
+    }
+
+    const subjects = dtos.map((dto) =>
+      Subject.create({
+        organizationId,
+        degreeId: dto.degreeId,
+        itineraryId: dto.isCommon ? null : dto.itineraryId || null,
+        name: dto.name,
+        code: dto.code,
+        availableShifts: dto.availableShifts,
+        numberOfStudents: dto.numberOfStudents,
+        courseYear: dto.courseYear,
+        period: dto.period,
+        weeklyHours: dto.weeklyHours,
+        isCommon: dto.isCommon,
+      })
+    );
+
+    await this.subjectRepository.replace(subjects, organizationId);
+    return SubjectMapper.toDTOList(subjects);
+  }
+}

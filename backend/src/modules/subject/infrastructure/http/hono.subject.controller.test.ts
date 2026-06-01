@@ -10,6 +10,8 @@ import {
   listSubjectsRoute,
   updateSubjectRoute,
   deleteSubjectRoute,
+  deleteAllSubjectsRoute,
+  replaceSubjectsRoute,
 } from './hono.subject.routes';
 
 describe('HonoSubjectController Integration', () => {
@@ -19,6 +21,8 @@ describe('HonoSubjectController Integration', () => {
   const listMock = { execute: mock() };
   const updateMock = { execute: mock() };
   const deleteMock = { execute: mock() };
+  const deleteAllMock = { execute: mock() };
+  const replaceMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectController>;
   const controller = new HonoSubjectController(
@@ -27,7 +31,9 @@ describe('HonoSubjectController Integration', () => {
     getMock as unknown as Params[2],
     listMock as unknown as Params[3],
     updateMock as unknown as Params[4],
-    deleteMock as unknown as Params[5]
+    deleteMock as unknown as Params[5],
+    deleteAllMock as unknown as Params[6],
+    replaceMock as unknown as Params[7]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -37,6 +43,8 @@ describe('HonoSubjectController Integration', () => {
   router.openapi(listSubjectsRoute, controller.list);
   router.openapi(updateSubjectRoute, controller.update);
   router.openapi(deleteSubjectRoute, controller.delete);
+  router.openapi(deleteAllSubjectsRoute, controller.deleteAll);
+  router.openapi(replaceSubjectsRoute, controller.replace);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -76,26 +84,22 @@ describe('HonoSubjectController Integration', () => {
     );
   });
 
-  test('POST /organizations/:organizationId/degrees/:degreeId/subjects/bulk should return 201 with new subjects', async () => {
+  test('POST /organizations/:organizationId/subjects/bulk should return 201 with new subjects', async () => {
     bulkCreateMock.execute.mockResolvedValueOnce([
-      { id: subjectId, ...validBody },
+      { id: subjectId, ...validBody, degreeId },
     ]);
-    const res = await app.request(
-      `/api/organizations/${orgId}/degrees/${degreeId}/subjects/bulk`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([validBody]),
-      }
-    );
+    const res = await app.request(`/api/organizations/${orgId}/subjects/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([{ ...validBody, degreeId }]),
+    });
     expect(res.status).toBe(201);
-    expect(await res.json()).toEqual([{ id: subjectId, ...validBody }]);
-    expect(bulkCreateMock.execute).toHaveBeenCalledWith(
-      orgId,
-      degreeId,
-      'u-admin',
-      [validBody]
-    );
+    expect(await res.json()).toEqual([
+      { id: subjectId, ...validBody, degreeId },
+    ]);
+    expect(bulkCreateMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      { ...validBody, degreeId },
+    ]);
   });
 
   test('GET /organizations/:organizationId/subjects/:id should return 200', async () => {
@@ -154,5 +158,33 @@ describe('HonoSubjectController Integration', () => {
       subjectId,
       'u-admin'
     );
+  });
+
+  test('DELETE /organizations/:organizationId/subjects should return 204 for deleteAll', async () => {
+    deleteAllMock.execute.mockResolvedValueOnce(undefined);
+    const res = await app.request(`/api/organizations/${orgId}/subjects`, {
+      method: 'DELETE',
+    });
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe('');
+    expect(deleteAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('PUT /organizations/:organizationId/subjects/bulk should return 200 with replaced subjects', async () => {
+    replaceMock.execute.mockResolvedValueOnce([
+      { id: subjectId, ...validBody, degreeId },
+    ]);
+    const res = await app.request(`/api/organizations/${orgId}/subjects/bulk`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([{ ...validBody, degreeId }]),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([
+      { id: subjectId, ...validBody, degreeId },
+    ]);
+    expect(replaceMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      { ...validBody, degreeId },
+    ]);
   });
 });

@@ -157,7 +157,7 @@ export function SchedulePlanner({
     if (!active || !over) return;
 
     const slotId = active.id;
-    const overId = over.id; // e.g., "time_1_2"
+    const overId = over.id;
 
     const currentSlot = slots.find((s) => s.id === slotId);
     if (!currentSlot) return;

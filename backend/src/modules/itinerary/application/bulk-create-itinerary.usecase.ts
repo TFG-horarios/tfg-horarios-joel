@@ -1,4 +1,4 @@
-import type { ItineraryDTO, SaveItineraryDTO } from '@tfg-horarios/shared';
+import type { ItineraryDTO, BulkSaveItineraryDTO } from '@tfg-horarios/shared';
 import { Itinerary } from '../domain/itinerary.entity';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
 import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
@@ -15,9 +15,8 @@ export class BulkCreateItinerariesUseCase {
 
   async execute(
     organizationId: string,
-    degreeId: string,
     requesterUserId: string,
-    dtos: SaveItineraryDTO[]
+    dtos: BulkSaveItineraryDTO[]
   ): Promise<ItineraryDTO[]> {
     if (!dtos || dtos.length === 0)
       throw new ValidationError(
@@ -48,7 +47,7 @@ export class BulkCreateItinerariesUseCase {
     const itineraries = dtos.map((dto) =>
       Itinerary.create({
         organizationId,
-        degreeId,
+        degreeId: dto.degreeId,
         name: dto.name,
         code: dto.code,
       })

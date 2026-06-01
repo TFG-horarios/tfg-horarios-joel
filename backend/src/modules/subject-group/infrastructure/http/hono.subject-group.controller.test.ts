@@ -10,6 +10,8 @@ import {
   bulkCreateSubjectGroupsRoute,
   updateSubjectGroupRoute,
   deleteSubjectGroupRoute,
+  deleteAllSubjectGroupsRoute,
+  replaceSubjectGroupsRoute,
 } from './hono.subject-group.routes';
 
 describe('HonoSubjectGroupController Integration', () => {
@@ -19,6 +21,8 @@ describe('HonoSubjectGroupController Integration', () => {
   const bulkCreateMock = { execute: mock() };
   const updateMock = { execute: mock() };
   const deleteMock = { execute: mock() };
+  const deleteAllMock = { execute: mock() };
+  const replaceMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectGroupController>;
   const controller = new HonoSubjectGroupController(
@@ -27,7 +31,9 @@ describe('HonoSubjectGroupController Integration', () => {
     createMock as unknown as Params[2],
     bulkCreateMock as unknown as Params[3],
     updateMock as unknown as Params[4],
-    deleteMock as unknown as Params[5]
+    deleteMock as unknown as Params[5],
+    deleteAllMock as unknown as Params[6],
+    replaceMock as unknown as Params[7]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -37,6 +43,8 @@ describe('HonoSubjectGroupController Integration', () => {
   router.openapi(bulkCreateSubjectGroupsRoute, controller.bulkCreate);
   router.openapi(updateSubjectGroupRoute, controller.update);
   router.openapi(deleteSubjectGroupRoute, controller.delete);
+  router.openapi(deleteAllSubjectGroupsRoute, controller.deleteAll);
+  router.openapi(replaceSubjectGroupsRoute, controller.replace);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -73,26 +81,25 @@ describe('HonoSubjectGroupController Integration', () => {
     );
   });
 
-  test('POST /organizations/:organizationId/subjects/:subjectId/groups/bulk should return 201 with new groups', async () => {
+  test('POST /organizations/:organizationId/subject-groups/bulk should return 201 with new groups', async () => {
     bulkCreateMock.execute.mockResolvedValueOnce([
-      { id: groupId, ...validBody },
+      { id: groupId, ...validBody, subjectId },
     ]);
     const res = await app.request(
-      `/api/organizations/${orgId}/subjects/${subjectId}/groups/bulk`,
+      `/api/organizations/${orgId}/subject-groups/bulk`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([validBody]),
+        body: JSON.stringify([{ ...validBody, subjectId }]),
       }
     );
     expect(res.status).toBe(201);
-    expect(await res.json()).toEqual([{ id: groupId, ...validBody }]);
-    expect(bulkCreateMock.execute).toHaveBeenCalledWith(
-      orgId,
-      subjectId,
-      'u-admin',
-      [validBody]
-    );
+    expect(await res.json()).toEqual([
+      { id: groupId, ...validBody, subjectId },
+    ]);
+    expect(bulkCreateMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      { ...validBody, subjectId },
+    ]);
   });
 
   test('GET /organizations/:organizationId/subject-groups/:id should return 200', async () => {
@@ -144,5 +151,39 @@ describe('HonoSubjectGroupController Integration', () => {
     expect(res.status).toBe(204);
     expect(await res.text()).toBe('');
     expect(deleteMock.execute).toHaveBeenCalledWith(orgId, groupId, 'u-admin');
+  });
+
+  test('DELETE /organizations/:organizationId/subject-groups should return 204 for deleteAll', async () => {
+    deleteAllMock.execute.mockResolvedValueOnce(undefined);
+    const res = await app.request(
+      `/api/organizations/${orgId}/subject-groups`,
+      {
+        method: 'DELETE',
+      }
+    );
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe('');
+    expect(deleteAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('PUT /organizations/:organizationId/subject-groups/bulk should return 200 with replaced groups', async () => {
+    replaceMock.execute.mockResolvedValueOnce([
+      { id: groupId, ...validBody, subjectId },
+    ]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/subject-groups/bulk`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([{ ...validBody, subjectId }]),
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([
+      { id: groupId, ...validBody, subjectId },
+    ]);
+    expect(replaceMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
+      { ...validBody, subjectId },
+    ]);
   });
 });

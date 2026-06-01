@@ -4,6 +4,7 @@ import {
   SubjectGroupSchema,
   type SubjectGroupDTO,
   type SaveSubjectGroupDTO,
+  type BulkSaveSubjectGroupDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/cache';
@@ -15,16 +16,15 @@ import { type ActionResponse } from '@/types/actions';
 
 export async function bulkCreateSubjectGroups(
   organizationId: string,
-  subjectId: string,
-  dtos: SaveSubjectGroupDTO[]
+  dtos: BulkSaveSubjectGroupDTO[]
 ): Promise<SubjectGroupDTO[]> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
-    const response = await client.api.organizations[
-      ':organizationId'
-    ]!.subjects[':subjectId']!.groups.bulk.$post({
-      param: { organizationId, subjectId },
+    const response = await client.api.organizations[':organizationId']![
+      'subject-groups'
+    ].bulk.$post({
+      param: { organizationId },
       json: dtos,
     });
 
@@ -45,6 +45,35 @@ export async function bulkCreateSubjectGroups(
     return SubjectGroupSchema.array().parse(payload);
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grupos Bulk):', error);
+    throw error;
+  }
+}
+
+export async function replaceSubjectGroupsAction(
+  organizationId: string,
+  dtos: BulkSaveSubjectGroupDTO[]
+): Promise<SubjectGroupDTO[]> {
+  const t = await getTranslations('Common.errors');
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'subject-groups'
+    ].bulk.$put({
+      param: { organizationId },
+      json: dtos,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('ERROR DEL BACKEND DE HONO (Grupos Replace):', errorText);
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    revalidatePath(`/organizations/${organizationId}/subject-groups`);
+    return SubjectGroupSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Grupos Replace):', error);
     throw error;
   }
 }
@@ -151,6 +180,38 @@ export async function removeSubjectGroupAction(
 
     revalidatePath(`/organizations/${organizationId}/subject-groups`);
     return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function deleteAllSubjectGroupsAction(
+  organizationId: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'subject-groups'
+    ].$delete({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}/subject-groups`);
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
   } catch (error) {
     return {
       success: false,

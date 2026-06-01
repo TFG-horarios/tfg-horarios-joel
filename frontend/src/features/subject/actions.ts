@@ -4,6 +4,7 @@ import {
   SubjectSchema,
   type SubjectDTO,
   type SaveSubjectDTO,
+  type BulkSaveSubjectDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate';
@@ -15,16 +16,15 @@ import { type ActionResponse } from '@/types/actions';
 
 export async function bulkCreateSubjects(
   organizationId: string,
-  degreeId: string,
-  dtos: SaveSubjectDTO[]
+  dtos: BulkSaveSubjectDTO[]
 ): Promise<SubjectDTO[]> {
   const tErrors = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
-    const response = await client.api.organizations[':organizationId']!.degrees[
-      ':degreeId'
+    const response = await client.api.organizations[
+      ':organizationId'
     ]!.subjects.bulk.$post({
-      param: { organizationId, degreeId },
+      param: { organizationId },
       json: dtos,
     });
 
@@ -45,6 +45,38 @@ export async function bulkCreateSubjects(
     return SubjectSchema.array().parse(payload);
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Asignaturas Bulk):', error);
+    throw error;
+  }
+}
+
+export async function replaceSubjectsAction(
+  organizationId: string,
+  dtos: BulkSaveSubjectDTO[]
+): Promise<SubjectDTO[]> {
+  const t = await getTranslations('Common.errors');
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.subjects.bulk.$put({
+      param: { organizationId },
+      json: dtos,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        'ERROR DEL BACKEND DE HONO (Asignaturas Replace):',
+        errorText
+      );
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    revalidatePath(`/organizations/${organizationId}/subjects`);
+    return SubjectSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Asignaturas Replace):', error);
     throw error;
   }
 }
@@ -157,17 +189,34 @@ export async function removeSubjectAction(
   }
 }
 
-// TODO: Implement in backend
-/*export async function deleteAllSubjects(organizationId: string): Promise<void> {
+export async function deleteAllSubjectsAction(
+  organizationId: string
+): Promise<ActionResponse<void>> {
   const tErrors = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[':organizationId'].subjects.$delete({
-    param: { organizationId },
-  });
+  const tSuccess = await getTranslations('Common.success');
 
-  if (!response.ok) {
-    throw new Error(tErrors('server'));
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.subjects.$delete({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}/subjects`);
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
   }
-
-  revalidatePath(`/organizations/${organizationId}/subjects`);
-}*/
+}

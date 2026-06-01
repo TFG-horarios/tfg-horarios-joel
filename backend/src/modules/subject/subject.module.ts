@@ -8,6 +8,8 @@ import { GetSubjectUseCase } from './application/get-subject.usecase';
 import { ListSubjectUseCase } from './application/list-subject.usecase';
 import { UpdateSubjectUseCase } from './application/update-subject.usecase';
 import { DeleteSubjectUseCase } from './application/delete-subject.usecase';
+import { DeleteAllSubjectsUseCase } from './application/delete-all-subjects.usecase';
+import { ReplaceSubjectsUseCase } from './application/replace-subjects.usecase';
 import { HonoSubjectController } from './infrastructure/http/hono.subject.controller';
 import {
   createSubjectRoute,
@@ -16,6 +18,8 @@ import {
   listSubjectsRoute,
   updateSubjectRoute,
   deleteSubjectRoute,
+  deleteAllSubjectsRoute,
+  replaceSubjectsRoute,
 } from './infrastructure/http/hono.subject.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { SubjectMemberAdapter } from './infrastructure/adapters/subject-member.adapter';
@@ -33,7 +37,9 @@ export const createSubjectModule = (
     new GetSubjectUseCase(subjectRepository, memberProvider),
     new ListSubjectUseCase(subjectRepository, memberProvider),
     new UpdateSubjectUseCase(subjectRepository, memberProvider),
-    new DeleteSubjectUseCase(subjectRepository, memberProvider)
+    new DeleteSubjectUseCase(subjectRepository, memberProvider),
+    new DeleteAllSubjectsUseCase(subjectRepository, memberProvider),
+    new ReplaceSubjectsUseCase(subjectRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -42,7 +48,9 @@ export const createSubjectModule = (
     .openapi(getSubjectRoute, controller.get)
     .openapi(createSubjectRoute, controller.create)
     .openapi(bulkCreateSubjectsRoute, controller.bulkCreate)
+    .openapi(replaceSubjectsRoute, controller.replace)
     .openapi(updateSubjectRoute, controller.update)
-    .openapi(deleteSubjectRoute, controller.delete);
+    .openapi(deleteSubjectRoute, controller.delete)
+    .openapi(deleteAllSubjectsRoute, controller.deleteAll);
   return routes;
 };

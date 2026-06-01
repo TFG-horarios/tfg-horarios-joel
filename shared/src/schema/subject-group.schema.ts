@@ -54,6 +54,14 @@ export const SaveSubjectGroupBodySchema = z
   })
   .openapi('SaveSubjectGroup');
 
+export const BulkSaveSubjectGroupBodySchema = SaveSubjectGroupBodySchema.extend(
+  {
+    subjectId: z
+      .uuid()
+      .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
+  }
+).openapi('BulkSaveSubjectGroup');
+
 export type SubjectGroupDTO = z.infer<typeof SubjectGroupSchema>;
 export type SubjectGroupBaseParamDTO = z.infer<
   typeof SubjectGroupBaseParamSchema
@@ -63,3 +71,6 @@ export type SubjectGroupCreateParamDTO = z.infer<
 >;
 export type SubjectGroupIdParamDTO = z.infer<typeof SubjectGroupIdParamSchema>;
 export type SaveSubjectGroupDTO = z.infer<typeof SaveSubjectGroupBodySchema>;
+export type BulkSaveSubjectGroupDTO = z.infer<
+  typeof BulkSaveSubjectGroupBodySchema
+>;

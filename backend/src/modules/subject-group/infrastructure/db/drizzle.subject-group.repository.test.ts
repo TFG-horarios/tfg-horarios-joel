@@ -184,4 +184,44 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
     );
     expect(groupsInYear2.length).toBe(0);
   });
+
+  test('should soft delete all subject groups successfully', async () => {
+    const group1 = createValidGroup();
+    const group2 = SubjectGroup.create({
+      organizationId: testOrgId,
+      subjectId: testSubject2Id,
+      name: 'Prog T2',
+      groupType: 'theory',
+      shift: 'morning',
+      groupNumber: 1,
+      weeklyHours: 2,
+      numberOfStudents: 50,
+    });
+    await repository.createMany([group1, group2]);
+    const beforeDelete = await repository.findAll(testOrgId);
+    expect(beforeDelete.length).toBeGreaterThan(0);
+    await repository.deleteAll(testOrgId);
+    const afterDelete = await repository.findAll(testOrgId);
+    expect(afterDelete.length).toBe(0);
+  });
+
+  test('should replace subject groups successfully', async () => {
+    const group1 = createValidGroup();
+    await repository.create(group1);
+    const newGroup = SubjectGroup.create({
+      organizationId: testOrgId,
+      subjectId: testSubjectId,
+      name: 'New Group',
+      groupType: 'problems',
+      shift: 'morning',
+      groupNumber: 1,
+      weeklyHours: 2,
+      numberOfStudents: 10,
+    });
+    await repository.replace([newGroup], testOrgId);
+    const allGroups = await repository.findAll(testOrgId);
+    expect(allGroups.length).toBe(1);
+    expect(allGroups[0]?.id).toBe(newGroup.id);
+    expect(allGroups[0]?.name).toBe('New Group');
+  });
 });

@@ -4,7 +4,7 @@ import { ResourceActionsToolbar } from '@/components/shared/resource/resource-ac
 import { SubjectGroupBulkUploader } from '@/features/subject-group/components/subject-group-bulk-uploader';
 import type { SubjectGroupDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
-// import { deleteAllSubjectGroupsAction } from '@/features/subject-group/actions';
+import { deleteAllSubjectGroupsAction } from '@/features/subject-group/actions';
 
 interface SubjectGroupActionsProps {
   organizationId: string;
@@ -21,7 +21,7 @@ export function SubjectGroupActions({
 
   return (
     <ResourceActionsToolbar
-      /*onDeleteAll={() => deleteAllSubjectGroupsAction(organizationId)}*/
+      onDeleteAll={() => deleteAllSubjectGroupsAction(organizationId)}
       translations={{
         deleteAllConfirm: t('deleteAllConfirm'),
         deleteAllTitle: t('deleteAllTitle'),

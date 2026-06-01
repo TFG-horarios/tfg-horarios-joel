@@ -11,6 +11,8 @@ describe('CreateSubjectGroupUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
 
   const subjectProviderMock = { getAvailableShifts: mock() };

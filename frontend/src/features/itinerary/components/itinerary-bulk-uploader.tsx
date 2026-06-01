@@ -7,7 +7,10 @@ import {
   type DegreeDTO,
   type ItineraryDTO,
 } from '@tfg-horarios/shared';
-import { bulkCreateItineraries } from '@/features/itinerary/actions';
+import {
+  bulkCreateItineraries,
+  replaceItinerariesAction,
+} from '@/features/itinerary/actions';
 import {
   GenericBulkUploader,
   type CsvRowIssue,
@@ -74,9 +77,9 @@ export function ItineraryBulkUploader({
             return;
           }
 
-          const isDuplicate = existingSet.has(
-            `${degreeId}-${row.code.toLowerCase()}`
-          );
+          const isDuplicate =
+            mode !== 'overwrite' &&
+            existingSet.has(`${degreeId}-${row.code.toLowerCase()}`);
           if (isDuplicate) {
             issues.push({
               rowNumber: idx + 2,
@@ -99,35 +102,21 @@ export function ItineraryBulkUploader({
       mode={mode}
       onBeforeUpload={async (m, validData) => {
         if (onBeforeUpload) return onBeforeUpload(m, validData);
-        if (m === 'overwrite') {
-          try {
-            await fetch(`/api/organizations/${organizationId}/itineraries`, {
-              method: 'DELETE',
-            });
-          } catch (err) {
-            console.error('Error deleting itineraries before overwrite', err);
-          }
-        }
       }}
       onUpload={async (finalData) => {
-        const groups = new Map<
-          string,
-          z.infer<typeof SaveItineraryBodySchema>[]
-        >();
-
-        finalData.forEach(({ degreeCode, ...itinerary }) => {
+        const dtos = finalData.map(({ degreeCode, ...itinerary }) => {
           const id = degreeMap.get(degreeCode.toLowerCase())!;
-          if (!groups.has(id)) {
-            groups.set(id, []);
-          }
-          groups.get(id)!.push(itinerary);
+          return {
+            ...itinerary,
+            degreeId: id,
+          };
         });
 
-        await Promise.all(
-          Array.from(groups.entries()).map(([dId, items]) =>
-            bulkCreateItineraries(organizationId, dId, items)
-          )
-        );
+        if (mode === 'overwrite') {
+          await replaceItinerariesAction(organizationId, dtos);
+        } else {
+          await bulkCreateItineraries(organizationId, dtos);
+        }
       }}
     />
   );

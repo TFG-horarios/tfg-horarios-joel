@@ -1,7 +1,7 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
 import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
 import type {
-  SaveSubjectGroupDTO,
+  BulkSaveSubjectGroupDTO,
   SubjectGroupDTO,
 } from '@tfg-horarios/shared';
 import { SubjectGroup } from '../domain/subject-group.entity';
@@ -23,9 +23,8 @@ export class BulkCreateSubjectGroupUseCase {
 
   async execute(
     organizationId: string,
-    subjectId: string,
     requesterUserId: string,
-    dtos: SaveSubjectGroupDTO[]
+    dtos: BulkSaveSubjectGroupDTO[]
   ): Promise<SubjectGroupDTO[]> {
     if (!dtos || dtos.length === 0) {
       throw new ValidationError('No data provided for bulk creation');
@@ -33,7 +32,7 @@ export class BulkCreateSubjectGroupUseCase {
 
     const uniqueGroups = new Set<string>();
     for (const dto of dtos) {
-      const key = `${dto.groupType}-${dto.groupNumber}-${dto.shift}`;
+      const key = `${dto.subjectId}-${dto.groupType}-${dto.groupNumber}-${dto.shift}`;
       if (uniqueGroups.has(key)) {
         throw new ValidationError(`Duplicate subject group in request: ${key}`);
       }
@@ -50,18 +49,17 @@ export class BulkCreateSubjectGroupUseCase {
       );
     }
 
-    const availableShifts = await this.subjectProvider.getAvailableShifts(
-      subjectId,
-      organizationId
-    );
-    if (!availableShifts) {
-      throw new NotFoundError('Subject', subjectId);
-    }
-
     for (const dto of dtos) {
+      const availableShifts = await this.subjectProvider.getAvailableShifts(
+        dto.subjectId,
+        organizationId
+      );
+      if (!availableShifts) {
+        throw new NotFoundError('Subject', dto.subjectId);
+      }
       if (!availableShifts.includes(dto.shift)) {
         throw new ValidationError(
-          `Shift ${dto.shift} is not available for this subject.`
+          `Shift ${dto.shift} is not available for subject ${dto.subjectId}.`
         );
       }
     }
@@ -69,7 +67,7 @@ export class BulkCreateSubjectGroupUseCase {
     const groups = dtos.map((dto) =>
       SubjectGroup.create({
         organizationId,
-        subjectId,
+        subjectId: dto.subjectId,
         name: dto.name,
         groupType: dto.groupType,
         shift: dto.shift,

@@ -142,4 +142,50 @@ describe('DrizzleSubjectRepository Integration', () => {
     const allSubjects = await repository.findAll(testOrgId);
     expect(allSubjects.length).toBe(1);
   });
+
+  test('should soft delete all subjects successfully', async () => {
+    const subject1 = createValidSubject();
+    const subject2 = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: testItineraryId,
+      name: 'Advanced Mathematics',
+      code: 'MATH102',
+      availableShifts: ['morning'],
+      numberOfStudents: 100,
+      courseYear: 1,
+      period: 1,
+      weeklyHours: 4,
+      isCommon: false,
+    });
+    await repository.createMany([subject1, subject2]);
+    const beforeDelete = await repository.findAll(testOrgId);
+    expect(beforeDelete.length).toBeGreaterThan(0);
+    await repository.deleteAll(testOrgId);
+    const afterDelete = await repository.findAll(testOrgId);
+    expect(afterDelete.length).toBe(0);
+  });
+
+  test('should replace subjects successfully', async () => {
+    const subject1 = createValidSubject();
+    await repository.create(subject1);
+    const newSubject = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: testItineraryId,
+      name: 'New Subject',
+      code: 'NS',
+      availableShifts: ['morning'],
+      numberOfStudents: 10,
+      courseYear: 1,
+      period: 1,
+      weeklyHours: 2,
+      isCommon: false,
+    });
+    await repository.replace([newSubject], testOrgId);
+    const allSubjects = await repository.findAll(testOrgId);
+    expect(allSubjects.length).toBe(1);
+    expect(allSubjects[0]?.id).toBe(newSubject.id);
+    expect(allSubjects[0]?.name).toBe('New Subject');
+  });
 });

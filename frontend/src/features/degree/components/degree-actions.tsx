@@ -4,7 +4,7 @@ import { ResourceActionsToolbar } from '@/components/shared/resource/resource-ac
 import { DegreeBulkUploader } from '@/features/degree/components/degree-bulk-uploader';
 import type { DegreeDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
-// import { deleteAllDegreesAction } from '@/features/degree/actions';
+import { deleteAllDegreesAction } from '@/features/degree/actions';
 
 interface DegreeActionsProps {
   organizationId: string;
@@ -19,7 +19,7 @@ export function DegreeActions({
 
   return (
     <ResourceActionsToolbar
-      /*onDeleteAll={() => deleteAllDegreesAction(organizationId)}*/
+      onDeleteAll={() => deleteAllDegreesAction(organizationId)}
       translations={{
         deleteAllConfirm: t('deleteAllConfirm'),
         deleteAllTitle: t('deleteAllTitle'),

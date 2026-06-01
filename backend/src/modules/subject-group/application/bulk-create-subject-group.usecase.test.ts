@@ -11,6 +11,8 @@ describe('BulkCreateSubjectGroupUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
   };
 
   const subjectProviderMock = { getAvailableShifts: mock() };
@@ -33,9 +35,10 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+        subjectId: 'sub-1',
       },
     ];
-    const result = await useCase.execute('org-1', 'sub-1', 'user-1', dtos);
+    const result = await useCase.execute('org-1', 'user-1', dtos);
     expect(result).toHaveLength(1);
     expect(repositoryMock.createMany).toHaveBeenCalled();
   });
@@ -49,6 +52,7 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+        subjectId: 'sub-1',
       },
       {
         name: 'T1',
@@ -57,9 +61,10 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+        subjectId: 'sub-1',
       },
     ];
-    expect(useCase.execute('org-1', 'sub-1', 'user-1', dtos)).rejects.toThrow(
+    expect(useCase.execute('org-1', 'user-1', dtos)).rejects.toThrow(
       ValidationError
     );
   });

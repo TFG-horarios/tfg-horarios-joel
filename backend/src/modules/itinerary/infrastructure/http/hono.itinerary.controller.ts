@@ -13,7 +13,11 @@ import type {
   listItinerariesRoute,
   updateItineraryRoute,
   deleteItineraryRoute,
+  deleteAllItinerariesRoute,
+  replaceItinerariesRoute,
 } from './hono.itinerary.routes';
+import type { DeleteAllItinerariesUseCase } from '../../application/delete-all-itineraries.usecase';
+import type { ReplaceItinerariesUseCase } from '../../application/replace-itineraries.usecase';
 
 export class HonoItineraryController {
   constructor(
@@ -22,7 +26,9 @@ export class HonoItineraryController {
     private readonly getItineraryUseCase: GetItineraryUseCase,
     private readonly listItinerariesUseCase: ListItinerariesUseCase,
     private readonly updateItineraryUseCase: UpdateItineraryUseCase,
-    private readonly deleteItineraryUseCase: DeleteItineraryUseCase
+    private readonly deleteItineraryUseCase: DeleteItineraryUseCase,
+    private readonly deleteAllItinerariesUseCase: DeleteAllItinerariesUseCase,
+    private readonly replaceItinerariesUseCase: ReplaceItinerariesUseCase
   ) {}
 
   list: RouteHandler<typeof listItinerariesRoute, AppEnv> = async (c) => {
@@ -59,15 +65,25 @@ export class HonoItineraryController {
   bulkCreate: RouteHandler<typeof bulkCreateItinerariesRoute, AppEnv> = async (
     c
   ) => {
-    const { organizationId, degreeId } = c.req.valid('param');
+    const { organizationId } = c.req.valid('param');
     const bodyArray = c.req.valid('json');
     const newItineraries = await this.bulkCreateItinerariesUseCase.execute(
       organizationId,
-      degreeId,
       c.get('userId'),
       bodyArray
     );
     return c.json(newItineraries, 201);
+  };
+
+  replace: RouteHandler<typeof replaceItinerariesRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const bodyArray = c.req.valid('json');
+    const replacedItineraries = await this.replaceItinerariesUseCase.execute(
+      organizationId,
+      c.get('userId'),
+      bodyArray
+    );
+    return c.json(replacedItineraries, 200);
   };
 
   update: RouteHandler<typeof updateItineraryRoute, AppEnv> = async (c) => {
@@ -87,6 +103,17 @@ export class HonoItineraryController {
     await this.deleteItineraryUseCase.execute(
       organizationId,
       id,
+      c.get('userId')
+    );
+    return c.body(null, 204);
+  };
+
+  deleteAll: RouteHandler<typeof deleteAllItinerariesRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    await this.deleteAllItinerariesUseCase.execute(
+      organizationId,
       c.get('userId')
     );
     return c.body(null, 204);

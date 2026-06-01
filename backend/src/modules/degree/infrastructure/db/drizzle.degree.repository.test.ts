@@ -103,4 +103,34 @@ describe('DrizzleDegreeRepository Integration', () => {
     const allDegrees = await repository.findAll(testOrgId);
     expect(allDegrees.length).toBe(1);
   });
+
+  test('should soft delete all degrees successfully', async () => {
+    const degree1 = createValidDegree();
+    const degree2 = Degree.create({
+      organizationId: testOrgId,
+      name: 'Software Engineering',
+      code: 'SE101',
+    });
+    await repository.createMany([degree1, degree2]);
+    const beforeDelete = await repository.findAll(testOrgId);
+    expect(beforeDelete.length).toBeGreaterThan(0);
+    await repository.deleteAll(testOrgId);
+    const afterDelete = await repository.findAll(testOrgId);
+    expect(afterDelete.length).toBe(0);
+  });
+
+  test('should replace degrees successfully', async () => {
+    const degree1 = createValidDegree();
+    await repository.create(degree1);
+    const newDegree = Degree.create({
+      organizationId: testOrgId,
+      name: 'New Degree',
+      code: 'ND',
+    });
+    await repository.replace([newDegree], testOrgId);
+    const allDegrees = await repository.findAll(testOrgId);
+    expect(allDegrees.length).toBe(1);
+    expect(allDegrees[0]?.id).toBe(newDegree.id);
+    expect(allDegrees[0]?.name).toBe('New Degree');
+  });
 });

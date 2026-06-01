@@ -13,7 +13,11 @@ import type {
   listSubjectsRoute,
   updateSubjectRoute,
   deleteSubjectRoute,
+  deleteAllSubjectsRoute,
+  replaceSubjectsRoute,
 } from './hono.subject.routes';
+import type { DeleteAllSubjectsUseCase } from '../../application/delete-all-subjects.usecase';
+import type { ReplaceSubjectsUseCase } from '../../application/replace-subjects.usecase';
 
 export class HonoSubjectController {
   constructor(
@@ -22,7 +26,9 @@ export class HonoSubjectController {
     private readonly getUseCase: GetSubjectUseCase,
     private readonly listUseCase: ListSubjectUseCase,
     private readonly updateUseCase: UpdateSubjectUseCase,
-    private readonly deleteUseCase: DeleteSubjectUseCase
+    private readonly deleteUseCase: DeleteSubjectUseCase,
+    private readonly deleteAllUseCase: DeleteAllSubjectsUseCase,
+    private readonly replaceUseCase: ReplaceSubjectsUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectsRoute, AppEnv> = async (c) => {
@@ -49,15 +55,25 @@ export class HonoSubjectController {
   bulkCreate: RouteHandler<typeof bulkCreateSubjectsRoute, AppEnv> = async (
     c
   ) => {
-    const { organizationId, degreeId } = c.req.valid('param');
+    const { organizationId } = c.req.valid('param');
     const body = c.req.valid('json');
     const result = await this.bulkCreateUseCase.execute(
       organizationId,
-      degreeId,
       c.get('userId'),
       body
     );
     return c.json(result, 201);
+  };
+
+  replace: RouteHandler<typeof replaceSubjectsRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const body = c.req.valid('json');
+    const result = await this.replaceUseCase.execute(
+      organizationId,
+      c.get('userId'),
+      body
+    );
+    return c.json(result, 200);
   };
 
   get: RouteHandler<typeof getSubjectRoute, AppEnv> = async (c) => {
@@ -85,6 +101,14 @@ export class HonoSubjectController {
   delete: RouteHandler<typeof deleteSubjectRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     await this.deleteUseCase.execute(organizationId, id, c.get('userId'));
+    return c.body(null, 204);
+  };
+
+  deleteAll: RouteHandler<typeof deleteAllSubjectsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    await this.deleteAllUseCase.execute(organizationId, c.get('userId'));
     return c.body(null, 204);
   };
 }

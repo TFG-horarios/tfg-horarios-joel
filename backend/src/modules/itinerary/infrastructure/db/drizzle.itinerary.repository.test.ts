@@ -107,4 +107,37 @@ describe('DrizzleItineraryRepository Integration', () => {
     const allItineraries = await repository.findAll(testOrgId);
     expect(allItineraries.length).toBe(1);
   });
+
+  test('should soft delete all itineraries successfully', async () => {
+    const itinerary1 = createValidItinerary();
+    const itinerary2 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'Computer Science',
+      code: 'CS101',
+    });
+    await repository.createMany([itinerary1, itinerary2]);
+    const beforeDelete = await repository.findAll(testOrgId);
+    expect(beforeDelete.length).toBeGreaterThan(0);
+    await repository.deleteAll(testOrgId);
+    const afterDelete = await repository.findAll(testOrgId);
+    expect(afterDelete.length).toBe(0);
+  });
+
+  test('should replace itineraries successfully', async () => {
+    const itinerary1 = createValidItinerary();
+    await repository.create(itinerary1);
+
+    const newItinerary = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'New Itinerary',
+      code: 'NI',
+    });
+    await repository.replace([newItinerary], testOrgId);
+    const allItineraries = await repository.findAll(testOrgId);
+    expect(allItineraries.length).toBe(1);
+    expect(allItineraries[0]?.id).toBe(newItinerary.id);
+    expect(allItineraries[0]?.name).toBe('New Itinerary');
+  });
 });

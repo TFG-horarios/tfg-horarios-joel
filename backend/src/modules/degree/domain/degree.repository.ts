@@ -7,4 +7,6 @@ export interface IDegreeRepository {
   createMany(degrees: Degree[]): Promise<void>;
   update(degree: Degree): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;
+  deleteAll(organizationId: string): Promise<void>;
+  replace(degrees: Degree[], organizationId: string): Promise<void>;
 }

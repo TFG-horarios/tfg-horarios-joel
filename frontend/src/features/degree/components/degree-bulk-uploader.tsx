@@ -6,7 +6,10 @@ import {
   type DegreeDTO,
   type SaveDegreeDTO,
 } from '@tfg-horarios/shared';
-import { bulkCreateDegrees } from '@/features/degree/actions';
+import {
+  bulkCreateDegrees,
+  replaceDegreesAction,
+} from '@/features/degree/actions';
 import {
   GenericBulkUploader,
   type CsvRowIssue,
@@ -51,7 +54,10 @@ export function DegreeBulkUploader({
         const finalValidData: typeof validData = [];
 
         validData.forEach((row, idx) => {
-          if (existingCodes.has(row.code.toLowerCase())) {
+          if (
+            mode !== 'overwrite' &&
+            existingCodes.has(row.code.toLowerCase())
+          ) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',
@@ -60,7 +66,10 @@ export function DegreeBulkUploader({
               providedValue: row.code,
               message: t('duplicateCode', { code: row.code }),
             });
-          } else if (existingNames.has(row.name.toLowerCase())) {
+          } else if (
+            mode !== 'overwrite' &&
+            existingNames.has(row.name.toLowerCase())
+          ) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',
@@ -79,18 +88,13 @@ export function DegreeBulkUploader({
       mode={mode}
       onBeforeUpload={async (m, validData) => {
         if (onBeforeUpload) return onBeforeUpload(m, validData);
-        if (m === 'overwrite') {
-          try {
-            await fetch(`/api/organizations/${organizationId}/degrees`, {
-              method: 'DELETE',
-            });
-          } catch (err) {
-            console.error('Error deleting degrees before overwrite', err);
-          }
-        }
       }}
       onUpload={async (finalData) => {
-        await bulkCreateDegrees(organizationId, finalData);
+        if (mode === 'overwrite') {
+          await replaceDegreesAction(organizationId, finalData);
+        } else {
+          await bulkCreateDegrees(organizationId, finalData);
+        }
       }}
     />
   );

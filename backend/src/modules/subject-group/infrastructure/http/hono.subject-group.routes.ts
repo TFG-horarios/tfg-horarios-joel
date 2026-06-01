@@ -6,6 +6,7 @@ import {
   SubjectGroupCreateParamSchema,
   SubjectGroupIdParamSchema,
   SaveSubjectGroupBodySchema,
+  BulkSaveSubjectGroupBodySchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectGroupsRoute = createRoute({
@@ -58,12 +59,12 @@ export const createSubjectGroupRoute = createRoute({
 
 export const bulkCreateSubjectGroupsRoute = createRoute({
   method: 'post',
-  path: '/organizations/{organizationId}/subjects/{subjectId}/groups/bulk',
+  path: '/organizations/{organizationId}/subject-groups/bulk',
   request: {
-    params: SubjectGroupCreateParamSchema,
+    params: SubjectGroupBaseParamSchema,
     body: {
       content: {
-        'application/json': { schema: z.array(SaveSubjectGroupBodySchema) },
+        'application/json': { schema: z.array(BulkSaveSubjectGroupBodySchema) },
       },
     },
   },
@@ -75,6 +76,28 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    409: { description: 'Conflict' },
+  },
+});
+
+export const replaceSubjectGroupsRoute = createRoute({
+  method: 'put',
+  path: '/organizations/{organizationId}/subject-groups/bulk',
+  request: {
+    params: SubjectGroupBaseParamSchema,
+    body: {
+      content: {
+        'application/json': { schema: z.array(BulkSaveSubjectGroupBodySchema) },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Groups replaced',
+      content: { 'application/json': { schema: z.array(SubjectGroupSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
   },
 });
@@ -108,5 +131,15 @@ export const deleteSubjectGroupRoute = createRoute({
     204: { description: 'Group deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+  },
+});
+
+export const deleteAllSubjectGroupsRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/subject-groups',
+  request: { params: SubjectGroupBaseParamSchema },
+  responses: {
+    204: { description: 'All groups deleted' },
+    403: { description: 'Forbidden' },
   },
 });

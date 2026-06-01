@@ -4,6 +4,7 @@ import {
   ItinerarySchema,
   ItineraryBaseParamSchema,
   SaveItineraryBodySchema,
+  BulkSaveItineraryBodySchema,
   ItineraryIdParamSchema,
   ItineraryCreateParamSchema,
 } from '@tfg-horarios/shared';
@@ -59,13 +60,13 @@ export const createItineraryRoute = createRoute({
 
 export const bulkCreateItinerariesRoute = createRoute({
   method: 'post',
-  path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries/bulk',
+  path: '/organizations/{organizationId}/itineraries/bulk',
   request: {
-    params: ItineraryCreateParamSchema,
+    params: ItineraryBaseParamSchema,
     body: {
       content: {
         'application/json': {
-          schema: z.array(SaveItineraryBodySchema),
+          schema: z.array(BulkSaveItineraryBodySchema),
         },
       },
     },
@@ -73,6 +74,30 @@ export const bulkCreateItinerariesRoute = createRoute({
   responses: {
     201: {
       description: 'Itineraries created in bulk',
+      content: { 'application/json': { schema: z.array(ItinerarySchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
+  },
+});
+
+export const replaceItinerariesRoute = createRoute({
+  method: 'put',
+  path: '/organizations/{organizationId}/itineraries/bulk',
+  request: {
+    params: ItineraryBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: z.array(BulkSaveItineraryBodySchema),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Itineraries replaced',
       content: { 'application/json': { schema: z.array(ItinerarySchema) } },
     },
     400: { description: 'Bad request' },
@@ -112,5 +137,15 @@ export const deleteItineraryRoute = createRoute({
     204: { description: 'Itinerary deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Itinerary not found' },
+  },
+});
+
+export const deleteAllItinerariesRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/itineraries',
+  request: { params: ItineraryBaseParamSchema },
+  responses: {
+    204: { description: 'All itineraries deleted' },
+    403: { description: 'Forbidden' },
   },
 });

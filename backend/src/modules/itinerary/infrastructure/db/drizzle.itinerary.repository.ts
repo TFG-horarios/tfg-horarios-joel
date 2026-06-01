@@ -138,4 +138,47 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
         )
       );
   }
+
+  async deleteAll(organizationId: string): Promise<void> {
+    await this.database
+      .update(itinerariesTable)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(itinerariesTable.organizationId, organizationId),
+          isNull(itinerariesTable.deletedAt)
+        )
+      );
+  }
+
+  async replace(
+    itineraries: Itinerary[],
+    organizationId: string
+  ): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(itinerariesTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(itinerariesTable.organizationId, organizationId),
+            isNull(itinerariesTable.deletedAt)
+          )
+        );
+
+      if (itineraries.length > 0) {
+        const valuesToInsert = itineraries.map((i) => this.mapToPersistence(i));
+        try {
+          await tx.insert(itinerariesTable).values(valuesToInsert);
+        } catch (error: unknown) {
+          if (getPostgresErrorCode(error) === '23505') {
+            throw new ConflictError(
+              'Uno o más itinerarios con el mismo código ya existen en este grado'
+            );
+          }
+          throw error;
+        }
+      }
+    });
+  }
 }

@@ -65,5 +65,12 @@ export const SaveSubjectBodySchema = z
   })
   .openapi('SaveSubject');
 
+export const BulkSaveSubjectBodySchema = SaveSubjectBodySchema.extend({
+  degreeId: z
+    .uuid()
+    .openapi({ example: '123e4567-e89b-12d3-a456-426614174002' }),
+}).openapi('BulkSaveSubject');
+
 export type SubjectDTO = z.infer<typeof SubjectSchema>;
 export type SaveSubjectDTO = z.infer<typeof SaveSubjectBodySchema>;
+export type BulkSaveSubjectDTO = z.infer<typeof BulkSaveSubjectBodySchema>;
