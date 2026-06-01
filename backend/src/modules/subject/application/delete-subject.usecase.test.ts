@@ -11,16 +11,12 @@ describe('DeleteSubjectUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+  const memberProviderMock = { getMemberRole: mock() };
   const useCase = new DeleteSubjectUseCase(repositoryMock, memberProviderMock);
 
   test('should delete subject successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce({
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce({
       id: 'sub-1',
     });
     await useCase.execute('org-1', 'sub-1', 'user-1');
@@ -28,21 +24,15 @@ describe('DeleteSubjectUseCase', () => {
   });
 
   test('should throw ForbiddenError if lacking permission', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     expect(useCase.execute('org-1', 'sub-1', 'user-1')).rejects.toThrow(
       ForbiddenError
     );
   });
 
   test('should throw NotFoundError if not found', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      null
-    );
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(null);
     expect(useCase.execute('org-1', 'sub-1', 'user-1')).rejects.toThrow(
       NotFoundError
     );

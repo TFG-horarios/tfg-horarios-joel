@@ -8,7 +8,6 @@ describe('PasswordHasherService', () => {
     const password = 'mySecretPassword123';
     const hash = await service.hash(password);
     expect(hash).not.toBe(password);
-
     const isValid = await service.verify(password, hash);
     expect(isValid).toBeTrue();
   });

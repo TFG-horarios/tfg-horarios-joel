@@ -1,5 +1,5 @@
 {
-  "id": "bfd3cb96-1647-474d-a7a9-a36de85852bc",
+  "id": "06ae54c3-20a1-42d7-957e-56544c9762c9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -55,7 +55,9 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -231,8 +233,12 @@
           "name": "classroom_organization_id_organization_id_fk",
           "tableFrom": "classroom",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -374,8 +380,12 @@
           "name": "subject_organization_id_organization_id_fk",
           "tableFrom": "subject",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -383,8 +393,12 @@
           "name": "subject_degree_id_degree_id_fk",
           "tableFrom": "subject",
           "tableTo": "degree",
-          "columnsFrom": ["degree_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -392,8 +406,12 @@
           "name": "subject_itinerary_id_itinerary_id_fk",
           "tableFrom": "subject",
           "tableTo": "itinerary",
-          "columnsFrom": ["itinerary_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "itinerary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -527,8 +545,12 @@
           "name": "subject_group_organization_id_organization_id_fk",
           "tableFrom": "subject_group",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -536,8 +558,12 @@
           "name": "subject_group_subject_id_subject_id_fk",
           "tableFrom": "subject_group",
           "tableTo": "subject",
-          "columnsFrom": ["subject_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "subject_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -633,8 +659,12 @@
           "name": "itinerary_organization_id_organization_id_fk",
           "tableFrom": "itinerary",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -642,8 +672,12 @@
           "name": "itinerary_degree_id_degree_id_fk",
           "tableFrom": "itinerary",
           "tableTo": "degree",
-          "columnsFrom": ["degree_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -855,8 +889,12 @@
           "name": "schedule_organization_id_organization_id_fk",
           "tableFrom": "schedule",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -864,8 +902,12 @@
           "name": "schedule_degree_id_degree_id_fk",
           "tableFrom": "schedule",
           "tableTo": "degree",
-          "columnsFrom": ["degree_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -873,8 +915,12 @@
           "name": "schedule_itinerary_id_itinerary_id_fk",
           "tableFrom": "schedule",
           "tableTo": "itinerary",
-          "columnsFrom": ["itinerary_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "itinerary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -986,8 +1032,12 @@
           "name": "degree_organization_id_organization_id_fk",
           "tableFrom": "degree",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1025,25 +1075,26 @@
           "name": "classroom_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "day_of_week": {
           "name": "day_of_week",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "start_time": {
-          "name": "start_time",
-          "type": "time",
+        "slot_index": {
+          "name": "slot_index",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "end_time": {
-          "name": "end_time",
-          "type": "time",
+        "duration": {
+          "name": "duration",
+          "type": "real",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": 1
         },
         "created_at": {
           "name": "created_at",
@@ -1060,14 +1111,53 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "schedule_slot_classroom_time_unique_idx": {
+          "name": "schedule_slot_classroom_time_unique_idx",
+          "columns": [
+            {
+              "expression": "classroom_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "day_of_week",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "slot_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "schedule_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "classroom_id IS NOT NULL AND day_of_week IS NOT NULL AND slot_index IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "schedule_slot_schedule_id_schedule_id_fk": {
           "name": "schedule_slot_schedule_id_schedule_id_fk",
           "tableFrom": "schedule_slot",
           "tableTo": "schedule",
-          "columnsFrom": ["schedule_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1075,8 +1165,12 @@
           "name": "schedule_slot_subject_group_id_subject_group_id_fk",
           "tableFrom": "schedule_slot",
           "tableTo": "subject_group",
-          "columnsFrom": ["subject_group_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "subject_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1084,8 +1178,12 @@
           "name": "schedule_slot_classroom_id_classroom_id_fk",
           "tableFrom": "schedule_slot",
           "tableTo": "classroom",
-          "columnsFrom": ["classroom_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1147,8 +1245,12 @@
           "name": "member_organization_id_organization_id_fk",
           "tableFrom": "member",
           "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1156,8 +1258,12 @@
           "name": "member_user_id_user_id_fk",
           "tableFrom": "member",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1167,7 +1273,10 @@
         "member_organization_id_user_id_unique": {
           "name": "member_organization_id_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": ["organization_id", "user_id"]
+          "columns": [
+            "organization_id",
+            "user_id"
+          ]
         }
       },
       "policies": {},
@@ -1179,32 +1288,54 @@
     "public.period_type": {
       "name": "period_type",
       "schema": "public",
-      "values": ["semester", "trimester", "annual"]
+      "values": [
+        "semester",
+        "trimester",
+        "annual"
+      ]
     },
     "public.classroom_type": {
       "name": "classroom_type",
       "schema": "public",
-      "values": ["theory", "lab"]
+      "values": [
+        "theory",
+        "lab"
+      ]
     },
     "public.shift": {
       "name": "shift",
       "schema": "public",
-      "values": ["morning", "afternoon"]
+      "values": [
+        "morning",
+        "afternoon"
+      ]
     },
     "public.group_type": {
       "name": "group_type",
       "schema": "public",
-      "values": ["theory", "problems", "practices"]
+      "values": [
+        "theory",
+        "problems",
+        "practices"
+      ]
     },
     "public.schedule_status": {
       "name": "schedule_status",
       "schema": "public",
-      "values": ["draft", "published", "archived"]
+      "values": [
+        "draft",
+        "published",
+        "archived"
+      ]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": ["admin", "editor", "viewer"]
+      "values": [
+        "admin",
+        "editor",
+        "viewer"
+      ]
     }
   },
   "schemas": {},

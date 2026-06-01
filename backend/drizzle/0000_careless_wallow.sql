@@ -111,10 +111,10 @@ CREATE TABLE "schedule_slot" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"schedule_id" uuid NOT NULL,
 	"subject_group_id" uuid NOT NULL,
-	"classroom_id" uuid NOT NULL,
-	"day_of_week" integer NOT NULL,
-	"start_time" time NOT NULL,
-	"end_time" time NOT NULL,
+	"classroom_id" uuid,
+	"day_of_week" integer,
+	"slot_index" integer,
+	"duration" real DEFAULT 1 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -153,4 +153,5 @@ CREATE UNIQUE INDEX "itinerary_code_degree_idx" ON "itinerary" USING btree ("deg
 CREATE UNIQUE INDEX "schedule_itinerary_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","itinerary_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NOT NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_common_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "degree_code_org_idx" ON "degree" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "degree_name_org_idx" ON "degree" USING btree ("organization_id","name") WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX "degree_name_org_idx" ON "degree" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "schedule_slot_classroom_time_unique_idx" ON "schedule_slot" USING btree ("classroom_id","day_of_week","slot_index","schedule_id") WHERE classroom_id IS NOT NULL AND day_of_week IS NOT NULL AND slot_index IS NOT NULL;

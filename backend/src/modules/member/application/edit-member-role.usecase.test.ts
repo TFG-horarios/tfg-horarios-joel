@@ -34,7 +34,6 @@ describe('EditMemberRoleUseCase', () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({
       role: ROLES.ADMIN,
     });
-
     await useCase.execute('org-1', 'admin-1', 'member-1', ROLES.EDITOR);
     expect(member.role).toBe(ROLES.EDITOR);
     expect(repositoryMock.update).toHaveBeenCalledWith(member);
@@ -73,7 +72,6 @@ describe('EditMemberRoleUseCase', () => {
       role: 'admin',
     });
     repositoryMock.countAdmins.mockResolvedValueOnce(1);
-
     expect(
       useCase.execute('org-1', 'admin-2', 'member-1', ROLES.EDITOR)
     ).rejects.toThrow(ValidationError);

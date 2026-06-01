@@ -13,12 +13,10 @@ describe('UpdateSubjectGroupUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const subjectProviderMock = {
-    getAvailableShifts: mock(),
-  };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const subjectProviderMock = { getAvailableShifts: mock() };
+  const memberProviderMock = { getMemberRole: mock() };
+
   const useCase = new UpdateSubjectGroupUseCase(
     repositoryMock,
     subjectProviderMock,
@@ -26,9 +24,7 @@ describe('UpdateSubjectGroupUseCase', () => {
   );
 
   test('should update successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const group = SubjectGroup.create({
       organizationId: 'org-1',
       subjectId: 'sub-1',
@@ -39,13 +35,11 @@ describe('UpdateSubjectGroupUseCase', () => {
       weeklyHours: 4,
       numberOfStudents: 30,
     });
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      group
-    );
-    (
-      subjectProviderMock.getAvailableShifts as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(['morning', 'afternoon']);
-
+    repositoryMock.findById.mockResolvedValueOnce(group);
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce([
+      'morning',
+      'afternoon',
+    ]);
     const dto = {
       name: 'T2',
       groupType: 'theory' as const,
@@ -61,9 +55,7 @@ describe('UpdateSubjectGroupUseCase', () => {
   });
 
   test('should throw ValidationError if shift not available', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const group = SubjectGroup.create({
       organizationId: 'org-1',
       subjectId: 'sub-1',
@@ -74,13 +66,8 @@ describe('UpdateSubjectGroupUseCase', () => {
       weeklyHours: 4,
       numberOfStudents: 30,
     });
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      group
-    );
-    (
-      subjectProviderMock.getAvailableShifts as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(['morning']);
-
+    repositoryMock.findById.mockResolvedValueOnce(group);
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
     const dto = {
       name: 'T2',
       groupType: 'theory' as const,

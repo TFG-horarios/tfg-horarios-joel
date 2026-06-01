@@ -74,7 +74,6 @@ describe('GenerateScheduleUseCase', () => {
       unassigned: [],
     });
     repositoryMock.findLatestVersionByScope.mockResolvedValueOnce('v1');
-
     const result = await useCase.execute('org-1', 'user-1', {
       academicYear: '2023-2024',
       period: 1,

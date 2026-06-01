@@ -32,9 +32,7 @@ describe('GetClassroomUseCase', () => {
       deletedAt: null,
     });
     repositoryMock.findById.mockResolvedValueOnce(classroom);
-
     const result = await useCase.execute('org-1', 'classroom-1', 'user-1');
-
     expect(result.id).toBe('classroom-1');
     expect(result.name).toBe('Lab 1');
   });
@@ -42,7 +40,6 @@ describe('GetClassroomUseCase', () => {
   test('should throw NotFoundError if classroom does not exist', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     repositoryMock.findById.mockResolvedValueOnce(null);
-
     expect(useCase.execute('org-1', 'classroom-1', 'user-1')).rejects.toThrow(
       NotFoundError
     );
@@ -50,7 +47,6 @@ describe('GetClassroomUseCase', () => {
 
   test('should throw ForbiddenError if user has no role', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce(null);
-
     expect(useCase.execute('org-1', 'classroom-1', 'user-1')).rejects.toThrow(
       ForbiddenError
     );

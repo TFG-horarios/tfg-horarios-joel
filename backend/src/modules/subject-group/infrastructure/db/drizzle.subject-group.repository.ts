@@ -1,7 +1,7 @@
 import { eq, and, isNull, inArray } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   subjectGroupsTable,
   type DrizzleSubjectGroup,
@@ -93,7 +93,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
         .insert(subjectGroupsTable)
         .values(this.mapToPersistence(subjectGroup));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A group with this type, number, and shift already exists for this subject.'
         );
@@ -108,7 +108,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     try {
       await this.database.insert(subjectGroupsTable).values(valuesToInsert);
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'One or more groups with the same type, number, and shift already exist for these subjects.'
         );
@@ -138,7 +138,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A group with this type, number, and shift already exists for this subject.'
         );

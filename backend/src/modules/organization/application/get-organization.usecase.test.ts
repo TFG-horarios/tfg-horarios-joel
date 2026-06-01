@@ -36,7 +36,6 @@ describe('GetOrganizationUseCase', () => {
     });
     repositoryMock.findById.mockResolvedValueOnce(org);
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-
     const result = await useCase.execute('org-1', 'user-1');
     expect(result.id).toBe('org-1');
   });

@@ -13,3 +13,13 @@ export function isPostgresError(error: unknown): error is PostgresError {
     typeof (error as Record<string, unknown>).code === 'string'
   );
 }
+
+export function getPostgresErrorCode(error: unknown): string | null {
+  if (isPostgresError(error)) {
+    return error.code;
+  }
+  if (typeof error === 'object' && error !== null && 'cause' in error) {
+    return getPostgresErrorCode(error.cause);
+  }
+  return null;
+}

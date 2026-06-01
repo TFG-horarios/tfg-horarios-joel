@@ -12,12 +12,10 @@ describe('BulkCreateSubjectGroupUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const subjectProviderMock = {
-    getAvailableShifts: mock(),
-  };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const subjectProviderMock = { getAvailableShifts: mock() };
+  const memberProviderMock = { getMemberRole: mock() };
+
   const useCase = new BulkCreateSubjectGroupUseCase(
     repositoryMock,
     subjectProviderMock,
@@ -25,12 +23,8 @@ describe('BulkCreateSubjectGroupUseCase', () => {
   );
 
   test('should bulk create groups successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (
-      subjectProviderMock.getAvailableShifts as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(['morning']);
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
     const dtos = [
       {
         name: 'T1',

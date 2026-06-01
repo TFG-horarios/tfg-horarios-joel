@@ -15,7 +15,6 @@ describe('Classroom', () => {
 
   test('creates a classroom with generated identity and timestamps', () => {
     const classroom = Classroom.create(baseProps);
-
     expect(classroom.organizationId).toBe(baseProps.organizationId);
     expect(classroom.name).toBe(baseProps.name);
     expect(classroom.capacity).toBe(baseProps.capacity);
@@ -38,9 +37,7 @@ describe('Classroom', () => {
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     };
-
     const classroom = Classroom.reconstitute(persistedProps);
-
     expect(classroom.id).toBe(persistedProps.id);
     expect(classroom.organizationId).toBe(persistedProps.organizationId);
     expect(classroom.name).toBe(persistedProps.name);
@@ -62,11 +59,8 @@ describe('Classroom', () => {
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
-
     const previousUpdatedAt = classroom.updatedAt;
-
     classroom.update('New Name', 35, 'lab');
-
     expect(classroom.name).toBe('New Name');
     expect(classroom.capacity).toBe(35);
     expect(classroom.type).toBe('lab');
@@ -105,7 +99,6 @@ describe('Classroom', () => {
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
-
     expect(() => classroom.update('New Name', 0, 'lab')).toThrow(
       ValidationError
     );
@@ -122,7 +115,6 @@ describe('Classroom', () => {
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
-
     expect(() => classroom.update('   ', 10, 'lab')).toThrow(ValidationError);
   });
 });

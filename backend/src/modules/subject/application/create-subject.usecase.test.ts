@@ -11,15 +11,12 @@ describe('CreateSubjectUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const memberProviderMock = { getMemberRole: mock() };
   const useCase = new CreateSubjectUseCase(repositoryMock, memberProviderMock);
 
   test('should create subject successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const dto = {
       name: 'Math',
       code: 'M1',
@@ -36,9 +33,7 @@ describe('CreateSubjectUseCase', () => {
   });
 
   test('should throw ForbiddenError if lacking permission', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const dto = {
       name: 'Math',
       code: 'M1',

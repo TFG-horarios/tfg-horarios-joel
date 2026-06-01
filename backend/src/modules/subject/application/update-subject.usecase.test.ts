@@ -12,15 +12,11 @@ describe('UpdateSubjectUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+  const memberProviderMock = { getMemberRole: mock() };
   const useCase = new UpdateSubjectUseCase(repositoryMock, memberProviderMock);
 
   test('should update subject successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const subject = Subject.create({
       organizationId: 'org-1',
       degreeId: 'deg-1',
@@ -34,10 +30,7 @@ describe('UpdateSubjectUseCase', () => {
       isCommon: true,
       itineraryId: null,
     });
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      subject
-    );
-
+    repositoryMock.findById.mockResolvedValueOnce(subject);
     const dto = {
       name: 'Math 2',
       code: 'M2',
@@ -54,9 +47,7 @@ describe('UpdateSubjectUseCase', () => {
   });
 
   test('should throw ForbiddenError if lacking permission', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const dto = {
       name: 'Math 2',
       code: 'M2',
@@ -73,12 +64,8 @@ describe('UpdateSubjectUseCase', () => {
   });
 
   test('should throw NotFoundError if not found', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      null
-    );
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(null);
     const dto = {
       name: 'Math 2',
       code: 'M2',

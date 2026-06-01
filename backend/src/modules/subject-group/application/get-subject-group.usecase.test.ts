@@ -12,18 +12,16 @@ describe('GetSubjectGroupUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const memberProviderMock = { getMemberRole: mock() };
+
   const useCase = new GetSubjectGroupUseCase(
     repositoryMock,
     memberProviderMock
   );
 
   test('should get successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const group = SubjectGroup.create({
       organizationId: 'org-1',
       subjectId: 'sub-1',
@@ -34,9 +32,7 @@ describe('GetSubjectGroupUseCase', () => {
       weeklyHours: 4,
       numberOfStudents: 30,
     });
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      group
-    );
+    repositoryMock.findById.mockResolvedValueOnce(group);
     const result = await useCase.execute('org-1', 'grp-1', 'user-1');
     expect(result.id).toBe(group.id);
   });

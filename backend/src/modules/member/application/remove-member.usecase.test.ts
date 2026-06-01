@@ -34,7 +34,6 @@ describe('RemoveMemberUseCase', () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({
       role: ROLES.ADMIN,
     });
-
     await useCase.execute('org-1', 'admin-1', 'member-1');
     expect(repositoryMock.delete).toHaveBeenCalledWith('member-1', 'org-1');
   });
@@ -52,7 +51,6 @@ describe('RemoveMemberUseCase', () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({
       role: ROLES.VIEWER,
     });
-
     await useCase.execute('org-1', 'user-1', 'member-1');
     expect(repositoryMock.delete).toHaveBeenCalledWith('member-1', 'org-1');
   });
@@ -77,7 +75,6 @@ describe('RemoveMemberUseCase', () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({
       role: ROLES.VIEWER,
     });
-
     expect(useCase.execute('org-1', 'viewer-2', 'member-1')).rejects.toThrow(
       ForbiddenError
     );
@@ -97,7 +94,6 @@ describe('RemoveMemberUseCase', () => {
       role: 'admin',
     });
     repositoryMock.countAdmins.mockResolvedValueOnce(1);
-
     expect(useCase.execute('org-1', 'admin-2', 'member-1')).rejects.toThrow(
       ValidationError
     );

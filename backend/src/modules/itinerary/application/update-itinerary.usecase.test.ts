@@ -35,7 +35,6 @@ describe('UpdateItineraryUseCase', () => {
       deletedAt: null,
     });
     repositoryMock.findById.mockResolvedValueOnce(itinerary);
-
     const dto = { name: 'New Name', code: 'nn' };
     const result = await useCase.execute('org-1', 'iti-1', 'user-1', dto);
     expect(result.name).toBe('New Name');

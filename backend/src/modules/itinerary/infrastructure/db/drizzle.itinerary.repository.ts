@@ -1,7 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   itinerariesTable,
   type DrizzleItinerary,
@@ -76,7 +76,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
         .insert(itinerariesTable)
         .values(this.mapToPersistence(itinerary));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Un itinerario con el código '${itinerary.code}' ya existe en este grado`
         );
@@ -91,7 +91,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
     try {
       await this.database.insert(itinerariesTable).values(valuesToInsert);
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'Uno o más itinerarios con el mismo código ya existen en este grado'
         );
@@ -118,7 +118,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Un itinerario con el código '${itinerary.code}' ya existe en este grado`
         );

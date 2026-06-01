@@ -42,7 +42,6 @@ describe('PublishScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(schedule);
     repositoryMock.findPublishedByScope.mockResolvedValueOnce(null);
-
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.status).toBe('published');
     expect(repositoryMock.publishAndArchive).toHaveBeenCalledWith(
@@ -73,7 +72,6 @@ describe('PublishScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(newSchedule);
     repositoryMock.findPublishedByScope.mockResolvedValueOnce(oldSchedule);
-
     const result = await useCase.execute('org-1', 'user-1', newSchedule.id);
     expect(result.status).toBe('published');
     expect(oldSchedule.status).toBe('archived');
@@ -95,7 +93,6 @@ describe('PublishScheduleUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(schedule);
-
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.status).toBe('published');
     expect(repositoryMock.findPublishedByScope).not.toHaveBeenCalled();

@@ -1,7 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   degreesTable,
   type DrizzleDegree,
@@ -71,7 +71,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
         .insert(degreesTable)
         .values(this.mapToPersistence(degree));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Un grado con el nombre '${degree.name}' o código '${degree.code}' ya existe en esta organización`
         );
@@ -86,7 +86,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
     try {
       await this.database.insert(degreesTable).values(valuesToInsert);
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'Uno o más grados con el mismo nombre o código ya existen en esta organización'
         );
@@ -112,7 +112,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Un grado con el nombre '${degree.name}' o código '${degree.code}' ya existe en esta organización`
         );

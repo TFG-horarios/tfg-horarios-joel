@@ -1,14 +1,24 @@
-import { describe, expect, test, mock } from 'bun:test';
+import { describe, expect, test, mock, spyOn } from 'bun:test';
 import { TabuSearchEngine } from './tabu-search';
 import { PenaltyCalculator } from '../domain/penalty-calculator';
 import { InitialSolution } from '../domain/initial-solution';
 import type { IRandomGenerator } from '../domain/random-generator';
+import type { Solution } from '../domain/types';
 
 describe('TabuSearchEngine', () => {
   const penaltyCalculator = new PenaltyCalculator([], {}, 12, 12);
-  penaltyCalculator.calculatePenalty = mock(() => 0);
   const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12);
-  initialGen.generate = mock();
+
+  const calculatePenaltySpy = spyOn(
+    penaltyCalculator,
+    'calculatePenalty'
+  ).mockReturnValue(0);
+
+  const generateSpy = spyOn(initialGen, 'generate').mockImplementation(() => ({
+    assignments: [],
+    penalty: 0,
+  }));
+
   const randomGen: IRandomGenerator = {
     random: mock(() => 0.6),
     randomInt: mock(() => 0),
@@ -24,15 +34,14 @@ describe('TabuSearchEngine', () => {
   );
 
   test('returns initial solution if penalty is 0', () => {
-    const sol = { assignments: [], penalty: 0 };
-    (initialGen.generate as ReturnType<typeof mock>).mockReturnValueOnce(sol);
-
+    const sol: Solution = { assignments: [], penalty: 0 };
+    generateSpy.mockReturnValueOnce(sol);
     const result = engine.run([]);
     expect(result).toBe(sol);
   });
 
   test('runs iterations and improves solution', () => {
-    const initialSol = {
+    const initialSol: Solution = {
       assignments: [
         {
           id: 'a-1',
@@ -53,14 +62,8 @@ describe('TabuSearchEngine', () => {
       ],
       penalty: 100,
     };
-    (initialGen.generate as ReturnType<typeof mock>).mockReturnValueOnce(
-      initialSol
-    );
-
-    (
-      penaltyCalculator.calculatePenalty as ReturnType<typeof mock>
-    ).mockReturnValue(50);
-
+    generateSpy.mockReturnValueOnce(initialSol);
+    calculatePenaltySpy.mockReturnValue(50);
     const result = engine.run([]);
     expect(result.penalty).toBe(50);
   });

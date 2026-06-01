@@ -3,7 +3,8 @@
   "compilerOptions": {
     "jsxImportSource": "hono/jsx",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/tests/*": ["./tests/*"]
     }
   },
   "include": ["src/**/*", "drizzle.config.ts", "tests/**/*"]

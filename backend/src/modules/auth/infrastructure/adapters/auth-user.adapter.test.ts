@@ -10,6 +10,7 @@ describe('AuthUserAdapter', () => {
     update: mock(),
     delete: mock(),
   };
+
   const adapter = new AuthUserAdapter(userRepositoryMock);
 
   test('findByEmail returns null if not found', async () => {

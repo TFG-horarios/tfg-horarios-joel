@@ -32,7 +32,6 @@ describe('GetScheduleUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     repositoryMock.findById.mockResolvedValueOnce(schedule);
-
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.id).toBe(schedule.id);
   });

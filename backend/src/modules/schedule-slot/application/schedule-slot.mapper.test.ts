@@ -17,7 +17,6 @@ describe('ScheduleSlotMapper', () => {
       createdAt: date,
       updatedAt: date,
     });
-
     const dto = ScheduleSlotMapper.toDTO(slot);
     expect(dto).toEqual({
       id: 'slot-1',

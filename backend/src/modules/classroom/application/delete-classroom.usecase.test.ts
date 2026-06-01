@@ -26,16 +26,13 @@ describe('DeleteClassroomUseCase', () => {
     repositoryMock.findById.mockResolvedValueOnce({
       id: 'classroom-1',
     });
-
     await useCase.execute('org-1', 'classroom-1', 'user-1');
-
     expect(repositoryMock.delete).toHaveBeenCalledWith('classroom-1', 'org-1');
   });
 
   test('should throw NotFoundError if classroom does not exist', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(null);
-
     expect(useCase.execute('org-1', 'classroom-1', 'user-1')).rejects.toThrow(
       NotFoundError
     );
@@ -43,7 +40,6 @@ describe('DeleteClassroomUseCase', () => {
 
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-
     expect(useCase.execute('org-1', 'classroom-1', 'user-1')).rejects.toThrow(
       ForbiddenError
     );

@@ -24,7 +24,6 @@ describe('UpdateClassroomUseCase', () => {
 
   test('should update classroom successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
-
     const classroom = Classroom.reconstitute({
       id: 'classroom-1',
       organizationId: 'org-1',
@@ -35,12 +34,9 @@ describe('UpdateClassroomUseCase', () => {
       updatedAt: new Date(),
       deletedAt: null,
     });
-
     repositoryMock.findById.mockResolvedValueOnce(classroom);
-
     const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
     const result = await useCase.execute('org-1', 'classroom-1', 'user-1', dto);
-
     expect(result.name).toBe('New Lab');
     expect(result.capacity).toBe(40);
     expect(result.type).toBe('theory');
@@ -50,7 +46,6 @@ describe('UpdateClassroomUseCase', () => {
   test('should throw NotFoundError if classroom does not exist', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(null);
-
     const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
     expect(
       useCase.execute('org-1', 'classroom-1', 'user-1', dto)
@@ -59,7 +54,6 @@ describe('UpdateClassroomUseCase', () => {
 
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-
     const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
     expect(
       useCase.execute('org-1', 'classroom-1', 'user-1', dto)

@@ -31,7 +31,6 @@ describe('UpdateDegreeUseCase', () => {
       deletedAt: null,
     });
     repositoryMock.findById.mockResolvedValueOnce(degree);
-
     const dto = { name: 'New Name', code: 'NN' };
     const result = await useCase.execute('org-1', 'deg-1', 'user-1', dto);
     expect(result.name).toBe('New Name');

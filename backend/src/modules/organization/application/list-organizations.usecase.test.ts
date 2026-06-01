@@ -27,7 +27,6 @@ describe('ListOrganizationsUseCase', () => {
       updatedAt: new Date(),
     });
     repositoryMock.findByUserId.mockResolvedValueOnce([org]);
-
     const result = await useCase.execute('user-1');
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('org-1');

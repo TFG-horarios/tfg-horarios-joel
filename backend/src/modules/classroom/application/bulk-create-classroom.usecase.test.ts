@@ -23,14 +23,11 @@ describe('BulkCreateClassroomsUseCase', () => {
 
   test('should create multiple classrooms successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
-
     const dtos = [
       { name: 'Lab A', capacity: 20, type: 'lab' as const },
       { name: 'Theory B', capacity: 40, type: 'theory' as const },
     ];
-
     const result = await useCase.execute('org-1', 'user-1', dtos);
-
     expect(result).toHaveLength(2);
     expect(result[0]?.name).toBe('Lab A');
     expect(result[1]?.name).toBe('Theory B');
@@ -55,9 +52,7 @@ describe('BulkCreateClassroomsUseCase', () => {
 
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-
     const dtos = [{ name: 'Lab A', capacity: 20, type: 'lab' as const }];
-
     expect(useCase.execute('org-1', 'user-1', dtos)).rejects.toThrow(
       ForbiddenError
     );

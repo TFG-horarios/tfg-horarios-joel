@@ -1,9 +1,9 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
-  classroom as classroomTable,
+  classroomsTable,
   type DrizzleClassroom,
   type DrizzleNewClassroom,
 } from './drizzle.classroom.schema';
@@ -45,12 +45,12 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   ): Promise<Classroom | null> {
     const rows = await this.database
       .select()
-      .from(classroomTable)
+      .from(classroomsTable)
       .where(
         and(
-          eq(classroomTable.id, id),
-          eq(classroomTable.organizationId, organizationId),
-          isNull(classroomTable.deletedAt)
+          eq(classroomsTable.id, id),
+          eq(classroomsTable.organizationId, organizationId),
+          isNull(classroomsTable.deletedAt)
         )
       )
       .limit(1);
@@ -60,11 +60,11 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   async findAll(organizationId: string): Promise<Classroom[]> {
     const rows = await this.database
       .select()
-      .from(classroomTable)
+      .from(classroomsTable)
       .where(
         and(
-          eq(classroomTable.organizationId, organizationId),
-          isNull(classroomTable.deletedAt)
+          eq(classroomsTable.organizationId, organizationId),
+          isNull(classroomsTable.deletedAt)
         )
       );
     return rows.map((row) => this.mapToDomain(row));
@@ -73,10 +73,10 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   async create(classroom: Classroom): Promise<void> {
     try {
       await this.database
-        .insert(classroomTable)
+        .insert(classroomsTable)
         .values(this.mapToPersistence(classroom));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Classroom with name '${classroom.name}' already exists in this organization`
         );
@@ -89,9 +89,9 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
     if (classrooms.length === 0) return;
     const valuesToInsert = classrooms.map((c) => this.mapToPersistence(c));
     try {
-      await this.database.insert(classroomTable).values(valuesToInsert);
+      await this.database.insert(classroomsTable).values(valuesToInsert);
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'One or more classrooms with the same name already exist in this organization'
         );
@@ -105,7 +105,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
 
     try {
       await this.database
-        .update(classroomTable)
+        .update(classroomsTable)
         .set({
           name: rawData.name,
           capacity: rawData.capacity,
@@ -114,12 +114,12 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
         })
         .where(
           and(
-            eq(classroomTable.id, classroom.id),
-            eq(classroomTable.organizationId, classroom.organizationId)
+            eq(classroomsTable.id, classroom.id),
+            eq(classroomsTable.organizationId, classroom.organizationId)
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Classroom with name '${classroom.name}' already exists in this organization`
         );
@@ -130,12 +130,12 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
 
   async delete(id: string, organizationId: string): Promise<void> {
     await this.database
-      .update(classroomTable)
+      .update(classroomsTable)
       .set({ deletedAt: new Date() })
       .where(
         and(
-          eq(classroomTable.id, id),
-          eq(classroomTable.organizationId, organizationId)
+          eq(classroomsTable.id, id),
+          eq(classroomsTable.organizationId, organizationId)
         )
       );
   }

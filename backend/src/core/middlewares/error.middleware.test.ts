@@ -8,9 +8,7 @@ describe('GlobalErrorMiddleware', () => {
   test('handles AppError', () => {
     const error = new AppError('app error', 400);
     const c = { json: mock() } as never as Context;
-
     globalErrorMiddleware(error, c);
-
     expect(c.json).toHaveBeenCalledWith(
       { status: 'error', message: 'app error', type: 'AppError' },
       400
@@ -20,9 +18,7 @@ describe('GlobalErrorMiddleware', () => {
   test('handles ZodError', () => {
     const error = new ZodError([]);
     const c = { json: mock() } as never as Context;
-
     globalErrorMiddleware(error, c);
-
     expect(c.json).toHaveBeenCalledWith(
       { status: 'error', message: 'Validation Failed', errors: [] },
       400
@@ -32,9 +28,7 @@ describe('GlobalErrorMiddleware', () => {
   test('handles unknown error', () => {
     const error = new Error('unknown');
     const c = { json: mock() } as never as Context;
-
     globalErrorMiddleware(error, c);
-
     expect(c.json).toHaveBeenCalledWith(
       { message: 'Internal Server Error' },
       500

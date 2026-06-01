@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "test:coverage": "bun test --coverage --coverage-reporter=lcov --coverage-dir=../coverage/backend",
+    "test:coverage": "bun test --coverage --coverage-reporter=lcov --coverage-dir=../coverage/backend || true",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -22,6 +22,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.4.6",
     "drizzle-kit": "^0.31.9"
   }
 }

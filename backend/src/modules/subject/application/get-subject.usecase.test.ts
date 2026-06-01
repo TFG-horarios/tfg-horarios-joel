@@ -12,15 +12,11 @@ describe('GetSubjectUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+  const memberProviderMock = { getMemberRole: mock() };
   const useCase = new GetSubjectUseCase(repositoryMock, memberProviderMock);
 
   test('should get subject successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const subject = Subject.create({
       organizationId: 'org-1',
       degreeId: 'deg-1',
@@ -34,29 +30,21 @@ describe('GetSubjectUseCase', () => {
       isCommon: true,
       itineraryId: null,
     });
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      subject
-    );
+    repositoryMock.findById.mockResolvedValueOnce(subject);
     const result = await useCase.execute('org-1', 'sub-1', 'user-1');
     expect(result.id).toBe(subject.id);
   });
 
   test('should throw ForbiddenError if user lacks access', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(null);
+    memberProviderMock.getMemberRole.mockResolvedValueOnce(null);
     expect(useCase.execute('org-1', 'sub-1', 'user-1')).rejects.toThrow(
       ForbiddenError
     );
   });
 
   test('should throw NotFoundError if not found', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
-    (repositoryMock.findById as ReturnType<typeof mock>).mockResolvedValueOnce(
-      null
-    );
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
+    repositoryMock.findById.mockResolvedValueOnce(null);
     expect(useCase.execute('org-1', 'sub-1', 'user-1')).rejects.toThrow(
       NotFoundError
     );

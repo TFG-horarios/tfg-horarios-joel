@@ -34,14 +34,11 @@ describe('AuthMiddleware', () => {
     } as never as Context;
     const payload = { id: 'u-1', name: 'John', email: 'j@e.com' };
     tokenServiceMock.validate.mockResolvedValueOnce(payload);
-
     let nextCalled = false;
     const next = async () => {
       nextCalled = true;
     };
-
     await middleware(c, next);
-
     expect(nextCalled).toBeTrue();
     expect(c.set).toHaveBeenCalledWith('jwtPayload', payload);
     expect(c.set).toHaveBeenCalledWith('userId', 'u-1');

@@ -32,16 +32,13 @@ describe('ListClassroomsUseCase', () => {
       deletedAt: null,
     });
     repositoryMock.findAll.mockResolvedValueOnce([classroom]);
-
     const result = await useCase.execute('org-1', 'user-1');
-
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('classroom-1');
   });
 
   test('should throw ForbiddenError if user has no role', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce(null);
-
     expect(useCase.execute('org-1', 'user-1')).rejects.toThrow(ForbiddenError);
   });
 });

@@ -38,7 +38,6 @@ describe('InitialSolution', () => {
         courseYear: 1,
       },
     ];
-
     const result = initial.generate(groups);
     expect(result.assignments).toHaveLength(2);
     expect(result.assignments[0]?.classroomId).toBe('c-1');
@@ -58,7 +57,6 @@ describe('InitialSolution', () => {
         courseYear: 1,
       },
     ];
-
     const result = initial.generate(groups);
     expect(result.assignments[0]?.classroomId).toBeNull();
   });

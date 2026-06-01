@@ -1,7 +1,7 @@
 import { eq, and, count } from 'drizzle-orm';
 import { type DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   membersTable,
   type DrizzleMember,
@@ -96,7 +96,7 @@ export class DrizzleMemberRepository implements IMemberRepository {
         .insert(membersTable)
         .values(this.mapToPersistence(domainEntity));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError('El usuario ya pertenece a esta organización');
       }
       throw error;
@@ -119,7 +119,7 @@ export class DrizzleMemberRepository implements IMemberRepository {
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError('El usuario ya pertenece a esta organización');
       }
       throw error;

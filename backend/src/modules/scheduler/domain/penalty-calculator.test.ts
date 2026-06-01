@@ -9,7 +9,6 @@ describe('PenaltyCalculator', () => {
     const constraint2 = {
       calculatePenalty: mock(() => 20),
     };
-
     const calculator = new PenaltyCalculator(
       [constraint1, constraint2],
       {},
@@ -17,7 +16,6 @@ describe('PenaltyCalculator', () => {
       12
     );
     const result = calculator.calculatePenalty([]);
-
     expect(result).toBe(30);
     expect(constraint1.calculatePenalty).toHaveBeenCalled();
     expect(constraint2.calculatePenalty).toHaveBeenCalled();

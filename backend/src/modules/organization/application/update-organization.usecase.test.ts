@@ -36,7 +36,6 @@ describe('UpdateOrganizationUseCase', () => {
     });
     repositoryMock.findById.mockResolvedValueOnce(org);
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
-
     const dto = {
       name: 'New Org',
       periodType: 'annual' as const,

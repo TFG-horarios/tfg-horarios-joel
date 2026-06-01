@@ -7,7 +7,7 @@ import {
 import { membersTable } from '@/modules/member/infrastructure/db/drizzle.member.schema';
 import { type IOrganizationRepository } from '../../domain/organization.repository';
 import { Organization } from '../../domain/organization.entity';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import { ConflictError } from '@/core/errors/app.error';
 
 export class DrizzleOrganizationRepository implements IOrganizationRepository {
@@ -74,7 +74,7 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
         });
       });
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A database conflict occurred while creating the organization.'
         );
@@ -104,7 +104,7 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
         })
         .where(eq(organizationsTable.id, domainEntity.id));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A database conflict occurred while updating the organization.'
         );

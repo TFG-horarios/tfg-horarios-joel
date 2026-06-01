@@ -1,7 +1,7 @@
 import { eq, and, desc, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   schedulesTable,
   type DrizzleSchedule,
@@ -148,7 +148,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         .insert(schedulesTable)
         .values(this.mapToPersistence(schedule));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A schedule generation is already in progress or exists for this scope.'
         );
@@ -210,7 +210,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         }
       });
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'A schedule generation is already in progress or exists for this scope.'
         );

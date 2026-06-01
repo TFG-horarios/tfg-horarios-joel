@@ -12,12 +12,10 @@ describe('CreateSubjectGroupUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const subjectProviderMock = {
-    getAvailableShifts: mock(),
-  };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const subjectProviderMock = { getAvailableShifts: mock() };
+  const memberProviderMock = { getMemberRole: mock() };
+
   const useCase = new CreateSubjectGroupUseCase(
     repositoryMock,
     subjectProviderMock,
@@ -25,12 +23,8 @@ describe('CreateSubjectGroupUseCase', () => {
   );
 
   test('should create group successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (
-      subjectProviderMock.getAvailableShifts as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(['morning']);
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
     const dto = {
       name: 'T1',
       groupType: 'theory' as const,
@@ -45,12 +39,8 @@ describe('CreateSubjectGroupUseCase', () => {
   });
 
   test('should throw ValidationError if shift not available', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
-    (
-      subjectProviderMock.getAvailableShifts as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(['afternoon']);
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['afternoon']);
     const dto = {
       name: 'T1',
       groupType: 'theory' as const,

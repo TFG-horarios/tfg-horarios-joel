@@ -1,7 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   subjectsTable,
   type DrizzleSubject,
@@ -87,7 +87,7 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
         .insert(subjectsTable)
         .values(this.mapToPersistence(subject));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Una asignatura con el código '${subject.code}' ya existe en esta organización`
         );
@@ -102,7 +102,7 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     try {
       await this.database.insert(subjectsTable).values(valuesToInsert);
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'Una o más asignaturas con el mismo código ya existen en esta organización'
         );
@@ -135,7 +135,7 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
           )
         );
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           `Una asignatura con el código '${subject.code}' ya existe en esta organización`
         );

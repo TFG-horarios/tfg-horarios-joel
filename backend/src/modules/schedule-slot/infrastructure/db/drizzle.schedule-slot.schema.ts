@@ -8,7 +8,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { schedulesTable } from '@/modules/schedule/infrastructure/db/drizzle.schedule.schema';
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
-import { classroom } from '@/modules/classroom/infrastructure/db/drizzle.classroom.schema';
+import { classroomsTable } from '@/modules/classroom/infrastructure/db/drizzle.classroom.schema';
 import { sql } from 'drizzle-orm';
 
 export const scheduleSlotsTable = pgTable(
@@ -21,7 +21,7 @@ export const scheduleSlotsTable = pgTable(
     subjectGroupId: uuid('subject_group_id')
       .notNull()
       .references(() => subjectGroupsTable.id, { onDelete: 'restrict' }),
-    classroomId: uuid('classroom_id').references(() => classroom.id, {
+    classroomId: uuid('classroom_id').references(() => classroomsTable.id, {
       onDelete: 'restrict',
     }),
     dayOfWeek: integer('day_of_week'),

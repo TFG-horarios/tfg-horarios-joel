@@ -11,18 +11,16 @@ describe('BulkCreateSubjectUseCase', () => {
     update: mock(),
     delete: mock(),
   };
-  const memberProviderMock = {
-    getMemberRole: mock(),
-  };
+
+  const memberProviderMock = { getMemberRole: mock() };
+
   const useCase = new BulkCreateSubjectUseCase(
     repositoryMock,
     memberProviderMock
   );
 
   test('should bulk create subjects successfully', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('admin');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const dtos = [
       {
         name: 'Math',
@@ -75,9 +73,7 @@ describe('BulkCreateSubjectUseCase', () => {
   });
 
   test('should throw ForbiddenError if lacking permission', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const dtos = [
       {
         name: 'Math',

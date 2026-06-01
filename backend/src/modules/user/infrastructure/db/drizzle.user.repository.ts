@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import { usersTable, type DrizzleUser } from './drizzle.user.schema';
 import { type IUserRepository } from '../../domain/user.repository';
 import { User } from '../../domain/user.entity';
@@ -54,7 +54,7 @@ export class DrizzleUserRepository implements IUserRepository {
         updatedAt: user.updatedAt,
       });
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError('A user with this email already exists.');
       }
       throw error;
@@ -70,7 +70,7 @@ export class DrizzleUserRepository implements IUserRepository {
         })
         .where(eq(usersTable.id, user.id));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError('A user with this email already exists.');
       }
       throw error;

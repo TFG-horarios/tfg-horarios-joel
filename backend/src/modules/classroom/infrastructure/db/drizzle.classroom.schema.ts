@@ -12,7 +12,7 @@ import { sql } from 'drizzle-orm';
 
 export const classroomTypeEnum = pgEnum('classroom_type', ['theory', 'lab']);
 
-export const classroom = pgTable(
+export const classroomsTable = pgTable(
   'classroom',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -36,5 +36,5 @@ export const classroom = pgTable(
   ]
 );
 
-export type DrizzleClassroom = typeof classroom.$inferSelect;
-export type DrizzleNewClassroom = typeof classroom.$inferInsert;
+export type DrizzleClassroom = typeof classroomsTable.$inferSelect;
+export type DrizzleNewClassroom = typeof classroomsTable.$inferInsert;

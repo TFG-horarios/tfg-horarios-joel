@@ -32,7 +32,6 @@ describe('ListMembersUseCase', () => {
     repositoryMock.findByOrganizationId.mockResolvedValueOnce([
       { member, userName: 'John Doe', userEmail: 'john@example.com' },
     ]);
-
     const result = await useCase.execute('org-1', 'user-1');
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('member-1');

@@ -8,7 +8,6 @@ describe('JwtService', () => {
     const payload = { id: 'u-1', name: 'John', email: 'j@e.com' };
     const token = await service.generate(payload);
     expect(token).toBeString();
-
     const decoded = await service.validate(token);
     expect(decoded?.id).toBe(payload.id);
     expect(decoded?.name).toBe(payload.name);

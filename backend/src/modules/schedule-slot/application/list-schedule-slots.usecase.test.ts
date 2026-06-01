@@ -28,22 +28,15 @@ describe('ListScheduleSlotsUseCase', () => {
       subjectGroupId: 'sg-1',
       duration: 2,
     });
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce('viewer');
-    (
-      repositoryMock.findByScheduleId as ReturnType<typeof mock>
-    ).mockResolvedValueOnce([slot]);
-
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
     const result = await useCase.execute('org-1', 'user-1', 'sch-1');
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe(slot.id);
   });
 
   test('should throw ForbiddenError if user has no role', async () => {
-    (
-      memberProviderMock.getMemberRole as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(null);
+    memberProviderMock.getMemberRole.mockResolvedValueOnce(null);
     expect(useCase.execute('org-1', 'user-1', 'sch-1')).rejects.toThrow(
       ForbiddenError
     );

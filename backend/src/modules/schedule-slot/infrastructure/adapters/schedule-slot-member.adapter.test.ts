@@ -15,17 +15,15 @@ describe('ScheduleSlotMemberAdapter', () => {
   const adapter = new ScheduleSlotMemberAdapter(memberRepositoryMock);
 
   test('should return null if member is not found', async () => {
-    (
-      memberRepositoryMock.findByUserAndOrg as ReturnType<typeof mock>
-    ).mockResolvedValueOnce(null);
+    memberRepositoryMock.findByUserAndOrg.mockResolvedValueOnce(null);
     const result = await adapter.getMemberRole('user-1', 'org-1');
     expect(result).toBeNull();
   });
 
   test('should return member role if member is found', async () => {
-    (
-      memberRepositoryMock.findByUserAndOrg as ReturnType<typeof mock>
-    ).mockResolvedValueOnce({ role: 'admin' });
+    memberRepositoryMock.findByUserAndOrg.mockResolvedValueOnce({
+      role: 'admin',
+    });
     const result = await adapter.getMemberRole('user-1', 'org-1');
     expect(result).toBe('admin');
   });

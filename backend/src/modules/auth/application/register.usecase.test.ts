@@ -7,14 +7,17 @@ describe('RegisterUseCase', () => {
     findByEmail: mock(),
     create: mock(),
   };
+
   const tokenServiceMock = {
     generate: mock(),
     validate: mock(),
   };
+
   const passwordHasherServiceMock = {
     hash: mock(),
     verify: mock(),
   };
+
   const useCase = new RegisterUseCase(
     authUserRepositoryMock,
     tokenServiceMock,
@@ -32,7 +35,6 @@ describe('RegisterUseCase', () => {
     };
     authUserRepositoryMock.create.mockResolvedValueOnce(user);
     tokenServiceMock.generate.mockResolvedValueOnce('token');
-
     const result = await useCase.execute({
       name: 'John',
       email: 'j@e.com',

@@ -12,7 +12,7 @@ jobs:
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      DATABASE_URL: "postgres://root:rootpassword@localhost:5432/tfg_test_db"
+      DATABASE_URL: "postgres://dummy_user:dummy_pass@localhost:5432/dummy_db"
       FRONTEND_URL: "http://localhost:3000"
       JWT_SECRET: "super_secret_dummy_key_for_testing_purposes"
       JWT_EXPIRES_IN_SECONDS: "86400"
@@ -31,8 +31,13 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run Tests & Generate Coverage
-        run: bun run test:ci
+      - name: Run Backend Tests & Coverage
+        run: bun run test:coverage
+        working-directory: ./backend
+
+      - name: Run Frontend Tests & Coverage
+        run: bun run test:coverage 
+        working-directory: ./frontend
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6

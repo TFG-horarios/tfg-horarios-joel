@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
-import { isPostgresError } from '@/core/db/db-errors';
+import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   scheduleSlotsTable,
   type DrizzleScheduleSlot,
@@ -59,9 +59,18 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   }
 
   async create(slot: ScheduleSlot): Promise<void> {
-    await this.database
-      .insert(scheduleSlotsTable)
-      .values(this.mapToPersistence(slot));
+    try {
+      await this.database
+        .insert(scheduleSlotsTable)
+        .values(this.mapToPersistence(slot));
+    } catch (error: unknown) {
+      if (getPostgresErrorCode(error) === '23505') {
+        throw new ConflictError(
+          'This classroom is already assigned to another subject at this time in this schedule.'
+        );
+      }
+      throw error;
+    }
   }
 
   async createMany(slots: ScheduleSlot[]): Promise<void> {
@@ -84,7 +93,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
         })
         .where(eq(scheduleSlotsTable.id, slot.id));
     } catch (error: unknown) {
-      if (isPostgresError(error) && error.code === '23505') {
+      if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
           'This classroom is already assigned to another subject at this time in this schedule.'
         );
