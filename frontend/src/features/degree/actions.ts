@@ -7,6 +7,7 @@ import {
   SaveDegreeBodySchema,
   type DegreeDTO,
   type SaveDegreeDTO,
+  type DegreeIdentifierDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
@@ -215,5 +216,28 @@ export async function deleteAllDegreesAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getDegreeIdentifiersAction(
+  organizationId: string
+): Promise<DegreeIdentifierDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.degrees.identifiers.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch degree identifiers');
+    }
+
+    const payload = await response.json();
+    return payload;
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Degree Identifiers):', error);
+    return [];
   }
 }

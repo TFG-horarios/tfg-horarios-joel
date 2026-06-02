@@ -74,6 +74,25 @@ describe('DrizzleItineraryRepository Integration', () => {
     expect(foundItineraries.map((i) => i.id)).toContain(itinerary2.id);
   });
 
+  test('should find identifiers of itineraries in an organization', async () => {
+    const itinerary1 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'Path 1',
+      code: 'ID1',
+    });
+    const itinerary2 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'Path 2',
+      code: 'ID2',
+    });
+    await repository.createMany([itinerary1, itinerary2]);
+    const identifiers = await repository.findIdentifiers(testOrgId);
+    expect(identifiers).toContain('ID1');
+    expect(identifiers).toContain('ID2');
+  });
+
   test('should throw ConflictError on duplicate itinerary code', async () => {
     const itinerary = createValidItinerary();
     await repository.create(itinerary);

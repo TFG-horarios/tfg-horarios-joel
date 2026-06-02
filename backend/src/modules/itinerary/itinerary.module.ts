@@ -10,6 +10,7 @@ import { UpdateItineraryUseCase } from './application/update-itinerary.usecase';
 import { DeleteItineraryUseCase } from './application/delete-itinerary.usecase';
 import { DeleteAllItinerariesUseCase } from './application/delete-all-itineraries.usecase';
 import { ReplaceItinerariesUseCase } from './application/replace-itineraries.usecase';
+import { GetItineraryIdentifiersUseCase } from './application/get-itinerary-identifiers.usecase';
 import { HonoItineraryController } from './infrastructure/http/hono.itinerary.controller';
 import {
   createItineraryRoute,
@@ -20,6 +21,7 @@ import {
   deleteItineraryRoute,
   deleteAllItinerariesRoute,
   replaceItinerariesRoute,
+  getItineraryIdentifiersRoute,
 } from './infrastructure/http/hono.itinerary.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ItineraryMemberAdapter } from './infrastructure/adapters/itinerary-member.adapter';
@@ -39,12 +41,14 @@ export const createItineraryModule = (
     new UpdateItineraryUseCase(itineraryRepository, memberProvider),
     new DeleteItineraryUseCase(itineraryRepository, memberProvider),
     new DeleteAllItinerariesUseCase(itineraryRepository, memberProvider),
-    new ReplaceItinerariesUseCase(itineraryRepository, memberProvider)
+    new ReplaceItinerariesUseCase(itineraryRepository, memberProvider),
+    new GetItineraryIdentifiersUseCase(itineraryRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(listItinerariesRoute, controller.list)
+    .openapi(getItineraryIdentifiersRoute, controller.getIdentifiers)
     .openapi(getItineraryRoute, controller.get)
     .openapi(createItineraryRoute, controller.create)
     .openapi(bulkCreateItinerariesRoute, controller.bulkCreate)

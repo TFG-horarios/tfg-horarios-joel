@@ -18,6 +18,13 @@ export const DegreeSchema = z
   })
   .openapi('Degree');
 
+export const DegreeIdentifierSchema = z
+  .object({
+    name: z.string(),
+    code: z.string(),
+  })
+  .openapi('DegreeIdentifier');
+
 export const DegreeBaseParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -43,3 +50,4 @@ export type DegreeDTO = z.infer<typeof DegreeSchema>;
 export type DegreeBaseParamDTO = z.infer<typeof DegreeBaseParamSchema>;
 export type DegreeIdParamDTO = z.infer<typeof DegreeIdParamSchema>;
 export type SaveDegreeDTO = z.infer<typeof SaveDegreeBodySchema>;
+export type DegreeIdentifierDTO = z.infer<typeof DegreeIdentifierSchema>;

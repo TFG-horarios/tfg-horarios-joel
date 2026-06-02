@@ -9,6 +9,7 @@ import {
 } from './drizzle.itinerary.schema';
 import type { IItineraryRepository } from '../../domain/itinerary.repository';
 import { Itinerary } from '../../domain/itinerary.entity';
+import type { ItineraryIdentifierDTO } from '@tfg-horarios/shared';
 
 export class DrizzleItineraryRepository implements IItineraryRepository {
   constructor(private readonly database: DbConnection) {}
@@ -68,6 +69,21 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
         )
       );
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findIdentifiers(
+    organizationId: string
+  ): Promise<ItineraryIdentifierDTO[]> {
+    const rows = await this.database
+      .select({ code: itinerariesTable.code })
+      .from(itinerariesTable)
+      .where(
+        and(
+          eq(itinerariesTable.organizationId, organizationId),
+          isNull(itinerariesTable.deletedAt)
+        )
+      );
+    return rows.map((r) => r.code);
   }
 
   async create(itinerary: Itinerary): Promise<void> {

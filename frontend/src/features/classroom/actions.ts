@@ -7,6 +7,7 @@ import {
   SaveClassroomBodySchema,
   type SaveClassroomDTO,
   type ClassroomDTO,
+  type ClassroomIdentifierDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 
@@ -149,5 +150,28 @@ export async function deleteAllClassroomsAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getClassroomIdentifiersAction(
+  organizationId: string
+): Promise<ClassroomIdentifierDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms.identifiers.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch classroom identifiers');
+    }
+
+    const payload = await response.json();
+    return payload;
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Aulas Identifiers):', error);
+    return [];
   }
 }

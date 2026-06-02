@@ -29,6 +29,8 @@ export const SubjectSchema = z
   })
   .openapi('Subject');
 
+export const SubjectIdentifierSchema = z.string().openapi('SubjectIdentifier');
+
 export const SubjectListParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -74,3 +76,4 @@ export const BulkSaveSubjectBodySchema = SaveSubjectBodySchema.extend({
 export type SubjectDTO = z.infer<typeof SubjectSchema>;
 export type SaveSubjectDTO = z.infer<typeof SaveSubjectBodySchema>;
 export type BulkSaveSubjectDTO = z.infer<typeof BulkSaveSubjectBodySchema>;
+export type SubjectIdentifierDTO = z.infer<typeof SubjectIdentifierSchema>;

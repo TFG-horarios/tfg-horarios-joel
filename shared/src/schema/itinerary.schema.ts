@@ -21,6 +21,10 @@ export const ItinerarySchema = z
   })
   .openapi('Itinerary');
 
+export const ItineraryIdentifierSchema = z
+  .string()
+  .openapi('ItineraryIdentifier');
+
 export const ItineraryBaseParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -65,3 +69,4 @@ export type ItineraryCreateParamDTO = z.infer<
 >;
 export type SaveItineraryDTO = z.infer<typeof SaveItineraryBodySchema>;
 export type BulkSaveItineraryDTO = z.infer<typeof BulkSaveItineraryBodySchema>;
+export type ItineraryIdentifierDTO = z.infer<typeof ItineraryIdentifierSchema>;

@@ -1,8 +1,10 @@
-import { Subject } from './subject.entity';
+import type { Subject } from './subject.entity';
+import type { SubjectIdentifierDTO } from '@tfg-horarios/shared';
 
 export interface ISubjectRepository {
   findById(id: string, organizationId: string): Promise<Subject | null>;
   findAll(organizationId: string): Promise<Subject[]>;
+  findIdentifiers(organizationId: string): Promise<SubjectIdentifierDTO[]>;
   create(subject: Subject): Promise<void>;
   createMany(subjects: Subject[]): Promise<void>;
   update(subject: Subject): Promise<void>;

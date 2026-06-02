@@ -18,6 +18,7 @@ import {
   type GroupType,
   type Shift,
 } from '../../domain/subject-group.entity';
+import type { SubjectGroupIdentifierDTO } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
   constructor(private readonly database: DbConnection) {}
@@ -85,6 +86,34 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
         )
       );
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findIdentifiers(
+    organizationId: string
+  ): Promise<SubjectGroupIdentifierDTO[]> {
+    const rows = await this.database
+      .select({
+        subjectId: subjectGroupsTable.subjectId,
+        shift: subjectGroupsTable.shift,
+        groupType: subjectGroupsTable.groupType,
+        weeklyHours: subjectGroupsTable.weeklyHours,
+        groupNumber: subjectGroupsTable.groupNumber,
+      })
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+
+    return rows.map((r) => ({
+      subjectId: r.subjectId,
+      shift: r.shift as 'morning' | 'afternoon',
+      groupType: r.groupType as 'theory' | 'problems' | 'practices',
+      weeklyHours: Number(r.weeklyHours),
+      groupNumber: r.groupNumber,
+    }));
   }
 
   async create(subjectGroup: SubjectGroup): Promise<void> {

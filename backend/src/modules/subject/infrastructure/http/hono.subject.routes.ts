@@ -7,6 +7,7 @@ import {
   SubjectIdParamSchema,
   SaveSubjectBodySchema,
   BulkSaveSubjectBodySchema,
+  SubjectIdentifierSchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectsRoute = createRoute({
@@ -17,6 +18,23 @@ export const listSubjectsRoute = createRoute({
     200: {
       description: 'Subjects list',
       content: { 'application/json': { schema: z.array(SubjectSchema) } },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getSubjectIdentifiersRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/subjects/identifiers',
+  request: { params: SubjectListParamSchema },
+  responses: {
+    200: {
+      description: 'Subject identifiers',
+      content: {
+        'application/json': {
+          schema: z.array(SubjectIdentifierSchema),
+        },
+      },
     },
     403: { description: 'Forbidden' },
   },

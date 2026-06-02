@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 import {
   SaveSubjectGroupBodySchema,
   type SubjectDTO,
-  type SubjectGroupDTO,
 } from '@tfg-horarios/shared';
 import {
   bulkCreateSubjectGroups,
   replaceSubjectGroupsAction,
+  getSubjectGroupIdentifiersAction,
 } from '@/features/subject-group/actions';
 import {
   GenericBulkUploader,
@@ -25,7 +25,6 @@ type BulkSubjectGroupDTO = z.infer<typeof GlobalSubjectGroupCsvSchema>;
 interface Props {
   organizationId: string;
   subjects: SubjectDTO[];
-  existingGroups: SubjectGroupDTO[];
   mode?: 'append' | 'overwrite';
   onBeforeUpload?: (
     mode: 'append' | 'overwrite' | undefined,
@@ -36,15 +35,11 @@ interface Props {
 export function SubjectGroupBulkUploader({
   organizationId,
   subjects,
-  existingGroups,
   mode,
   onBeforeUpload,
 }: Props) {
   const t = useTranslations('Common.bulkUploaders.subjectGroups');
   const subjectMap = new Map(subjects.map((s) => [s.code.toLowerCase(), s]));
-  const existingSet = new Map(
-    existingGroups.map((g) => [`${g.subjectId}-${g.name.toLowerCase()}`, g])
-  );
 
   return (
     <GenericBulkUploader<BulkSubjectGroupDTO>
@@ -75,10 +70,31 @@ export function SubjectGroupBulkUploader({
         groupNumber: Number(row.groupNumber || 1),
       })}
       onAnalyze={async (validData) => {
+        let currentIdentifiers: {
+          subjectId: string;
+          shift: string;
+          groupType: string;
+          weeklyHours: number;
+          groupNumber: number;
+        }[];
+        try {
+          currentIdentifiers =
+            await getSubjectGroupIdentifiersAction(organizationId);
+        } catch (error) {
+          console.error('Error fetching identifiers:', error);
+          return { finalValidData: [], issues: [] };
+        }
+
+        const existingLogicalKeys = new Set(
+          currentIdentifiers.map(
+            (g) => `${g.subjectId}-${g.groupType}-${g.groupNumber}-${g.shift}`
+          )
+        );
+
         const issues: CsvRowIssue[] = [];
         let finalValidData: typeof validData = [];
 
-        const seenKeys = new Set<string>();
+        const seenLogicalKeys = new Set<string>();
 
         validData.forEach((row, idx) => {
           const subject = subjectMap.get(row.subjectCode.toLowerCase());
@@ -102,29 +118,34 @@ export function SubjectGroupBulkUploader({
             });
           } else if (
             mode !== 'overwrite' &&
-            existingSet.has(`${subject.id}-${row.name.toLowerCase()}`)
+            existingLogicalKeys.has(
+              `${subject.id}-${row.groupType}-${row.groupNumber}-${row.shift}`
+            )
           ) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',
               severity: 'warning',
-              column: 'name',
-              providedValue: row.name,
-              message: t('duplicate'),
+              column: 'groupNumber',
+              providedValue: row.groupNumber.toString(),
+              message:
+                'Ya existe un grupo con esta configuración (tipo, número y turno) para esta asignatura',
             });
           } else {
-            const key = `${subject.id}-${row.groupType}-${row.groupNumber}-${row.shift}`;
-            if (seenKeys.has(key)) {
+            const logicalKey = `${subject.id}-${row.groupType}-${row.groupNumber}-${row.shift}`;
+
+            if (seenLogicalKeys.has(logicalKey)) {
               issues.push({
                 rowNumber: idx + 2,
                 category: 'duplicate',
                 severity: 'warning',
-                column: 'name',
-                providedValue: row.name,
-                message: t('duplicate'),
+                column: 'groupNumber',
+                providedValue: row.groupNumber.toString(),
+                message:
+                  'Ya existe un grupo con esta configuración (tipo, número y turno) en el archivo',
               });
             } else {
-              seenKeys.add(key);
+              seenLogicalKeys.add(logicalKey);
               finalValidData.push(row);
             }
           }
@@ -141,7 +162,7 @@ export function SubjectGroupBulkUploader({
         >();
 
         if (mode !== 'overwrite') {
-          existingGroups.forEach((g) => {
+          currentIdentifiers.forEach((g) => {
             const key = `${g.subjectId}|${g.shift}`;
             if (!hoursBySubjectShift.has(key)) {
               hoursBySubjectShift.set(key, {

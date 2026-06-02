@@ -74,6 +74,25 @@ describe('DrizzleClassroomRepository Integration', () => {
     expect(foundClassrooms.map((c) => c.id)).toContain(classroom2.id);
   });
 
+  test('should find identifiers of classrooms in an organization', async () => {
+    const classroom1 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'ID-1',
+      capacity: 30,
+      type: 'theory',
+    });
+    const classroom2 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'ID-2',
+      capacity: 20,
+      type: 'lab',
+    });
+    await repository.createMany([classroom1, classroom2]);
+    const identifiers = await repository.findIdentifiers(testOrgId);
+    expect(identifiers).toContain('ID-1');
+    expect(identifiers).toContain('ID-2');
+  });
+
   test('should throw ConflictError on duplicate classroom name', async () => {
     const classroom = createValidClassroom();
     await repository.create(classroom);

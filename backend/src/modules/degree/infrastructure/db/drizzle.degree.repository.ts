@@ -9,6 +9,7 @@ import {
 } from './drizzle.degree.schema';
 import type { IDegreeRepository } from '../../domain/degree.repository';
 import { Degree } from '../../domain/degree.entity';
+import type { DegreeIdentifierDTO } from '@tfg-horarios/shared';
 
 export class DrizzleDegreeRepository implements IDegreeRepository {
   constructor(private readonly database: DbConnection) {}
@@ -63,6 +64,21 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
         )
       );
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findIdentifiers(
+    organizationId: string
+  ): Promise<DegreeIdentifierDTO[]> {
+    const rows = await this.database
+      .select({ name: degreesTable.name, code: degreesTable.code })
+      .from(degreesTable)
+      .where(
+        and(
+          eq(degreesTable.organizationId, organizationId),
+          isNull(degreesTable.deletedAt)
+        )
+      );
+    return rows;
   }
 
   async create(degree: Degree): Promise<void> {

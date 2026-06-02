@@ -12,6 +12,7 @@ import {
   deleteClassroomRoute,
   deleteAllClassroomsRoute,
   replaceClassroomsRoute,
+  getClassroomIdentifiersRoute,
 } from './hono.classroom.routes';
 
 describe('HonoClassroomController Integration', () => {
@@ -23,6 +24,7 @@ describe('HonoClassroomController Integration', () => {
   const deleteMock = { execute: mock() };
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
+  const getIdentifiersMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoClassroomController>;
   const controller = new HonoClassroomController(
@@ -33,13 +35,15 @@ describe('HonoClassroomController Integration', () => {
     getMock as unknown as Params[4],
     bulkCreateMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
-    replaceMock as unknown as Params[7]
+    replaceMock as unknown as Params[7],
+    getIdentifiersMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createClassroomRoute, controller.create);
   router.openapi(createManyClassroomsRoute, controller.createMany);
   router.openapi(replaceClassroomsRoute, controller.replace);
+  router.openapi(getClassroomIdentifiersRoute, controller.getIdentifiers);
   router.openapi(getClassroomRoute, controller.get);
   router.openapi(listClassroomsRoute, controller.list);
   router.openapi(updateClassroomRoute, controller.update);
@@ -108,6 +112,16 @@ describe('HonoClassroomController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: classroomId }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/classrooms/identifiers should return 200 with identifiers', async () => {
+    getIdentifiersMock.execute.mockResolvedValueOnce(['Test']);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/identifiers`
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(['Test']);
+    expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PUT /organizations/:organizationId/classrooms/:id should return 200', async () => {

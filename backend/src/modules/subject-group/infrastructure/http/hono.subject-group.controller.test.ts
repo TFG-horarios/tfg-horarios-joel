@@ -12,6 +12,7 @@ import {
   deleteSubjectGroupRoute,
   deleteAllSubjectGroupsRoute,
   replaceSubjectGroupsRoute,
+  getSubjectGroupIdentifiersRoute,
 } from './hono.subject-group.routes';
 
 describe('HonoSubjectGroupController Integration', () => {
@@ -23,6 +24,7 @@ describe('HonoSubjectGroupController Integration', () => {
   const deleteMock = { execute: mock() };
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
+  const getIdentifiersMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectGroupController>;
   const controller = new HonoSubjectGroupController(
@@ -33,11 +35,13 @@ describe('HonoSubjectGroupController Integration', () => {
     updateMock as unknown as Params[4],
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
-    replaceMock as unknown as Params[7]
+    replaceMock as unknown as Params[7],
+    getIdentifiersMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(listSubjectGroupsRoute, controller.list);
+  router.openapi(getSubjectGroupIdentifiersRoute, controller.getIdentifiers);
   router.openapi(getSubjectGroupRoute, controller.get);
   router.openapi(createSubjectGroupRoute, controller.create);
   router.openapi(bulkCreateSubjectGroupsRoute, controller.bulkCreate);
@@ -118,6 +122,31 @@ describe('HonoSubjectGroupController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: groupId }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/subject-groups/identifiers should return 200', async () => {
+    getIdentifiersMock.execute.mockResolvedValueOnce([
+      {
+        subjectId: '1',
+        shift: 'morning',
+        groupType: 'theory',
+        weeklyHours: 2,
+        groupNumber: 1,
+      },
+    ]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/subject-groups/identifiers`,
+      {
+        headers: { Authorization: `Bearer testToken` },
+      }
+    );
+    if (res.status !== 200) {
+      console.log('Error text:', await res.text());
+    }
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PATCH /organizations/:organizationId/subject-groups/:id should return 200', async () => {

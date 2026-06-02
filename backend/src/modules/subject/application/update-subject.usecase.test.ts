@@ -7,6 +7,7 @@ describe('UpdateSubjectUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),
     update: mock(),

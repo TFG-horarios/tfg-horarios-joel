@@ -54,7 +54,6 @@ export default async function OrganizationSubjectsPage({
         <ResourceToolbar search={<div />} filters={undefined} />
         <SubjectActions
           organizationId={id}
-          existingSubjects={subjects}
           degrees={degrees}
           itineraries={itineraries}
         />

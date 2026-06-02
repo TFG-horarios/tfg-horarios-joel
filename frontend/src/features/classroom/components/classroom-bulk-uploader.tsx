@@ -3,12 +3,12 @@
 import { useTranslations } from 'next-intl';
 import {
   SaveClassroomBodySchema,
-  type ClassroomDTO,
   type SaveClassroomDTO,
 } from '@tfg-horarios/shared';
 import {
   bulkCreateClassrooms,
   replaceClassroomsAction,
+  getClassroomIdentifiersAction,
 } from '@/features/classroom/actions';
 import {
   GenericBulkUploader,
@@ -17,7 +17,6 @@ import {
 
 interface ClassroomBulkUploaderProps {
   organizationId: string;
-  existingClassrooms: ClassroomDTO[];
   mode?: 'append' | 'overwrite';
   onBeforeUpload?: (
     mode: 'append' | 'overwrite' | undefined,
@@ -27,14 +26,10 @@ interface ClassroomBulkUploaderProps {
 
 export function ClassroomBulkUploader({
   organizationId,
-  existingClassrooms,
   mode,
   onBeforeUpload,
 }: ClassroomBulkUploaderProps) {
   const t = useTranslations('Common.bulkUploaders.classrooms');
-  const existingNames = new Set(
-    existingClassrooms.map((c) => c.name.toLowerCase())
-  );
 
   return (
     <GenericBulkUploader<SaveClassroomDTO>
@@ -51,14 +46,16 @@ export function ClassroomBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const identifiers = await getClassroomIdentifiersAction(organizationId);
+        const existingNames = new Set(
+          identifiers.map((name) => name.toLowerCase())
+        );
+
         const seenNames = new Set<string>();
 
         validData.forEach((row, idx) => {
           const nameLower = row.name.toLowerCase();
-          if (
-            mode !== 'overwrite' &&
-            existingNames.has(nameLower)
-          ) {
+          if (mode !== 'overwrite' && existingNames.has(nameLower)) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',

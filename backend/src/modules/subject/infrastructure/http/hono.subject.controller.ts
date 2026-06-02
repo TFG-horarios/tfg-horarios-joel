@@ -15,9 +15,11 @@ import type {
   deleteSubjectRoute,
   deleteAllSubjectsRoute,
   replaceSubjectsRoute,
+  getSubjectIdentifiersRoute,
 } from './hono.subject.routes';
 import type { DeleteAllSubjectsUseCase } from '../../application/delete-all-subjects.usecase';
 import type { ReplaceSubjectsUseCase } from '../../application/replace-subjects.usecase';
+import type { GetSubjectIdentifiersUseCase } from '../../application/get-subject-identifiers.usecase';
 
 export class HonoSubjectController {
   constructor(
@@ -28,7 +30,8 @@ export class HonoSubjectController {
     private readonly updateUseCase: UpdateSubjectUseCase,
     private readonly deleteUseCase: DeleteSubjectUseCase,
     private readonly deleteAllUseCase: DeleteAllSubjectsUseCase,
-    private readonly replaceUseCase: ReplaceSubjectsUseCase
+    private readonly replaceUseCase: ReplaceSubjectsUseCase,
+    private readonly getIdentifiersUseCase: GetSubjectIdentifiersUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectsRoute, AppEnv> = async (c) => {
@@ -39,6 +42,16 @@ export class HonoSubjectController {
     );
     return c.json(result, 200);
   };
+
+  getIdentifiers: RouteHandler<typeof getSubjectIdentifiersRoute, AppEnv> =
+    async (c) => {
+      const { organizationId } = c.req.valid('param');
+      const identifiers = await this.getIdentifiersUseCase.execute(
+        organizationId,
+        c.get('userId')
+      );
+      return c.json(identifiers, 200);
+    };
 
   create: RouteHandler<typeof createSubjectRoute, AppEnv> = async (c) => {
     const { organizationId, degreeId } = c.req.valid('param');

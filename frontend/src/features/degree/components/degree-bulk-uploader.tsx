@@ -1,14 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import {
-  SaveDegreeBodySchema,
-  type DegreeDTO,
-  type SaveDegreeDTO,
-} from '@tfg-horarios/shared';
+import { SaveDegreeBodySchema, type SaveDegreeDTO } from '@tfg-horarios/shared';
 import {
   bulkCreateDegrees,
   replaceDegreesAction,
+  getDegreeIdentifiersAction,
 } from '@/features/degree/actions';
 import {
   GenericBulkUploader,
@@ -17,7 +14,6 @@ import {
 
 interface DegreeBulkUploaderProps {
   organizationId: string;
-  existingDegrees: DegreeDTO[];
   mode?: 'append' | 'overwrite';
   onBeforeUpload?: (
     mode: 'append' | 'overwrite' | undefined,
@@ -27,17 +23,10 @@ interface DegreeBulkUploaderProps {
 
 export function DegreeBulkUploader({
   organizationId,
-  existingDegrees,
   mode,
   onBeforeUpload,
 }: DegreeBulkUploaderProps) {
   const t = useTranslations('Common.bulkUploaders.degrees');
-  const existingCodes = new Set(
-    existingDegrees.map((d) => d.code.toLowerCase())
-  );
-  const existingNames = new Set(
-    existingDegrees.map((d) => d.name.toLowerCase())
-  );
 
   return (
     <GenericBulkUploader<SaveDegreeDTO>
@@ -53,16 +42,21 @@ export function DegreeBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const identifiers = await getDegreeIdentifiersAction(organizationId);
+        const existingCodes = new Set(
+          identifiers.map((d) => d.code.toLowerCase())
+        );
+        const existingNames = new Set(
+          identifiers.map((d) => d.name.toLowerCase())
+        );
+
         const seenCodes = new Set<string>();
         const seenNames = new Set<string>();
 
         validData.forEach((row, idx) => {
           const codeLower = row.code.toLowerCase();
           const nameLower = row.name.toLowerCase();
-          if (
-            mode !== 'overwrite' &&
-            existingCodes.has(codeLower)
-          ) {
+          if (mode !== 'overwrite' && existingCodes.has(codeLower)) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',
@@ -71,10 +65,7 @@ export function DegreeBulkUploader({
               providedValue: row.code,
               message: t('duplicateCode', { code: row.code }),
             });
-          } else if (
-            mode !== 'overwrite' &&
-            existingNames.has(nameLower)
-          ) {
+          } else if (mode !== 'overwrite' && existingNames.has(nameLower)) {
             issues.push({
               rowNumber: idx + 2,
               category: 'duplicate',

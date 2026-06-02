@@ -7,6 +7,7 @@ import {
   BulkSaveItineraryBodySchema,
   ItineraryIdParamSchema,
   ItineraryCreateParamSchema,
+  ItineraryIdentifierSchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
@@ -17,6 +18,23 @@ export const listItinerariesRoute = createRoute({
     200: {
       description: 'Itinerary list',
       content: { 'application/json': { schema: z.array(ItinerarySchema) } },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getItineraryIdentifiersRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/itineraries/identifiers',
+  request: { params: ItineraryBaseParamSchema },
+  responses: {
+    200: {
+      description: 'Itinerary identifiers',
+      content: {
+        'application/json': {
+          schema: z.array(ItineraryIdentifierSchema),
+        },
+      },
     },
     403: { description: 'Forbidden' },
   },

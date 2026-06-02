@@ -54,11 +54,7 @@ export default async function OrganizationSubjectGroupsPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar search={<div />} filters={undefined} />
-        <SubjectGroupActions
-          organizationId={id}
-          existingGroups={groups}
-          subjects={subjects}
-        />
+        <SubjectGroupActions organizationId={id} subjects={subjects} />
       </div>
       <ResourceGrid
         items={groups}

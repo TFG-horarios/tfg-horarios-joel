@@ -1,8 +1,10 @@
-import { Itinerary } from './itinerary.entity';
+import type { Itinerary } from './itinerary.entity';
+import type { ItineraryIdentifierDTO } from '@tfg-horarios/shared';
 
 export interface IItineraryRepository {
   findById(id: string, organizationId: string): Promise<Itinerary | null>;
   findAll(organizationId: string): Promise<Itinerary[]>;
+  findIdentifiers(organizationId: string): Promise<ItineraryIdentifierDTO[]>;
   create(itinerary: Itinerary): Promise<void>;
   createMany(itineraries: Itinerary[]): Promise<void>;
   update(itinerary: Itinerary): Promise<void>;

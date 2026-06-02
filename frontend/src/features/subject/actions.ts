@@ -5,6 +5,7 @@ import {
   type SubjectDTO,
   type SaveSubjectDTO,
   type BulkSaveSubjectDTO,
+  type SubjectIdentifierDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate';
@@ -218,5 +219,28 @@ export async function deleteAllSubjectsAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getSubjectIdentifiersAction(
+  organizationId: string
+): Promise<SubjectIdentifierDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.subjects.identifiers.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch subject identifiers');
+    }
+
+    const payload = await response.json();
+    return payload;
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Subjects Identifiers):', error);
+    return [];
   }
 }

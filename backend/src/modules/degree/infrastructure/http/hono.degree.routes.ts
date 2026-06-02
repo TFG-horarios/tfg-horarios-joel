@@ -5,6 +5,7 @@ import {
   DegreeBaseParamSchema,
   DegreeIdParamSchema,
   SaveDegreeBodySchema,
+  DegreeIdentifierSchema,
 } from '@tfg-horarios/shared';
 
 export const listDegreesRoute = createRoute({
@@ -15,6 +16,23 @@ export const listDegreesRoute = createRoute({
     200: {
       description: 'Listado de grados',
       content: { 'application/json': { schema: z.array(DegreeSchema) } },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getDegreeIdentifiersRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/degrees/identifiers',
+  request: { params: DegreeBaseParamSchema },
+  responses: {
+    200: {
+      description: 'Degree identifiers',
+      content: {
+        'application/json': {
+          schema: z.array(DegreeIdentifierSchema),
+        },
+      },
     },
     403: { description: 'Forbidden' },
   },

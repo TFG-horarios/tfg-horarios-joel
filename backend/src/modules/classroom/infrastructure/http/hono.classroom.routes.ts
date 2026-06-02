@@ -5,6 +5,7 @@ import {
   SaveClassroomBodySchema,
   ClassroomBaseParamSchema,
   ClassroomIdParamSchema,
+  ClassroomIdentifierSchema,
 } from '@tfg-horarios/shared';
 
 export const listClassroomsRoute = createRoute({
@@ -15,6 +16,23 @@ export const listClassroomsRoute = createRoute({
     200: {
       description: 'Classroom list',
       content: { 'application/json': { schema: z.array(ClassroomSchema) } },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getClassroomIdentifiersRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classrooms/identifiers',
+  request: { params: ClassroomBaseParamSchema },
+  responses: {
+    200: {
+      description: 'Classroom identifiers',
+      content: {
+        'application/json': {
+          schema: z.array(ClassroomIdentifierSchema),
+        },
+      },
     },
     403: { description: 'Forbidden' },
   },

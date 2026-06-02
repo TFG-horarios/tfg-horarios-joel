@@ -90,6 +90,39 @@ describe('DrizzleSubjectRepository Integration', () => {
     expect(foundSubjects.map((s) => s.id)).toContain(subject2.id);
   });
 
+  test('should find identifiers of subjects in an organization', async () => {
+    const subject1 = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: testItineraryId,
+      name: 'Subject 1',
+      code: 'ID1',
+      availableShifts: ['morning'],
+      numberOfStudents: 50,
+      courseYear: 1,
+      period: 1,
+      weeklyHours: 4,
+      isCommon: false,
+    });
+    const subject2 = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: null,
+      name: 'Subject 2',
+      code: 'ID2',
+      availableShifts: ['afternoon'],
+      numberOfStudents: 60,
+      courseYear: 2,
+      period: 2,
+      weeklyHours: 3,
+      isCommon: true,
+    });
+    await repository.createMany([subject1, subject2]);
+    const identifiers = await repository.findIdentifiers(testOrgId);
+    expect(identifiers).toContain('ID1');
+    expect(identifiers).toContain('ID2');
+  });
+
   test('should throw ConflictError on duplicate subject code', async () => {
     const subject = createValidSubject();
     await repository.create(subject);

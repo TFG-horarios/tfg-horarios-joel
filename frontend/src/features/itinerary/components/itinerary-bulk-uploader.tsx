@@ -2,14 +2,11 @@
 
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
-import {
-  SaveItineraryBodySchema,
-  type DegreeDTO,
-  type ItineraryDTO,
-} from '@tfg-horarios/shared';
+import { SaveItineraryBodySchema, type DegreeDTO } from '@tfg-horarios/shared';
 import {
   bulkCreateItineraries,
   replaceItinerariesAction,
+  getItineraryIdentifiersAction,
 } from '@/features/itinerary/actions';
 import {
   GenericBulkUploader,
@@ -25,7 +22,6 @@ type BulkItineraryDTO = z.infer<typeof GlobalItineraryCsvSchema>;
 interface ItineraryBulkUploaderProps {
   organizationId: string;
   degrees: DegreeDTO[];
-  existingItineraries: ItineraryDTO[];
   mode?: 'append' | 'overwrite';
   onBeforeUpload?: (
     mode: 'append' | 'overwrite' | undefined,
@@ -36,16 +32,11 @@ interface ItineraryBulkUploaderProps {
 export function ItineraryBulkUploader({
   organizationId,
   degrees,
-  existingItineraries,
   mode,
   onBeforeUpload,
 }: ItineraryBulkUploaderProps) {
   const t = useTranslations('Common.bulkUploaders.itineraries');
   const degreeMap = new Map(degrees.map((d) => [d.code.toLowerCase(), d.id]));
-
-  const existingSet = new Set(
-    existingItineraries.map((i) => i.code.toLowerCase())
-  );
 
   return (
     <GenericBulkUploader<BulkItineraryDTO>
@@ -59,6 +50,20 @@ export function ItineraryBulkUploader({
         name: (row.name || '').trim(),
       })}
       onAnalyze={async (validData) => {
+        let currentIdentifiers: string[] = [];
+        try {
+          currentIdentifiers =
+            await getItineraryIdentifiersAction(organizationId);
+        } catch (error) {
+          console.error(
+            'Failed to fetch existing itinerary identifiers',
+            error
+          );
+        }
+        const existingSet = new Set(
+          currentIdentifiers.map((code) => code.toLowerCase())
+        );
+
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
@@ -81,8 +86,7 @@ export function ItineraryBulkUploader({
 
           const codeLower = row.code.toLowerCase();
           const isDuplicate =
-            mode !== 'overwrite' &&
-            existingSet.has(codeLower);
+            mode !== 'overwrite' && existingSet.has(codeLower);
           if (isDuplicate) {
             issues.push({
               rowNumber: idx + 2,

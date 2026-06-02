@@ -12,6 +12,7 @@ import {
   deleteDegreeRoute,
   deleteAllDegreesRoute,
   replaceDegreesRoute,
+  getDegreeIdentifiersRoute,
 } from './hono.degree.routes';
 
 describe('HonoDegreeController Integration', () => {
@@ -23,6 +24,7 @@ describe('HonoDegreeController Integration', () => {
   const deleteMock = { execute: mock() };
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
+  const getIdentifiersMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoDegreeController>;
   const controller = new HonoDegreeController(
@@ -33,12 +35,14 @@ describe('HonoDegreeController Integration', () => {
     updateMock as unknown as Params[4],
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
-    replaceMock as unknown as Params[7]
+    replaceMock as unknown as Params[7],
+    getIdentifiersMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createDegreeRoute, controller.create);
   router.openapi(bulkCreateDegreesRoute, controller.bulkCreate);
+  router.openapi(getDegreeIdentifiersRoute, controller.getIdentifiers);
   router.openapi(getDegreeRoute, controller.get);
   router.openapi(listDegreesRoute, controller.list);
   router.openapi(updateDegreeRoute, controller.update);
@@ -104,6 +108,18 @@ describe('HonoDegreeController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: degreeId }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/degrees/identifiers should return 200 with identifiers', async () => {
+    getIdentifiersMock.execute.mockResolvedValueOnce([
+      { name: 'Test', code: 'CS101' },
+    ]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/degrees/identifiers`
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([{ name: 'Test', code: 'CS101' }]);
+    expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PATCH /organizations/:organizationId/degrees/:id should return 200', async () => {

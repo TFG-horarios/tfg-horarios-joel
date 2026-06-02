@@ -9,6 +9,7 @@ import {
 } from './drizzle.subject.schema';
 import type { ISubjectRepository } from '../../domain/subject.repository';
 import { Subject, type Shift } from '../../domain/subject.entity';
+import type { SubjectIdentifierDTO } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectRepository implements ISubjectRepository {
   constructor(private readonly database: DbConnection) {}
@@ -79,6 +80,21 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
       .from(subjectsTable)
       .where(and(...conditions));
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findIdentifiers(
+    organizationId: string
+  ): Promise<SubjectIdentifierDTO[]> {
+    const rows = await this.database
+      .select({ code: subjectsTable.code })
+      .from(subjectsTable)
+      .where(
+        and(
+          eq(subjectsTable.organizationId, organizationId),
+          isNull(subjectsTable.deletedAt)
+        )
+      );
+    return rows.map((r) => r.code);
   }
 
   async create(subject: Subject): Promise<void> {

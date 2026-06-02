@@ -5,12 +5,12 @@ import { useTranslations } from 'next-intl';
 import {
   SaveSubjectBodySchema,
   type DegreeDTO,
-  type SubjectDTO,
   type ItineraryDTO,
 } from '@tfg-horarios/shared';
 import {
   bulkCreateSubjects,
   replaceSubjectsAction,
+  getSubjectIdentifiersAction,
 } from '@/features/subject/actions';
 import {
   GenericBulkUploader,
@@ -27,7 +27,6 @@ type BulkSubjectDTO = z.infer<typeof GlobalSubjectCsvSchema>;
 interface Props {
   organizationId: string;
   degrees: DegreeDTO[];
-  existingSubjects: SubjectDTO[];
   itineraries: ItineraryDTO[];
   mode?: 'append' | 'overwrite';
   onBeforeUpload?: (
@@ -39,16 +38,12 @@ interface Props {
 export function SubjectBulkUploader({
   organizationId,
   degrees,
-  existingSubjects,
   itineraries,
   mode,
   onBeforeUpload,
 }: Props) {
   const t = useTranslations('Common.bulkUploaders.subjects');
   const degreeMap = new Map(degrees.map((d) => [d.code.toLowerCase(), d.id]));
-  const existingCodes = new Set(
-    existingSubjects.map((s) => s.code.toLowerCase())
-  );
   const itineraryMap = new Map(
     itineraries.map((i) => [`${i.degreeId}-${i.code.toLowerCase()}`, i.id])
   );
@@ -85,6 +80,17 @@ export function SubjectBulkUploader({
         isCommon: String(row.isCommon).toLowerCase() === 'true',
       })}
       onAnalyze={async (validData) => {
+        let currentIdentifiers: string[] = [];
+        try {
+          currentIdentifiers =
+            await getSubjectIdentifiersAction(organizationId);
+        } catch (error) {
+          console.error('Failed to fetch existing subject identifiers', error);
+        }
+        const existingCodes = new Set(
+          currentIdentifiers.map((code) => code.toLowerCase())
+        );
+
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
@@ -135,10 +141,7 @@ export function SubjectBulkUploader({
 
           if (isRowValid) {
             const codeLower = row.code.toLowerCase();
-            if (
-              mode !== 'overwrite' &&
-              existingCodes.has(codeLower)
-            ) {
+            if (mode !== 'overwrite' && existingCodes.has(codeLower)) {
               issues.push({
                 rowNumber: idx + 2,
                 category: 'duplicate',

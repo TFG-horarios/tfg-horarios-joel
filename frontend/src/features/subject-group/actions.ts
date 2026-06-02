@@ -5,6 +5,7 @@ import {
   type SubjectGroupDTO,
   type SaveSubjectGroupDTO,
   type BulkSaveSubjectGroupDTO,
+  SubjectGroupIdentifierSchema,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/cache';
@@ -217,5 +218,30 @@ export async function deleteAllSubjectGroupsAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getSubjectGroupIdentifiersAction(organizationId: string) {
+  const t = await getTranslations('Common.errors');
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'subject-groups'
+    ].identifiers.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    return SubjectGroupIdentifierSchema.array().parse(payload);
+  } catch (error) {
+    console.error(
+      'ERROR EN EL SERVER ACTION (Get Subject Group Identifiers):',
+      error
+    );
+    throw error;
   }
 }

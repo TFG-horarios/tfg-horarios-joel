@@ -23,6 +23,16 @@ export const SubjectGroupSchema = z
   })
   .openapi('SubjectGroup');
 
+export const SubjectGroupIdentifierSchema = z
+  .object({
+    subjectId: z.string(),
+    shift: z.enum(['morning', 'afternoon']),
+    groupType: z.enum(['theory', 'problems', 'practices']),
+    weeklyHours: z.number(),
+    groupNumber: z.number(),
+  })
+  .openapi('SubjectGroupIdentifier');
+
 export const SubjectGroupBaseParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -73,4 +83,7 @@ export type SubjectGroupIdParamDTO = z.infer<typeof SubjectGroupIdParamSchema>;
 export type SaveSubjectGroupDTO = z.infer<typeof SaveSubjectGroupBodySchema>;
 export type BulkSaveSubjectGroupDTO = z.infer<
   typeof BulkSaveSubjectGroupBodySchema
+>;
+export type SubjectGroupIdentifierDTO = z.infer<
+  typeof SubjectGroupIdentifierSchema
 >;

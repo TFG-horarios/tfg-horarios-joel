@@ -15,9 +15,11 @@ import type {
   deleteDegreeRoute,
   deleteAllDegreesRoute,
   replaceDegreesRoute,
+  getDegreeIdentifiersRoute,
 } from './hono.degree.routes';
 import type { DeleteAllDegreesUseCase } from '../../application/delete-all-degrees.usecase';
 import type { ReplaceDegreesUseCase } from '../../application/replace-degrees.usecase';
+import type { GetDegreeIdentifiersUseCase } from '../../application/get-degree-identifiers.usecase';
 
 export class HonoDegreeController {
   constructor(
@@ -28,7 +30,8 @@ export class HonoDegreeController {
     private readonly updateDegreeUseCase: UpdateDegreeUseCase,
     private readonly deleteDegreeUseCase: DeleteDegreeUseCase,
     private readonly deleteAllDegreesUseCase: DeleteAllDegreesUseCase,
-    private readonly replaceDegreesUseCase: ReplaceDegreesUseCase
+    private readonly replaceDegreesUseCase: ReplaceDegreesUseCase,
+    private readonly getDegreeIdentifiersUseCase: GetDegreeIdentifiersUseCase
   ) {}
 
   list: RouteHandler<typeof listDegreesRoute, AppEnv> = async (c) => {
@@ -39,6 +42,16 @@ export class HonoDegreeController {
     );
     return c.json(degrees, 200);
   };
+
+  getIdentifiers: RouteHandler<typeof getDegreeIdentifiersRoute, AppEnv> =
+    async (c) => {
+      const { organizationId } = c.req.valid('param');
+      const identifiers = await this.getDegreeIdentifiersUseCase.execute(
+        organizationId,
+        c.get('userId')
+      );
+      return c.json(identifiers, 200);
+    };
 
   get: RouteHandler<typeof getDegreeRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');

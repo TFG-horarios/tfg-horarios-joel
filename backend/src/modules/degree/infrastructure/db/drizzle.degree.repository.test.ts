@@ -71,6 +71,23 @@ describe('DrizzleDegreeRepository Integration', () => {
     expect(foundDegrees.map((d) => d.id)).toContain(degree2.id);
   });
 
+  test('should find identifiers of degrees in an organization', async () => {
+    const degree1 = Degree.create({
+      organizationId: testOrgId,
+      name: 'ID-1',
+      code: 'C1',
+    });
+    const degree2 = Degree.create({
+      organizationId: testOrgId,
+      name: 'ID-2',
+      code: 'C2',
+    });
+    await repository.createMany([degree1, degree2]);
+    const identifiers = await repository.findIdentifiers(testOrgId);
+    expect(identifiers).toContainEqual({ name: 'ID-1', code: 'C1' });
+    expect(identifiers).toContainEqual({ name: 'ID-2', code: 'C2' });
+  });
+
   test('should throw ConflictError on duplicate degree code/name', async () => {
     const degree = createValidDegree();
     await repository.create(degree);

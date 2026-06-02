@@ -12,6 +12,7 @@ import {
   deleteSubjectRoute,
   deleteAllSubjectsRoute,
   replaceSubjectsRoute,
+  getSubjectIdentifiersRoute,
 } from './hono.subject.routes';
 
 describe('HonoSubjectController Integration', () => {
@@ -23,6 +24,7 @@ describe('HonoSubjectController Integration', () => {
   const deleteMock = { execute: mock() };
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
+  const getIdentifiersMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectController>;
   const controller = new HonoSubjectController(
@@ -33,12 +35,14 @@ describe('HonoSubjectController Integration', () => {
     updateMock as unknown as Params[4],
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
-    replaceMock as unknown as Params[7]
+    replaceMock as unknown as Params[7],
+    getIdentifiersMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createSubjectRoute, controller.create);
   router.openapi(bulkCreateSubjectsRoute, controller.bulkCreate);
+  router.openapi(getSubjectIdentifiersRoute, controller.getIdentifiers);
   router.openapi(getSubjectRoute, controller.get);
   router.openapi(listSubjectsRoute, controller.list);
   router.openapi(updateSubjectRoute, controller.update);
@@ -118,6 +122,20 @@ describe('HonoSubjectController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: subjectId }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/subjects/identifiers should return 200 with identifiers', async () => {
+    getIdentifiersMock.execute.mockResolvedValueOnce(['ID1']);
+    const res = await app.request(
+      `/api/organizations/${orgId}/subjects/identifiers`,
+      {
+        headers: { Authorization: `Bearer testToken` },
+      }
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PATCH /organizations/:organizationId/subjects/:id should return 200', async () => {

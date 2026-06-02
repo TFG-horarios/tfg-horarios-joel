@@ -92,6 +92,35 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
     expect(foundGroups.map((g) => g.id)).toContain(group2.id);
   });
 
+  test('should find identifiers of groups in an organization', async () => {
+    const group1 = SubjectGroup.create({
+      organizationId: testOrgId,
+      subjectId: testSubjectId,
+      name: 'T1',
+      groupType: 'theory',
+      shift: 'morning',
+      groupNumber: 1,
+      weeklyHours: 2,
+      numberOfStudents: 50,
+    });
+    const group2 = SubjectGroup.create({
+      organizationId: testOrgId,
+      subjectId: testSubjectId,
+      name: 'P1',
+      groupType: 'problems',
+      shift: 'morning',
+      groupNumber: 1,
+      weeklyHours: 2,
+      numberOfStudents: 25,
+    });
+    await repository.createMany([group1, group2]);
+    const identifiers = await repository.findIdentifiers(testOrgId);
+    expect(identifiers.length).toBe(3);
+    const subjectIds = identifiers.map((i) => i.subjectId);
+    expect(subjectIds).toContain(testSubjectId);
+    expect(subjectIds).toContain(testSubjectId);
+  });
+
   test('should throw ConflictError on duplicate type, number, and shift', async () => {
     const group = createValidGroup();
     await repository.create(group);

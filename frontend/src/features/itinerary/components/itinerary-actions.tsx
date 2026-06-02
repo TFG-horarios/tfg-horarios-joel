@@ -2,19 +2,17 @@
 
 import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
 import { ItineraryBulkUploader } from '@/features/itinerary/components/itinerary-bulk-uploader';
-import type { ItineraryDTO, DegreeDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
 import { deleteAllItinerariesAction } from '@/features/itinerary/actions';
 
 interface ItineraryActionsProps {
   organizationId: string;
-  existingItineraries: ItineraryDTO[];
   degrees: DegreeDTO[];
 }
 
 export function ItineraryActions({
   organizationId,
-  existingItineraries,
   degrees,
 }: ItineraryActionsProps) {
   const t = useTranslations('Organizations.itineraries.actions');
@@ -38,7 +36,6 @@ export function ItineraryActions({
         <ItineraryBulkUploader
           organizationId={organizationId}
           degrees={degrees}
-          existingItineraries={existingItineraries}
           mode="append"
         />
       }
@@ -46,7 +43,6 @@ export function ItineraryActions({
         <ItineraryBulkUploader
           organizationId={organizationId}
           degrees={degrees}
-          existingItineraries={existingItineraries}
           mode="overwrite"
         />
       }

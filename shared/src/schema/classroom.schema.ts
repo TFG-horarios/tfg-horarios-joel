@@ -15,6 +15,10 @@ export const ClassroomSchema = z
   })
   .openapi('Classroom');
 
+export const ClassroomIdentifierSchema = z
+  .string()
+  .openapi('ClassroomIdentifier');
+
 export const ClassroomBaseParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -37,3 +41,4 @@ export type ClassroomDTO = z.infer<typeof ClassroomSchema>;
 export type ClassroomBaseParamDTO = z.infer<typeof ClassroomBaseParamSchema>;
 export type ClassroomIdParamDTO = z.infer<typeof ClassroomIdParamSchema>;
 export type SaveClassroomDTO = z.infer<typeof SaveClassroomBodySchema>;
+export type ClassroomIdentifierDTO = z.infer<typeof ClassroomIdentifierSchema>;

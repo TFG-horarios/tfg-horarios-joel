@@ -13,10 +13,12 @@ import {
   createManyClassroomsRoute,
   deleteAllClassroomsRoute,
   replaceClassroomsRoute,
+  getClassroomIdentifiersRoute,
 } from './infrastructure/http/hono.classroom.routes';
 import { DeleteClassroomUseCase } from './application/delete-classroom.usecase';
 import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
 import { ListClassroomsUseCase } from './application/list-classroom.usecase';
+import { GetClassroomIdentifiersUseCase } from './application/get-classroom-identifiers.usecase';
 import { GetClassroomUseCase } from './application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from './application/bulk-create-classroom.usecase';
 import { DeleteAllClassroomsUseCase } from './application/delete-all-classrooms.usecase';
@@ -35,18 +37,27 @@ export const createClassroomModule = (
     classroomRepository,
     memberProvider
   );
+
   const listUseCase = new ListClassroomsUseCase(
     classroomRepository,
     memberProvider
   );
+
+  const getIdentifiersUseCase = new GetClassroomIdentifiersUseCase(
+    classroomRepository,
+    memberProvider
+  );
+
   const updateUseCase = new UpdateClassroomUseCase(
     classroomRepository,
     memberProvider
   );
+
   const deleteUseCase = new DeleteClassroomUseCase(
     classroomRepository,
     memberProvider
   );
+
   const getUseCase = new GetClassroomUseCase(
     classroomRepository,
     memberProvider
@@ -75,7 +86,8 @@ export const createClassroomModule = (
     getUseCase,
     createManyUseCase,
     deleteAllUseCase,
-    replaceUseCase
+    replaceUseCase,
+    getIdentifiersUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -84,6 +96,7 @@ export const createClassroomModule = (
     .openapi(createManyClassroomsRoute, controller.createMany)
     .openapi(replaceClassroomsRoute, controller.replace)
     .openapi(listClassroomsRoute, controller.list)
+    .openapi(getClassroomIdentifiersRoute, controller.getIdentifiers)
     .openapi(getClassroomRoute, controller.get)
     .openapi(updateClassroomRoute, controller.update)
     .openapi(deleteClassroomRoute, controller.delete)

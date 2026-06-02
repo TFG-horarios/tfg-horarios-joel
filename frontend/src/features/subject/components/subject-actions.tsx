@@ -2,20 +2,18 @@
 
 import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
 import { SubjectBulkUploader } from '@/features/subject/components/subject-bulk-uploader';
-import type { SubjectDTO, DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
 import { deleteAllSubjectsAction } from '@/features/subject/actions';
 
 interface SubjectActionsProps {
   organizationId: string;
-  existingSubjects: SubjectDTO[];
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
 }
 
 export function SubjectActions({
   organizationId,
-  existingSubjects,
   degrees,
   itineraries,
 }: SubjectActionsProps) {
@@ -40,7 +38,6 @@ export function SubjectActions({
         <SubjectBulkUploader
           organizationId={organizationId}
           degrees={degrees}
-          existingSubjects={existingSubjects}
           itineraries={itineraries}
           mode="append"
         />
@@ -49,7 +46,6 @@ export function SubjectActions({
         <SubjectBulkUploader
           organizationId={organizationId}
           degrees={degrees}
-          existingSubjects={existingSubjects}
           itineraries={itineraries}
           mode="overwrite"
         />

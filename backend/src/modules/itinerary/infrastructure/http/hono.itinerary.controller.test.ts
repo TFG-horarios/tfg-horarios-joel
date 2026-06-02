@@ -12,6 +12,7 @@ import {
   deleteItineraryRoute,
   deleteAllItinerariesRoute,
   replaceItinerariesRoute,
+  getItineraryIdentifiersRoute,
 } from './hono.itinerary.routes';
 
 describe('HonoItineraryController Integration', () => {
@@ -23,6 +24,7 @@ describe('HonoItineraryController Integration', () => {
   const deleteMock = { execute: mock() };
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
+  const getIdentifiersMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoItineraryController>;
   const controller = new HonoItineraryController(
@@ -33,12 +35,14 @@ describe('HonoItineraryController Integration', () => {
     updateMock as unknown as Params[4],
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
-    replaceMock as unknown as Params[7]
+    replaceMock as unknown as Params[7],
+    getIdentifiersMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createItineraryRoute, controller.create);
   router.openapi(bulkCreateItinerariesRoute, controller.bulkCreate);
+  router.openapi(getItineraryIdentifiersRoute, controller.getIdentifiers);
   router.openapi(getItineraryRoute, controller.get);
   router.openapi(listItinerariesRoute, controller.list);
   router.openapi(updateItineraryRoute, controller.update);
@@ -114,6 +118,20 @@ describe('HonoItineraryController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: itineraryId }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/itineraries/identifiers should return 200 with identifiers', async () => {
+    getIdentifiersMock.execute.mockResolvedValueOnce(['ID1']);
+    const res = await app.request(
+      `/api/organizations/${orgId}/itineraries/identifiers`,
+      {
+        headers: { Authorization: `Bearer testToken` },
+      }
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PATCH /organizations/:organizationId/itineraries/:id should return 200', async () => {

@@ -6,6 +6,7 @@ describe('ListSubjectGroupsUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findIdentifiers: mock(),
     findGroupsWithSubjectsInScope: mock(),
     create: mock(),
     createMany: mock(),

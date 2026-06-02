@@ -10,6 +10,7 @@ import { UpdateSubjectUseCase } from './application/update-subject.usecase';
 import { DeleteSubjectUseCase } from './application/delete-subject.usecase';
 import { DeleteAllSubjectsUseCase } from './application/delete-all-subjects.usecase';
 import { ReplaceSubjectsUseCase } from './application/replace-subjects.usecase';
+import { GetSubjectIdentifiersUseCase } from './application/get-subject-identifiers.usecase';
 import { HonoSubjectController } from './infrastructure/http/hono.subject.controller';
 import {
   createSubjectRoute,
@@ -20,6 +21,7 @@ import {
   deleteSubjectRoute,
   deleteAllSubjectsRoute,
   replaceSubjectsRoute,
+  getSubjectIdentifiersRoute,
 } from './infrastructure/http/hono.subject.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { SubjectMemberAdapter } from './infrastructure/adapters/subject-member.adapter';
@@ -39,12 +41,14 @@ export const createSubjectModule = (
     new UpdateSubjectUseCase(subjectRepository, memberProvider),
     new DeleteSubjectUseCase(subjectRepository, memberProvider),
     new DeleteAllSubjectsUseCase(subjectRepository, memberProvider),
-    new ReplaceSubjectsUseCase(subjectRepository, memberProvider)
+    new ReplaceSubjectsUseCase(subjectRepository, memberProvider),
+    new GetSubjectIdentifiersUseCase(subjectRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(listSubjectsRoute, controller.list)
+    .openapi(getSubjectIdentifiersRoute, controller.getIdentifiers)
     .openapi(getSubjectRoute, controller.get)
     .openapi(createSubjectRoute, controller.create)
     .openapi(bulkCreateSubjectsRoute, controller.bulkCreate)

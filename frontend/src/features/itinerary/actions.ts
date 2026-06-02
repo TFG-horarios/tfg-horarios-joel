@@ -8,6 +8,7 @@ import {
   type ItineraryDTO,
   type SaveItineraryDTO,
   type BulkSaveItineraryDTO,
+  type ItineraryIdentifierDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
@@ -227,5 +228,31 @@ export async function deleteAllItinerariesAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getItineraryIdentifiersAction(
+  organizationId: string
+): Promise<ItineraryIdentifierDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.itineraries.identifiers.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch itinerary identifiers');
+    }
+
+    const payload = await response.json();
+    return payload;
+  } catch (error) {
+    console.error(
+      'ERROR EN EL SERVER ACTION (Itineraries Identifiers):',
+      error
+    );
+    return [];
   }
 }
