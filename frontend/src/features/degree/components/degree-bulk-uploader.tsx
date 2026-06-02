@@ -53,10 +53,15 @@ export function DegreeBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const seenCodes = new Set<string>();
+        const seenNames = new Set<string>();
+
         validData.forEach((row, idx) => {
+          const codeLower = row.code.toLowerCase();
+          const nameLower = row.name.toLowerCase();
           if (
             mode !== 'overwrite' &&
-            existingCodes.has(row.code.toLowerCase())
+            existingCodes.has(codeLower)
           ) {
             issues.push({
               rowNumber: idx + 2,
@@ -68,7 +73,7 @@ export function DegreeBulkUploader({
             });
           } else if (
             mode !== 'overwrite' &&
-            existingNames.has(row.name.toLowerCase())
+            existingNames.has(nameLower)
           ) {
             issues.push({
               rowNumber: idx + 2,
@@ -78,7 +83,27 @@ export function DegreeBulkUploader({
               providedValue: row.name,
               message: t('duplicateName', { name: row.name }),
             });
+          } else if (seenCodes.has(codeLower)) {
+            issues.push({
+              rowNumber: idx + 2,
+              category: 'duplicate',
+              severity: 'warning',
+              column: 'code',
+              providedValue: row.code,
+              message: t('duplicateCode', { code: row.code }),
+            });
+          } else if (seenNames.has(nameLower)) {
+            issues.push({
+              rowNumber: idx + 2,
+              category: 'duplicate',
+              severity: 'warning',
+              column: 'name',
+              providedValue: row.name,
+              message: t('duplicateName', { name: row.name }),
+            });
           } else {
+            seenCodes.add(codeLower);
+            seenNames.add(nameLower);
             finalValidData.push(row);
           }
         });

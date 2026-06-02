@@ -44,7 +44,7 @@ export function ItineraryBulkUploader({
   const degreeMap = new Map(degrees.map((d) => [d.code.toLowerCase(), d.id]));
 
   const existingSet = new Set(
-    existingItineraries.map((i) => `${i.degreeId}-${i.code.toLowerCase()}`)
+    existingItineraries.map((i) => i.code.toLowerCase())
   );
 
   return (
@@ -62,6 +62,8 @@ export function ItineraryBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const seenCodes = new Set<string>();
+
         validData.forEach((row, idx) => {
           const degreeId = degreeMap.get(row.degreeCode.toLowerCase());
 
@@ -77,9 +79,10 @@ export function ItineraryBulkUploader({
             return;
           }
 
+          const codeLower = row.code.toLowerCase();
           const isDuplicate =
             mode !== 'overwrite' &&
-            existingSet.has(`${degreeId}-${row.code.toLowerCase()}`);
+            existingSet.has(codeLower);
           if (isDuplicate) {
             issues.push({
               rowNumber: idx + 2,
@@ -92,7 +95,20 @@ export function ItineraryBulkUploader({
                 degreeCode: row.degreeCode,
               }),
             });
+          } else if (seenCodes.has(codeLower)) {
+            issues.push({
+              rowNumber: idx + 2,
+              category: 'duplicate',
+              severity: 'warning',
+              column: 'code',
+              providedValue: row.code,
+              message: t('duplicate', {
+                code: row.code,
+                degreeCode: row.degreeCode,
+              }),
+            });
           } else {
+            seenCodes.add(codeLower);
             finalValidData.push(row);
           }
         });

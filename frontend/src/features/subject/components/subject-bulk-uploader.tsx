@@ -88,6 +88,8 @@ export function SubjectBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const seenCodes = new Set<string>();
+
         validData.forEach((row, idx) => {
           const degreeId = degreeMap.get(row.degreeCode.toLowerCase());
           let isRowValid = true;
@@ -132,9 +134,10 @@ export function SubjectBulkUploader({
           }
 
           if (isRowValid) {
+            const codeLower = row.code.toLowerCase();
             if (
               mode !== 'overwrite' &&
-              existingCodes.has(row.code.toLowerCase())
+              existingCodes.has(codeLower)
             ) {
               issues.push({
                 rowNumber: idx + 2,
@@ -144,7 +147,17 @@ export function SubjectBulkUploader({
                 providedValue: row.code,
                 message: t('duplicate'),
               });
+            } else if (seenCodes.has(codeLower)) {
+              issues.push({
+                rowNumber: idx + 2,
+                category: 'duplicate',
+                severity: 'warning',
+                column: 'code',
+                providedValue: row.code,
+                message: t('duplicate'),
+              });
             } else {
+              seenCodes.add(codeLower);
               finalValidData.push(row);
             }
           }

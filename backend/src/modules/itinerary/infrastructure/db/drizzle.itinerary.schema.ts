@@ -29,8 +29,8 @@ export const itinerariesTable = pgTable(
     deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    uniqueIndex('itinerary_code_degree_idx')
-      .on(table.degreeId, table.code)
+    uniqueIndex('itinerary_code_org_idx')
+      .on(table.organizationId, table.code)
       .where(sql`deleted_at IS NULL`),
   ]
 );

@@ -51,10 +51,13 @@ export function ClassroomBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
+        const seenNames = new Set<string>();
+
         validData.forEach((row, idx) => {
+          const nameLower = row.name.toLowerCase();
           if (
             mode !== 'overwrite' &&
-            existingNames.has(row.name.toLowerCase())
+            existingNames.has(nameLower)
           ) {
             issues.push({
               rowNumber: idx + 2,
@@ -64,7 +67,17 @@ export function ClassroomBulkUploader({
               providedValue: row.name,
               message: t('duplicate', { name: row.name }),
             });
+          } else if (seenNames.has(nameLower)) {
+            issues.push({
+              rowNumber: idx + 2,
+              category: 'duplicate',
+              severity: 'warning',
+              column: 'name',
+              providedValue: row.name,
+              message: t('duplicate', { name: row.name }),
+            });
           } else {
+            seenNames.add(nameLower);
             finalValidData.push(row);
           }
         });

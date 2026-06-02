@@ -78,6 +78,8 @@ export function SubjectGroupBulkUploader({
         const issues: CsvRowIssue[] = [];
         let finalValidData: typeof validData = [];
 
+        const seenKeys = new Set<string>();
+
         validData.forEach((row, idx) => {
           const subject = subjectMap.get(row.subjectCode.toLowerCase());
           if (!subject) {
@@ -111,7 +113,20 @@ export function SubjectGroupBulkUploader({
               message: t('duplicate'),
             });
           } else {
-            finalValidData.push(row);
+            const key = `${subject.id}-${row.groupType}-${row.groupNumber}-${row.shift}`;
+            if (seenKeys.has(key)) {
+              issues.push({
+                rowNumber: idx + 2,
+                category: 'duplicate',
+                severity: 'warning',
+                column: 'name',
+                providedValue: row.name,
+                message: t('duplicate'),
+              });
+            } else {
+              seenKeys.add(key);
+              finalValidData.push(row);
+            }
           }
         });
 
