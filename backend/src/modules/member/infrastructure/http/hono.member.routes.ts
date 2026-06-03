@@ -7,6 +7,7 @@ import {
   UpdateMemberRoleBodySchema,
   MemberIdParamSchema,
   MemberListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listMembersRoute = createRoute({
@@ -18,11 +19,30 @@ export const listMembersRoute = createRoute({
   },
   responses: {
     200: {
-      description: 'List of organization members',
-      content: { 'application/json': { schema: z.array(MemberSchema) } },
+      description: 'Listado de miembros',
+      content: {
+        'application/json': { schema: createPaginatedSchema(MemberSchema) },
+      },
     },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Not a member)' },
+  },
+});
+
+export const listAllMembersRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/members/all',
+  request: {
+    params: MemberBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado completo de miembros',
+      content: {
+        'application/json': { schema: z.array(MemberSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
   },
 });
 

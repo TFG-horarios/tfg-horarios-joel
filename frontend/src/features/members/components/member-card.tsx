@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { MemberDTO } from '@tfg-horarios/shared';
 
 interface MemberCardProps {
-  member: MemberDTO;
+  item: MemberDTO;
   organizationId: string;
   currentUserId: string;
   canManage: boolean;
@@ -22,7 +22,7 @@ const ROLE_BADGE_VARIANTS: Record<
   viewer: 'outline',
 };
 
-export function MemberCard({ member, currentUserId }: MemberCardProps) {
+export function MemberCard({ item: member, currentUserId }: MemberCardProps) {
   const t = useTranslations('Organizations.membersManagement');
   const isSelf = member.userId === currentUserId;
 

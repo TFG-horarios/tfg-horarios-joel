@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const MemberSchema = z
   .object({
@@ -40,7 +41,7 @@ export const UpdateMemberRoleBodySchema = z
   })
   .openapi('UpdateMemberRole');
 
-export const MemberListQuerySchema = z.object({
+export const MemberListQuerySchema = PaginationQuerySchema.extend({
   name: z.string().optional(),
   email: z.string().optional(),
   role: z.enum(['admin', 'editor', 'viewer']).optional(),

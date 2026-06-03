@@ -5,11 +5,13 @@ import type { DbConnection } from '@/core/db/connection';
 import { RemoveMemberUseCase } from './application/remove-member.usecase';
 import { AddMemberUseCase } from './application/add-member.usecase';
 import { ListMembersUseCase } from './application/list-members.usecase';
+import { ListAllMembersUseCase } from './application/list-all-members.usecase';
 import { EditMemberRoleUseCase } from './application/edit-member-role.usecase';
 import {
   addMemberRoute,
   removeMemberRoute,
   listMembersRoute,
+  listAllMembersRoute,
   updateMemberRoleRoute,
 } from './infrastructure/http/hono.member.routes';
 import type { AppEnv } from '@/core/types/app-types';
@@ -25,11 +27,13 @@ export const createMemberModule = (
 
   const addUseCase = new AddMemberUseCase(memberRepository, userProvider);
   const listUseCase = new ListMembersUseCase(memberRepository);
+  const listAllUseCase = new ListAllMembersUseCase(memberRepository);
   const removeUseCase = new RemoveMemberUseCase(memberRepository);
   const editRoleUseCase = new EditMemberRoleUseCase(memberRepository);
 
   const controller = new HonoMemberController(
     listUseCase,
+    listAllUseCase,
     addUseCase,
     editRoleUseCase,
     removeUseCase
@@ -38,6 +42,7 @@ export const createMemberModule = (
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(addMemberRoute, controller.add)
+    .openapi(listAllMembersRoute, controller.listAll)
     .openapi(listMembersRoute, controller.list)
     .openapi(updateMemberRoleRoute, controller.updateRole)
     .openapi(removeMemberRoute, controller.remove);

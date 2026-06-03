@@ -14,7 +14,10 @@ import {
 import { Member } from '../../domain/member.entity';
 import { type AppRole } from '@/core/permissions/roles';
 import { usersTable } from '@/modules/user/infrastructure/db/drizzle.user.schema';
-import type { MemberListQueryDTO } from '@tfg-horarios/shared';
+import type {
+  MemberListQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export class DrizzleMemberRepository implements IMemberRepository {
   constructor(private readonly database: DbConnection) {}
@@ -73,9 +76,28 @@ export class DrizzleMemberRepository implements IMemberRepository {
   }
 
   async findByOrganizationId(
+    organizationId: string
+  ): Promise<MemberWithUserDetails[]> {
+    const results = await this.database
+      .select({
+        member: membersTable,
+        userName: usersTable.name,
+        userEmail: usersTable.email,
+      })
+      .from(membersTable)
+      .innerJoin(usersTable, eq(membersTable.userId, usersTable.id))
+      .where(eq(membersTable.organizationId, organizationId));
+    return results.map((row) => ({
+      member: this.mapToDomain(row.member),
+      userName: row.userName,
+      userEmail: row.userEmail,
+    }));
+  }
+
+  async findPaginated(
     organizationId: string,
     filters?: MemberListQueryDTO
-  ): Promise<MemberWithUserDetails[]> {
+  ): Promise<PaginatedResponse<MemberWithUserDetails>> {
     const conditions: SQL[] = [eq(membersTable.organizationId, organizationId)];
 
     if (filters?.name) {
@@ -88,6 +110,17 @@ export class DrizzleMemberRepository implements IMemberRepository {
       conditions.push(eq(membersTable.role, filters.role));
     }
 
+    const countResult = await this.database
+      .select({ total: count() })
+      .from(membersTable)
+      .innerJoin(usersTable, eq(membersTable.userId, usersTable.id))
+      .where(and(...conditions));
+    const total = countResult[0]?.total ?? 0;
+
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 100;
+    const offset = (page - 1) * limit;
+
     const results = await this.database
       .select({
         member: membersTable,
@@ -96,12 +129,25 @@ export class DrizzleMemberRepository implements IMemberRepository {
       })
       .from(membersTable)
       .innerJoin(usersTable, eq(membersTable.userId, usersTable.id))
-      .where(and(...conditions));
-    return results.map((row) => ({
-      member: this.mapToDomain(row.member),
-      userName: row.userName,
-      userEmail: row.userEmail,
-    }));
+      .where(and(...conditions))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: results.map((row) => ({
+        member: this.mapToDomain(row.member),
+        userName: row.userName,
+        userEmail: row.userEmail,
+      })),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async create(domainEntity: Member): Promise<void> {

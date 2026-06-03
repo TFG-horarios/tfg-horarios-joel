@@ -7,12 +7,22 @@ import {
   MemberSchema,
   CreateMemberBodySchema,
   UpdateMemberRoleBodySchema,
+  type MemberListQueryDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import { fetchMembers } from './queries';
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchMembersAction(
+  organizationId: string,
+  query: MemberListQueryDTO,
+  page: number
+) {
+  return fetchMembers(organizationId, { ...query, page });
+}
 
 export async function addMemberAction(
   organizationId: string,

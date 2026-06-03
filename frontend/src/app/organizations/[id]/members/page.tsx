@@ -7,11 +7,13 @@ import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { getSessionUser } from '@/features/auth/queries';
 import {
-  getOrganizationMemberContext,
   getOrganizationMemberRole,
+  fetchMembers,
 } from '@/features/members/queries';
 import { MemberCard } from '@/features/members/components/member-card';
 import { MemberActions } from '@/features/members/components/member-actions';
+import { fetchMembersAction } from '@/features/members/actions';
+import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
@@ -30,6 +32,8 @@ export default async function OrganizationMembersPage({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const query: MemberListQueryDTO = {
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
     name:
       typeof rawSearchParams.name === 'string'
         ? rawSearchParams.name
@@ -61,11 +65,7 @@ export default async function OrganizationMembersPage({
   if (!role || role === 'viewer') {
     notFound();
   }
-  const { members } = await getOrganizationMemberContext(
-    id,
-    sessionUser.id,
-    query
-  );
+  const { data: members, meta } = await fetchMembers(id, query);
   const canManage = role === 'admin';
 
   return (
@@ -73,7 +73,7 @@ export default async function OrganizationMembersPage({
       label={t('label')}
       title={t('title', { organization: organization.name })}
       description={canManage ? t('description.admin') : t('description.viewer')}
-      count={members.length}
+      count={meta.total}
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
@@ -105,20 +105,23 @@ export default async function OrganizationMembersPage({
         />
         <MemberActions organizationId={id} canManage={canManage} />
       </div>
-      <ResourceGrid
-        items={members}
-        renderItem={(member) => (
-          <MemberCard
-            key={member.id}
-            member={member}
-            organizationId={id}
-            currentUserId={sessionUser.id}
-            canManage={canManage}
+      <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
+        {members.length > 0 && (
+          <ResourceInfiniteScroll
+            key={JSON.stringify(query)}
+            initialItems={members}
+            initialMeta={meta}
+            loadMore={fetchMembersAction.bind(null, id, query)}
+            ItemComponent={MemberCard}
+            itemProps={{
+              organizationId: id,
+              currentUserId: sessionUser.id,
+              canManage,
+            }}
+            keyProp="id"
           />
         )}
-        emptyState={<ResourceEmptyState message={t('empty')} />}
-        keyExtractor={(member) => member.id}
-      />
+      </ResourceGrid>
     </OrganizationSectionShell>
   );
 }

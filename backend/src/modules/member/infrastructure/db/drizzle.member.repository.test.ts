@@ -77,21 +77,21 @@ describe('DrizzleMemberRepository Integration', () => {
     const members = await repository.findByOrganizationId(testOrgId);
     expect(members.some((m) => m.member.id === member1.id)).toBeTrue();
     expect(members.some((m) => m.member.id === member2.id)).toBeTrue();
-    const nameFilter = await repository.findByOrganizationId(testOrgId, {
+    const nameFilter = await repository.findPaginated(testOrgId, {
       name: 'alice',
     });
-    expect(nameFilter.length).toBe(1);
-    expect(nameFilter[0]?.userName).toBe('Alice Smith');
-    const emailFilter = await repository.findByOrganizationId(testOrgId, {
+    expect(nameFilter.data.length).toBe(1);
+    expect(nameFilter.data[0]?.userName).toBe('Alice Smith');
+    const emailFilter = await repository.findPaginated(testOrgId, {
       email: 'u5@e',
     });
-    expect(emailFilter.length).toBe(1);
-    expect(emailFilter[0]?.userEmail).toBe('u5@e.com');
-    const roleFilter = await repository.findByOrganizationId(testOrgId, {
+    expect(emailFilter.data.length).toBe(1);
+    expect(emailFilter.data[0]?.userEmail).toBe('u5@e.com');
+    const roleFilter = await repository.findPaginated(testOrgId, {
       role: 'viewer',
     });
-    expect(roleFilter.length).toBe(1);
-    expect(roleFilter[0]?.member.role).toBe('viewer');
+    expect(roleFilter.data.length).toBe(1);
+    expect(roleFilter.data[0]?.member.role).toBe('viewer');
   });
 
   test('should throw ConflictError on duplicate user in org', async () => {

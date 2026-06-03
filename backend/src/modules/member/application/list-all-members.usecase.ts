@@ -1,20 +1,15 @@
-import type {
-  MemberDTO,
-  MemberListQueryDTO,
-  PaginatedResponse,
-} from '@tfg-horarios/shared';
+import type { MemberDTO } from '@tfg-horarios/shared';
 import type { IMemberRepository } from '../domain/member.repository';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { MemberMapper } from './member.mapper';
 
-export class ListMembersUseCase {
+export class ListAllMembersUseCase {
   constructor(private readonly memberRepository: IMemberRepository) {}
 
   async execute(
     organizationId: string,
-    requesterUserId: string,
-    filters?: MemberListQueryDTO
-  ): Promise<PaginatedResponse<MemberDTO>> {
+    requesterUserId: string
+  ): Promise<MemberDTO[]> {
     const requester = await this.memberRepository.findByUserAndOrg(
       requesterUserId,
       organizationId
@@ -22,13 +17,8 @@ export class ListMembersUseCase {
     if (!requester) {
       throw new ForbiddenError('You do not belong to this organization.');
     }
-    const { data, meta } = await this.memberRepository.findPaginated(
-      organizationId,
-      filters
-    );
-    return {
-      data: MemberMapper.toDTOList(data),
-      meta,
-    };
+    const members =
+      await this.memberRepository.findByOrganizationId(organizationId);
+    return MemberMapper.toDTOList(members);
   }
 }

@@ -1,5 +1,8 @@
 import { Member } from './member.entity';
-import type { MemberListQueryDTO } from '@tfg-horarios/shared';
+import type {
+  MemberListQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export interface MemberWithUserDetails {
   member: Member;
@@ -14,9 +17,12 @@ export interface IMemberRepository {
     organizationId: string
   ): Promise<Member | null>;
   findByOrganizationId(
+    organizationId: string
+  ): Promise<MemberWithUserDetails[]>;
+  findPaginated(
     organizationId: string,
     filters?: MemberListQueryDTO
-  ): Promise<MemberWithUserDetails[]>;
+  ): Promise<PaginatedResponse<MemberWithUserDetails>>;
   create(member: Member): Promise<void>;
   update(member: Member): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;

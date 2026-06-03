@@ -9,6 +9,7 @@ describe('ListMembersUseCase', () => {
     findById: mock(),
     findByUserAndOrg: mock(),
     findByOrganizationId: mock(),
+    findPaginated: mock(),
     create: mock(),
     update: mock(),
     delete: mock(),
@@ -29,12 +30,13 @@ describe('ListMembersUseCase', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    repositoryMock.findByOrganizationId.mockResolvedValueOnce([
-      { member, userName: 'John Doe', userEmail: 'john@example.com' },
-    ]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [{ member, userName: 'John Doe', userEmail: 'john@example.com' }],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe('member-1');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]?.id).toBe('member-1');
   });
 
   test('should throw ForbiddenError if user does not belong to org', async () => {

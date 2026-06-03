@@ -1,6 +1,7 @@
 import type { RouteHandler } from '@hono/zod-openapi';
 import type { AppEnv } from '@/core/types/app-types';
 import type { ListMembersUseCase } from '../../application/list-members.usecase';
+import type { ListAllMembersUseCase } from '../../application/list-all-members.usecase';
 import type { AddMemberUseCase } from '../../application/add-member.usecase';
 import type { EditMemberRoleUseCase } from '../../application/edit-member-role.usecase';
 import type { RemoveMemberUseCase } from '../../application/remove-member.usecase';
@@ -9,11 +10,13 @@ import {
   addMemberRoute,
   updateMemberRoleRoute,
   removeMemberRoute,
+  listAllMembersRoute,
 } from './hono.member.routes';
 
 export class HonoMemberController {
   constructor(
     private readonly listMembersUseCase: ListMembersUseCase,
+    private readonly listAllMembersUseCase: ListAllMembersUseCase,
     private readonly addMemberUseCase: AddMemberUseCase,
     private readonly editMemberRoleUseCase: EditMemberRoleUseCase,
     private readonly removeMemberUseCase: RemoveMemberUseCase
@@ -27,6 +30,15 @@ export class HonoMemberController {
       organizationId,
       requesterUserId,
       query
+    );
+    return c.json(members, 200);
+  };
+
+  listAll: RouteHandler<typeof listAllMembersRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const members = await this.listAllMembersUseCase.execute(
+      organizationId,
+      c.get('userId')
     );
     return c.json(members, 200);
   };

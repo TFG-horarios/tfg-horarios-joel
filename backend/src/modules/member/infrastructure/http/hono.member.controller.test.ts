@@ -8,10 +8,12 @@ import {
   addMemberRoute,
   updateMemberRoleRoute,
   removeMemberRoute,
+  listAllMembersRoute,
 } from './hono.member.routes';
 
 describe('HonoMemberController Integration', () => {
   const listMock = { execute: mock() };
+  const listAllMock = { execute: mock() };
   const addMock = { execute: mock() };
   const editRoleMock = { execute: mock() };
   const removeMock = { execute: mock() };
@@ -19,13 +21,15 @@ describe('HonoMemberController Integration', () => {
   type Params = ConstructorParameters<typeof HonoMemberController>;
   const controller = new HonoMemberController(
     listMock as unknown as Params[0],
-    addMock as unknown as Params[1],
-    editRoleMock as unknown as Params[2],
-    removeMock as unknown as Params[3]
+    listAllMock as unknown as Params[1],
+    addMock as unknown as Params[2],
+    editRoleMock as unknown as Params[3],
+    removeMock as unknown as Params[4]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(listMembersRoute, controller.list);
+  router.openapi(listAllMembersRoute, controller.listAll);
   router.openapi(addMemberRoute, controller.add);
   router.openapi(updateMemberRoleRoute, controller.updateRole);
   router.openapi(removeMemberRoute, controller.remove);
@@ -36,16 +40,19 @@ describe('HonoMemberController Integration', () => {
   const memberId = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22';
 
   test('GET /organizations/:organizationId/members should return 200 with list', async () => {
-    const listResult = [
-      {
-        id: memberId,
-        organizationId: orgId,
-        userId: 'user-1',
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
+    const listResult = {
+      data: [
+        {
+          id: memberId,
+          organizationId: orgId,
+          userId: 'user-1',
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    };
     listMock.execute.mockResolvedValueOnce(listResult);
     const res = await app.request(`/api/organizations/${orgId}/members`);
     expect(res.status).toBe(200);

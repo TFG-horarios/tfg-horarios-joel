@@ -5,6 +5,7 @@ import {
   MemberSchema,
   type MemberDTO,
   type MemberListQueryDTO,
+  type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export type OrganizationMemberContext = {
@@ -15,7 +16,7 @@ export type OrganizationMemberContext = {
 export async function fetchMembers(
   organizationId: string,
   query?: MemberListQueryDTO
-): Promise<MemberDTO[]> {
+): Promise<PaginatedResponse<MemberDTO>> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
   const response = await client.api.organizations[
@@ -25,7 +26,28 @@ export async function fetchMembers(
     query: query || {},
   });
 
-  if (response.status === 401 || response.status === 403) return [];
+  const status = response.status as number;
+  if (status === 401 || status === 403) {
+    return { data: [], meta: { total: 0, page: 1, limit: 100, totalPages: 0 } };
+  }
+  if (status !== 200) throw new Error(t('fetchFailed'));
+
+  return (await response.json()) as PaginatedResponse<MemberDTO>;
+}
+
+export async function fetchAllMembers(
+  organizationId: string
+): Promise<MemberDTO[]> {
+  const t = await getTranslations('Common.errors');
+  const client = await getServerClient();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.members.all.$get({
+    param: { organizationId },
+  });
+
+  const status = response.status as number;
+  if (status === 401 || status === 403) return [];
 
   if (!response.ok) {
     throw new Error(t('server'));
@@ -38,10 +60,9 @@ export async function fetchMembers(
 export const getOrganizationMemberContext = cache(
   async (
     organizationId: string,
-    userId: string | null,
-    query?: MemberListQueryDTO
+    userId: string | null
   ): Promise<OrganizationMemberContext> => {
-    const members = await fetchMembers(organizationId, query);
+    const members = await fetchAllMembers(organizationId);
     const currentMember =
       userId === null
         ? null
