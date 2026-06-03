@@ -102,3 +102,31 @@ export async function removeOrganizationAction(
     };
   }
 }
+
+export async function getOrganizationNameAction(
+  organizationId: string
+): Promise<ActionResponse<string>> {
+  const tErrors = await getTranslations('Common.errors');
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':id'].$get({
+      param: { id: organizationId },
+    });
+
+    if (response.status === 404) {
+      return { success: false, message: 'Not found' };
+    }
+    
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const org = await response.json();
+    return { success: true, data: org.name };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
