@@ -21,7 +21,7 @@ export interface SchedulerWorkerMessage {
   slotDuration: number;
 }
 
-declare var self: Worker;
+declare const self: Worker;
 
 self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
   const {
