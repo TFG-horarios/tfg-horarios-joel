@@ -7,7 +7,7 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
 import { fetchSubjects } from '@/features/subject/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchItineraries } from '@/features/itinerary/queries';
 import { SubjectGroupCard } from '@/features/subject-group/components/subject-group-card';
 import { SubjectGroupActions } from '@/features/subject-group/components/subject-group-actions';
@@ -65,7 +65,7 @@ export default async function OrganizationSubjectGroupsPage({
   const [groups, subjects, degrees, itineraries] = await Promise.all([
     fetchSubjectGroups(id, query),
     fetchSubjects(id),
-    fetchDegrees(id),
+    fetchAllDegrees(id),
     fetchItineraries(id),
   ]);
   const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));

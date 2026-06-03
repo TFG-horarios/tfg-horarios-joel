@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -7,11 +9,11 @@ import {
 import type { DegreeDTO } from '@tfg-horarios/shared';
 
 export interface DegreeCardProps {
-  degree: DegreeDTO;
-  translations: Record<string, string>;
+  item: DegreeDTO;
+  translations?: Record<string, string>;
 }
 
-export function DegreeCard({ degree }: DegreeCardProps) {
+export function DegreeCard({ item: degree }: DegreeCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">

@@ -8,9 +8,19 @@ import {
   type DegreeDTO,
   type SaveDegreeDTO,
   type DegreeIdentifierDTO,
+  type DegreeListQueryDTO,
 } from '@tfg-horarios/shared';
+import { fetchDegrees } from './queries';
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchDegreesAction(
+  organizationId: string,
+  query: DegreeListQueryDTO,
+  page: number
+) {
+  return fetchDegrees(organizationId, { ...query, page });
+}
 
 export async function bulkCreateDegrees(
   organizationId: string,

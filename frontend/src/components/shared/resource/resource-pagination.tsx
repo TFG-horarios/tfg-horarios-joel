@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Link } from '@/lib/i18n/routing';
 import { useTranslations } from 'next-intl';
 import {
   Pagination,

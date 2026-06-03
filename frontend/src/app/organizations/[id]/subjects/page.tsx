@@ -5,7 +5,7 @@ import { ResourceGrid } from '@/components/shared/resource/resource-grid';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchSubjects } from '@/features/subject/queries';
 import { fetchItineraries } from '@/features/itinerary/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';
@@ -65,7 +65,7 @@ export default async function OrganizationSubjectsPage({
   }
   const [subjects, degrees, itineraries] = await Promise.all([
     fetchSubjects(id, query),
-    fetchDegrees(id),
+    fetchAllDegrees(id),
     fetchItineraries(id),
   ]);
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));

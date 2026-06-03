@@ -1,15 +1,11 @@
-import type {
-  DegreeDTO,
-  DegreeListQueryDTO,
-  PaginatedResponse,
-} from '@tfg-horarios/shared';
+import type { DegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
 import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
-import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { DegreeMapper } from './degree.mapper';
+import type { AppRole } from '@/core/permissions/roles';
 
-export class ListDegreesUseCase {
+export class ListAllDegreesUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
     private readonly memberProvider: IDegreeMemberProvider
@@ -17,9 +13,8 @@ export class ListDegreesUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string,
-    filters?: DegreeListQueryDTO
-  ): Promise<PaginatedResponse<DegreeDTO>> {
+    requesterUserId: string
+  ): Promise<DegreeDTO[]> {
     const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
@@ -28,13 +23,7 @@ export class ListDegreesUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const { data, meta } = await this.degreeRepository.findPaginated(
-      organizationId,
-      filters
-    );
-    return {
-      data: DegreeMapper.toDTOList(data),
-      meta,
-    };
+    const degrees = await this.degreeRepository.findAll(organizationId);
+    return DegreeMapper.toDTOList(degrees);
   }
 }

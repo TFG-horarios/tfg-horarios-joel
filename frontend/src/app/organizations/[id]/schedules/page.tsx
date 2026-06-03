@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchItineraries } from '@/features/itinerary/queries';
 import { fetchSchedules } from '@/features/schedule/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
@@ -75,7 +75,7 @@ export default async function OrganizationSchedulesPage({
   }
 
   const [degrees, itineraries, schedules] = await Promise.all([
-    fetchDegrees(id),
+    fetchAllDegrees(id),
     fetchItineraries(id),
     fetchSchedules(id, query),
   ]);

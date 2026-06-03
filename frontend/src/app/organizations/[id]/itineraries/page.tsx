@@ -4,7 +4,7 @@ import { ResourceGrid } from '@/components/shared/resource/resource-grid';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchItineraries } from '@/features/itinerary/queries';
 import { ItineraryCard } from '@/features/itinerary/components/itinerary-card';
 import { ItineraryActions } from '@/features/itinerary/components/itinerary-actions';
@@ -46,7 +46,7 @@ export default async function OrganizationItinerariesPage({
   }
   const [itineraries, degrees] = await Promise.all([
     fetchItineraries(id, query),
-    fetchDegrees(id),
+    fetchAllDegrees(id),
   ]);
   const degreeMap = new Map(degrees.map((d) => [d.id, d]));
   const translations = {

@@ -4,7 +4,7 @@ import { fetchSchedule, fetchScheduleSlots } from '@/features/schedule/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { fetchSubjects } from '@/features/subject/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchItineraries } from '@/features/itinerary/queries';
 import { SchedulePlanner } from '@/features/schedule/components/schedule-planner';
 
@@ -33,7 +33,7 @@ export default async function SchedulePlannerPage({
     fetchAllClassrooms(id),
     fetchSubjects(id),
     fetchSubjectGroups(id),
-    fetchDegrees(id),
+    fetchAllDegrees(id),
     fetchItineraries(id),
   ]);
 

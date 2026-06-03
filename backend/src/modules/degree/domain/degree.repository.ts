@@ -2,14 +2,16 @@ import type { Degree } from './degree.entity';
 import type {
   DegreeIdentifierDTO,
   DegreeListQueryDTO,
+  PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export interface IDegreeRepository {
   findById(id: string, organizationId: string): Promise<Degree | null>;
-  findAll(
+  findAll(organizationId: string): Promise<Degree[]>;
+  findPaginated(
     organizationId: string,
     filters?: DegreeListQueryDTO
-  ): Promise<Degree[]>;
+  ): Promise<PaginatedResponse<Degree>>;
   findIdentifiers(organizationId: string): Promise<DegreeIdentifierDTO[]>;
   create(degree: Degree): Promise<void>;
   createMany(degrees: Degree[]): Promise<void>;

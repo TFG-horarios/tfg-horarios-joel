@@ -50,9 +50,7 @@ export default async function OrganizationClassroomsPage({
   if (!organization) {
     notFound();
   }
-
   const { data: classrooms, meta } = await fetchClassrooms(id, query);
-
   const translations = {
     'type.theory': t('type.theory'),
     'type.lab': t('type.lab'),
@@ -105,6 +103,7 @@ export default async function OrganizationClassroomsPage({
         <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
           {classrooms.length > 0 && (
             <ResourceInfiniteScroll
+              key={JSON.stringify(query)}
               initialItems={classrooms}
               initialMeta={meta}
               loadMore={fetchClassroomsAction.bind(null, id, query)}

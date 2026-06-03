@@ -1,4 +1,4 @@
-export interface ResourceGridProps<T = any> {
+export interface ResourceGridProps<T> {
   items?: T[];
   renderItem?: (item: T) => React.ReactNode;
   emptyState?: React.ReactNode;
@@ -6,7 +6,7 @@ export interface ResourceGridProps<T = any> {
   children?: React.ReactNode;
 }
 
-export function ResourceGrid<T = any>({
+export function ResourceGrid<T>({
   items,
   renderItem,
   emptyState,

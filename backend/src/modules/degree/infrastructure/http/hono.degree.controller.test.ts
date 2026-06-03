@@ -13,6 +13,7 @@ import {
   deleteAllDegreesRoute,
   replaceDegreesRoute,
   getDegreeIdentifiersRoute,
+  listAllDegreesRoute,
 } from './hono.degree.routes';
 
 describe('HonoDegreeController Integration', () => {
@@ -25,6 +26,7 @@ describe('HonoDegreeController Integration', () => {
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
+  const listAllMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoDegreeController>;
   const controller = new HonoDegreeController(
@@ -36,7 +38,8 @@ describe('HonoDegreeController Integration', () => {
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
-    getIdentifiersMock as unknown as Params[8]
+    getIdentifiersMock as unknown as Params[8],
+    listAllMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -49,6 +52,7 @@ describe('HonoDegreeController Integration', () => {
   router.openapi(deleteDegreeRoute, controller.delete);
   router.openapi(deleteAllDegreesRoute, controller.deleteAll);
   router.openapi(replaceDegreesRoute, controller.replace);
+  router.openapi(listAllDegreesRoute, controller.listAll);
 
   const app = createTestApp('/api', router, 'u-admin');
 

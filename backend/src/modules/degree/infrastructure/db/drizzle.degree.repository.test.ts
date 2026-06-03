@@ -83,20 +83,22 @@ describe('DrizzleDegreeRepository Integration', () => {
       code: 'CE',
     });
     await repository.createMany([degree1, degree2]);
-    const searchResults = await repository.findAll(testOrgId, {
+    const searchResults = await repository.findPaginated(testOrgId, {
       search: 'software',
     });
-    expect(searchResults.length).toBe(1);
-    expect(searchResults[0]?.name).toBe('Software Engineering');
-    const codeResults = await repository.findAll(testOrgId, { code: 'CE' });
-    expect(codeResults.length).toBe(1);
-    expect(codeResults[0]?.name).toBe('Computer Engineering');
-    const combinedResults = await repository.findAll(testOrgId, {
+    expect(searchResults.data.length).toBe(1);
+    expect(searchResults.data[0]?.name).toBe('Software Engineering');
+    const codeResults = await repository.findPaginated(testOrgId, {
+      code: 'CE',
+    });
+    expect(codeResults.data.length).toBe(1);
+    expect(codeResults.data[0]?.name).toBe('Computer Engineering');
+    const combinedResults = await repository.findPaginated(testOrgId, {
       search: 'Engineering',
       code: 'SWE',
     });
-    expect(combinedResults.length).toBe(1);
-    expect(combinedResults[0]?.code).toBe('SWE');
+    expect(combinedResults.data.length).toBe(1);
+    expect(combinedResults.data[0]?.code).toBe('SWE');
   });
 
   test('should find identifiers of degrees in an organization', async () => {

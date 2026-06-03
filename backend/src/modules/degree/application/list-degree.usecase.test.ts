@@ -7,6 +7,7 @@ describe('ListDegreesUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),
@@ -33,10 +34,14 @@ describe('ListDegreesUseCase', () => {
       updatedAt: new Date(),
       deletedAt: null,
     });
-    repositoryMock.findAll.mockResolvedValueOnce([degree]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [degree],
+      meta: { total: 1, page: 1, limit: 12, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe('deg-1');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]?.id).toBe('deg-1');
+    expect(result.meta.total).toBe(1);
   });
 
   test('should throw ForbiddenError if user has no role', async () => {

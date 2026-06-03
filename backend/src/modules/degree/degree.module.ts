@@ -6,6 +6,7 @@ import { CreateDegreeUseCase } from './application/create-degree.usecase';
 import { BulkCreateDegreesUseCase } from './application/bulk-create-degree.usecase';
 import { GetDegreeUseCase } from './application/get-degree.usecase';
 import { ListDegreesUseCase } from './application/list-degree.usecase';
+import { ListAllDegreesUseCase } from './application/list-all-degrees.usecase';
 import { GetDegreeIdentifiersUseCase } from './application/get-degree-identifiers.usecase';
 import { UpdateDegreeUseCase } from './application/update-degree.usecase';
 import { DeleteDegreeUseCase } from './application/delete-degree.usecase';
@@ -17,6 +18,7 @@ import {
   bulkCreateDegreesRoute,
   getDegreeRoute,
   listDegreesRoute,
+  listAllDegreesRoute,
   updateDegreeRoute,
   deleteDegreeRoute,
   deleteAllDegreesRoute,
@@ -42,11 +44,13 @@ export const createDegreeModule = (
     new DeleteDegreeUseCase(degreeRepository, memberProvider),
     new DeleteAllDegreesUseCase(degreeRepository, memberProvider),
     new ReplaceDegreesUseCase(degreeRepository, memberProvider),
-    new GetDegreeIdentifiersUseCase(degreeRepository, memberProvider)
+    new GetDegreeIdentifiersUseCase(degreeRepository, memberProvider),
+    new ListAllDegreesUseCase(degreeRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
+    .openapi(listAllDegreesRoute, controller.listAll)
     .openapi(listDegreesRoute, controller.list)
     .openapi(getDegreeIdentifiersRoute, controller.getIdentifiers)
     .openapi(getDegreeRoute, controller.get)

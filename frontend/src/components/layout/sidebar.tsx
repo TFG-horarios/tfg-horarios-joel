@@ -101,7 +101,7 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
             e.stopPropagation();
             setIsCollapsed((prev) => !prev);
           }}
-          className="cursor-pointer absolute -right-[22px] top-1/2 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-white text-muted-foreground shadow-md transition-colors hover:bg-gray-100 hover:text-foreground dark:border-white/10 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-white"
+          className="cursor-pointer absolute -right-[22px] top-1/2 z-50 flex h-8 w-8 items-center justify-center rounded-xl bg-white text-muted-foreground shadow-md transition-colors hover:bg-gray-100 hover:text-foreground dark:border-white/10 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-white"
         >
           {isCollapsed ? (
             <PanelLeftOpen className="size-4" />
