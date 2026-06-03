@@ -36,9 +36,11 @@ export class HonoItineraryController {
 
   list: RouteHandler<typeof listItinerariesRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const itineraries = await this.listItinerariesUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      query
     );
     return c.json(itineraries, 200);
   };

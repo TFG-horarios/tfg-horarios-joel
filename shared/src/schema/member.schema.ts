@@ -40,8 +40,15 @@ export const UpdateMemberRoleBodySchema = z
   })
   .openapi('UpdateMemberRole');
 
+export const MemberListQuerySchema = z.object({
+  name: z.string().optional(),
+  email: z.string().optional(),
+  role: z.enum(['admin', 'editor', 'viewer']).optional(),
+});
+
 export type MemberDTO = z.infer<typeof MemberSchema>;
 export type MemberBaseParamDTO = z.infer<typeof MemberBaseParamSchema>;
 export type MemberIdParamDTO = z.infer<typeof MemberIdParamSchema>;
 export type CreateMemberDTO = z.infer<typeof CreateMemberBodySchema>;
 export type UpdateMemberRoleDTO = z.infer<typeof UpdateMemberRoleBodySchema>;
+export type MemberListQueryDTO = z.infer<typeof MemberListQuerySchema>;

@@ -1,4 +1,4 @@
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, ilike, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -9,7 +9,10 @@ import {
 } from './drizzle.itinerary.schema';
 import type { IItineraryRepository } from '../../domain/itinerary.repository';
 import { Itinerary } from '../../domain/itinerary.entity';
-import type { ItineraryIdentifierDTO } from '@tfg-horarios/shared';
+import {
+  type ItineraryIdentifierDTO,
+  type ItineraryListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export class DrizzleItineraryRepository implements IItineraryRepository {
   constructor(private readonly database: DbConnection) {}
@@ -58,16 +61,29 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Itinerary[]> {
+  async findAll(
+    organizationId: string,
+    filters?: ItineraryListQueryDTO
+  ): Promise<Itinerary[]> {
+    const conditions: SQL[] = [
+      eq(itinerariesTable.organizationId, organizationId),
+      isNull(itinerariesTable.deletedAt),
+    ];
+
+    if (filters?.search) {
+      conditions.push(ilike(itinerariesTable.name, `%${filters.search}%`));
+    }
+    if (filters?.code) {
+      conditions.push(ilike(itinerariesTable.code, `%${filters.code}%`));
+    }
+    if (filters?.degreeId) {
+      conditions.push(eq(itinerariesTable.degreeId, filters.degreeId));
+    }
+
     const rows = await this.database
       .select()
       .from(itinerariesTable)
-      .where(
-        and(
-          eq(itinerariesTable.organizationId, organizationId),
-          isNull(itinerariesTable.deletedAt)
-        )
-      );
+      .where(and(...conditions));
     return rows.map((row) => this.mapToDomain(row));
   }
 

@@ -1,4 +1,5 @@
 import { Member } from './member.entity';
+import type { MemberListQueryDTO } from '@tfg-horarios/shared';
 
 export interface MemberWithUserDetails {
   member: Member;
@@ -13,7 +14,8 @@ export interface IMemberRepository {
     organizationId: string
   ): Promise<Member | null>;
   findByOrganizationId(
-    organizationId: string
+    organizationId: string,
+    filters?: MemberListQueryDTO
   ): Promise<MemberWithUserDetails[]>;
   create(member: Member): Promise<void>;
   update(member: Member): Promise<void>;

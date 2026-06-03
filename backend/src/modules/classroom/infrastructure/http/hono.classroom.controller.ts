@@ -11,8 +11,10 @@ import {
   deleteAllClassroomsRoute,
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
+  listAllClassroomsRoute,
 } from './hono.classroom.routes';
 import { ListClassroomsUseCase } from '../../application/list-classroom.usecase';
+import { ListAllClassroomsUseCase } from '../../application/list-all-classrooms.usecase';
 import { GetClassroomIdentifiersUseCase } from '../../application/get-classroom-identifiers.usecase';
 import { UpdateClassroomUseCase } from '../../application/update-classroom.usecase';
 import { DeleteClassroomUseCase } from '../../application/delete-classroom.usecase';
@@ -31,7 +33,8 @@ export class HonoClassroomController {
     private readonly bulkCreateClassroomsUseCase: BulkCreateClassroomsUseCase,
     private readonly deleteAllClassroomsUseCase: DeleteAllClassroomsUseCase,
     private readonly replaceClassroomsUseCase: ReplaceClassroomsUseCase,
-    private readonly getClassroomIdentifiersUseCase: GetClassroomIdentifiersUseCase
+    private readonly getClassroomIdentifiersUseCase: GetClassroomIdentifiersUseCase,
+    private readonly listAllClassroomsUseCase: ListAllClassroomsUseCase
   ) {}
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
@@ -85,10 +88,12 @@ export class HonoClassroomController {
 
   list: RouteHandler<typeof listClassroomsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const requesterUserId = c.get('userId');
     const classrooms = await this.listClassroomsUseCase.execute(
       organizationId,
-      requesterUserId
+      requesterUserId,
+      query
     );
     return c.json(classrooms, 200);
   };
@@ -138,5 +143,15 @@ export class HonoClassroomController {
       requesterUserId
     );
     return c.json({ message: 'All classrooms deleted successfully' });
+  };
+
+  listAll: RouteHandler<typeof listAllClassroomsRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const requesterUserId = c.get('userId');
+    const classrooms = await this.listAllClassroomsUseCase.execute(
+      organizationId,
+      requesterUserId
+    );
+    return c.json(classrooms, 200);
   };
 }

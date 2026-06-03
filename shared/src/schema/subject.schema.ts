@@ -47,6 +47,16 @@ export const SubjectIdParamSchema = SubjectListParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
+export const SubjectListQuerySchema = z.object({
+  search: z.string().optional(),
+  code: z.string().optional(),
+  shift: z.enum(['morning', 'afternoon']).optional(),
+  period: z.coerce.number().optional(),
+  itineraryId: z.string().optional(),
+  degreeId: z.string().optional(),
+  courseYear: z.coerce.number().optional(),
+});
+
 export const SaveSubjectBodySchema = z
   .object({
     name: z.string().min(3).max(100).openapi({ example: 'Mathematics I' }),
@@ -77,3 +87,4 @@ export type SubjectDTO = z.infer<typeof SubjectSchema>;
 export type SaveSubjectDTO = z.infer<typeof SaveSubjectBodySchema>;
 export type BulkSaveSubjectDTO = z.infer<typeof BulkSaveSubjectBodySchema>;
 export type SubjectIdentifierDTO = z.infer<typeof SubjectIdentifierSchema>;
+export type SubjectListQueryDTO = z.infer<typeof SubjectListQuerySchema>;

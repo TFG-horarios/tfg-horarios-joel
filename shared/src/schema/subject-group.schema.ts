@@ -51,6 +51,15 @@ export const SubjectGroupIdParamSchema = SubjectGroupBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
+export const SubjectGroupListQuerySchema = z.object({
+  search: z.string().optional(),
+  subjectId: z.string().optional(),
+  shift: z.enum(['morning', 'afternoon']).optional(),
+  groupType: z.enum(['theory', 'problems', 'practices']).optional(),
+  degreeId: z.string().optional(),
+  itineraryId: z.string().optional(),
+});
+
 export const SaveSubjectGroupBodySchema = z
   .object({
     name: z.string().min(2).openapi({ example: 'Grupo 1 Theory' }),
@@ -86,4 +95,7 @@ export type BulkSaveSubjectGroupDTO = z.infer<
 >;
 export type SubjectGroupIdentifierDTO = z.infer<
   typeof SubjectGroupIdentifierSchema
+>;
+export type SubjectGroupListQueryDTO = z.infer<
+  typeof SubjectGroupListQuerySchema
 >;

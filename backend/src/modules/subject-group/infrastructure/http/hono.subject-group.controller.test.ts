@@ -121,7 +121,7 @@ describe('HonoSubjectGroupController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/subject-groups`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: groupId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/subject-groups/identifiers should return 200', async () => {

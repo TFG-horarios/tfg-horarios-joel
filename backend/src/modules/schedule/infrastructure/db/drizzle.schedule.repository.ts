@@ -1,4 +1,4 @@
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, desc, isNull, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -13,6 +13,7 @@ import type {
   CreateScheduleSlotInput,
 } from '../../domain/schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
+import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -133,11 +134,41 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     return rows[0] ? rows[0].version : null;
   }
 
-  async findAll(organizationId: string): Promise<Schedule[]> {
+  async findAll(
+    organizationId: string,
+    filters?: ScheduleListQueryDTO
+  ): Promise<Schedule[]> {
+    const conditions: SQL[] = [
+      eq(schedulesTable.organizationId, organizationId),
+    ];
+
+    if (filters?.degreeId) {
+      conditions.push(eq(schedulesTable.degreeId, filters.degreeId));
+    }
+    if (filters?.itineraryId) {
+      if (filters.itineraryId === 'common') {
+        conditions.push(isNull(schedulesTable.itineraryId));
+      } else {
+        conditions.push(eq(schedulesTable.itineraryId, filters.itineraryId));
+      }
+    }
+    if (filters?.shift) {
+      conditions.push(eq(schedulesTable.shift, filters.shift));
+    }
+    if (filters?.courseYear) {
+      conditions.push(eq(schedulesTable.courseYear, filters.courseYear));
+    }
+    if (filters?.period) {
+      conditions.push(eq(schedulesTable.period, filters.period));
+    }
+    if (filters?.status) {
+      conditions.push(eq(schedulesTable.status, filters.status));
+    }
+
     const rows = await this.database
       .select()
       .from(schedulesTable)
-      .where(eq(schedulesTable.organizationId, organizationId))
+      .where(and(...conditions))
       .orderBy(desc(schedulesTable.createdAt));
     return rows.map((row) => this.mapToDomain(row));
   }

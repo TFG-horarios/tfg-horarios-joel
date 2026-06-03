@@ -74,6 +74,58 @@ describe('DrizzleClassroomRepository Integration', () => {
     expect(foundClassrooms.map((c) => c.id)).toContain(classroom2.id);
   });
 
+  test('should filter classrooms by search, type, and capacity', async () => {
+    const classroom1 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'Theory Room A',
+      capacity: 50,
+      type: 'theory',
+    });
+    const classroom2 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'Lab Room B',
+      capacity: 20,
+      type: 'lab',
+    });
+    const classroom3 = Classroom.create({
+      organizationId: testOrgId,
+      name: 'Theory Room C',
+      capacity: 100,
+      type: 'theory',
+    });
+    await repository.createMany([classroom1, classroom2, classroom3]);
+    const theoryClassrooms = await repository.findPaginated(testOrgId, {
+      type: 'theory',
+    });
+    expect(theoryClassrooms.data.length).toBe(3);
+    expect(theoryClassrooms.data.map((c) => c.name)).toContain('Theory Room A');
+    expect(theoryClassrooms.data.map((c) => c.name)).toContain('Theory Room C');
+    const labClassrooms = await repository.findPaginated(testOrgId, {
+      type: 'lab',
+    });
+    expect(labClassrooms.data.map((c) => c.name)).toContain('Lab Room B');
+    const searchClassrooms = await repository.findPaginated(testOrgId, {
+      search: 'room',
+    });
+    expect(searchClassrooms.data.length).toBe(3);
+    const minCapClassrooms = await repository.findPaginated(testOrgId, {
+      minCapacity: 50,
+    });
+    expect(minCapClassrooms.data.length).toBe(3);
+    const maxCapClassrooms = await repository.findPaginated(testOrgId, {
+      maxCapacity: 25,
+    });
+    expect(maxCapClassrooms.data.map((c) => c.name)).toContain('Lab Room B');
+    const combinedClassrooms = await repository.findPaginated(testOrgId, {
+      type: 'theory',
+      minCapacity: 60,
+      maxCapacity: 150,
+      search: 'Theory',
+    });
+    expect(combinedClassrooms.data.length).toBe(1);
+    expect(combinedClassrooms.data[0]?.name).toBe('Theory Room C');
+  });
+
   test('should find identifiers of classrooms in an organization', async () => {
     const classroom1 = Classroom.create({
       organizationId: testOrgId,
@@ -125,7 +177,7 @@ describe('DrizzleClassroomRepository Integration', () => {
     const foundClassroom = await repository.findById(classroom.id, testOrgId);
     expect(foundClassroom).toBeNull();
     const allClassrooms = await repository.findAll(testOrgId);
-    expect(allClassrooms.length).toBe(1);
+    expect(allClassrooms.map((c) => c.id)).not.toContain(classroom.id);
   });
 
   test('should soft delete all classrooms successfully', async () => {

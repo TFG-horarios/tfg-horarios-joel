@@ -6,6 +6,7 @@ import {
   MemberSchema,
   UpdateMemberRoleBodySchema,
   MemberIdParamSchema,
+  MemberListQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listMembersRoute = createRoute({
@@ -13,6 +14,7 @@ export const listMembersRoute = createRoute({
   path: '/organizations/{organizationId}/members',
   request: {
     params: MemberBaseParamSchema,
+    query: MemberListQuerySchema,
   },
   responses: {
     200: {

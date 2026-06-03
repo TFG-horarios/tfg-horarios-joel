@@ -61,20 +61,37 @@ describe('DrizzleMemberRepository Integration', () => {
     expect(foundMember).toBeNull();
   });
 
-  test('should find all members in an organization', async () => {
+  test('should find all members in an organization and apply filters', async () => {
     const u4 = '40eebc99-9c0b-4ef8-bb6d-6bb9bd380a04';
     const u5 = '50eebc99-9c0b-4ef8-bb6d-6bb9bd380a05';
-    await seedTestUser(testDb, u4, 'u4@e.com', 'User ' + u4);
-    await seedTestUser(testDb, u5, 'u5@e.com', 'User ' + u5);
+    await seedTestUser(testDb, u4, 'u4@e.com', 'Alice Smith');
+    await seedTestUser(testDb, u5, 'u5@e.com', 'Bob Jones');
     const member1 = createValidMember(u4);
-    const member2 = createValidMember(u5);
+    const member2 = Member.create({
+      organizationId: testOrgId,
+      userId: u5,
+      role: 'viewer',
+    });
     await repository.create(member1);
     await repository.create(member2);
     const members = await repository.findByOrganizationId(testOrgId);
     expect(members.some((m) => m.member.id === member1.id)).toBeTrue();
     expect(members.some((m) => m.member.id === member2.id)).toBeTrue();
-    const m1WithDetails = members.find((m) => m.member.id === member1.id);
-    expect(m1WithDetails?.userEmail).toBe('u4@e.com');
+    const nameFilter = await repository.findByOrganizationId(testOrgId, {
+      name: 'alice',
+    });
+    expect(nameFilter.length).toBe(1);
+    expect(nameFilter[0]?.userName).toBe('Alice Smith');
+    const emailFilter = await repository.findByOrganizationId(testOrgId, {
+      email: 'u5@e',
+    });
+    expect(emailFilter.length).toBe(1);
+    expect(emailFilter[0]?.userEmail).toBe('u5@e.com');
+    const roleFilter = await repository.findByOrganizationId(testOrgId, {
+      role: 'viewer',
+    });
+    expect(roleFilter.length).toBe(1);
+    expect(roleFilter[0]?.member.role).toBe('viewer');
   });
 
   test('should throw ConflictError on duplicate user in org', async () => {

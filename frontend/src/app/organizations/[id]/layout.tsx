@@ -89,7 +89,7 @@ export default async function OrganizationDetailLayout({
   return (
     <div className="relative z-10 flex h-full w-full min-h-0 flex-col gap-2 lg:flex-row lg:gap-3">
       <Sidebar navItems={navItems} />
-      <main className="p-6 lg:p-8 h-full w-full overflow-y-auto hide-scrollbar relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 shadow-lg shadow-black/10 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:shadow-black/60">
+      <main className="p-6 lg:p-8 h-full w-full overflow-y-auto hide-scrollbar relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 dark:border-white/10 dark:bg-white/5">
         {children}
       </main>
     </div>

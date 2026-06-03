@@ -54,15 +54,12 @@ export function OrganizationHeader() {
   };
 
   return (
-    <header className="rounded-3xl border border-black/10 bg-white/70 p-2 shadow-lg shadow-black/10 backdrop-blur-lg text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-black/60">
+    <header className="rounded-3xl border border-black/10 bg-white/70 p-2 text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white">
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/organizations"
           className={cn(
-            'rounded-lg px-3 py-2 text-sm font-semibold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10',
-            pathname === '/organizations'
-              ? 'bg-purple-500/15 text-purple-700 dark:bg-purple-500/20 dark:text-purple-200'
-              : ''
+            'rounded-lg px-3 py-2 text-sm font-semibold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10'
           )}
         >
           {tBrand('brand')}

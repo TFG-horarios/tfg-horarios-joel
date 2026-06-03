@@ -1,5 +1,8 @@
 import type { SubjectGroup } from './subject-group.entity';
-import type { SubjectGroupIdentifierDTO } from '@tfg-horarios/shared';
+import type {
+  SubjectGroupIdentifierDTO,
+  SubjectGroupListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export interface GroupWithSubjectAndItinerary {
   id: string;
@@ -18,7 +21,10 @@ export interface GroupWithSubjectAndItinerary {
 
 export interface ISubjectGroupRepository {
   findById(id: string, organizationId: string): Promise<SubjectGroup | null>;
-  findAll(organizationId: string): Promise<SubjectGroup[]>;
+  findAll(
+    organizationId: string,
+    filters?: SubjectGroupListQueryDTO
+  ): Promise<SubjectGroup[]>;
   findIdentifiers(organizationId: string): Promise<SubjectGroupIdentifierDTO[]>;
   findGroupsWithSubjectsInScope(
     organizationId: string,

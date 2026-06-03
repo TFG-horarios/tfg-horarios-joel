@@ -10,6 +10,8 @@ import {
   type ClassroomIdentifierDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import { fetchClassrooms } from './queries';
+import type { ClassroomListQueryDTO } from '@tfg-horarios/shared';
 
 import { type ActionResponse } from '@/types/actions';
 
@@ -42,6 +44,14 @@ export async function bulkCreateClassrooms(
     console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
     throw error;
   }
+}
+
+export async function fetchClassroomsAction(
+  organizationId: string,
+  query: ClassroomListQueryDTO,
+  page: number
+) {
+  return fetchClassrooms(organizationId, { ...query, page });
 }
 
 export async function replaceClassroomsAction(

@@ -1,4 +1,4 @@
-import type { DegreeDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO, DegreeListQueryDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
 import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
@@ -13,7 +13,8 @@ export class ListDegreesUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string
+    requesterUserId: string,
+    filters?: DegreeListQueryDTO
   ): Promise<DegreeDTO[]> {
     const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
@@ -23,7 +24,10 @@ export class ListDegreesUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const degrees = await this.degreeRepository.findAll(organizationId);
+    const degrees = await this.degreeRepository.findAll(
+      organizationId,
+      filters
+    );
     return DegreeMapper.toDTOList(degrees);
   }
 }

@@ -1,26 +1,34 @@
-export interface ResourceGridProps<T> {
-  items: T[];
-  renderItem: (item: T) => React.ReactNode;
-  emptyState: React.ReactNode;
+export interface ResourceGridProps<T = any> {
+  items?: T[];
+  renderItem?: (item: T) => React.ReactNode;
+  emptyState?: React.ReactNode;
   keyExtractor?: (item: T) => string | number;
+  children?: React.ReactNode;
 }
 
-export function ResourceGrid<T>({
+export function ResourceGrid<T = any>({
   items,
   renderItem,
   emptyState,
   keyExtractor,
+  children,
 }: ResourceGridProps<T>) {
-  if (items.length === 0) {
+  const hasItems = items ? items.length > 0 : false;
+  const hasChildren = Boolean(children);
+
+  if (!hasItems && !hasChildren) {
     return <>{emptyState}</>;
   }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {items.map((item, index) => {
-        const key = keyExtractor ? keyExtractor(item) : index;
-        return <div key={key}>{renderItem(item)}</div>;
-      })}
+      {items &&
+        renderItem &&
+        items.map((item, index) => {
+          const key = keyExtractor ? keyExtractor(item) : index;
+          return <div key={key}>{renderItem(item)}</div>;
+        })}
+      {children}
     </div>
   );
 }

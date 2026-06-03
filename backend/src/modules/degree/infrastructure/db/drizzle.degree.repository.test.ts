@@ -71,6 +71,34 @@ describe('DrizzleDegreeRepository Integration', () => {
     expect(foundDegrees.map((d) => d.id)).toContain(degree2.id);
   });
 
+  test('should filter degrees by search and code', async () => {
+    const degree1 = Degree.create({
+      organizationId: testOrgId,
+      name: 'Software Engineering',
+      code: 'SWE',
+    });
+    const degree2 = Degree.create({
+      organizationId: testOrgId,
+      name: 'Computer Engineering',
+      code: 'CE',
+    });
+    await repository.createMany([degree1, degree2]);
+    const searchResults = await repository.findAll(testOrgId, {
+      search: 'software',
+    });
+    expect(searchResults.length).toBe(1);
+    expect(searchResults[0]?.name).toBe('Software Engineering');
+    const codeResults = await repository.findAll(testOrgId, { code: 'CE' });
+    expect(codeResults.length).toBe(1);
+    expect(codeResults[0]?.name).toBe('Computer Engineering');
+    const combinedResults = await repository.findAll(testOrgId, {
+      search: 'Engineering',
+      code: 'SWE',
+    });
+    expect(combinedResults.length).toBe(1);
+    expect(combinedResults[0]?.code).toBe('SWE');
+  });
+
   test('should find identifiers of degrees in an organization', async () => {
     const degree1 = Degree.create({
       organizationId: testOrgId,

@@ -6,15 +6,37 @@ import {
   ClassroomBaseParamSchema,
   ClassroomIdParamSchema,
   ClassroomIdentifierSchema,
+  ClassroomListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listClassroomsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms',
-  request: { params: ClassroomBaseParamSchema },
+  request: {
+    params: ClassroomBaseParamSchema,
+    query: ClassroomListQuerySchema,
+  },
   responses: {
     200: {
       description: 'Classroom list',
+      content: {
+        'application/json': { schema: createPaginatedSchema(ClassroomSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const listAllClassroomsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classrooms/all',
+  request: {
+    params: ClassroomBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'All Classrooms list',
       content: { 'application/json': { schema: z.array(ClassroomSchema) } },
     },
     403: { description: 'Forbidden' },

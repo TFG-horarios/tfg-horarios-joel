@@ -1,4 +1,4 @@
-import { eq, and, count } from 'drizzle-orm';
+import { eq, and, count, ilike, type SQL } from 'drizzle-orm';
 import { type DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -14,6 +14,7 @@ import {
 import { Member } from '../../domain/member.entity';
 import { type AppRole } from '@/core/permissions/roles';
 import { usersTable } from '@/modules/user/infrastructure/db/drizzle.user.schema';
+import type { MemberListQueryDTO } from '@tfg-horarios/shared';
 
 export class DrizzleMemberRepository implements IMemberRepository {
   constructor(private readonly database: DbConnection) {}
@@ -72,8 +73,21 @@ export class DrizzleMemberRepository implements IMemberRepository {
   }
 
   async findByOrganizationId(
-    organizationId: string
+    organizationId: string,
+    filters?: MemberListQueryDTO
   ): Promise<MemberWithUserDetails[]> {
+    const conditions: SQL[] = [eq(membersTable.organizationId, organizationId)];
+
+    if (filters?.name) {
+      conditions.push(ilike(usersTable.name, `%${filters.name}%`));
+    }
+    if (filters?.email) {
+      conditions.push(ilike(usersTable.email, `%${filters.email}%`));
+    }
+    if (filters?.role) {
+      conditions.push(eq(membersTable.role, filters.role));
+    }
+
     const results = await this.database
       .select({
         member: membersTable,
@@ -82,7 +96,7 @@ export class DrizzleMemberRepository implements IMemberRepository {
       })
       .from(membersTable)
       .innerJoin(usersTable, eq(membersTable.userId, usersTable.id))
-      .where(eq(membersTable.organizationId, organizationId));
+      .where(and(...conditions));
     return results.map((row) => ({
       member: this.mapToDomain(row.member),
       userName: row.userName,

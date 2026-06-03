@@ -1,4 +1,4 @@
-import type { SubjectDTO } from '@tfg-horarios/shared';
+import type { SubjectDTO, SubjectListQueryDTO } from '@tfg-horarios/shared';
 import type { ISubjectRepository } from '../domain/subject.repository';
 import { SubjectMapper } from './subject.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -12,7 +12,8 @@ export class ListSubjectUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string
+    requesterUserId: string,
+    filters?: SubjectListQueryDTO
   ): Promise<SubjectDTO[]> {
     const role = await this.memberProvider.getMemberRole(
       requesterUserId,
@@ -21,7 +22,10 @@ export class ListSubjectUseCase {
     if (!role)
       throw new ForbiddenError('You do not have access to this organization');
 
-    const subjects = await this.subjectRepository.findAll(organizationId);
+    const subjects = await this.subjectRepository.findAll(
+      organizationId,
+      filters
+    );
     return SubjectMapper.toDTOList(subjects);
   }
 }

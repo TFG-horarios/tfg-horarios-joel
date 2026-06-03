@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const ClassroomSchema = z
   .object({
@@ -29,6 +30,13 @@ export const ClassroomIdParamSchema = ClassroomBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
+export const ClassroomListQuerySchema = PaginationQuerySchema.extend({
+  search: z.string().optional(),
+  type: z.enum(['theory', 'lab']).optional(),
+  minCapacity: z.coerce.number().int().positive().optional(),
+  maxCapacity: z.coerce.number().int().positive().optional(),
+});
+
 export const SaveClassroomBodySchema = z
   .object({
     name: z.string().min(2).max(100).openapi({ example: 'Aula 1.1' }),
@@ -42,3 +50,4 @@ export type ClassroomBaseParamDTO = z.infer<typeof ClassroomBaseParamSchema>;
 export type ClassroomIdParamDTO = z.infer<typeof ClassroomIdParamSchema>;
 export type SaveClassroomDTO = z.infer<typeof SaveClassroomBodySchema>;
 export type ClassroomIdentifierDTO = z.infer<typeof ClassroomIdentifierSchema>;
+export type ClassroomListQueryDTO = z.infer<typeof ClassroomListQuerySchema>;

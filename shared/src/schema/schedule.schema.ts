@@ -49,10 +49,20 @@ export const SaveScheduleBodySchema = z
   })
   .openapi('SaveSchedule');
 
+export const ScheduleListQuerySchema = z.object({
+  degreeId: z.string().optional(),
+  itineraryId: z.string().optional(),
+  shift: z.enum(['morning', 'afternoon']).optional(),
+  courseYear: z.coerce.number().optional(),
+  period: z.coerce.number().optional(),
+  status: z.enum(['draft', 'published', 'archived']).optional(),
+});
+
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;
 export type ScheduleBaseParamDTO = z.infer<typeof ScheduleBaseParamSchema>;
 export type ScheduleIdParamDTO = z.infer<typeof ScheduleIdParamSchema>;
 export type SaveScheduleDTO = z.infer<typeof SaveScheduleBodySchema>;
+export type ScheduleListQueryDTO = z.infer<typeof ScheduleListQuerySchema>;
 
 export const GenerationScopeSchema = z
   .object({

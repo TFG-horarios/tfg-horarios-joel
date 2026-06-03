@@ -6,6 +6,7 @@ describe('GetClassroomIdentifiersUseCase', () => {
   const mockClassroomRepository = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),

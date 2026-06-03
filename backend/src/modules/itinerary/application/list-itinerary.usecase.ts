@@ -1,4 +1,4 @@
-import type { ItineraryDTO } from '@tfg-horarios/shared';
+import type { ItineraryDTO, ItineraryListQueryDTO } from '@tfg-horarios/shared';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
 import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
@@ -13,7 +13,8 @@ export class ListItinerariesUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string
+    requesterUserId: string,
+    filters?: ItineraryListQueryDTO
   ): Promise<ItineraryDTO[]> {
     const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
@@ -23,7 +24,10 @@ export class ListItinerariesUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const itineraries = await this.itineraryRepository.findAll(organizationId);
+    const itineraries = await this.itineraryRepository.findAll(
+      organizationId,
+      filters
+    );
     return ItineraryMapper.toDTOList(itineraries);
   }
 }

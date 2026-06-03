@@ -8,12 +8,16 @@ import {
   ItineraryIdParamSchema,
   ItineraryCreateParamSchema,
   ItineraryIdentifierSchema,
+  ItineraryListQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries',
-  request: { params: ItineraryBaseParamSchema },
+  request: {
+    params: ItineraryBaseParamSchema,
+    query: ItineraryListQuerySchema,
+  },
   responses: {
     200: {
       description: 'Itinerary list',

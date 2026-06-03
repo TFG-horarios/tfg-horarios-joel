@@ -36,9 +36,11 @@ export class HonoDegreeController {
 
   list: RouteHandler<typeof listDegreesRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const degrees = await this.listDegreesUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      query
     );
     return c.json(degrees, 200);
   };

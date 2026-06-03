@@ -8,21 +8,37 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchDegrees } from '@/features/degree/queries';
 import { DegreeCard } from '@/features/degree/components/degree-card';
 import { DegreeActions } from '@/features/degree/components/degree-actions';
+import { ResourceSearch } from '@/components/shared/resource/resource-search';
+import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
+import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import type { DegreeListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationDegreesPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function OrganizationDegreesPage({
   params,
+  searchParams,
 }: OrganizationDegreesPageProps) {
   const { id } = await params;
+  const rawSearchParams = await searchParams;
+  const query: DegreeListQueryDTO = {
+    search:
+      typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
+    code:
+      typeof rawSearchParams.code === 'string'
+        ? rawSearchParams.code
+        : undefined,
+  };
+
   const t = await getTranslations('Organizations.degrees');
   const organization = await fetchOrganizationById(id);
   if (!organization) {
     notFound();
   }
-  const degrees = await fetchDegrees(id);
+  const degrees = await fetchDegrees(id, query);
   const translations = {
     empty: t('empty'),
   };
@@ -36,7 +52,23 @@ export default async function OrganizationDegreesPage({
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar search={<div />} filters={undefined} />
+        <ResourceToolbar
+          search={
+            <ResourceSearch
+              placeholder={t('searchPlaceholder') || 'Buscar grado...'}
+            />
+          }
+          filters={
+            <div className="flex gap-2 w-full lg:w-auto">
+              <ResourceFilterInput
+                paramKey="code"
+                type="text"
+                placeholder={t('codePlaceholder') || 'Código...'}
+              />
+              <ResourceFilterClear />
+            </div>
+          }
+        />
         <DegreeActions organizationId={id} />
       </div>
       <ResourceGrid

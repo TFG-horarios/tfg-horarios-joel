@@ -1,4 +1,4 @@
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, ilike, arrayContains, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -9,7 +9,10 @@ import {
 } from './drizzle.subject.schema';
 import type { ISubjectRepository } from '../../domain/subject.repository';
 import { Subject, type Shift } from '../../domain/subject.entity';
-import type { SubjectIdentifierDTO } from '@tfg-horarios/shared';
+import {
+  type SubjectIdentifierDTO,
+  type SubjectListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export class DrizzleSubjectRepository implements ISubjectRepository {
   constructor(private readonly database: DbConnection) {}
@@ -69,11 +72,42 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Subject[]> {
-    const conditions = [
+  async findAll(
+    organizationId: string,
+    filters?: SubjectListQueryDTO
+  ): Promise<Subject[]> {
+    const conditions: SQL[] = [
       eq(subjectsTable.organizationId, organizationId),
       isNull(subjectsTable.deletedAt),
     ];
+
+    if (filters?.search) {
+      conditions.push(ilike(subjectsTable.name, `%${filters.search}%`));
+    }
+    if (filters?.code) {
+      conditions.push(ilike(subjectsTable.code, `%${filters.code}%`));
+    }
+    if (filters?.degreeId) {
+      conditions.push(eq(subjectsTable.degreeId, filters.degreeId));
+    }
+    if (filters?.courseYear !== undefined) {
+      conditions.push(eq(subjectsTable.courseYear, filters.courseYear));
+    }
+    if (filters?.period !== undefined) {
+      conditions.push(eq(subjectsTable.period, filters.period));
+    }
+    if (filters?.shift) {
+      conditions.push(
+        arrayContains(subjectsTable.availableShifts, [filters.shift])
+      );
+    }
+    if (filters?.itineraryId) {
+      if (filters.itineraryId === 'common') {
+        conditions.push(eq(subjectsTable.isCommon, true));
+      } else {
+        conditions.push(eq(subjectsTable.itineraryId, filters.itineraryId));
+      }
+    }
 
     const rows = await this.database
       .select()

@@ -1,4 +1,8 @@
-import type { ClassroomDTO } from '@tfg-horarios/shared';
+import type {
+  ClassroomDTO,
+  ClassroomListQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 import type { IClassroomRepository } from '../domain/classroom.repository';
 import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -13,8 +17,9 @@ export class ListClassroomsUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string
-  ): Promise<ClassroomDTO[]> {
+    requesterUserId: string,
+    filters?: ClassroomListQueryDTO
+  ): Promise<PaginatedResponse<ClassroomDTO>> {
     const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
@@ -23,7 +28,14 @@ export class ListClassroomsUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    const classrooms = await this.classroomRepository.findAll(organizationId);
-    return ClassroomMapper.toDTOList(classrooms);
+    const result = await this.classroomRepository.findPaginated(
+      organizationId,
+      filters
+    );
+
+    return {
+      data: ClassroomMapper.toDTOList(result.data),
+      meta: result.meta,
+    };
   }
 }

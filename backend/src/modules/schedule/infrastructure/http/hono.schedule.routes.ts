@@ -7,12 +7,16 @@ import {
   ScheduleSlotSchema,
   SaveScheduleSlotBodySchema,
   GenerationScopeSchema,
+  ScheduleListQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listSchedulesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules',
-  request: { params: ScheduleBaseParamSchema },
+  request: {
+    params: ScheduleBaseParamSchema,
+    query: ScheduleListQuerySchema,
+  },
   responses: {
     200: {
       description: 'List of schedules',

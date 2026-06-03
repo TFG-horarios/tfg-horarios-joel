@@ -9,6 +9,9 @@ describe('SubjectAdapter', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    deleteAll: mock(),
+    replace: mock(),
+    findIdentifiers: mock(),
   };
   const adapter = new SubjectAdapter(subjectRepositoryMock);
 

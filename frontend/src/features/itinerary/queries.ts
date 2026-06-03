@@ -1,9 +1,14 @@
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
-import { ItinerarySchema, type ItineraryDTO } from '@tfg-horarios/shared';
+import {
+  ItinerarySchema,
+  type ItineraryDTO,
+  type ItineraryListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export async function fetchItineraries(
-  organizationId: string
+  organizationId: string,
+  query?: ItineraryListQueryDTO
 ): Promise<ItineraryDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
@@ -11,6 +16,7 @@ export async function fetchItineraries(
     ':organizationId'
   ]!.itineraries.$get({
     param: { organizationId },
+    query: query || {},
   });
 
   const status = response.status + 0;

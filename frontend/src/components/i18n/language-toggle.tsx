@@ -10,6 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { routing } from '@/lib/i18n/routing';
 
 export function LanguageToggle() {
@@ -25,42 +31,48 @@ export function LanguageToggle() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          id="language-toggle-trigger"
-          variant="outline"
-          size="icon"
-          className="relative size-9 cursor-pointer"
-          title={t('toggleLanguage')}
-          aria-label={t('toggleLanguage')}
-        >
-          <Languages className="size-4" />
-          <span className="sr-only">{t('toggleLanguage')}</span>
-          <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-semibold uppercase leading-none text-primary-foreground">
-            {currentLocale}
-          </span>
-        </Button>
-      </DropdownMenuTrigger>
+    <TooltipProvider delayDuration={0}>
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                id="language-toggle-trigger"
+                variant="outline"
+                size="icon"
+                className="relative size-9 cursor-pointer"
+                aria-label={t('toggleLanguage')}
+              >
+                <Languages className="size-4" />
+                <span className="sr-only">{t('toggleLanguage')}</span>
+                <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-semibold uppercase leading-none text-primary-foreground">
+                  {currentLocale}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{t('toggleLanguage')}</TooltipContent>
+        </Tooltip>
 
-      <DropdownMenuContent
-        align="end"
-        className="min-w-40 p-2 flex flex-col gap-1"
-      >
-        {routing.locales.map((locale) => (
-          <DropdownMenuItem
-            key={locale}
-            onClick={() => handleLanguageChange(locale)}
-            className={`cursor-pointer px-3 py-2 transition-colors ${
-              currentLocale === locale
-                ? 'bg-primary font-medium text-white hover:bg-primary hover:text-white dark:text-primary-foreground'
-                : ''
-            }`}
-          >
-            {tLanguages(locale as 'es' | 'en')}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent
+          align="end"
+          className="min-w-40 p-2 flex flex-col gap-1"
+        >
+          {routing.locales.map((locale) => (
+            <DropdownMenuItem
+              key={locale}
+              onClick={() => handleLanguageChange(locale)}
+              className={`cursor-pointer px-3 py-2 transition-colors ${
+                currentLocale === locale
+                  ? 'bg-primary font-medium text-white hover:bg-primary hover:text-white dark:text-primary-foreground'
+                  : ''
+              }`}
+            >
+              {tLanguages(locale as 'es' | 'en')}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TooltipProvider>
   );
 }

@@ -21,10 +21,12 @@ export class HonoMemberController {
 
   list: RouteHandler<typeof listMembersRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const requesterUserId = c.get('userId');
     const members = await this.listMembersUseCase.execute(
       organizationId,
-      requesterUserId
+      requesterUserId,
+      query
     );
     return c.json(members, 200);
   };

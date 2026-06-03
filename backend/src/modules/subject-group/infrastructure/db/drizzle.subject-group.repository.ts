@@ -1,4 +1,4 @@
-import { eq, and, isNull, inArray } from 'drizzle-orm';
+import { eq, and, isNull, inArray, ilike, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -18,7 +18,10 @@ import {
   type GroupType,
   type Shift,
 } from '../../domain/subject-group.entity';
-import type { SubjectGroupIdentifierDTO } from '@tfg-horarios/shared';
+import type {
+  SubjectGroupIdentifierDTO,
+  SubjectGroupListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
   constructor(private readonly database: DbConnection) {}
@@ -75,17 +78,58 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<SubjectGroup[]> {
-    const rows = await this.database
-      .select()
+  async findAll(
+    organizationId: string,
+    filters?: SubjectGroupListQueryDTO
+  ): Promise<SubjectGroup[]> {
+    const conditions: SQL[] = [
+      eq(subjectGroupsTable.organizationId, organizationId),
+      isNull(subjectGroupsTable.deletedAt),
+    ];
+
+    if (filters?.search) {
+      conditions.push(ilike(subjectGroupsTable.name, `%${filters.search}%`));
+    }
+    if (filters?.subjectId) {
+      conditions.push(eq(subjectGroupsTable.subjectId, filters.subjectId));
+    }
+    if (filters?.shift) {
+      conditions.push(eq(subjectGroupsTable.shift, filters.shift));
+    }
+    if (filters?.groupType) {
+      conditions.push(eq(subjectGroupsTable.groupType, filters.groupType));
+    }
+
+    let query = this.database
+      .select({
+        subjectGroup: subjectGroupsTable,
+      })
       .from(subjectGroupsTable)
-      .where(
+      .$dynamic();
+
+    if (filters?.degreeId || filters?.itineraryId) {
+      query = query.innerJoin(
+        subjectsTable,
         and(
-          eq(subjectGroupsTable.organizationId, organizationId),
-          isNull(subjectGroupsTable.deletedAt)
+          eq(subjectGroupsTable.subjectId, subjectsTable.id),
+          isNull(subjectsTable.deletedAt)
         )
       );
-    return rows.map((row) => this.mapToDomain(row));
+
+      if (filters?.degreeId) {
+        conditions.push(eq(subjectsTable.degreeId, filters.degreeId));
+      }
+      if (filters?.itineraryId) {
+        if (filters.itineraryId === 'common') {
+          conditions.push(eq(subjectsTable.isCommon, true));
+        } else {
+          conditions.push(eq(subjectsTable.itineraryId, filters.itineraryId));
+        }
+      }
+    }
+
+    const rows = await query.where(and(...conditions));
+    return rows.map((row) => this.mapToDomain(row.subjectGroup));
   }
 
   async findIdentifiers(

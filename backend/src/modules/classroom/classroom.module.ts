@@ -14,10 +14,12 @@ import {
   deleteAllClassroomsRoute,
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
+  listAllClassroomsRoute,
 } from './infrastructure/http/hono.classroom.routes';
 import { DeleteClassroomUseCase } from './application/delete-classroom.usecase';
 import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
 import { ListClassroomsUseCase } from './application/list-classroom.usecase';
+import { ListAllClassroomsUseCase } from './application/list-all-classrooms.usecase';
 import { GetClassroomIdentifiersUseCase } from './application/get-classroom-identifiers.usecase';
 import { GetClassroomUseCase } from './application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from './application/bulk-create-classroom.usecase';
@@ -39,6 +41,11 @@ export const createClassroomModule = (
   );
 
   const listUseCase = new ListClassroomsUseCase(
+    classroomRepository,
+    memberProvider
+  );
+
+  const listAllUseCase = new ListAllClassroomsUseCase(
     classroomRepository,
     memberProvider
   );
@@ -87,7 +94,8 @@ export const createClassroomModule = (
     createManyUseCase,
     deleteAllUseCase,
     replaceUseCase,
-    getIdentifiersUseCase
+    getIdentifiersUseCase,
+    listAllUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -96,6 +104,7 @@ export const createClassroomModule = (
     .openapi(createManyClassroomsRoute, controller.createMany)
     .openapi(replaceClassroomsRoute, controller.replace)
     .openapi(listClassroomsRoute, controller.list)
+    .openapi(listAllClassroomsRoute, controller.listAll)
     .openapi(getClassroomIdentifiersRoute, controller.getIdentifiers)
     .openapi(getClassroomRoute, controller.get)
     .openapi(updateClassroomRoute, controller.update)

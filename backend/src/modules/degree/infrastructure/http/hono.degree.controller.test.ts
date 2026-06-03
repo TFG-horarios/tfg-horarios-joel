@@ -107,7 +107,7 @@ describe('HonoDegreeController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/degrees`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: degreeId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/degrees/identifiers should return 200 with identifiers', async () => {

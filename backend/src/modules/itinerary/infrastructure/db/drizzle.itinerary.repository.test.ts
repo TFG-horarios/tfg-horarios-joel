@@ -4,6 +4,7 @@ import { Itinerary } from '../../domain/itinerary.entity';
 import { ConflictError } from '@/core/errors/app.error';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
 import { seedTestDb, testOrgId, testDegreeId } from '@/tests/seed-db';
+import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 
 describe('DrizzleItineraryRepository Integration', () => {
   let repository: DrizzleItineraryRepository;
@@ -72,6 +73,56 @@ describe('DrizzleItineraryRepository Integration', () => {
     expect(foundItineraries.length).toBe(3);
     expect(foundItineraries.map((i) => i.id)).toContain(itinerary1.id);
     expect(foundItineraries.map((i) => i.id)).toContain(itinerary2.id);
+  });
+
+  test('should filter itineraries by search, code, and degreeId', async () => {
+    const degreeId2 = 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+    const itinerary1 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'Software Engineering',
+      code: 'SWE',
+    });
+    const itinerary2 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      name: 'Computer Engineering',
+      code: 'CE',
+    });
+    const itinerary3 = Itinerary.create({
+      organizationId: testOrgId,
+      degreeId: degreeId2,
+      name: 'Software Testing',
+      code: 'ST',
+    });
+    await testDb.insert(degreesTable).values({
+      id: degreeId2,
+      organizationId: testOrgId,
+      name: 'Degree 2',
+      code: 'D2',
+    });
+    await repository.createMany([itinerary1, itinerary2, itinerary3]);
+    const searchResults = await repository.findAll(testOrgId, {
+      search: 'software',
+    });
+    expect(searchResults.length).toBe(3);
+    expect(searchResults.map((i) => i.name)).toContain('Software Engineering');
+    expect(searchResults.map((i) => i.name)).toContain('Software Testing');
+    const codeResults = await repository.findAll(testOrgId, { code: 'CE' });
+    expect(codeResults.length).toBe(1);
+    expect(codeResults[0]?.name).toBe('Computer Engineering');
+    const degreeResults = await repository.findAll(testOrgId, {
+      degreeId: testDegreeId,
+    });
+    expect(degreeResults.length).toBe(3);
+    expect(degreeResults.map((i) => i.name)).not.toContain('Software Testing');
+    const combinedResults = await repository.findAll(testOrgId, {
+      search: 'Engineering',
+      code: 'SWE',
+      degreeId: testDegreeId,
+    });
+    expect(combinedResults.length).toBe(1);
+    expect(combinedResults[0]?.code).toBe('SWE');
   });
 
   test('should find identifiers of itineraries in an organization', async () => {

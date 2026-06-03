@@ -24,6 +24,12 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { generateSchedulesAction } from '@/features/schedule/actions';
 import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
 import { Loader2, Sparkles } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type ScheduleGeneratorProps = {
   organizationId: string;
@@ -112,118 +118,126 @@ export function ScheduleGenerator({
   }));
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="icon"
-          className="size-9 cursor-pointer"
-          title={t('generate')}
-          aria-label={t('generate')}
-        >
-          <Sparkles className="size-4" />
-          <span className="sr-only">{t('generate')}</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-135 bg-card border-border/80">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {t('generate')}
-          </DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
-        </DialogHeader>
-
-        {isGenerating ? (
-          <div className="flex flex-col items-center justify-center py-10 space-y-4">
-            <Loader2 className="size-10 text-primary animate-spin" />
-            <div className="text-center space-y-1">
-              <p className="text-sm font-semibold text-foreground animate-pulse">
-                {steps[statusStep]}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                This takes a few seconds
-              </p>
-            </div>
-            <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-1000 ease-out"
-                style={{ width: `${((statusStep + 1) / steps.length) * 100}%` }}
-              />
-            </div>
-          </div>
-        ) : (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void handleGenerate();
-            }}
-            className="space-y-4 pt-2"
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="academicYear">{t('form.academicYear')}</Label>
-                <Select value={academicYear} onValueChange={setAcademicYear}>
-                  <SelectTrigger id="academicYear">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2025-2026">2025-2026</SelectItem>
-                    <SelectItem value="2026-2027">2026-2027</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="period">{t('form.period')}</Label>
-                <Select value={period} onValueChange={setPeriod}>
-                  <SelectTrigger id="period">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Semester 1</SelectItem>
-                    <SelectItem value="2">Semester 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="degrees">{t('form.degrees')}</Label>
-                <MultiSelect
-                  options={degreeOptions}
-                  selected={selectedDegrees}
-                  onChange={setSelectedDegrees}
-                  placeholder={t('form.degreesPlaceholder')}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="itineraries">{t('form.itineraries')}</Label>
-                <MultiSelect
-                  options={itineraryOptions}
-                  selected={selectedItineraries}
-                  onChange={setSelectedItineraries}
-                  placeholder={t('form.itinerariesPlaceholder')}
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="courseYears">{t('form.courseYears')}</Label>
-                <MultiSelect
-                  options={courseYearOptions}
-                  selected={selectedCourseYears}
-                  onChange={setSelectedCourseYears}
-                  placeholder={t('form.courseYearsPlaceholder')}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <Button type="submit" className="h-10 w-full sm:w-auto">
-                {t('form.submit')}
+    <TooltipProvider delayDuration={0}>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button
+                size="icon"
+                className="size-9 cursor-pointer"
+                aria-label={t('generate')}
+              >
+                <Sparkles className="size-4" />
+                <span className="sr-only">{t('generate')}</span>
               </Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{t('generate')}</TooltipContent>
+        </Tooltip>
+        <DialogContent className="bg-card border-border/80 sm:max-w-135">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {t('generate')}
+            </DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
+          </DialogHeader>
+
+          {isGenerating ? (
+            <div className="flex flex-col items-center justify-center py-10 space-y-4">
+              <Loader2 className="size-10 text-primary animate-spin" />
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-foreground animate-pulse">
+                  {steps[statusStep]}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  This takes a few seconds
+                </p>
+              </div>
+              <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-1000 ease-out"
+                  style={{
+                    width: `${((statusStep + 1) / steps.length) * 100}%`,
+                  }}
+                />
+              </div>
             </div>
-          </form>
-        )}
-      </DialogContent>
-    </Dialog>
+          ) : (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleGenerate();
+              }}
+              className="space-y-4 pt-2"
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="academicYear">{t('form.academicYear')}</Label>
+                  <Select value={academicYear} onValueChange={setAcademicYear}>
+                    <SelectTrigger id="academicYear">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2025-2026">2025-2026</SelectItem>
+                      <SelectItem value="2026-2027">2026-2027</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="period">{t('form.period')}</Label>
+                  <Select value={period} onValueChange={setPeriod}>
+                    <SelectTrigger id="period">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Semester 1</SelectItem>
+                      <SelectItem value="2">Semester 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="degrees">{t('form.degrees')}</Label>
+                  <MultiSelect
+                    options={degreeOptions}
+                    selected={selectedDegrees}
+                    onChange={setSelectedDegrees}
+                    placeholder={t('form.degreesPlaceholder')}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="itineraries">{t('form.itineraries')}</Label>
+                  <MultiSelect
+                    options={itineraryOptions}
+                    selected={selectedItineraries}
+                    onChange={setSelectedItineraries}
+                    placeholder={t('form.itinerariesPlaceholder')}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="courseYears">{t('form.courseYears')}</Label>
+                  <MultiSelect
+                    options={courseYearOptions}
+                    selected={selectedCourseYears}
+                    onChange={setSelectedCourseYears}
+                    placeholder={t('form.courseYearsPlaceholder')}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button type="submit" className="h-10 w-full sm:w-auto">
+                  {t('form.submit')}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 }

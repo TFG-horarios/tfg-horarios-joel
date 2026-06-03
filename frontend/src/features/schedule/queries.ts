@@ -5,10 +5,12 @@ import {
   ScheduleSlotSchema,
   type ScheduleDTO,
   type ScheduleSlotDTO,
+  type ScheduleListQueryDTO,
 } from '@tfg-horarios/shared';
 
 export async function fetchSchedules(
-  organizationId: string
+  organizationId: string,
+  query?: ScheduleListQueryDTO
 ): Promise<ScheduleDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
@@ -16,6 +18,7 @@ export async function fetchSchedules(
     ':organizationId'
   ]!.schedules.$get({
     param: { organizationId },
+    query: query || {},
   });
 
   const status = response.status as number;

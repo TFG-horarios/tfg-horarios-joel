@@ -27,10 +27,12 @@ export class HonoScheduleController {
 
   list: RouteHandler<typeof listSchedulesRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const requesterUserId = c.get('userId');
     const schedules = await this.listSchedulesUseCase.execute(
       organizationId,
-      requesterUserId
+      requesterUserId,
+      query
     );
     return c.json(schedules, 200);
   };

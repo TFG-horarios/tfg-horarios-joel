@@ -35,6 +35,12 @@ export const ItineraryIdParamSchema = ItineraryBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
+export const ItineraryListQuerySchema = z.object({
+  search: z.string().optional(),
+  code: z.string().optional(),
+  degreeId: z.string().optional(),
+});
+
 export const ItineraryCreateParamSchema = z.object({
   organizationId: z
     .uuid()
@@ -70,3 +76,4 @@ export type ItineraryCreateParamDTO = z.infer<
 export type SaveItineraryDTO = z.infer<typeof SaveItineraryBodySchema>;
 export type BulkSaveItineraryDTO = z.infer<typeof BulkSaveItineraryBodySchema>;
 export type ItineraryIdentifierDTO = z.infer<typeof ItineraryIdentifierSchema>;
+export type ItineraryListQueryDTO = z.infer<typeof ItineraryListQuerySchema>;

@@ -1,7 +1,11 @@
 import { cache } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { getServerClient } from '@/lib/api/server';
-import { MemberSchema, type MemberDTO } from '@tfg-horarios/shared';
+import {
+  MemberSchema,
+  type MemberDTO,
+  type MemberListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export type OrganizationMemberContext = {
   members: MemberDTO[];
@@ -9,7 +13,8 @@ export type OrganizationMemberContext = {
 };
 
 export async function fetchMembers(
-  organizationId: string
+  organizationId: string,
+  query?: MemberListQueryDTO
 ): Promise<MemberDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
@@ -17,6 +22,7 @@ export async function fetchMembers(
     ':organizationId'
   ]!.members.$get({
     param: { organizationId },
+    query: query || {},
   });
 
   if (response.status === 401 || response.status === 403) return [];
@@ -32,9 +38,10 @@ export async function fetchMembers(
 export const getOrganizationMemberContext = cache(
   async (
     organizationId: string,
-    userId: string | null
+    userId: string | null,
+    query?: MemberListQueryDTO
   ): Promise<OrganizationMemberContext> => {
-    const members = await fetchMembers(organizationId);
+    const members = await fetchMembers(organizationId, query);
     const currentMember =
       userId === null
         ? null

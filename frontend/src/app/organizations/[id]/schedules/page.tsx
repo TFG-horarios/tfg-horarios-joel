@@ -20,15 +20,53 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Calendar, Eye, FileSpreadsheet, Layers } from 'lucide-react';
+import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
+import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSchedulesPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function OrganizationSchedulesPage({
   params,
+  searchParams,
 }: OrganizationSchedulesPageProps) {
   const { id } = await params;
+  const rawSearchParams = await searchParams;
+  const query: ScheduleListQueryDTO = {
+    degreeId:
+      typeof rawSearchParams.degreeId === 'string'
+        ? rawSearchParams.degreeId
+        : undefined,
+    itineraryId:
+      typeof rawSearchParams.itineraryId === 'string'
+        ? rawSearchParams.itineraryId
+        : undefined,
+    shift:
+      typeof rawSearchParams.shift === 'string' &&
+      (rawSearchParams.shift === 'morning' ||
+        rawSearchParams.shift === 'afternoon')
+        ? rawSearchParams.shift
+        : undefined,
+    courseYear:
+      typeof rawSearchParams.courseYear === 'string'
+        ? parseInt(rawSearchParams.courseYear, 10)
+        : undefined,
+    period:
+      typeof rawSearchParams.period === 'string'
+        ? parseInt(rawSearchParams.period, 10)
+        : undefined,
+    status:
+      typeof rawSearchParams.status === 'string' &&
+      (rawSearchParams.status === 'draft' ||
+        rawSearchParams.status === 'published' ||
+        rawSearchParams.status === 'archived')
+        ? rawSearchParams.status
+        : undefined,
+  };
+
   const t = await getTranslations('Organizations.schedules');
   const organization = await fetchOrganizationById(id);
 
@@ -39,7 +77,7 @@ export default async function OrganizationSchedulesPage({
   const [degrees, itineraries, schedules] = await Promise.all([
     fetchDegrees(id),
     fetchItineraries(id),
-    fetchSchedules(id),
+    fetchSchedules(id, query),
   ]);
 
   const getDegreeName = (degreeId: string | null) => {
@@ -85,8 +123,65 @@ export default async function OrganizationSchedulesPage({
       count={schedules.length}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar search={<div />} filters={undefined} />
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
+        <ResourceToolbar
+          filters={
+            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+              <ResourceFilterSelect
+                paramKey="degreeId"
+                placeholder={t('degreePlaceholder')}
+                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              />
+              <ResourceFilterSelect
+                paramKey="itineraryId"
+                placeholder={t('itineraryPlaceholder')}
+                options={[
+                  { label: t('itineraryOptions.common'), value: 'common' },
+                  ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="shift"
+                placeholder={t('shift')}
+                options={[
+                  { label: t('shiftOptions.morning'), value: 'morning' },
+                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="courseYear"
+                placeholder={t('courseYear')}
+                options={[
+                  { label: '1º', value: '1' },
+                  { label: '2º', value: '2' },
+                  { label: '3º', value: '3' },
+                  { label: '4º', value: '4' },
+                  { label: '5º', value: '5' },
+                  { label: '6º', value: '6' },
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="period"
+                placeholder={t('period')}
+                options={[
+                  { label: t('periodOptions.1'), value: '1' },
+                  { label: t('periodOptions.2'), value: '2' },
+                  { label: t('periodOptions.3'), value: '3' },
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="status"
+                placeholder={t('statusLabel')}
+                options={[
+                  { label: t('draft'), value: 'draft' },
+                  { label: t('published'), value: 'published' },
+                  { label: t('archived'), value: 'archived' },
+                ]}
+              />
+              <ResourceFilterClear />
+            </div>
+          }
+        />
         <ResourceActions>
           <ScheduleGenerator
             organizationId={id}

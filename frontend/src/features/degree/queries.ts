@@ -1,9 +1,14 @@
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
-import { DegreeSchema, type DegreeDTO } from '@tfg-horarios/shared';
+import {
+  DegreeSchema,
+  type DegreeDTO,
+  type DegreeListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export async function fetchDegrees(
-  organizationId: string
+  organizationId: string,
+  query?: DegreeListQueryDTO
 ): Promise<DegreeDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
@@ -11,6 +16,7 @@ export async function fetchDegrees(
     ':organizationId'
   ]!.degrees.$get({
     param: { organizationId },
+    query: query || {},
   });
 
   const status = Number(response.status);

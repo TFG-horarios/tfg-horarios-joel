@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 type OrganizationSectionShellProps = {
   label: string;
   title: string;
@@ -5,6 +7,7 @@ type OrganizationSectionShellProps = {
   count?: number;
   countLabel?: string;
   children: React.ReactNode;
+  className?: string;
 };
 
 export function OrganizationSectionShell({
@@ -14,9 +17,10 @@ export function OrganizationSectionShell({
   count,
   countLabel,
   children,
+  className,
 }: OrganizationSectionShellProps) {
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       <div className="space-y-2 border-b border-black/10 pb-5 dark:border-white/10">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
           {label}

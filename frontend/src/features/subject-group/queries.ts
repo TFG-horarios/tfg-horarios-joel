@@ -1,9 +1,14 @@
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
-import { SubjectGroupSchema, type SubjectGroupDTO } from '@tfg-horarios/shared';
+import {
+  SubjectGroupSchema,
+  type SubjectGroupDTO,
+  type SubjectGroupListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export async function fetchSubjectGroups(
-  organizationId: string
+  organizationId: string,
+  query?: SubjectGroupListQueryDTO
 ): Promise<SubjectGroupDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
@@ -11,6 +16,7 @@ export async function fetchSubjectGroups(
     'subject-groups'
   ].$get({
     param: { organizationId },
+    query: query || {},
   });
 
   const status = response.status as number;

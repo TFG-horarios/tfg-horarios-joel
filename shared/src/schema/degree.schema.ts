@@ -35,6 +35,11 @@ export const DegreeIdParamSchema = DegreeBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
+export const DegreeListQuerySchema = z.object({
+  search: z.string().optional(),
+  code: z.string().optional(),
+});
+
 export const SaveDegreeBodySchema = z
   .object({
     name: z
@@ -51,3 +56,4 @@ export type DegreeBaseParamDTO = z.infer<typeof DegreeBaseParamSchema>;
 export type DegreeIdParamDTO = z.infer<typeof DegreeIdParamSchema>;
 export type SaveDegreeDTO = z.infer<typeof SaveDegreeBodySchema>;
 export type DegreeIdentifierDTO = z.infer<typeof DegreeIdentifierSchema>;
+export type DegreeListQueryDTO = z.infer<typeof DegreeListQuerySchema>;

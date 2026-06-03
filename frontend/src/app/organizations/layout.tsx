@@ -19,7 +19,7 @@ export default function OrganizationLayout({
         </div>
         <div className="relative z-10 flex h-full w-full min-h-0 flex-col gap-2 lg:gap-3">
           {isListPage ? (
-            <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 shadow-lg shadow-black/10 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:shadow-black/60">
+            <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 dark:border-white/10 dark:bg-white/5">
               <div className="h-full w-full overflow-y-auto scrollbar-hide">
                 <div className="p-6 lg:p-8">{children}</div>
               </div>

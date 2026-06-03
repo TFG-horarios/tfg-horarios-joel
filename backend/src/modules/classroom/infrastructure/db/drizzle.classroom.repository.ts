@@ -1,4 +1,4 @@
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, ilike, gte, lte, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -9,7 +9,11 @@ import {
 } from './drizzle.classroom.schema';
 import type { IClassroomRepository } from '../../domain/classroom.repository';
 import { Classroom } from '../../domain/classroom.entity';
-import type { ClassroomIdentifierDTO } from '@tfg-horarios/shared';
+import {
+  type ClassroomIdentifierDTO,
+  type ClassroomListQueryDTO,
+  type PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export class DrizzleClassroomRepository implements IClassroomRepository {
   constructor(private readonly db: DbConnection) {}
@@ -69,6 +73,56 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
         )
       );
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findPaginated(
+    organizationId: string,
+    filters?: ClassroomListQueryDTO
+  ): Promise<PaginatedResponse<Classroom>> {
+    const conditions: SQL[] = [
+      eq(classroomsTable.organizationId, organizationId),
+      isNull(classroomsTable.deletedAt),
+    ];
+
+    if (filters?.search) {
+      conditions.push(ilike(classroomsTable.name, `%${filters.search}%`));
+    }
+    if (filters?.type) {
+      conditions.push(eq(classroomsTable.type, filters.type));
+    }
+    if (filters?.minCapacity) {
+      conditions.push(gte(classroomsTable.capacity, filters.minCapacity));
+    }
+    if (filters?.maxCapacity) {
+      conditions.push(lte(classroomsTable.capacity, filters.maxCapacity));
+    }
+
+    const totalResult = await this.db
+      .select({ value: count() })
+      .from(classroomsTable)
+      .where(and(...conditions));
+    const total = totalResult[0]?.value ?? 0;
+
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 20;
+    const totalPages = Math.ceil(total / limit);
+
+    const rows = await this.db
+      .select()
+      .from(classroomsTable)
+      .where(and(...conditions))
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    return {
+      data: rows.map((row) => this.mapToDomain(row)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async findIdentifiers(

@@ -13,6 +13,7 @@ import {
   deleteAllClassroomsRoute,
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
+  listAllClassroomsRoute,
 } from './hono.classroom.routes';
 
 describe('HonoClassroomController Integration', () => {
@@ -25,6 +26,7 @@ describe('HonoClassroomController Integration', () => {
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
+  const listAllMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoClassroomController>;
   const controller = new HonoClassroomController(
@@ -36,7 +38,8 @@ describe('HonoClassroomController Integration', () => {
     bulkCreateMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
-    getIdentifiersMock as unknown as Params[8]
+    getIdentifiersMock as unknown as Params[8],
+    listAllMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -44,6 +47,7 @@ describe('HonoClassroomController Integration', () => {
   router.openapi(createManyClassroomsRoute, controller.createMany);
   router.openapi(replaceClassroomsRoute, controller.replace);
   router.openapi(getClassroomIdentifiersRoute, controller.getIdentifiers);
+  router.openapi(listAllClassroomsRoute, controller.listAll);
   router.openapi(getClassroomRoute, controller.get);
   router.openapi(listClassroomsRoute, controller.list);
   router.openapi(updateClassroomRoute, controller.update);
@@ -107,11 +111,15 @@ describe('HonoClassroomController Integration', () => {
   });
 
   test('GET /organizations/:organizationId/classrooms should return 200 with list', async () => {
-    listMock.execute.mockResolvedValueOnce([{ id: classroomId }]);
+    const mockResponse = {
+      data: [{ id: classroomId }],
+      meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+    };
+    listMock.execute.mockResolvedValueOnce(mockResponse);
     const res = await app.request(`/api/organizations/${orgId}/classrooms`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([{ id: classroomId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(await res.json()).toEqual(mockResponse);
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/classrooms/identifiers should return 200 with identifiers', async () => {
@@ -122,6 +130,14 @@ describe('HonoClassroomController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(['Test']);
     expect(getIdentifiersMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+  });
+
+  test('GET /organizations/:organizationId/classrooms/all should return 200 with all classrooms', async () => {
+    listAllMock.execute.mockResolvedValueOnce([{ id: classroomId }]);
+    const res = await app.request(`/api/organizations/${orgId}/classrooms/all`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([{ id: classroomId }]);
+    expect(listAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PUT /organizations/:organizationId/classrooms/:id should return 200', async () => {

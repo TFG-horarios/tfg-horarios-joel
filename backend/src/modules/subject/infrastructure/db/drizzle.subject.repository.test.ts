@@ -90,6 +90,61 @@ describe('DrizzleSubjectRepository Integration', () => {
     expect(foundSubjects.map((s) => s.id)).toContain(subject2.id);
   });
 
+  test('should filter subjects by search, code, shift, period, degreeId, itineraryId, and courseYear', async () => {
+    const subject1 = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: testItineraryId,
+      name: 'Software Testing',
+      code: 'ST101',
+      availableShifts: ['morning', 'afternoon'],
+      numberOfStudents: 50,
+      courseYear: 2,
+      period: 1,
+      weeklyHours: 4,
+      isCommon: false,
+    });
+    const subject2 = Subject.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: null,
+      name: 'Advanced Mathematics',
+      code: 'AM102',
+      availableShifts: ['afternoon'],
+      numberOfStudents: 60,
+      courseYear: 3,
+      period: 2,
+      weeklyHours: 3,
+      isCommon: true,
+    });
+    await repository.createMany([subject1, subject2]);
+    const searchResults = await repository.findAll(testOrgId, {
+      search: 'software',
+    });
+    expect(searchResults.length).toBe(1);
+    expect(searchResults[0]?.name).toBe('Software Testing');
+    const shiftResults = await repository.findAll(testOrgId, {
+      shift: 'afternoon',
+    });
+    expect(shiftResults.length).toBe(2);
+    const periodResults = await repository.findAll(testOrgId, { period: 2 });
+    expect(periodResults.length).toBe(1);
+    expect(periodResults[0]?.code).toBe('AM102');
+    const courseResults = await repository.findAll(testOrgId, {
+      courseYear: 3,
+    });
+    expect(courseResults.length).toBe(1);
+    expect(courseResults[0]?.code).toBe('AM102');
+    const commonResults = await repository.findAll(testOrgId, {
+      itineraryId: 'common',
+    });
+    expect(commonResults.length).toBe(2);
+    const specificItineraryResults = await repository.findAll(testOrgId, {
+      itineraryId: testItineraryId,
+    });
+    expect(specificItineraryResults.length).toBe(1);
+  });
+
   test('should find identifiers of subjects in an organization', async () => {
     const subject1 = Subject.create({
       organizationId: testOrgId,

@@ -36,9 +36,11 @@ export class HonoSubjectGroupController {
 
   list: RouteHandler<typeof listSubjectGroupsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
     const result = await this.listUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      query
     );
     return c.json(result, 200);
   };

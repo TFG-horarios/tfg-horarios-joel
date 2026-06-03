@@ -22,6 +22,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
 import { addMemberAction } from '@/features/members/actions';
 import type { MemberDTO } from '@tfg-horarios/shared';
@@ -77,17 +83,23 @@ export function MemberActions({
   return (
     <ResourceActions>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button
-            size="icon"
-            className="size-9 cursor-pointer"
-            title={t('addTitle')}
-            aria-label={t('addTitle')}
-          >
-            <Plus className="h-4 w-4" />
-            <span className="sr-only">{t('addTitle')}</span>
-          </Button>
-        </DialogTrigger>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  size="icon"
+                  className="size-9 cursor-pointer"
+                  aria-label={t('addTitle')}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="sr-only">{t('addTitle')}</span>
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>{t('addTitle')}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t('addTitle')}</DialogTitle>

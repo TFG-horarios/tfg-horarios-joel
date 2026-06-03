@@ -9,11 +9,14 @@ import {
 import type { ClassroomDTO } from '@tfg-horarios/shared';
 
 export interface ClassroomCardProps {
-  classroom: ClassroomDTO;
+  item: ClassroomDTO;
   translations: Record<string, string>;
 }
 
-export function ClassroomCard({ classroom, translations }: ClassroomCardProps) {
+export function ClassroomCard({
+  item: classroom,
+  translations,
+}: ClassroomCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-4">

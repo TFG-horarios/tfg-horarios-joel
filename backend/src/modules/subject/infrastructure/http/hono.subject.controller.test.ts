@@ -121,7 +121,7 @@ describe('HonoSubjectController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/subjects`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: subjectId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/subjects/identifiers should return 200 with identifiers', async () => {

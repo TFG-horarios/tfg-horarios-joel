@@ -9,22 +9,43 @@ import { fetchItineraries } from '@/features/itinerary/queries';
 import { ItineraryCard } from '@/features/itinerary/components/itinerary-card';
 import { ItineraryActions } from '@/features/itinerary/components/itinerary-actions';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
+import { ResourceSearch } from '@/components/shared/resource/resource-search';
+import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
+import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
+import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import type { ItineraryListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationItinerariesPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function OrganizationItinerariesPage({
   params,
+  searchParams,
 }: OrganizationItinerariesPageProps) {
   const { id } = await params;
+  const rawSearchParams = await searchParams;
+  const query: ItineraryListQueryDTO = {
+    search:
+      typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
+    code:
+      typeof rawSearchParams.code === 'string'
+        ? rawSearchParams.code
+        : undefined,
+    degreeId:
+      typeof rawSearchParams.degreeId === 'string'
+        ? rawSearchParams.degreeId
+        : undefined,
+  };
+
   const t = await getTranslations('Organizations.itineraries');
   const organization = await fetchOrganizationById(id);
   if (!organization) {
     notFound();
   }
   const [itineraries, degrees] = await Promise.all([
-    fetchItineraries(id),
+    fetchItineraries(id, query),
     fetchDegrees(id),
   ]);
   const degreeMap = new Map(degrees.map((d) => [d.id, d]));
@@ -44,12 +65,25 @@ export default async function OrganizationItinerariesPage({
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar search={<div />} filters={undefined} />
-        <ItineraryActions
-          organizationId={id}
-          existingItineraries={itineraries}
-          degrees={degrees}
+        <ResourceToolbar
+          search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
+          filters={
+            <div className="flex gap-2 w-full lg:w-auto">
+              <ResourceFilterInput
+                paramKey="code"
+                type="text"
+                placeholder={t('codePlaceholder')}
+              />
+              <ResourceFilterSelect
+                paramKey="degreeId"
+                placeholder={t('degreePlaceholder')}
+                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              />
+              <ResourceFilterClear />
+            </div>
+          }
         />
+        <ItineraryActions organizationId={id} degrees={degrees} />
       </div>
       <ResourceGrid
         items={itineraries}

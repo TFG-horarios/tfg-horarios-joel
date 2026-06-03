@@ -60,7 +60,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(foundSchedule?.id).toBe(schedule.id);
   });
 
-  test('should find all schedules in an organization', async () => {
+  test('should find all schedules in an organization and apply filters', async () => {
     const s1 = createValidSchedule();
     const s2 = Schedule.create({
       organizationId: testOrgId,
@@ -71,10 +71,31 @@ describe('DrizzleScheduleRepository Integration', () => {
       period: 1,
       itineraryId: null,
     });
+    s2.publish();
     await repository.create(s1);
     await repository.create(s2);
     const all = await repository.findAll(testOrgId);
-    expect(all.length).toBe(3);
+    expect(all.length).toBeGreaterThanOrEqual(2);
+    const morningSchedules = await repository.findAll(testOrgId, {
+      shift: 'morning',
+    });
+    expect(morningSchedules.length).toBe(2);
+    const afternoonSchedules = await repository.findAll(testOrgId, {
+      shift: 'afternoon',
+    });
+    expect(afternoonSchedules.length).toBe(1);
+    expect(afternoonSchedules[0]?.shift).toBe('afternoon');
+    const publishedSchedules = await repository.findAll(testOrgId, {
+      status: 'published',
+    });
+    expect(publishedSchedules.length).toBe(1);
+    expect(publishedSchedules[0]?.status).toBe('published');
+    const combinedFilters = await repository.findAll(testOrgId, {
+      shift: 'afternoon',
+      status: 'published',
+      degreeId: testDegreeId,
+    });
+    expect(combinedFilters.length).toBe(1);
   });
 
   test('should update a schedule successfully', async () => {

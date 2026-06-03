@@ -49,7 +49,7 @@ describe('HonoScheduleController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/schedules`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: scheduleId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/schedules/:id should return 200', async () => {

@@ -28,6 +28,7 @@
 			"edit": "Edit",
 			"delete": "Delete",
 			"close": "Close",
+			"resetFilters": "Clear filters",
 			"back": "Back",
 			"continue": "Continue",
 			"retry": "Retry",
@@ -62,6 +63,10 @@
 		},
 		"navigation": {
 			"contextual": "Contextual navigation"
+		},
+		"pagination": {
+			"previous": "Previous",
+			"next": "Next"
 		},
 		"brand": "TFG Horarios",
 		"bulkUploader": {
@@ -360,6 +365,9 @@
 				"create": "Create degree"
 			},
 			"code": "Code",
+			"searchPlaceholder": "Search degrees...",
+			"codePlaceholder": "Code (e.g. CS)...",
+			"filteredEmpty": "No degrees match your filters.",
 			"organization": "Organization",
 			"empty": "There are no degrees registered yet."
 		},
@@ -385,6 +393,26 @@
 			"course": "Course",
 			"weeklyHours": "hours",
 			"common": "Common",
+			"searchPlaceholder": "Search subject...",
+			"codePlaceholder": "Code (e.g. MAT)...",
+			"shiftPlaceholder": "Shift",
+			"periodPlaceholder": "Period",
+			"itineraryPlaceholder": "Itinerary",
+			"degreePlaceholder": "Degree",
+			"coursePlaceholder": "Course year",
+			"shiftOptions": {
+				"morning": "Morning",
+				"afternoon": "Afternoon"
+			},
+			"periodOptions": {
+				"1": "1st Semester / Term",
+				"2": "2nd Semester / Term",
+				"3": "3rd Term",
+				"annual": "Annual"
+			},
+			"itineraryOptions": {
+				"common": "Common (no itinerary)"
+			},
 			"empty": "There are no subjects registered yet."
 		},
 		"itineraries": {
@@ -408,6 +436,9 @@
 			"degreeCode": "Degree code",
 			"unassigned": "Unassigned",
 			"noCode": "No degree code",
+			"searchPlaceholder": "Search itineraries...",
+			"codePlaceholder": "Code (e.g. M1)...",
+			"degreePlaceholder": "Degree",
 			"empty": "No itineraries have been registered in the organization yet."
 		},
 		"subjectGroups": {
@@ -439,9 +470,16 @@
 				"morning": "Morning",
 				"afternoon": "Afternoon"
 			},
+			"itineraryOptions": {
+				"common": "Common (no itinerary)"
+			},
 			"students": "Students",
 			"hours": "Hours/week",
 			"unknownDegree": "Unknown degree",
+			"searchPlaceholder": "Search group...",
+			"subjectPlaceholder": "Subject",
+			"degreePlaceholder": "Degree",
+			"itineraryPlaceholder": "Itinerary",
 			"empty": "There are no groups yet. Go to a subject to add groups."
 		},
 		"members": {
@@ -452,6 +490,9 @@
 				"viewer": "You can review the current organization composition and the roles assigned to each member."
 			},
 			"countLabel": "members",
+			"namePlaceholder": "Search by name...",
+			"emailPlaceholder": "Search by email...",
+			"rolePlaceholder": "Role",
 			"empty": "There are no members registered yet."
 		},
 		"schedules": {
@@ -463,9 +504,27 @@
 			"generate": "Generate schedules",
 			"version": "Version",
 			"status": "Status",
+			"statusLabel": "Status",
 			"published": "Published",
 			"draft": "Draft",
 			"archived": "Archived",
+			"degreePlaceholder": "Degree",
+			"itineraryPlaceholder": "Itinerary",
+			"itineraryOptions": {
+				"common": "Common (no itinerary)"
+			},
+			"shift": "Shift",
+			"shiftOptions": {
+				"morning": "Morning",
+				"afternoon": "Afternoon"
+			},
+			"courseYear": "Course Year",
+			"period": "Period",
+			"periodOptions": {
+				"1": "1st Semester / Trimester",
+				"2": "2nd Semester / Trimester",
+				"3": "3rd Trimester"
+			},
 			"actions": {
 				"publish": "Publish",
 				"generating": "Generating schedules...",

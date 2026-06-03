@@ -1,4 +1,4 @@
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, ilike, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -9,7 +9,10 @@ import {
 } from './drizzle.degree.schema';
 import type { IDegreeRepository } from '../../domain/degree.repository';
 import { Degree } from '../../domain/degree.entity';
-import type { DegreeIdentifierDTO } from '@tfg-horarios/shared';
+import {
+  type DegreeIdentifierDTO,
+  type DegreeListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export class DrizzleDegreeRepository implements IDegreeRepository {
   constructor(private readonly database: DbConnection) {}
@@ -53,16 +56,26 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Degree[]> {
+  async findAll(
+    organizationId: string,
+    filters?: DegreeListQueryDTO
+  ): Promise<Degree[]> {
+    const conditions: SQL[] = [
+      eq(degreesTable.organizationId, organizationId),
+      isNull(degreesTable.deletedAt),
+    ];
+
+    if (filters?.search) {
+      conditions.push(ilike(degreesTable.name, `%${filters.search}%`));
+    }
+    if (filters?.code) {
+      conditions.push(ilike(degreesTable.code, `%${filters.code}%`));
+    }
+
     const rows = await this.database
       .select()
       .from(degreesTable)
-      .where(
-        and(
-          eq(degreesTable.organizationId, organizationId),
-          isNull(degreesTable.deletedAt)
-        )
-      );
+      .where(and(...conditions));
     return rows.map((row) => this.mapToDomain(row));
   }
 

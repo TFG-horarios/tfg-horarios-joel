@@ -9,3 +9,4 @@ export * from './schema/member.schema';
 export * from './schema/schedule-slot.schema';
 export * from './schema/itinerary.schema';
 export * from './schema/degree.schema';
+export * from './schema/pagination.schema';

@@ -8,12 +8,16 @@ import {
   SaveSubjectBodySchema,
   BulkSaveSubjectBodySchema,
   SubjectIdentifierSchema,
+  SubjectListQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subjects',
-  request: { params: SubjectListParamSchema },
+  request: {
+    params: SubjectListParamSchema,
+    query: SubjectListQuerySchema,
+  },
   responses: {
     200: {
       description: 'Subjects list',

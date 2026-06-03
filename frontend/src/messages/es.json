@@ -28,6 +28,7 @@
 			"edit": "Editar",
 			"delete": "Eliminar",
 			"close": "Cerrar",
+			"resetFilters": "Limpiar filtros",
 			"back": "Volver",
 			"continue": "Continuar",
 			"retry": "Reintentar",
@@ -62,6 +63,10 @@
 		},
 		"navigation": {
 			"contextual": "Navegación contextual"
+		},
+		"pagination": {
+			"previous": "Anterior",
+			"next": "Siguiente"
 		},
 		"brand": "TFG Horarios",
 		"bulkUploader": {
@@ -360,6 +365,9 @@
 				"create": "Crear grado"
 			},
 			"code": "Código",
+			"searchPlaceholder": "Buscar grados...",
+			"codePlaceholder": "Código (ej: INF)...",
+			"filteredEmpty": "Ningún grado coincide con tus filtros.",
 			"organization": "Organización",
 			"empty": "No hay grados registrados todavía."
 		},
@@ -385,6 +393,26 @@
 			"course": "Curso",
 			"weeklyHours": "horas",
 			"common": "Común",
+			"searchPlaceholder": "Buscar asignatura...",
+			"codePlaceholder": "Código (ej: MAT)...",
+			"shiftPlaceholder": "Turno",
+			"periodPlaceholder": "Periodo",
+			"itineraryPlaceholder": "Itinerario",
+			"degreePlaceholder": "Grado",
+			"coursePlaceholder": "Curso",
+			"shiftOptions": {
+				"morning": "Mañana",
+				"afternoon": "Tarde"
+			},
+			"periodOptions": {
+				"1": "1º Semestre / Cuatrimestre",
+				"2": "2º Semestre / Cuatrimestre",
+				"3": "3º Trimestre",
+				"annual": "Anual"
+			},
+			"itineraryOptions": {
+				"common": "Comunes (sin itinerario)"
+			},
 			"empty": "No hay asignaturas registradas todavía."
 		},
 		"itineraries": {
@@ -408,6 +436,9 @@
 			"degreeCode": "Código de grado",
 			"unassigned": "No asignado",
 			"noCode": "Sin código de grado",
+			"searchPlaceholder": "Buscar itinerario...",
+			"codePlaceholder": "Código (ej: M1)...",
+			"degreePlaceholder": "Grado",
 			"empty": "No se han encontrado itinerarios registrados en la organización."
 		},
 		"subjectGroups": {
@@ -434,6 +465,10 @@
 				"problems": "Problemas",
 				"practices": "Prácticas"
 			},
+
+			"itineraryOptions": {
+				"common": "Comunes (sin itinerario)"
+			},
 			"shift": "Turno",
 			"shiftOptions": {
 				"morning": "Mañana",
@@ -442,6 +477,10 @@
 			"students": "Estudiantes",
 			"hours": "Horas/semana",
 			"unknownDegree": "Grado desconocido",
+			"searchPlaceholder": "Buscar grupo...",
+			"subjectPlaceholder": "Asignatura",
+			"degreePlaceholder": "Grado",
+			"itineraryPlaceholder": "Itinerario",
 			"empty": "Aún no hay grupos creados. Navega a una asignatura para añadir grupos."
 		},
 		"members": {
@@ -452,6 +491,9 @@
 				"viewer": "Puedes ver la composición actual de la organización y los roles asignados a cada miembro."
 			},
 			"countLabel": "miembros",
+			"namePlaceholder": "Buscar por nombre...",
+			"emailPlaceholder": "Buscar por correo...",
+			"rolePlaceholder": "Rol",
 			"empty": "No hay miembros registrados todavía."
 		},
 		"schedules": {
@@ -463,9 +505,27 @@
 			"generate": "Generar horarios",
 			"version": "Versión",
 			"status": "Estado",
+			"statusLabel": "Estado",
 			"published": "Publicado",
 			"draft": "Borrador",
 			"archived": "Archivado",
+			"degreePlaceholder": "Grado",
+			"itineraryPlaceholder": "Itinerario",
+			"itineraryOptions": {
+				"common": "Comunes (sin itinerario)"
+			},
+			"shift": "Turno",
+			"shiftOptions": {
+				"morning": "Mañana",
+				"afternoon": "Tarde"
+			},
+			"courseYear": "Curso",
+			"period": "Período",
+			"periodOptions": {
+				"1": "1º Semestre / Cuatrimestre",
+				"2": "2º Semestre / Cuatrimestre",
+				"3": "3º Trimestre"
+			},
 			"actions": {
 				"publish": "Publicar",
 				"generating": "Generando horarios...",

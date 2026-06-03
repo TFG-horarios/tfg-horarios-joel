@@ -50,7 +50,7 @@ describe('HonoMemberController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/members`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(listResult);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('POST /organizations/:organizationId/members should return 201 with new member', async () => {

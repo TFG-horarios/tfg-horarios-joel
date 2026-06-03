@@ -1,9 +1,15 @@
 import type { Degree } from './degree.entity';
-import type { DegreeIdentifierDTO } from '@tfg-horarios/shared';
+import type {
+  DegreeIdentifierDTO,
+  DegreeListQueryDTO,
+} from '@tfg-horarios/shared';
 
 export interface IDegreeRepository {
   findById(id: string, organizationId: string): Promise<Degree | null>;
-  findAll(organizationId: string): Promise<Degree[]>;
+  findAll(
+    organizationId: string,
+    filters?: DegreeListQueryDTO
+  ): Promise<Degree[]>;
   findIdentifiers(organizationId: string): Promise<DegreeIdentifierDTO[]>;
   create(degree: Degree): Promise<void>;
   createMany(degrees: Degree[]): Promise<void>;

@@ -117,7 +117,7 @@ describe('HonoItineraryController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/itineraries`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: itineraryId }]);
-    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', {});
   });
 
   test('GET /organizations/:organizationId/itineraries/identifiers should return 200 with identifiers', async () => {
