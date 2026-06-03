@@ -49,5 +49,5 @@ export interface IScheduleEngineProvider {
     maxMorningSlots: number,
     maxAfternoonSlots: number,
     slotDuration: number
-  ): ScheduleEngineSolution;
+  ): Promise<ScheduleEngineSolution>;
 }

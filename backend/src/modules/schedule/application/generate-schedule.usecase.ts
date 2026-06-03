@@ -87,7 +87,7 @@ export class GenerateScheduleUseCase {
     const maxAfternoonSlots = Math.floor(
       (afternoonEnd - afternoonStart) / slotDuration
     );
-    const solution = this.engineProvider.runGeneration(
+    const solution = await this.engineProvider.runGeneration(
       groupsData,
       classroomsCache,
       availableClassrooms,

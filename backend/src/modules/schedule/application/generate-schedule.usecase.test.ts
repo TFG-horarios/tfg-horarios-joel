@@ -59,7 +59,7 @@ describe('GenerateScheduleUseCase', () => {
       afternoonEnd: '21:00',
       slotDurationMinutes: 60,
     });
-    engineProviderMock.runGeneration.mockReturnValueOnce({
+    engineProviderMock.runGeneration.mockResolvedValueOnce({
       assignments: [
         {
           subjectGroupId: 'sg-1',

@@ -4,15 +4,6 @@ import type {
   ScheduleEngineClassroomMap,
   ScheduleEngineSolution,
 } from '../../domain/schedule-engine.provider';
-import { TabuSearchEngine } from '@/modules/scheduler/application/tabu-search';
-import { PenaltyCalculator } from '@/modules/scheduler/domain/penalty-calculator';
-import { RoomOverlapConstraint } from '@/modules/scheduler/domain/constraints/room-overlap.constraint';
-import { ShiftConstraint } from '@/modules/scheduler/domain/constraints/shift.constraint';
-import { RoomCapacityConstraint } from '@/modules/scheduler/domain/constraints/room-capacity.constraint';
-import { GroupOverlapConstraint } from '@/modules/scheduler/domain/constraints/group-overlap.constraint';
-import { ItineraryOverlapConstraint } from '@/modules/scheduler/domain/constraints/itinerary-overlap.constraint';
-import { LCGGenerator } from '@/modules/scheduler/domain/random-generator';
-import { InitialSolution } from '@/modules/scheduler/domain/initial-solution';
 
 export class SchedulerEngineAdapter implements IScheduleEngineProvider {
   runGeneration(
@@ -22,44 +13,38 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
     maxMorningSlots: number,
     maxAfternoonSlots: number,
     slotDuration: number
-  ): ScheduleEngineSolution {
-    const maxSlotsPerDay = maxMorningSlots + maxAfternoonSlots;
+  ): Promise<ScheduleEngineSolution> {
+    return new Promise((resolve, reject) => {
+      const workerUrl = new URL(
+        '../../../scheduler/infrastructure/workers/scheduler.worker.ts',
+        import.meta.url
+      ).href;
 
-    const constraints = [
-      new RoomOverlapConstraint(),
-      new ShiftConstraint(),
-      new RoomCapacityConstraint(),
-      new GroupOverlapConstraint(),
-      new ItineraryOverlapConstraint(),
-    ];
+      const worker = new Worker(workerUrl);
 
-    const penaltyCalculator = new PenaltyCalculator(
-      constraints,
-      classroomsCache,
-      maxMorningSlots,
-      maxSlotsPerDay
-    );
+      worker.onmessage = (event) => {
+        const { type, payload, error } = event.data;
+        if (type === 'SUCCESS') {
+          resolve(payload);
+        } else {
+          reject(new Error(error || 'Worker encountered an error'));
+        }
+        worker.terminate();
+      };
 
-    const initialSolutionGen = new InitialSolution(
-      penaltyCalculator,
-      availableClassrooms,
-      classroomsCache,
-      maxSlotsPerDay,
-      maxMorningSlots,
-      slotDuration,
-      [1, 2, 3, 4, 5]
-    );
+      worker.onerror = (error) => {
+        reject(error);
+        worker.terminate();
+      };
 
-    const randomGenerator = new LCGGenerator(Date.now());
-    const tabuEngine = new TabuSearchEngine(
-      penaltyCalculator,
-      initialSolutionGen,
-      availableClassrooms,
-      classroomsCache,
-      maxSlotsPerDay,
-      randomGenerator
-    );
-
-    return tabuEngine.run(groupsData) as ScheduleEngineSolution;
+      worker.postMessage({
+        groupsData,
+        classroomsCache,
+        availableClassrooms,
+        maxMorningSlots,
+        maxAfternoonSlots,
+        slotDuration,
+      });
+    });
   }
 }

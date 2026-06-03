@@ -10,6 +10,7 @@ describe('ClassroomMemberAdapter', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
   };
 
   const adapter = new ClassroomMemberAdapter(memberRepositoryMock);

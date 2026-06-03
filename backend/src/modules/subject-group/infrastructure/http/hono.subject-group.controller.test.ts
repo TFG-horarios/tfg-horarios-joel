@@ -25,6 +25,7 @@ describe('HonoSubjectGroupController Integration', () => {
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
+  const listAllMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectGroupController>;
   const controller = new HonoSubjectGroupController(
@@ -36,7 +37,8 @@ describe('HonoSubjectGroupController Integration', () => {
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
-    getIdentifiersMock as unknown as Params[8]
+    getIdentifiersMock as unknown as Params[8],
+    listAllMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();

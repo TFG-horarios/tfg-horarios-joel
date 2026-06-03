@@ -10,6 +10,7 @@ describe('SubjectMemberAdapter', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
   };
 
   const adapter = new SubjectMemberAdapter(memberRepositoryMock);

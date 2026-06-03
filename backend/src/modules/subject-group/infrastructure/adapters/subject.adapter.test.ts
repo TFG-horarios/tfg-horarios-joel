@@ -12,6 +12,7 @@ describe('SubjectAdapter', () => {
     deleteAll: mock(),
     replace: mock(),
     findIdentifiers: mock(),
+    findPaginated: mock(),
   };
   const adapter = new SubjectAdapter(subjectRepositoryMock);
 

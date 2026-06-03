@@ -10,6 +10,7 @@ describe('DegreeMemberAdapter', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
   };
 
   const adapter = new DegreeMemberAdapter(memberRepositoryMock);

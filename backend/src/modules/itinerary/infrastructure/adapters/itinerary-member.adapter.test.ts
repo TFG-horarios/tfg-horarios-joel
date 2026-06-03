@@ -10,6 +10,7 @@ describe('ItineraryMemberAdapter', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
   };
 
   const adapter = new ItineraryMemberAdapter(memberRepositoryMock);
