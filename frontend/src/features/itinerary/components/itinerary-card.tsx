@@ -9,16 +9,17 @@ import {
 import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
 
 export interface ItineraryCardProps {
-  itinerary: ItineraryDTO;
-  degree: DegreeDTO | undefined;
+  item: ItineraryDTO;
+  degreeMap: Map<string, DegreeDTO>;
   translations: Record<string, string>;
 }
 
 export function ItineraryCard({
-  itinerary,
-  degree,
+  item: itinerary,
+  degreeMap,
   translations,
 }: ItineraryCardProps) {
+  const degree = degreeMap.get(itinerary.degreeId);
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">

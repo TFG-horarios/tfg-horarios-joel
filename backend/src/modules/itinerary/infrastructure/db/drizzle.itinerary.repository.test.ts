@@ -102,27 +102,33 @@ describe('DrizzleItineraryRepository Integration', () => {
       code: 'D2',
     });
     await repository.createMany([itinerary1, itinerary2, itinerary3]);
-    const searchResults = await repository.findAll(testOrgId, {
+    const searchResults = await repository.findPaginated(testOrgId, {
       search: 'software',
     });
-    expect(searchResults.length).toBe(3);
-    expect(searchResults.map((i) => i.name)).toContain('Software Engineering');
-    expect(searchResults.map((i) => i.name)).toContain('Software Testing');
-    const codeResults = await repository.findAll(testOrgId, { code: 'CE' });
-    expect(codeResults.length).toBe(1);
-    expect(codeResults[0]?.name).toBe('Computer Engineering');
-    const degreeResults = await repository.findAll(testOrgId, {
+    expect(searchResults.data.length).toBe(3);
+    expect(searchResults.data.map((i) => i.name)).toContain(
+      'Software Engineering'
+    );
+    expect(searchResults.data.map((i) => i.name)).toContain('Software Testing');
+    const codeResults = await repository.findPaginated(testOrgId, {
+      code: 'CE',
+    });
+    expect(codeResults.data.length).toBe(1);
+    expect(codeResults.data[0]?.name).toBe('Computer Engineering');
+    const degreeResults = await repository.findPaginated(testOrgId, {
       degreeId: testDegreeId,
     });
-    expect(degreeResults.length).toBe(3);
-    expect(degreeResults.map((i) => i.name)).not.toContain('Software Testing');
-    const combinedResults = await repository.findAll(testOrgId, {
+    expect(degreeResults.data.length).toBe(3);
+    expect(degreeResults.data.map((i) => i.name)).not.toContain(
+      'Software Testing'
+    );
+    const combinedResults = await repository.findPaginated(testOrgId, {
       search: 'Engineering',
       code: 'SWE',
       degreeId: testDegreeId,
     });
-    expect(combinedResults.length).toBe(1);
-    expect(combinedResults[0]?.code).toBe('SWE');
+    expect(combinedResults.data.length).toBe(1);
+    expect(combinedResults.data[0]?.code).toBe('SWE');
   });
 
   test('should find identifiers of itineraries in an organization', async () => {

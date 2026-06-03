@@ -13,6 +13,8 @@ import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { fetchItinerariesAction } from '@/features/itinerary/actions';
 import type { ItineraryListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationItinerariesPageProps = {
@@ -27,6 +29,8 @@ export default async function OrganizationItinerariesPage({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const query: ItineraryListQueryDTO = {
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     code:
@@ -44,7 +48,7 @@ export default async function OrganizationItinerariesPage({
   if (!organization) {
     notFound();
   }
-  const [itineraries, degrees] = await Promise.all([
+  const [{ data: itineraries, meta }, degrees] = await Promise.all([
     fetchItineraries(id, query),
     fetchAllDegrees(id),
   ]);
@@ -61,7 +65,7 @@ export default async function OrganizationItinerariesPage({
       label={t('label')}
       title={t('title', { organization: organization.name })}
       description={t('description')}
-      count={itineraries.length}
+      count={meta.total}
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
@@ -85,18 +89,21 @@ export default async function OrganizationItinerariesPage({
         />
         <ItineraryActions organizationId={id} degrees={degrees} />
       </div>
-      <ResourceGrid
-        items={itineraries}
-        renderItem={(itinerary) => (
-          <ItineraryCard
-            itinerary={itinerary}
-            degree={degreeMap.get(itinerary.degreeId)}
-            translations={translations}
-          />
-        )}
-        emptyState={<ResourceEmptyState message={t('empty')} />}
-        keyExtractor={(itinerary) => itinerary.id}
-      />
+      <div>
+        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
+          {itineraries.length > 0 && (
+            <ResourceInfiniteScroll
+              key={JSON.stringify(query)}
+              initialItems={itineraries}
+              initialMeta={meta}
+              loadMore={fetchItinerariesAction.bind(null, id, query)}
+              ItemComponent={ItineraryCard}
+              itemProps={{ degreeMap, translations }}
+              keyProp="id"
+            />
+          )}
+        </ResourceGrid>
+      </div>
     </OrganizationSectionShell>
   );
 }

@@ -16,10 +16,12 @@ import type {
   deleteAllItinerariesRoute,
   replaceItinerariesRoute,
   getItineraryIdentifiersRoute,
+  listAllItinerariesRoute,
 } from './hono.itinerary.routes';
 import type { DeleteAllItinerariesUseCase } from '../../application/delete-all-itineraries.usecase';
 import type { ReplaceItinerariesUseCase } from '../../application/replace-itineraries.usecase';
 import type { GetItineraryIdentifiersUseCase } from '../../application/get-itinerary-identifiers.usecase';
+import type { ListAllItinerariesUseCase } from '../../application/list-all-itineraries.usecase';
 
 export class HonoItineraryController {
   constructor(
@@ -31,7 +33,8 @@ export class HonoItineraryController {
     private readonly deleteItineraryUseCase: DeleteItineraryUseCase,
     private readonly deleteAllItinerariesUseCase: DeleteAllItinerariesUseCase,
     private readonly replaceItinerariesUseCase: ReplaceItinerariesUseCase,
-    private readonly getItineraryIdentifiersUseCase: GetItineraryIdentifiersUseCase
+    private readonly getItineraryIdentifiersUseCase: GetItineraryIdentifiersUseCase,
+    private readonly listAllItinerariesUseCase: ListAllItinerariesUseCase
   ) {}
 
   list: RouteHandler<typeof listItinerariesRoute, AppEnv> = async (c) => {
@@ -41,6 +44,15 @@ export class HonoItineraryController {
       organizationId,
       c.get('userId'),
       query
+    );
+    return c.json(itineraries, 200);
+  };
+
+  listAll: RouteHandler<typeof listAllItinerariesRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const itineraries = await this.listAllItinerariesUseCase.execute(
+      organizationId,
+      c.get('userId')
     );
     return c.json(itineraries, 200);
   };

@@ -7,6 +7,7 @@ describe('ListItinerariesUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),
@@ -37,10 +38,13 @@ describe('ListItinerariesUseCase', () => {
       updatedAt: new Date(),
       deletedAt: null,
     });
-    repositoryMock.findAll.mockResolvedValueOnce([itinerary]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [itinerary],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe('iti-1');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]?.id).toBe('iti-1');
   });
 
   test('should throw ForbiddenError if user has no role', async () => {

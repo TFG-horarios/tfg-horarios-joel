@@ -7,6 +7,7 @@ describe('GetItineraryUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),

@@ -9,9 +9,19 @@ import {
   type SaveItineraryDTO,
   type BulkSaveItineraryDTO,
   type ItineraryIdentifierDTO,
+  type ItineraryListQueryDTO,
 } from '@tfg-horarios/shared';
+import { fetchItineraries } from './queries';
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchItinerariesAction(
+  organizationId: string,
+  query: ItineraryListQueryDTO,
+  page: number
+) {
+  return fetchItineraries(organizationId, { ...query, page });
+}
 
 export async function bulkCreateItineraries(
   organizationId: string,

@@ -5,7 +5,7 @@ import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { fetchSubjects } from '@/features/subject/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchItineraries } from '@/features/itinerary/queries';
+import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SchedulePlanner } from '@/features/schedule/components/schedule-planner';
 
 type SchedulePlannerPageProps = {
@@ -34,7 +34,7 @@ export default async function SchedulePlannerPage({
     fetchSubjects(id),
     fetchSubjectGroups(id),
     fetchAllDegrees(id),
-    fetchItineraries(id),
+    fetchAllItineraries(id),
   ]);
 
   if (!organization || !schedule) {

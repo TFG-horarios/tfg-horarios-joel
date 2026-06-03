@@ -9,6 +9,7 @@ import {
   ItineraryCreateParamSchema,
   ItineraryIdentifierSchema,
   ItineraryListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
@@ -17,6 +18,23 @@ export const listItinerariesRoute = createRoute({
   request: {
     params: ItineraryBaseParamSchema,
     query: ItineraryListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado de itinerarios',
+      content: {
+        'application/json': { schema: createPaginatedSchema(ItinerarySchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const listAllItinerariesRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/itineraries/all',
+  request: {
+    params: ItineraryBaseParamSchema,
   },
   responses: {
     200: {

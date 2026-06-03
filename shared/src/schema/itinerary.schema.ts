@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const ItinerarySchema = z
   .object({
@@ -35,7 +36,7 @@ export const ItineraryIdParamSchema = ItineraryBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
-export const ItineraryListQuerySchema = z.object({
+export const ItineraryListQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
   code: z.string().optional(),
   degreeId: z.string().optional(),

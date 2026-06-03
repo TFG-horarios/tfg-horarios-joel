@@ -2,14 +2,16 @@ import type { Itinerary } from './itinerary.entity';
 import type {
   ItineraryIdentifierDTO,
   ItineraryListQueryDTO,
+  PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export interface IItineraryRepository {
   findById(id: string, organizationId: string): Promise<Itinerary | null>;
-  findAll(
+  findAll(organizationId: string): Promise<Itinerary[]>;
+  findPaginated(
     organizationId: string,
     filters?: ItineraryListQueryDTO
-  ): Promise<Itinerary[]>;
+  ): Promise<PaginatedResponse<Itinerary>>;
   findIdentifiers(organizationId: string): Promise<ItineraryIdentifierDTO[]>;
   create(itinerary: Itinerary): Promise<void>;
   createMany(itineraries: Itinerary[]): Promise<void>;

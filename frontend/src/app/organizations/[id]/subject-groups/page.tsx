@@ -8,7 +8,7 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
 import { fetchSubjects } from '@/features/subject/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchItineraries } from '@/features/itinerary/queries';
+import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SubjectGroupCard } from '@/features/subject-group/components/subject-group-card';
 import { SubjectGroupActions } from '@/features/subject-group/components/subject-group-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
@@ -66,7 +66,7 @@ export default async function OrganizationSubjectGroupsPage({
     fetchSubjectGroups(id, query),
     fetchSubjects(id),
     fetchAllDegrees(id),
-    fetchItineraries(id),
+    fetchAllItineraries(id),
   ]);
   const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));

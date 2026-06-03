@@ -6,6 +6,7 @@ import { CreateItineraryUseCase } from './application/create-itinerary.usecase';
 import { BulkCreateItinerariesUseCase } from './application/bulk-create-itinerary.usecase';
 import { GetItineraryUseCase } from './application/get-itinerary.usecase';
 import { ListItinerariesUseCase } from './application/list-itinerary.usecase';
+import { ListAllItinerariesUseCase } from './application/list-all-itineraries.usecase';
 import { UpdateItineraryUseCase } from './application/update-itinerary.usecase';
 import { DeleteItineraryUseCase } from './application/delete-itinerary.usecase';
 import { DeleteAllItinerariesUseCase } from './application/delete-all-itineraries.usecase';
@@ -17,6 +18,7 @@ import {
   bulkCreateItinerariesRoute,
   getItineraryRoute,
   listItinerariesRoute,
+  listAllItinerariesRoute,
   updateItineraryRoute,
   deleteItineraryRoute,
   deleteAllItinerariesRoute,
@@ -42,11 +44,13 @@ export const createItineraryModule = (
     new DeleteItineraryUseCase(itineraryRepository, memberProvider),
     new DeleteAllItinerariesUseCase(itineraryRepository, memberProvider),
     new ReplaceItinerariesUseCase(itineraryRepository, memberProvider),
-    new GetItineraryIdentifiersUseCase(itineraryRepository, memberProvider)
+    new GetItineraryIdentifiersUseCase(itineraryRepository, memberProvider),
+    new ListAllItinerariesUseCase(itineraryRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
+    .openapi(listAllItinerariesRoute, controller.listAll)
     .openapi(listItinerariesRoute, controller.list)
     .openapi(getItineraryIdentifiersRoute, controller.getIdentifiers)
     .openapi(getItineraryRoute, controller.get)

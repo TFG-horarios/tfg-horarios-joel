@@ -13,6 +13,7 @@ import {
   deleteAllItinerariesRoute,
   replaceItinerariesRoute,
   getItineraryIdentifiersRoute,
+  listAllItinerariesRoute,
 } from './hono.itinerary.routes';
 
 describe('HonoItineraryController Integration', () => {
@@ -25,6 +26,7 @@ describe('HonoItineraryController Integration', () => {
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
+  const listAllItinerariesUseCaseMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoItineraryController>;
   const controller = new HonoItineraryController(
@@ -36,7 +38,8 @@ describe('HonoItineraryController Integration', () => {
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
-    getIdentifiersMock as unknown as Params[8]
+    getIdentifiersMock as unknown as Params[8],
+    listAllItinerariesUseCaseMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -49,6 +52,7 @@ describe('HonoItineraryController Integration', () => {
   router.openapi(deleteItineraryRoute, controller.delete);
   router.openapi(deleteAllItinerariesRoute, controller.deleteAll);
   router.openapi(replaceItinerariesRoute, controller.replace);
+  router.openapi(listAllItinerariesRoute, controller.listAll);
 
   const app = createTestApp('/api', router, 'u-admin');
 

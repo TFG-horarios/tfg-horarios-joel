@@ -7,7 +7,7 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchSubjects } from '@/features/subject/queries';
-import { fetchItineraries } from '@/features/itinerary/queries';
+import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';
 import { SubjectActions } from '@/features/subject/components/subject-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
@@ -66,7 +66,7 @@ export default async function OrganizationSubjectsPage({
   const [subjects, degrees, itineraries] = await Promise.all([
     fetchSubjects(id, query),
     fetchAllDegrees(id),
-    fetchItineraries(id),
+    fetchAllItineraries(id),
   ]);
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
   const itineraryMap = new Map(
