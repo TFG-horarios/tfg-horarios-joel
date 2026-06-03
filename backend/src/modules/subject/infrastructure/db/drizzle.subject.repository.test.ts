@@ -118,31 +118,33 @@ describe('DrizzleSubjectRepository Integration', () => {
       isCommon: true,
     });
     await repository.createMany([subject1, subject2]);
-    const searchResults = await repository.findAll(testOrgId, {
+    const searchResults = await repository.findPaginated(testOrgId, {
       search: 'software',
     });
-    expect(searchResults.length).toBe(1);
-    expect(searchResults[0]?.name).toBe('Software Testing');
-    const shiftResults = await repository.findAll(testOrgId, {
+    expect(searchResults.data.length).toBe(1);
+    expect(searchResults.data[0]?.name).toBe('Software Testing');
+    const shiftResults = await repository.findPaginated(testOrgId, {
       shift: 'afternoon',
     });
-    expect(shiftResults.length).toBe(2);
-    const periodResults = await repository.findAll(testOrgId, { period: 2 });
-    expect(periodResults.length).toBe(1);
-    expect(periodResults[0]?.code).toBe('AM102');
-    const courseResults = await repository.findAll(testOrgId, {
+    expect(shiftResults.data.length).toBe(2);
+    const periodResults = await repository.findPaginated(testOrgId, {
+      period: 2,
+    });
+    expect(periodResults.data.length).toBe(1);
+    expect(periodResults.data[0]?.code).toBe('AM102');
+    const courseResults = await repository.findPaginated(testOrgId, {
       courseYear: 3,
     });
-    expect(courseResults.length).toBe(1);
-    expect(courseResults[0]?.code).toBe('AM102');
-    const commonResults = await repository.findAll(testOrgId, {
+    expect(courseResults.data.length).toBe(1);
+    expect(courseResults.data[0]?.code).toBe('AM102');
+    const commonResults = await repository.findPaginated(testOrgId, {
       itineraryId: 'common',
     });
-    expect(commonResults.length).toBe(2);
-    const specificItineraryResults = await repository.findAll(testOrgId, {
+    expect(commonResults.data.length).toBe(2);
+    const specificItineraryResults = await repository.findPaginated(testOrgId, {
       itineraryId: testItineraryId,
     });
-    expect(specificItineraryResults.length).toBe(1);
+    expect(specificItineraryResults.data.length).toBe(1);
   });
 
   test('should find identifiers of subjects in an organization', async () => {

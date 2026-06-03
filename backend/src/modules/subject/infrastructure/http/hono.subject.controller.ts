@@ -16,10 +16,12 @@ import type {
   deleteAllSubjectsRoute,
   replaceSubjectsRoute,
   getSubjectIdentifiersRoute,
+  listAllSubjectsRoute,
 } from './hono.subject.routes';
 import type { DeleteAllSubjectsUseCase } from '../../application/delete-all-subjects.usecase';
 import type { ReplaceSubjectsUseCase } from '../../application/replace-subjects.usecase';
 import type { GetSubjectIdentifiersUseCase } from '../../application/get-subject-identifiers.usecase';
+import type { ListAllSubjectsUseCase } from '../../application/list-all-subjects.usecase';
 
 export class HonoSubjectController {
   constructor(
@@ -29,26 +31,36 @@ export class HonoSubjectController {
     private readonly listUseCase: ListSubjectUseCase,
     private readonly updateUseCase: UpdateSubjectUseCase,
     private readonly deleteUseCase: DeleteSubjectUseCase,
-    private readonly deleteAllUseCase: DeleteAllSubjectsUseCase,
-    private readonly replaceUseCase: ReplaceSubjectsUseCase,
-    private readonly getIdentifiersUseCase: GetSubjectIdentifiersUseCase
+    private readonly deleteAllSubjectsUseCase: DeleteAllSubjectsUseCase,
+    private readonly replaceSubjectsUseCase: ReplaceSubjectsUseCase,
+    private readonly getSubjectIdentifiersUseCase: GetSubjectIdentifiersUseCase,
+    private readonly listAllSubjectsUseCase: ListAllSubjectsUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
     const query = c.req.valid('query');
-    const result = await this.listUseCase.execute(
+    const subjects = await this.listUseCase.execute(
       organizationId,
       c.get('userId'),
       query
     );
-    return c.json(result, 200);
+    return c.json(subjects, 200);
+  };
+
+  listAll: RouteHandler<typeof listAllSubjectsRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const subjects = await this.listAllSubjectsUseCase.execute(
+      organizationId,
+      c.get('userId')
+    );
+    return c.json(subjects, 200);
   };
 
   getIdentifiers: RouteHandler<typeof getSubjectIdentifiersRoute, AppEnv> =
     async (c) => {
       const { organizationId } = c.req.valid('param');
-      const identifiers = await this.getIdentifiersUseCase.execute(
+      const identifiers = await this.getSubjectIdentifiersUseCase.execute(
         organizationId,
         c.get('userId')
       );
@@ -83,7 +95,7 @@ export class HonoSubjectController {
   replace: RouteHandler<typeof replaceSubjectsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
     const body = c.req.valid('json');
-    const result = await this.replaceUseCase.execute(
+    const result = await this.replaceSubjectsUseCase.execute(
       organizationId,
       c.get('userId'),
       body
@@ -123,7 +135,10 @@ export class HonoSubjectController {
     c
   ) => {
     const { organizationId } = c.req.valid('param');
-    await this.deleteAllUseCase.execute(organizationId, c.get('userId'));
+    await this.deleteAllSubjectsUseCase.execute(
+      organizationId,
+      c.get('userId')
+    );
     return c.body(null, 204);
   };
 }

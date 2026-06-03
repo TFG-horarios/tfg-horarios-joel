@@ -1,24 +1,31 @@
+'use client';
+
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
 } from '@/features/organizations/components/organization-card-styles';
-import type { SubjectDTO } from '@tfg-horarios/shared';
+import type { DegreeDTO, ItineraryDTO, SubjectDTO } from '@tfg-horarios/shared';
 
 export interface SubjectCardProps {
-  subject: SubjectDTO;
-  degreeName: string;
-  itineraryName?: string;
+  item: SubjectDTO;
+  degreeMap: Map<string, DegreeDTO>;
+  itineraryMap: Map<string, ItineraryDTO>;
   translations: Record<string, string>;
 }
 
 export function SubjectCard({
-  subject,
-  degreeName,
-  itineraryName,
+  item: subject,
+  degreeMap,
+  itineraryMap,
   translations,
 }: SubjectCardProps) {
+  const degreeName =
+    degreeMap.get(subject.degreeId)?.name ?? translations.unassigned;
+  const itineraryName = subject.itineraryId
+    ? itineraryMap.get(subject.itineraryId)?.name
+    : undefined;
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">

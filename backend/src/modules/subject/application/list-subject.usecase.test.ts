@@ -7,6 +7,7 @@ describe('ListSubjectUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     create: mock(),
     createMany: mock(),
@@ -33,10 +34,13 @@ describe('ListSubjectUseCase', () => {
       isCommon: true,
       itineraryId: null,
     });
-    repositoryMock.findAll.mockResolvedValueOnce([subject]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [subject],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe(subject.id);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]?.id).toBe(subject.id);
   });
 
   test('should throw ForbiddenError if user lacks access', async () => {

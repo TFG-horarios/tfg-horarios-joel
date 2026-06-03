@@ -14,6 +14,8 @@ import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { fetchSubjectsAction } from '@/features/subject/actions';
 import type { SubjectListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSubjectsPageProps = {
@@ -28,6 +30,8 @@ export default async function OrganizationSubjectsPage({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const query: SubjectListQueryDTO = {
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     code:
@@ -63,7 +67,7 @@ export default async function OrganizationSubjectsPage({
   if (!organization) {
     notFound();
   }
-  const [subjects, degrees, itineraries] = await Promise.all([
+  const [{ data: subjects, meta }, degrees, itineraries] = await Promise.all([
     fetchSubjects(id, query),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
@@ -86,7 +90,7 @@ export default async function OrganizationSubjectsPage({
       label={t('label')}
       title={t('title', { organization: organization.name })}
       description={t('description')}
-      count={subjects.length}
+      count={meta.total}
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
@@ -148,25 +152,21 @@ export default async function OrganizationSubjectsPage({
           itineraries={itineraries}
         />
       </div>
-      <ResourceGrid
-        items={subjects}
-        renderItem={(subject) => (
-          <SubjectCard
-            subject={subject}
-            degreeName={
-              degreeMap.get(subject.degreeId)?.name ?? t('unknownDegree')
-            }
-            itineraryName={
-              subject.itineraryId
-                ? itineraryMap.get(subject.itineraryId)?.name
-                : undefined
-            }
-            translations={translations}
-          />
-        )}
-        emptyState={<ResourceEmptyState message={t('empty')} />}
-        keyExtractor={(subject) => subject.id}
-      />
+      <div>
+        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
+          {subjects.length > 0 && (
+            <ResourceInfiniteScroll
+              key={JSON.stringify(query)}
+              initialItems={subjects}
+              initialMeta={meta}
+              loadMore={fetchSubjectsAction.bind(null, id, query)}
+              ItemComponent={SubjectCard}
+              itemProps={{ degreeMap, itineraryMap, translations }}
+              keyProp="id"
+            />
+          )}
+        </ResourceGrid>
+      </div>
     </OrganizationSectionShell>
   );
 }

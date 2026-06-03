@@ -9,6 +9,7 @@ import {
   BulkSaveSubjectBodySchema,
   SubjectIdentifierSchema,
   SubjectListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectsRoute = createRoute({
@@ -17,6 +18,23 @@ export const listSubjectsRoute = createRoute({
   request: {
     params: SubjectListParamSchema,
     query: SubjectListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado de asignaturas',
+      content: {
+        'application/json': { schema: createPaginatedSchema(SubjectSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const listAllSubjectsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/subjects/all',
+  request: {
+    params: SubjectListParamSchema,
   },
   responses: {
     200: {

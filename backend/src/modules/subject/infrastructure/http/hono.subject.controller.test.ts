@@ -13,6 +13,7 @@ import {
   deleteAllSubjectsRoute,
   replaceSubjectsRoute,
   getSubjectIdentifiersRoute,
+  listAllSubjectsRoute,
 } from './hono.subject.routes';
 
 describe('HonoSubjectController Integration', () => {
@@ -25,6 +26,7 @@ describe('HonoSubjectController Integration', () => {
   const deleteAllMock = { execute: mock() };
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
+  const listAllSubjectsMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoSubjectController>;
   const controller = new HonoSubjectController(
@@ -36,7 +38,8 @@ describe('HonoSubjectController Integration', () => {
     deleteMock as unknown as Params[5],
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
-    getIdentifiersMock as unknown as Params[8]
+    getIdentifiersMock as unknown as Params[8],
+    listAllSubjectsMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -49,6 +52,7 @@ describe('HonoSubjectController Integration', () => {
   router.openapi(deleteSubjectRoute, controller.delete);
   router.openapi(deleteAllSubjectsRoute, controller.deleteAll);
   router.openapi(replaceSubjectsRoute, controller.replace);
+  router.openapi(listAllSubjectsRoute, controller.listAll);
 
   const app = createTestApp('/api', router, 'u-admin');
 

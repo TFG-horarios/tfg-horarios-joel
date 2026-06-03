@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchSchedule, fetchScheduleSlots } from '@/features/schedule/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
-import { fetchSubjects } from '@/features/subject/queries';
+import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
@@ -31,7 +31,7 @@ export default async function SchedulePlannerPage({
     fetchSchedule(id, scheduleId),
     fetchScheduleSlots(id, scheduleId),
     fetchAllClassrooms(id),
-    fetchSubjects(id),
+    fetchAllSubjects(id),
     fetchSubjectGroups(id),
     fetchAllDegrees(id),
     fetchAllItineraries(id),

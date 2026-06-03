@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const SubjectSchema = z
   .object({
@@ -47,7 +48,7 @@ export const SubjectIdParamSchema = SubjectListParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
-export const SubjectListQuerySchema = z.object({
+export const SubjectListQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
   code: z.string().optional(),
   shift: z.enum(['morning', 'afternoon']).optional(),

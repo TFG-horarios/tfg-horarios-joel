@@ -6,14 +6,24 @@ import {
   type SaveSubjectDTO,
   type BulkSaveSubjectDTO,
   type SubjectIdentifierDTO,
+  type SubjectListQueryDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate';
 import { getTranslations } from 'next-intl/server';
+import { fetchSubjects } from './queries';
 
 import { SaveSubjectBodySchema } from '@tfg-horarios/shared';
 
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchSubjectsAction(
+  organizationId: string,
+  query: SubjectListQueryDTO,
+  page: number
+) {
+  return fetchSubjects(organizationId, { ...query, page });
+}
 
 export async function bulkCreateSubjects(
   organizationId: string,

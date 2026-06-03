@@ -6,7 +6,7 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchSubjectGroups } from '@/features/subject-group/queries';
-import { fetchSubjects } from '@/features/subject/queries';
+import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SubjectGroupCard } from '@/features/subject-group/components/subject-group-card';
@@ -64,7 +64,7 @@ export default async function OrganizationSubjectGroupsPage({
   }
   const [groups, subjects, degrees, itineraries] = await Promise.all([
     fetchSubjectGroups(id, query),
-    fetchSubjects(id),
+    fetchAllSubjects(id),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
   ]);

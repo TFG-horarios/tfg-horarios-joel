@@ -6,6 +6,7 @@ import { CreateSubjectUseCase } from './application/create-subject.usecase';
 import { BulkCreateSubjectUseCase } from './application/bulk-create-subject.usecase';
 import { GetSubjectUseCase } from './application/get-subject.usecase';
 import { ListSubjectUseCase } from './application/list-subject.usecase';
+import { ListAllSubjectsUseCase } from './application/list-all-subjects.usecase';
 import { UpdateSubjectUseCase } from './application/update-subject.usecase';
 import { DeleteSubjectUseCase } from './application/delete-subject.usecase';
 import { DeleteAllSubjectsUseCase } from './application/delete-all-subjects.usecase';
@@ -17,6 +18,7 @@ import {
   bulkCreateSubjectsRoute,
   getSubjectRoute,
   listSubjectsRoute,
+  listAllSubjectsRoute,
   updateSubjectRoute,
   deleteSubjectRoute,
   deleteAllSubjectsRoute,
@@ -42,11 +44,13 @@ export const createSubjectModule = (
     new DeleteSubjectUseCase(subjectRepository, memberProvider),
     new DeleteAllSubjectsUseCase(subjectRepository, memberProvider),
     new ReplaceSubjectsUseCase(subjectRepository, memberProvider),
-    new GetSubjectIdentifiersUseCase(subjectRepository, memberProvider)
+    new GetSubjectIdentifiersUseCase(subjectRepository, memberProvider),
+    new ListAllSubjectsUseCase(subjectRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
+    .openapi(listAllSubjectsRoute, controller.listAll)
     .openapi(listSubjectsRoute, controller.list)
     .openapi(getSubjectIdentifiersRoute, controller.getIdentifiers)
     .openapi(getSubjectRoute, controller.get)

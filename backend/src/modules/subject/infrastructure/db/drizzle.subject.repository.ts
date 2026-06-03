@@ -1,4 +1,12 @@
-import { eq, and, isNull, ilike, arrayContains, type SQL } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  isNull,
+  ilike,
+  arrayContains,
+  count,
+  type SQL,
+} from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -12,6 +20,7 @@ import { Subject, type Shift } from '../../domain/subject.entity';
 import {
   type SubjectIdentifierDTO,
   type SubjectListQueryDTO,
+  type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectRepository implements ISubjectRepository {
@@ -72,10 +81,23 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(
+  async findAll(organizationId: string): Promise<Subject[]> {
+    const rows = await this.database
+      .select()
+      .from(subjectsTable)
+      .where(
+        and(
+          eq(subjectsTable.organizationId, organizationId),
+          isNull(subjectsTable.deletedAt)
+        )
+      );
+    return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findPaginated(
     organizationId: string,
     filters?: SubjectListQueryDTO
-  ): Promise<Subject[]> {
+  ): Promise<PaginatedResponse<Subject>> {
     const conditions: SQL[] = [
       eq(subjectsTable.organizationId, organizationId),
       isNull(subjectsTable.deletedAt),
@@ -109,11 +131,34 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
       }
     }
 
+    const countResult = await this.database
+      .select({ total: count() })
+      .from(subjectsTable)
+      .where(and(...conditions));
+    const total = countResult[0]?.total ?? 0;
+
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 100;
+    const offset = (page - 1) * limit;
+
     const rows = await this.database
       .select()
       .from(subjectsTable)
-      .where(and(...conditions));
-    return rows.map((row) => this.mapToDomain(row));
+      .where(and(...conditions))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: rows.map((row) => this.mapToDomain(row)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async findIdentifiers(
