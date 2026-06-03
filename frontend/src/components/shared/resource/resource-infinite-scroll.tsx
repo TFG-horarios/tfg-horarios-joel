@@ -25,6 +25,15 @@ export function ResourceInfiniteScroll<T>({
   const [items, setItems] = useState<T[]>(initialItems);
   const [loading, setLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const initialItemsRef = useRef(initialItems);
+
+  useEffect(() => {
+    if (initialItems !== initialItemsRef.current) {
+      setItems(initialItems);
+      setMeta(initialMeta);
+      initialItemsRef.current = initialItems;
+    }
+  }, [initialItems, initialMeta]);
 
   const handleLoadMore = useCallback(async () => {
     if (loading || meta.page >= meta.totalPages) return;

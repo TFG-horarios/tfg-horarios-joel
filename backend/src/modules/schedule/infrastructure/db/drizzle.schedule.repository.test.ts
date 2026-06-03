@@ -76,26 +76,26 @@ describe('DrizzleScheduleRepository Integration', () => {
     await repository.create(s2);
     const all = await repository.findAll(testOrgId);
     expect(all.length).toBeGreaterThanOrEqual(2);
-    const morningSchedules = await repository.findAll(testOrgId, {
+    const morningSchedules = await repository.findPaginated(testOrgId, {
       shift: 'morning',
     });
-    expect(morningSchedules.length).toBe(2);
-    const afternoonSchedules = await repository.findAll(testOrgId, {
+    expect(morningSchedules.data.length).toBe(2);
+    const afternoonSchedules = await repository.findPaginated(testOrgId, {
       shift: 'afternoon',
     });
-    expect(afternoonSchedules.length).toBe(1);
-    expect(afternoonSchedules[0]?.shift).toBe('afternoon');
-    const publishedSchedules = await repository.findAll(testOrgId, {
+    expect(afternoonSchedules.data.length).toBe(1);
+    expect(afternoonSchedules.data[0]?.shift).toBe('afternoon');
+    const publishedSchedules = await repository.findPaginated(testOrgId, {
       status: 'published',
     });
-    expect(publishedSchedules.length).toBe(1);
-    expect(publishedSchedules[0]?.status).toBe('published');
-    const combinedFilters = await repository.findAll(testOrgId, {
+    expect(publishedSchedules.data.length).toBe(1);
+    expect(publishedSchedules.data[0]?.status).toBe('published');
+    const combinedFilters = await repository.findPaginated(testOrgId, {
       shift: 'afternoon',
       status: 'published',
       degreeId: testDegreeId,
     });
-    expect(combinedFilters.length).toBe(1);
+    expect(combinedFilters.data.length).toBe(1);
   });
 
   test('should update a schedule successfully', async () => {

@@ -1,5 +1,8 @@
 import { Schedule } from './schedule.entity';
-import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
+import type {
+  ScheduleListQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export interface CreateScheduleSlotInput {
   scheduleId: string;
@@ -30,10 +33,11 @@ export interface IScheduleRepository {
     period: number,
     shift: 'morning' | 'afternoon'
   ): Promise<string | null>;
-  findAll(
+  findAll(organizationId: string): Promise<Schedule[]>;
+  findPaginated(
     organizationId: string,
     filters?: ScheduleListQueryDTO
-  ): Promise<Schedule[]>;
+  ): Promise<PaginatedResponse<Schedule>>;
   create(schedule: Schedule): Promise<void>;
   update(schedule: Schedule): Promise<void>;
   createSchedulesWithSlots(

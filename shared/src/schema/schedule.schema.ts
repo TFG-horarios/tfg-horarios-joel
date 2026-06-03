@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const ScheduleSchema = z
   .object({
@@ -49,12 +50,12 @@ export const SaveScheduleBodySchema = z
   })
   .openapi('SaveSchedule');
 
-export const ScheduleListQuerySchema = z.object({
+export const ScheduleListQuerySchema = PaginationQuerySchema.extend({
   degreeId: z.string().optional(),
   itineraryId: z.string().optional(),
   shift: z.enum(['morning', 'afternoon']).optional(),
-  courseYear: z.coerce.number().optional(),
-  period: z.coerce.number().optional(),
+  courseYear: z.coerce.number().int().positive().optional(),
+  period: z.coerce.number().int().positive().optional(),
   status: z.enum(['draft', 'published', 'archived']).optional(),
 });
 

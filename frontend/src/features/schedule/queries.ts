@@ -6,12 +6,13 @@ import {
   type ScheduleDTO,
   type ScheduleSlotDTO,
   type ScheduleListQueryDTO,
+  type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export async function fetchSchedules(
   organizationId: string,
   query?: ScheduleListQueryDTO
-): Promise<ScheduleDTO[]> {
+): Promise<PaginatedResponse<ScheduleDTO>> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
   const response = await client.api.organizations[
@@ -22,6 +23,26 @@ export async function fetchSchedules(
   });
 
   const status = response.status as number;
+  if (status === 401 || status === 403) {
+    return { data: [], meta: { total: 0, page: 1, limit: 100, totalPages: 0 } };
+  }
+  if (status !== 200) throw new Error(t('fetchFailed'));
+
+  return (await response.json()) as PaginatedResponse<ScheduleDTO>;
+}
+
+export async function fetchAllSchedules(
+  organizationId: string
+): Promise<ScheduleDTO[]> {
+  const t = await getTranslations('Common.errors');
+  const client = await getServerClient();
+  const response = await client.api.organizations[
+    ':organizationId'
+  ]!.schedules.all.$get({
+    param: { organizationId },
+  });
+
+  const status = Number(response.status);
   if (status === 401 || status === 403) return [];
 
   if (!response.ok) {

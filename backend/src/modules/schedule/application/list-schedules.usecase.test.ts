@@ -9,6 +9,7 @@ describe('ListSchedulesUseCase', () => {
     findPublishedByScope: mock(),
     findLatestVersionByScope: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
@@ -31,10 +32,13 @@ describe('ListSchedulesUseCase', () => {
       period: 1,
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-    repositoryMock.findAll.mockResolvedValueOnce([schedule]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [schedule],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe(schedule.id);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]?.id).toBe(schedule.id);
   });
 
   test('should throw ForbiddenError if user has no role', async () => {

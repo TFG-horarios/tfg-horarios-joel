@@ -1,4 +1,4 @@
-import { eq, and, desc, isNull, type SQL } from 'drizzle-orm';
+import { eq, and, desc, isNull, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -13,7 +13,10 @@ import type {
   CreateScheduleSlotInput,
 } from '../../domain/schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
-import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
+import type {
+  ScheduleListQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -134,10 +137,19 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     return rows[0] ? rows[0].version : null;
   }
 
-  async findAll(
+  async findAll(organizationId: string): Promise<Schedule[]> {
+    const rows = await this.database
+      .select()
+      .from(schedulesTable)
+      .where(eq(schedulesTable.organizationId, organizationId))
+      .orderBy(desc(schedulesTable.createdAt));
+    return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findPaginated(
     organizationId: string,
     filters?: ScheduleListQueryDTO
-  ): Promise<Schedule[]> {
+  ): Promise<PaginatedResponse<Schedule>> {
     const conditions: SQL[] = [
       eq(schedulesTable.organizationId, organizationId),
     ];
@@ -165,12 +177,35 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       conditions.push(eq(schedulesTable.status, filters.status));
     }
 
+    const countResult = await this.database
+      .select({ total: count() })
+      .from(schedulesTable)
+      .where(and(...conditions));
+    const total = countResult[0]?.total ?? 0;
+
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 100;
+    const offset = (page - 1) * limit;
+
     const rows = await this.database
       .select()
       .from(schedulesTable)
       .where(and(...conditions))
-      .orderBy(desc(schedulesTable.createdAt));
-    return rows.map((row) => this.mapToDomain(row));
+      .orderBy(desc(schedulesTable.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: rows.map((row) => this.mapToDomain(row)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async create(schedule: Schedule): Promise<void> {

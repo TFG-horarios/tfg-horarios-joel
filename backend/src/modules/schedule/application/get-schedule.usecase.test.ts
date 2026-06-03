@@ -9,6 +9,7 @@ describe('GetScheduleUseCase', () => {
     findPublishedByScope: mock(),
     findLatestVersionByScope: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),

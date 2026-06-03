@@ -8,6 +8,7 @@ import {
   SaveScheduleSlotBodySchema,
   GenerationScopeSchema,
   ScheduleListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listSchedulesRoute = createRoute({
@@ -19,12 +20,31 @@ export const listSchedulesRoute = createRoute({
   },
   responses: {
     200: {
-      description: 'List of schedules',
-      content: { 'application/json': { schema: z.array(ScheduleSchema) } },
+      description: 'Listado de horarios',
+      content: {
+        'application/json': { schema: createPaginatedSchema(ScheduleSchema) },
+      },
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+  },
+});
+
+export const listAllSchedulesRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/schedules/all',
+  request: {
+    params: ScheduleBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado completo de horarios',
+      content: {
+        'application/json': { schema: z.array(ScheduleSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
   },
 });
 

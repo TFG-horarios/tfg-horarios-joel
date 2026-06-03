@@ -9,6 +9,7 @@ import { DrizzleClassroomRepository } from '@/modules/classroom/infrastructure/d
 import { DrizzleSubjectGroupRepository } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.repository';
 import { DrizzleOrganizationRepository } from '@/modules/organization/infrastructure/db/drizzle.organization.repository';
 import { ListSchedulesUseCase } from './application/list-schedules.usecase';
+import { ListAllSchedulesUseCase } from './application/list-all-schedules.usecase';
 import { GetScheduleUseCase } from './application/get-schedule.usecase';
 import { PublishScheduleUseCase } from './application/publish-schedule.usecase';
 import { GenerateScheduleUseCase } from './application/generate-schedule.usecase';
@@ -26,6 +27,7 @@ import {
   listScheduleSlotsRoute,
   updateScheduleSlotRoute,
   generateScheduleRoute,
+  listAllSchedulesRoute,
 } from './infrastructure/http/hono.schedule.routes';
 
 export const createScheduleModule = (db: DbConnection) => {
@@ -50,6 +52,7 @@ export const createScheduleModule = (db: DbConnection) => {
 
   const controller = new HonoScheduleController(
     new ListSchedulesUseCase(scheduleRepository, memberProvider),
+    new ListAllSchedulesUseCase(scheduleRepository, memberProvider),
     new GetScheduleUseCase(scheduleRepository, memberProvider),
     new PublishScheduleUseCase(scheduleRepository, memberProvider),
     new GenerateScheduleUseCase(
@@ -64,6 +67,7 @@ export const createScheduleModule = (db: DbConnection) => {
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
+    .openapi(listAllSchedulesRoute, controller.listAll)
     .openapi(listSchedulesRoute, controller.list)
     .openapi(getScheduleRoute, controller.get)
     .openapi(publishScheduleRoute, controller.publish)

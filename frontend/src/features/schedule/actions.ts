@@ -9,8 +9,10 @@ import {
   type ScheduleSlotDTO,
   type GenerationScopeDTO,
   type SaveScheduleSlotDTO,
+  type ScheduleListQueryDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import { fetchSchedules } from './queries';
 
 import {
   GenerationScopeSchema,
@@ -18,6 +20,14 @@ import {
 } from '@tfg-horarios/shared';
 
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchSchedulesAction(
+  organizationId: string,
+  query: ScheduleListQueryDTO,
+  page: number
+) {
+  return fetchSchedules(organizationId, { ...query, page });
+}
 
 export async function generateSchedulesAction(
   organizationId: string,

@@ -12,6 +12,8 @@ import { ResourceFilterClear } from '@/components/shared/resource/resource-filte
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceGrid } from '@/components/shared/resource/resource-grid';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
+import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { fetchSchedulesAction } from '@/features/schedule/actions';
 import { ScheduleCard } from '@/features/schedule/components/schedule-card';
 import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 
@@ -27,6 +29,8 @@ export default async function OrganizationSchedulesPage({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const query: ScheduleListQueryDTO = {
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
         ? rawSearchParams.degreeId
@@ -65,22 +69,14 @@ export default async function OrganizationSchedulesPage({
     notFound();
   }
 
-  const [degrees, itineraries, schedules] = await Promise.all([
+  const [degrees, itineraries, { data: schedules, meta }] = await Promise.all([
     fetchAllDegrees(id),
     fetchAllItineraries(id),
     fetchSchedules(id, query),
   ]);
 
-  const getDegreeName = (degreeId: string | null) => {
-    const d = degrees.find((deg) => deg.id === degreeId);
-    return d?.name || 'Degree';
-  };
-
-  const getItineraryName = (itineraryId: string | null) => {
-    if (!itineraryId) return 'None';
-    const i = itineraries.find((it) => it.id === itineraryId);
-    return i ? i.code : 'Itinerary';
-  };
+  const degreeMap = new Map(degrees.map((d) => [d.id, d.name]));
+  const itineraryMap = new Map(itineraries.map((i) => [i.id, i.code]));
 
   const translations = {
     empty: t('empty'),
@@ -100,7 +96,7 @@ export default async function OrganizationSchedulesPage({
       label={t('label')}
       title={t('title', { organization: organization.name })}
       description={t('description')}
-      count={schedules.length}
+      count={meta.total}
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
@@ -173,16 +169,22 @@ export default async function OrganizationSchedulesPage({
 
       <div className="mt-6">
         <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-          {schedules.map((schedule) => (
-            <ScheduleCard
-              key={schedule.id}
-              item={schedule}
-              degreeName={getDegreeName(schedule.degreeId)}
-              itineraryName={getItineraryName(schedule.itineraryId ?? null)}
-              organizationId={id}
-              translations={translations}
+          {schedules.length > 0 && (
+            <ResourceInfiniteScroll
+              key={JSON.stringify(query)}
+              initialItems={schedules}
+              initialMeta={meta}
+              loadMore={fetchSchedulesAction.bind(null, id, query)}
+              ItemComponent={ScheduleCard}
+              itemProps={{
+                degreeMap,
+                itineraryMap,
+                organizationId: id,
+                translations,
+              }}
+              keyProp="id"
             />
-          ))}
+          )}
         </ResourceGrid>
       </div>
     </OrganizationSectionShell>

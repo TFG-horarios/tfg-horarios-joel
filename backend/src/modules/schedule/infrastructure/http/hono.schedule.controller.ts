@@ -7,8 +7,10 @@ import type {
   listScheduleSlotsRoute,
   updateScheduleSlotRoute,
   generateScheduleRoute,
+  listAllSchedulesRoute,
 } from './hono.schedule.routes';
 import type { ListSchedulesUseCase } from '../../application/list-schedules.usecase';
+import type { ListAllSchedulesUseCase } from '../../application/list-all-schedules.usecase';
 import type { GetScheduleUseCase } from '../../application/get-schedule.usecase';
 import type { PublishScheduleUseCase } from '../../application/publish-schedule.usecase';
 import type { GenerateScheduleUseCase } from '../../application/generate-schedule.usecase';
@@ -18,6 +20,7 @@ import type { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/applicat
 export class HonoScheduleController {
   constructor(
     private readonly listSchedulesUseCase: ListSchedulesUseCase,
+    private readonly listAllUseCase: ListAllSchedulesUseCase,
     private readonly getScheduleUseCase: GetScheduleUseCase,
     private readonly publishScheduleUseCase: PublishScheduleUseCase,
     private readonly generateScheduleUseCase: GenerateScheduleUseCase,
@@ -33,6 +36,15 @@ export class HonoScheduleController {
       organizationId,
       requesterUserId,
       query
+    );
+    return c.json(schedules, 200);
+  };
+
+  listAll: RouteHandler<typeof listAllSchedulesRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const schedules = await this.listAllUseCase.execute(
+      organizationId,
+      c.get('userId')
     );
     return c.json(schedules, 200);
   };

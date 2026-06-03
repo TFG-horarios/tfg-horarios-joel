@@ -19,19 +19,23 @@ import type { ScheduleDTO } from '@tfg-horarios/shared';
 
 export interface ScheduleCardProps {
   item: ScheduleDTO;
-  degreeName: string;
-  itineraryName: string;
+  degreeMap: Map<string, string>;
+  itineraryMap: Map<string, string>;
   organizationId: string;
   translations?: Record<string, string>;
 }
 
 export function ScheduleCard({
   item: schedule,
-  degreeName,
-  itineraryName,
+  degreeMap,
+  itineraryMap,
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
+  const degreeName = degreeMap.get(schedule.degreeId) || 'Unknown Degree';
+  const itineraryName = schedule.itineraryId
+    ? itineraryMap.get(schedule.itineraryId) || 'Unknown Itinerary'
+    : translations.commonItinerary || 'Common';
   const getStatusBadgeVariant = (
     status: 'draft' | 'published' | 'archived'
   ) => {
