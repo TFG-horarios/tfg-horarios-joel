@@ -14,6 +14,8 @@ import { SubjectGroupActions } from '@/features/subject-group/components/subject
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { fetchSubjectGroupsAction } from '@/features/subject-group/actions';
 import type { SubjectGroupListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSubjectGroupsPageProps = {
@@ -28,6 +30,8 @@ export default async function OrganizationSubjectGroupsPage({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const query: SubjectGroupListQueryDTO = {
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     subjectId:
@@ -62,12 +66,13 @@ export default async function OrganizationSubjectGroupsPage({
   if (!organization) {
     notFound();
   }
-  const [groups, subjects, degrees, itineraries] = await Promise.all([
-    fetchSubjectGroups(id, query),
-    fetchAllSubjects(id),
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
-  ]);
+  const [{ data: groups, meta }, subjects, degrees, itineraries] =
+    await Promise.all([
+      fetchSubjectGroups(id, query),
+      fetchAllSubjects(id),
+      fetchAllDegrees(id),
+      fetchAllItineraries(id),
+    ]);
   const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
   const translations = {
@@ -88,7 +93,7 @@ export default async function OrganizationSubjectGroupsPage({
       label={t('label')}
       title={t('title', { organization: organization.name })}
       description={t('description')}
-      count={groups.length}
+      count={meta.total}
       countLabel={t('countLabel')}
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
@@ -137,23 +142,21 @@ export default async function OrganizationSubjectGroupsPage({
         />
         <SubjectGroupActions organizationId={id} subjects={subjects} />
       </div>
-      <ResourceGrid
-        items={groups}
-        renderItem={(group) => {
-          const subject = subjectMap.get(group.subjectId);
-          const degree = subject ? degreeMap.get(subject.degreeId) : undefined;
-          return (
-            <SubjectGroupCard
-              group={group}
-              subject={subject}
-              degree={degree}
-              translations={translations}
+      <div>
+        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
+          {groups.length > 0 && (
+            <ResourceInfiniteScroll
+              key={JSON.stringify(query)}
+              initialItems={groups}
+              initialMeta={meta}
+              loadMore={fetchSubjectGroupsAction.bind(null, id, query)}
+              ItemComponent={SubjectGroupCard}
+              itemProps={{ subjectMap, degreeMap, translations }}
+              keyProp="id"
             />
-          );
-        }}
-        emptyState={<ResourceEmptyState message={t('empty')} />}
-        keyExtractor={(group) => group.id}
-      />
+          )}
+        </ResourceGrid>
+      </div>
     </OrganizationSectionShell>
   );
 }

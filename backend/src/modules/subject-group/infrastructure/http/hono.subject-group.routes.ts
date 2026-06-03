@@ -9,6 +9,7 @@ import {
   BulkSaveSubjectGroupBodySchema,
   SubjectGroupIdentifierSchema,
   SubjectGroupListQuerySchema,
+  createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectGroupsRoute = createRoute({
@@ -20,8 +21,29 @@ export const listSubjectGroupsRoute = createRoute({
   },
   responses: {
     200: {
-      description: 'Groups list',
-      content: { 'application/json': { schema: z.array(SubjectGroupSchema) } },
+      description: 'Listado de grupos',
+      content: {
+        'application/json': {
+          schema: createPaginatedSchema(SubjectGroupSchema),
+        },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const listAllSubjectGroupsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/subject-groups/all',
+  request: {
+    params: SubjectGroupBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado completo de grupos',
+      content: {
+        'application/json': { schema: z.array(SubjectGroupSchema) },
+      },
     },
     403: { description: 'Forbidden' },
   },

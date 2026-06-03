@@ -6,6 +6,7 @@ describe('GetSubjectGroupIdentifiersUseCase', () => {
   const mockSubjectGroupRepository = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findGroupsWithSubjectsInScope: mock(),
     findIdentifiers: mock(),
     create: mock(),

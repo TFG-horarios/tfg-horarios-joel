@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardTitle, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,18 +13,20 @@ import type {
 } from '@tfg-horarios/shared';
 
 export interface SubjectGroupCardProps {
-  group: SubjectGroupDTO;
-  subject: SubjectDTO | undefined;
-  degree: DegreeDTO | undefined;
+  item: SubjectGroupDTO;
+  subjectMap: Map<string, SubjectDTO>;
+  degreeMap: Map<string, DegreeDTO>;
   translations: Record<string, string>;
 }
 
 export function SubjectGroupCard({
-  group,
-  subject,
-  degree,
+  item: group,
+  subjectMap,
+  degreeMap,
   translations,
 }: SubjectGroupCardProps) {
+  const subject = subjectMap.get(group.subjectId);
+  const degree = subject ? degreeMap.get(subject.degreeId) : undefined;
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">

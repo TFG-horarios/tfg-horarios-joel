@@ -6,6 +6,7 @@ describe('DeleteAllSubjectGroupsUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     findGroupsWithSubjectsInScope: mock(),
     create: mock(),

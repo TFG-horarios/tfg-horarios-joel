@@ -2,6 +2,7 @@ import type { SubjectGroup } from './subject-group.entity';
 import type {
   SubjectGroupIdentifierDTO,
   SubjectGroupListQueryDTO,
+  PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export interface GroupWithSubjectAndItinerary {
@@ -21,10 +22,11 @@ export interface GroupWithSubjectAndItinerary {
 
 export interface ISubjectGroupRepository {
   findById(id: string, organizationId: string): Promise<SubjectGroup | null>;
-  findAll(
+  findAll(organizationId: string): Promise<SubjectGroup[]>;
+  findPaginated(
     organizationId: string,
     filters?: SubjectGroupListQueryDTO
-  ): Promise<SubjectGroup[]>;
+  ): Promise<PaginatedResponse<SubjectGroup>>;
   findIdentifiers(organizationId: string): Promise<SubjectGroupIdentifierDTO[]>;
   findGroupsWithSubjectsInScope(
     organizationId: string,

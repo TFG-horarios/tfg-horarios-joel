@@ -1,14 +1,10 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
 import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
-import type {
-  SubjectGroupDTO,
-  SubjectGroupListQueryDTO,
-  PaginatedResponse,
-} from '@tfg-horarios/shared';
+import type { SubjectGroupDTO } from '@tfg-horarios/shared';
 import { SubjectGroupMapper } from './subject-group.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
 
-export class ListSubjectGroupsUseCase {
+export class ListAllSubjectGroupsUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly memberProvider: ISubjectGroupMemberProvider
@@ -16,9 +12,8 @@ export class ListSubjectGroupsUseCase {
 
   async execute(
     organizationId: string,
-    requesterUserId: string,
-    filters?: SubjectGroupListQueryDTO
-  ): Promise<PaginatedResponse<SubjectGroupDTO>> {
+    requesterUserId: string
+  ): Promise<SubjectGroupDTO[]> {
     const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
@@ -27,13 +22,7 @@ export class ListSubjectGroupsUseCase {
       throw new ForbiddenError('You do not have access to this organization.');
     }
 
-    const { data, meta } = await this.subjectGroupRepository.findPaginated(
-      organizationId,
-      filters
-    );
-    return {
-      data: SubjectGroupMapper.toDTOList(data),
-      meta,
-    };
+    const groups = await this.subjectGroupRepository.findAll(organizationId);
+    return SubjectGroupMapper.toDTOList(groups);
   }
 }

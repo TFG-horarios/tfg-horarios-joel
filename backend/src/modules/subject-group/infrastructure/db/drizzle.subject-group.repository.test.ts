@@ -116,18 +116,20 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
     await repository.createMany([group1, group2]);
     const allGroups = await repository.findAll(testOrgId);
     expect(allGroups.length).toBeGreaterThanOrEqual(2);
-    const searchResults = await repository.findAll(testOrgId, { search: 'P1' });
-    expect(searchResults.length).toBe(1);
-    expect(searchResults[0]?.name).toBe('P1');
-    const typeResults = await repository.findAll(testOrgId, {
+    const searchResults = await repository.findPaginated(testOrgId, {
+      search: 'P1',
+    });
+    expect(searchResults.data.length).toBe(1);
+    expect(searchResults.data[0]?.name).toBe('P1');
+    const typeResults = await repository.findPaginated(testOrgId, {
       groupType: 'problems',
     });
-    expect(typeResults.length).toBe(1);
-    expect(typeResults[0]?.name).toBe('P1');
-    const shiftResults = await repository.findAll(testOrgId, {
+    expect(typeResults.data.length).toBe(1);
+    expect(typeResults.data[0]?.name).toBe('P1');
+    const shiftResults = await repository.findPaginated(testOrgId, {
       shift: 'morning',
     });
-    expect(shiftResults.length).toBeGreaterThanOrEqual(2);
+    expect(shiftResults.data.length).toBeGreaterThanOrEqual(2);
     const identifiers = await repository.findIdentifiers(testOrgId);
     expect(identifiers.length).toBe(3);
     const subjectIds = identifiers.map((i) => i.subjectId);

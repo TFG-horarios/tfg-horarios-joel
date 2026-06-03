@@ -6,6 +6,7 @@ describe('ListSubjectGroupsUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findAll: mock(),
+    findPaginated: mock(),
     findIdentifiers: mock(),
     findGroupsWithSubjectsInScope: mock(),
     create: mock(),
@@ -35,8 +36,11 @@ describe('ListSubjectGroupsUseCase', () => {
       weeklyHours: 4,
       numberOfStudents: 30,
     });
-    repositoryMock.findAll.mockResolvedValueOnce([group]);
+    repositoryMock.findPaginated.mockResolvedValueOnce({
+      data: [group],
+      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    });
     const result = await useCase.execute('org-1', 'user-1');
-    expect(result).toHaveLength(1);
+    expect(result.data).toHaveLength(1);
   });
 });

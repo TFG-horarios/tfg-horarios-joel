@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi';
+import { PaginationQuerySchema } from './pagination.schema';
 
 export const SubjectGroupSchema = z
   .object({
@@ -51,13 +52,15 @@ export const SubjectGroupIdParamSchema = SubjectGroupBaseParamSchema.extend({
   id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
 });
 
-export const SubjectGroupListQuerySchema = z.object({
+export const SubjectGroupListQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
   subjectId: z.string().optional(),
   shift: z.enum(['morning', 'afternoon']).optional(),
   groupType: z.enum(['theory', 'problems', 'practices']).optional(),
   degreeId: z.string().optional(),
   itineraryId: z.string().optional(),
+  term: z.number().int().min(1).max(2).optional(),
+  year: z.number().int().min(1).max(6).optional(),
 });
 
 export const SaveSubjectGroupBodySchema = z

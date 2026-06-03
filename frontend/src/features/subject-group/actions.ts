@@ -5,15 +5,25 @@ import {
   type SubjectGroupDTO,
   type SaveSubjectGroupDTO,
   type BulkSaveSubjectGroupDTO,
+  type SubjectGroupListQueryDTO,
   SubjectGroupIdentifierSchema,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { revalidatePath } from 'next/cache';
 import { getTranslations } from 'next-intl/server';
+import { fetchSubjectGroups } from './queries';
 
 import { SaveSubjectGroupBodySchema } from '@tfg-horarios/shared';
 
 import { type ActionResponse } from '@/types/actions';
+
+export async function fetchSubjectGroupsAction(
+  organizationId: string,
+  query: SubjectGroupListQueryDTO,
+  page: number
+) {
+  return fetchSubjectGroups(organizationId, { ...query, page });
+}
 
 export async function bulkCreateSubjectGroups(
   organizationId: string,

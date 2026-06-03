@@ -1,4 +1,4 @@
-import { eq, and, isNull, inArray, ilike, type SQL } from 'drizzle-orm';
+import { eq, and, isNull, inArray, ilike, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -21,6 +21,7 @@ import {
 import type {
   SubjectGroupIdentifierDTO,
   SubjectGroupListQueryDTO,
+  PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
@@ -78,10 +79,23 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(
+  async findAll(organizationId: string): Promise<SubjectGroup[]> {
+    const rows = await this.database
+      .select()
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+    return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findPaginated(
     organizationId: string,
     filters?: SubjectGroupListQueryDTO
-  ): Promise<SubjectGroup[]> {
+  ): Promise<PaginatedResponse<SubjectGroup>> {
     const conditions: SQL[] = [
       eq(subjectGroupsTable.organizationId, organizationId),
       isNull(subjectGroupsTable.deletedAt),
@@ -100,21 +114,29 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       conditions.push(eq(subjectGroupsTable.groupType, filters.groupType));
     }
 
-    let query = this.database
-      .select({
-        subjectGroup: subjectGroupsTable,
-      })
+    let countQuery = this.database
+      .select({ total: count() })
       .from(subjectGroupsTable)
       .$dynamic();
 
-    if (filters?.degreeId || filters?.itineraryId) {
-      query = query.innerJoin(
-        subjectsTable,
-        and(
-          eq(subjectGroupsTable.subjectId, subjectsTable.id),
-          isNull(subjectsTable.deletedAt)
-        )
+    let dataQuery = this.database
+      .select({ subjectGroup: subjectGroupsTable })
+      .from(subjectGroupsTable)
+      .$dynamic();
+
+    if (
+      filters?.degreeId ||
+      filters?.itineraryId ||
+      filters?.term ||
+      filters?.year
+    ) {
+      const joinCondition = and(
+        eq(subjectGroupsTable.subjectId, subjectsTable.id),
+        isNull(subjectsTable.deletedAt)
       );
+
+      countQuery = countQuery.innerJoin(subjectsTable, joinCondition);
+      dataQuery = dataQuery.innerJoin(subjectsTable, joinCondition);
 
       if (filters?.degreeId) {
         conditions.push(eq(subjectsTable.degreeId, filters.degreeId));
@@ -126,10 +148,37 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
           conditions.push(eq(subjectsTable.itineraryId, filters.itineraryId));
         }
       }
+      if (filters?.term) {
+        conditions.push(eq(subjectsTable.period, filters.term));
+      }
+      if (filters?.year) {
+        conditions.push(eq(subjectsTable.courseYear, filters.year));
+      }
     }
 
-    const rows = await query.where(and(...conditions));
-    return rows.map((row) => this.mapToDomain(row.subjectGroup));
+    const countResult = await countQuery.where(and(...conditions));
+    const total = countResult[0]?.total ?? 0;
+
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 100;
+    const offset = (page - 1) * limit;
+
+    const rows = await dataQuery
+      .where(and(...conditions))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: rows.map((row) => this.mapToDomain(row.subjectGroup)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   async findIdentifiers(

@@ -31,10 +31,10 @@ export class HonoSubjectController {
     private readonly listUseCase: ListSubjectUseCase,
     private readonly updateUseCase: UpdateSubjectUseCase,
     private readonly deleteUseCase: DeleteSubjectUseCase,
-    private readonly deleteAllSubjectsUseCase: DeleteAllSubjectsUseCase,
-    private readonly replaceSubjectsUseCase: ReplaceSubjectsUseCase,
-    private readonly getSubjectIdentifiersUseCase: GetSubjectIdentifiersUseCase,
-    private readonly listAllSubjectsUseCase: ListAllSubjectsUseCase
+    private readonly deleteAllUseCase: DeleteAllSubjectsUseCase,
+    private readonly replaceUseCase: ReplaceSubjectsUseCase,
+    private readonly getIdentifiersUseCase: GetSubjectIdentifiersUseCase,
+    private readonly listAllUseCase: ListAllSubjectsUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectsRoute, AppEnv> = async (c) => {
@@ -50,7 +50,7 @@ export class HonoSubjectController {
 
   listAll: RouteHandler<typeof listAllSubjectsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
-    const subjects = await this.listAllSubjectsUseCase.execute(
+    const subjects = await this.listAllUseCase.execute(
       organizationId,
       c.get('userId')
     );
@@ -60,7 +60,7 @@ export class HonoSubjectController {
   getIdentifiers: RouteHandler<typeof getSubjectIdentifiersRoute, AppEnv> =
     async (c) => {
       const { organizationId } = c.req.valid('param');
-      const identifiers = await this.getSubjectIdentifiersUseCase.execute(
+      const identifiers = await this.getIdentifiersUseCase.execute(
         organizationId,
         c.get('userId')
       );
@@ -95,7 +95,7 @@ export class HonoSubjectController {
   replace: RouteHandler<typeof replaceSubjectsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
     const body = c.req.valid('json');
-    const result = await this.replaceSubjectsUseCase.execute(
+    const result = await this.replaceUseCase.execute(
       organizationId,
       c.get('userId'),
       body
@@ -135,10 +135,7 @@ export class HonoSubjectController {
     c
   ) => {
     const { organizationId } = c.req.valid('param');
-    await this.deleteAllSubjectsUseCase.execute(
-      organizationId,
-      c.get('userId')
-    );
+    await this.deleteAllUseCase.execute(organizationId, c.get('userId'));
     return c.body(null, 204);
   };
 }

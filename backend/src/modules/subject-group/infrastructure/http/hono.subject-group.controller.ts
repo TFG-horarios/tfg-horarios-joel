@@ -10,10 +10,12 @@ import {
   deleteAllSubjectGroupsRoute,
   replaceSubjectGroupsRoute,
   getSubjectGroupIdentifiersRoute,
+  listAllSubjectGroupsRoute,
 } from './hono.subject-group.routes';
 import type { DeleteAllSubjectGroupsUseCase } from '../../application/delete-all-subject-groups.usecase';
 import type { ReplaceSubjectGroupsUseCase } from '../../application/replace-subject-groups.usecase';
 import type { GetSubjectGroupIdentifiersUseCase } from '../../application/get-subject-group-identifiers.usecase';
+import type { ListAllSubjectGroupsUseCase } from '../../application/list-all-subject-groups.usecase';
 import type { BulkCreateSubjectGroupUseCase } from '../../application/bulk-create-subject-group.usecase';
 import type { ListSubjectGroupsUseCase } from '../../application/list-subject-group.usecase';
 import type { GetSubjectGroupUseCase } from '../../application/get-subject-group.usecase';
@@ -31,18 +33,30 @@ export class HonoSubjectGroupController {
     private readonly deleteUseCase: DeleteSubjectGroupUseCase,
     private readonly deleteAllUseCase: DeleteAllSubjectGroupsUseCase,
     private readonly replaceUseCase: ReplaceSubjectGroupsUseCase,
-    private readonly getIdentifiersUseCase: GetSubjectGroupIdentifiersUseCase
+    private readonly getIdentifiersUseCase: GetSubjectGroupIdentifiersUseCase,
+    private readonly listAllUseCase: ListAllSubjectGroupsUseCase
   ) {}
 
   list: RouteHandler<typeof listSubjectGroupsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
     const query = c.req.valid('query');
-    const result = await this.listUseCase.execute(
+    const groups = await this.listUseCase.execute(
       organizationId,
       c.get('userId'),
       query
     );
-    return c.json(result, 200);
+    return c.json(groups, 200);
+  };
+
+  listAll: RouteHandler<typeof listAllSubjectGroupsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    const groups = await this.listAllUseCase.execute(
+      organizationId,
+      c.get('userId')
+    );
+    return c.json(groups, 200);
   };
 
   replace: RouteHandler<typeof replaceSubjectGroupsRoute, AppEnv> = async (

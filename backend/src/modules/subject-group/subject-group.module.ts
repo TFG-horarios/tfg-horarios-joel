@@ -5,6 +5,7 @@ import { DrizzleSubjectGroupRepository } from './infrastructure/db/drizzle.subje
 import { HonoSubjectGroupController } from './infrastructure/http/hono.subject-group.controller';
 import {
   listSubjectGroupsRoute,
+  listAllSubjectGroupsRoute,
   getSubjectGroupRoute,
   createSubjectGroupRoute,
   bulkCreateSubjectGroupsRoute,
@@ -19,6 +20,7 @@ import { CreateSubjectGroupUseCase } from './application/create-subject-group.us
 import { DeleteSubjectGroupUseCase } from './application/delete-subject-group.usecase';
 import { GetSubjectGroupUseCase } from './application/get-subject-group.usecase';
 import { ListSubjectGroupsUseCase } from './application/list-subject-group.usecase';
+import { ListAllSubjectGroupsUseCase } from './application/list-all-subject-groups.usecase';
 import { UpdateSubjectGroupUseCase } from './application/update-subject-group.usecase';
 import { DeleteAllSubjectGroupsUseCase } from './application/delete-all-subject-groups.usecase';
 import { ReplaceSubjectGroupsUseCase } from './application/replace-subject-groups.usecase';
@@ -41,38 +43,51 @@ export const createSubjectGroupModule = (
     subjectGroupRepository,
     memberProvider
   );
+
+  const listAllUseCase = new ListAllSubjectGroupsUseCase(
+    subjectGroupRepository,
+    memberProvider
+  );
+
   const getUseCase = new GetSubjectGroupUseCase(
     subjectGroupRepository,
     memberProvider
   );
+
   const createUseCase = new CreateSubjectGroupUseCase(
     subjectGroupRepository,
     subjectProvider,
     memberProvider
   );
+
   const bulkCreateUseCase = new BulkCreateSubjectGroupUseCase(
     subjectGroupRepository,
     subjectProvider,
     memberProvider
   );
+
   const updateUseCase = new UpdateSubjectGroupUseCase(
     subjectGroupRepository,
     subjectProvider,
     memberProvider
   );
+
   const deleteUseCase = new DeleteSubjectGroupUseCase(
     subjectGroupRepository,
     memberProvider
   );
+
   const deleteAllUseCase = new DeleteAllSubjectGroupsUseCase(
     subjectGroupRepository,
     memberProvider
   );
+
   const replaceUseCase = new ReplaceSubjectGroupsUseCase(
     subjectGroupRepository,
     memberProvider,
     subjectProvider
   );
+
   const getIdentifiersUseCase = new GetSubjectGroupIdentifiersUseCase(
     subjectGroupRepository,
     memberProvider
@@ -87,11 +102,13 @@ export const createSubjectGroupModule = (
     deleteUseCase,
     deleteAllUseCase,
     replaceUseCase,
-    getIdentifiersUseCase
+    getIdentifiersUseCase,
+    listAllUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
+    .openapi(listAllSubjectGroupsRoute, controller.listAll)
     .openapi(listSubjectGroupsRoute, controller.list)
     .openapi(getSubjectGroupIdentifiersRoute, controller.getIdentifiers)
     .openapi(getSubjectGroupRoute, controller.get)

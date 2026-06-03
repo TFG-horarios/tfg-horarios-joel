@@ -3,7 +3,7 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchSchedule, fetchScheduleSlots } from '@/features/schedule/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
-import { fetchSubjectGroups } from '@/features/subject-group/queries';
+import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SchedulePlanner } from '@/features/schedule/components/schedule-planner';
@@ -32,7 +32,7 @@ export default async function SchedulePlannerPage({
     fetchScheduleSlots(id, scheduleId),
     fetchAllClassrooms(id),
     fetchAllSubjects(id),
-    fetchSubjectGroups(id),
+    fetchAllSubjectGroups(id),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
   ]);

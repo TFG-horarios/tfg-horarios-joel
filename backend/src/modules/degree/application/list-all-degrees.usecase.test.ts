@@ -1,4 +1,4 @@
-import { describe, expect, test, mock } from 'bun:test';
+import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ListAllDegreesUseCase } from './list-all-degrees.usecase';
 import { Degree } from '../domain/degree.entity';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -22,6 +22,11 @@ describe('ListAllDegreesUseCase', () => {
   };
 
   const useCase = new ListAllDegreesUseCase(repositoryMock, memberProviderMock);
+
+  beforeEach(() => {
+    repositoryMock.findAll.mockClear();
+    memberProviderMock.getMemberRole.mockClear();
+  });
 
   test('should list all degrees successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('ADMIN');

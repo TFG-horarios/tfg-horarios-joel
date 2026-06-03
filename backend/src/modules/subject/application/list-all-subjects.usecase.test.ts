@@ -1,4 +1,4 @@
-import { describe, expect, test, mock } from 'bun:test';
+import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ListAllSubjectsUseCase } from './list-all-subjects.usecase';
 import { Subject } from '../domain/subject.entity';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -26,9 +26,13 @@ describe('ListAllSubjectsUseCase', () => {
     memberProviderMock
   );
 
+  beforeEach(() => {
+    repositoryMock.findAll.mockClear();
+    memberProviderMock.getMemberRole.mockClear();
+  });
+
   test('should list all subjects successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('ADMIN');
-
     const subject = Subject.reconstitute({
       organizationId: 'org-1',
       degreeId: 'deg-1',
