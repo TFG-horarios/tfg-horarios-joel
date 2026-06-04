@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,7 +14,7 @@ export interface DegreeCardProps {
   translations?: Record<string, string>;
 }
 
-export function DegreeCard({ item: degree }: DegreeCardProps) {
+export const DegreeCard = memo(function DegreeCard({ item: degree }: DegreeCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">
@@ -29,4 +30,4 @@ export function DegreeCard({ item: degree }: DegreeCardProps) {
       </CardHeader>
     </Card>
   );
-}
+});

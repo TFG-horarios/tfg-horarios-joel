@@ -28,7 +28,7 @@ export async function fetchSubjectsAction(
 export async function bulkCreateSubjects(
   organizationId: string,
   dtos: BulkSaveSubjectDTO[]
-): Promise<SubjectDTO[]> {
+): Promise<ActionResponse<SubjectDTO[]>> {
   const tErrors = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -42,28 +42,27 @@ export async function bulkCreateSubjects(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Asignaturas):', errorText);
-      throw new Error(tErrors('server'));
-    }
-
-    if (!response.ok) {
-      throw new Error(tErrors('server'));
+      return { success: false, message: tErrors('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/subjects`);
 
-    return SubjectSchema.array().parse(payload);
+    return {
+      success: true,
+      data: SubjectSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Asignaturas Bulk):', error);
-    throw error;
+    return { success: false, message: tErrors('server') };
   }
 }
 
 export async function replaceSubjectsAction(
   organizationId: string,
   dtos: BulkSaveSubjectDTO[]
-): Promise<SubjectDTO[]> {
+): Promise<ActionResponse<SubjectDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -80,15 +79,18 @@ export async function replaceSubjectsAction(
         'ERROR DEL BACKEND DE HONO (Asignaturas Replace):',
         errorText
       );
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
     revalidatePath(`/organizations/${organizationId}/subjects`);
-    return SubjectSchema.array().parse(payload);
+    return {
+      success: true,
+      data: SubjectSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Asignaturas Replace):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 

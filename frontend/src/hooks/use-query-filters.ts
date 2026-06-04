@@ -50,10 +50,18 @@ export function useQueryFilters() {
   );
 
   const clearAllFilters = useCallback(() => {
-    router.push(pathname);
-  }, [pathname, router]);
+    const params = new URLSearchParams();
+    const limit = searchParams.get('limit');
+    const view = searchParams.get('view');
+    
+    if (limit) params.set('limit', limit);
+    if (view) params.set('view', view);
 
-  const hasAnyFilter = Array.from(searchParams.keys()).length > 0;
+    const queryString = params.toString();
+    router.push(`${pathname}${queryString ? `?${queryString}` : ''}`);
+  }, [pathname, router, searchParams]);
+
+  const hasAnyFilter = Array.from(searchParams.keys()).filter(key => !['page', 'limit', 'view'].includes(key)).length > 0;
 
   return {
     setFilter,

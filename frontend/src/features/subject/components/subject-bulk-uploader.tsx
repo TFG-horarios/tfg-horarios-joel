@@ -186,10 +186,15 @@ export function SubjectBulkUploader({
           }
         );
 
+        let result;
         if (mode === 'overwrite') {
-          await replaceSubjectsAction(organizationId, dtos);
+          result = await replaceSubjectsAction(organizationId, dtos);
         } else {
-          await bulkCreateSubjects(organizationId, dtos);
+          result = await bulkCreateSubjects(organizationId, dtos);
+        }
+
+        if (!result.success) {
+          throw new Error(result.message);
         }
       }}
     />

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -10,11 +11,12 @@ import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
-import { ResourceGrid } from '@/components/shared/resource/resource-grid';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
-import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
 import { fetchSchedulesAction } from '@/features/schedule/actions';
 import { ScheduleCard } from '@/features/schedule/components/schedule-card';
+import { ScheduleRow } from '@/features/schedule/components/schedule-row';
 import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSchedulesPageProps = {
@@ -27,10 +29,20 @@ export default async function OrganizationSchedulesPage({
   searchParams,
 }: OrganizationSchedulesPageProps) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-schedules')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  const query: ScheduleListQueryDTO = {
+  
+  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
+    ? rawSearchParams.view 
+    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const query: ScheduleListQueryDTO & { view?: string } = {
+    view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
         ? rawSearchParams.degreeId
@@ -101,6 +113,7 @@ export default async function OrganizationSchedulesPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
+          viewToggle={<ResourceViewToggle viewKey="view-schedules" defaultView={query.view as 'grid' | 'table'} />}
           filters={
             <div className="flex flex-wrap gap-2 w-full lg:w-auto">
               <ResourceFilterSelect
@@ -168,24 +181,29 @@ export default async function OrganizationSchedulesPage({
       </div>
 
       <div className="mt-6">
-        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-          {schedules.length > 0 && (
-            <ResourceInfiniteScroll
-              key={JSON.stringify(query)}
-              initialItems={schedules}
-              initialMeta={meta}
-              loadMore={fetchSchedulesAction.bind(null, id, query)}
-              ItemComponent={ScheduleCard}
-              itemProps={{
-                degreeMap,
-                itineraryMap,
-                organizationId: id,
-                translations,
-              }}
-              keyProp="id"
-            />
-          )}
-        </ResourceGrid>
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={schedules}
+          meta={meta}
+          query={query}
+          loadMore={fetchSchedulesAction.bind(null, id, query)}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={ScheduleCard}
+          gridItemProps={{
+            degreeMap,
+            itineraryMap,
+            organizationId: id,
+            translations,
+          }}
+          tableHeaders={['Estado', 'Titulación', 'Itinerario', 'Año', 'Curso', 'Período', 'Turno', 'Acciones']}
+          TableRowComponent={ScheduleRow}
+          tableRowProps={{
+            degreeMap,
+            itineraryMap,
+            organizationId: id,
+            translations,
+          }}
+        />
       </div>
     </OrganizationSectionShell>
   );

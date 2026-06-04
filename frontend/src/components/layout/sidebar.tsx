@@ -30,16 +30,16 @@ export type NavItem = {
   label: string;
   href: string;
   icon:
-    | 'dashboard'
-    | 'classroom'
-    | 'degree'
-    | 'itinerary'
-    | 'subject'
-    | 'subjectGroup'
-    | 'schedules'
-    | 'members'
-    | 'classroomSchedules'
-    | 'reserve';
+  | 'dashboard'
+  | 'classroom'
+  | 'degree'
+  | 'itinerary'
+  | 'subject'
+  | 'subjectGroup'
+  | 'schedules'
+  | 'members'
+  | 'classroomSchedules'
+  | 'reserve';
   exact?: boolean;
 };
 

@@ -28,7 +28,7 @@ export async function fetchSubjectGroupsAction(
 export async function bulkCreateSubjectGroups(
   organizationId: string,
   dtos: BulkSaveSubjectGroupDTO[]
-): Promise<SubjectGroupDTO[]> {
+): Promise<ActionResponse<SubjectGroupDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -42,28 +42,27 @@ export async function bulkCreateSubjectGroups(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Grupos):', errorText);
-      throw new Error(t('server'));
-    }
-
-    if (!response.ok) {
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/subject-groups`);
 
-    return SubjectGroupSchema.array().parse(payload);
+    return {
+      success: true,
+      data: SubjectGroupSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grupos Bulk):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 
 export async function replaceSubjectGroupsAction(
   organizationId: string,
   dtos: BulkSaveSubjectGroupDTO[]
-): Promise<SubjectGroupDTO[]> {
+): Promise<ActionResponse<SubjectGroupDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -77,15 +76,18 @@ export async function replaceSubjectGroupsAction(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Grupos Replace):', errorText);
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
     revalidatePath(`/organizations/${organizationId}/subject-groups`);
-    return SubjectGroupSchema.array().parse(payload);
+    return {
+      success: true,
+      data: SubjectGroupSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grupos Replace):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 

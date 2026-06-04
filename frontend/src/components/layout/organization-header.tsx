@@ -131,60 +131,60 @@ export function OrganizationHeader() {
                       </BreadcrumbLink>
                     </BreadcrumbItem>
 
-                  {pathSegments.slice(1).map((segment, index) => {
-                    const isLast = index === pathSegments.length - 2;
-                    const href = '/' + pathSegments.slice(0, index + 2).join('/');
-                    const realIndex = index + 1;
+                    {pathSegments.slice(1).map((segment, index) => {
+                      const isLast = index === pathSegments.length - 2;
+                      const href = '/' + pathSegments.slice(0, index + 2).join('/');
+                      const realIndex = index + 1;
 
-                    let label: React.ReactNode = segment;
-                    if (realIndex === 1) {
-                      const text = orgName || (segment.length > 8 ? segment.substring(0, 8) : segment);
-                      label = (
-                        <span className="inline-block max-w-[100px] truncate align-bottom sm:max-w-[200px] md:max-w-[350px]">
-                          {text}
-                        </span>
-                      );
-                    } else if (realIndex === 3) {
-                      label = (
-                        <span className="inline-block max-w-[100px] truncate align-bottom">
-                          {segment.length > 8 ? segment.substring(0, 8) : segment}
-                        </span>
-                      );
-                    } else if (realIndex === 2) {
-                      const camel = segment.replace(/-([a-z])/g, (g) =>
-                        g[1]!.toUpperCase()
-                      );
-                      const translated = tNav(camel as any);
-                      const text = translated.includes('Organizations.navigation') ? segment : translated;
-                      label = (
-                        <span className="inline-block max-w-[150px] truncate align-bottom">
-                          {text}
-                        </span>
-                      );
-                    }
+                      let label: React.ReactNode = segment;
+                      if (realIndex === 1) {
+                        const text = orgName || (segment.length > 8 ? segment.substring(0, 8) : segment);
+                        label = (
+                          <span className="inline-block max-w-[100px] truncate align-bottom sm:max-w-[200px] md:max-w-[350px]">
+                            {text}
+                          </span>
+                        );
+                      } else if (realIndex === 3) {
+                        label = (
+                          <span className="inline-block max-w-[100px] truncate align-bottom">
+                            {segment.length > 8 ? segment.substring(0, 8) : segment}
+                          </span>
+                        );
+                      } else if (realIndex === 2) {
+                        const camel = segment.replace(/-([a-z])/g, (g) =>
+                          g[1]!.toUpperCase()
+                        );
+                        const translated = tNav(camel as any);
+                        const text = translated.includes('Organizations.navigation') ? segment : translated;
+                        label = (
+                          <span className="inline-block max-w-[150px] truncate align-bottom">
+                            {text}
+                          </span>
+                        );
+                      }
 
-                    return (
-                      <Fragment key={href}>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem className="min-w-0">
-                          {isLast ? (
-                            <BreadcrumbPage className="truncate font-medium text-purple-700 dark:text-purple-300">
-                              {label}
-                            </BreadcrumbPage>
-                          ) : (
-                            <BreadcrumbLink
-                              asChild
-                              className="truncate transition-colors hover:text-purple-600 dark:hover:text-purple-400"
-                            >
-                              <Link href={href}>{label}</Link>
-                            </BreadcrumbLink>
-                          )}
-                        </BreadcrumbItem>
-                      </Fragment>
-                    );
-                  })}
-                </BreadcrumbList>
-              </Breadcrumb>
+                      return (
+                        <Fragment key={href}>
+                          <BreadcrumbSeparator />
+                          <BreadcrumbItem className="min-w-0">
+                            {isLast ? (
+                              <BreadcrumbPage className="truncate font-medium text-purple-700 dark:text-purple-300">
+                                {label}
+                              </BreadcrumbPage>
+                            ) : (
+                              <BreadcrumbLink
+                                asChild
+                                className="truncate transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+                              >
+                                <Link href={href}>{label}</Link>
+                              </BreadcrumbLink>
+                            )}
+                          </BreadcrumbItem>
+                        </Fragment>
+                      );
+                    })}
+                  </BreadcrumbList>
+                </Breadcrumb>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,7 +16,7 @@ export interface SubjectCardProps {
   translations: Record<string, string>;
 }
 
-export function SubjectCard({
+export const SubjectCard = memo(function SubjectCard({
   item: subject,
   degreeMap,
   itineraryMap,
@@ -59,4 +60,4 @@ export function SubjectCard({
       </CardHeader>
     </Card>
   );
-}
+});

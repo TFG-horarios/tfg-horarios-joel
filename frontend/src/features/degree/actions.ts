@@ -25,7 +25,7 @@ export async function fetchDegreesAction(
 export async function bulkCreateDegrees(
   organizationId: string,
   dtos: SaveDegreeDTO[]
-): Promise<DegreeDTO[]> {
+): Promise<ActionResponse<DegreeDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -39,28 +39,27 @@ export async function bulkCreateDegrees(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Grados):', errorText);
-      throw new Error(t('server'));
-    }
-
-    if (!response.ok) {
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/degrees`);
 
-    return DegreeSchema.array().parse(payload);
+    return {
+      success: true,
+      data: DegreeSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grados Bulk):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 
 export async function replaceDegreesAction(
   organizationId: string,
   dtos: SaveDegreeDTO[]
-): Promise<DegreeDTO[]> {
+): Promise<ActionResponse<DegreeDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -74,15 +73,18 @@ export async function replaceDegreesAction(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Grados Replace):', errorText);
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
     revalidatePath(`/organizations/${organizationId}/degrees`);
-    return DegreeSchema.array().parse(payload);
+    return {
+      success: true,
+      data: DegreeSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grados Replace):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,13 +14,13 @@ export interface ClassroomCardProps {
   translations: Record<string, string>;
 }
 
-export function ClassroomCard({
+export const ClassroomCard = memo(function ClassroomCard({
   item: classroom,
   translations,
 }: ClassroomCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
-      <CardHeader className="space-y-2 p-4">
+      <CardHeader className="space-y-2 p-5">
         <Badge
           variant="outline"
           className="w-fit mb-2 uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
@@ -29,7 +30,7 @@ export function ClassroomCard({
             : translations['type.lab']}
         </Badge>
         <CardTitle
-          className={`text-xl font-semibold ${organizationHoverCardTitleClassName}`}
+          className={`text-xl ${organizationHoverCardTitleClassName}`}
         >
           {classroom.name}
         </CardTitle>
@@ -41,4 +42,4 @@ export function ClassroomCard({
       </CardHeader>
     </Card>
   );
-}
+});

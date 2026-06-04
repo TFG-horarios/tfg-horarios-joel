@@ -1,4 +1,3 @@
-import { useFormContext } from 'react-hook-form';
 import {
   FormControl,
   FormField,
@@ -16,11 +15,8 @@ type FormInputProps = ComponentProps<'input'> & {
 };
 
 export function FormInput({ name, label, helpText, ...props }: FormInputProps) {
-  const { control } = useFormContext();
-
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field }) => (
         <FormItem>

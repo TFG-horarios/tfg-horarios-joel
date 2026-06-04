@@ -1,4 +1,3 @@
-import { useFormContext } from 'react-hook-form';
 import {
   FormControl,
   FormField,
@@ -37,18 +36,15 @@ export function FormSelect({
   options,
   disabled,
 }: FormSelectProps) {
-  const { control } = useFormContext();
-
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
           <Select
             onValueChange={field.onChange}
-            defaultValue={field.value}
+            value={field.value}
             disabled={disabled}
           >
             <FormControl>

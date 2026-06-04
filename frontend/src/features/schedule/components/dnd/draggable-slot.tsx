@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +18,7 @@ type DraggableSlotProps = {
   isOverlay?: boolean;
 };
 
-export function DraggableSlot({
+export const DraggableSlot = memo(function DraggableSlot({
   slot,
   subject,
   group,
@@ -92,4 +93,4 @@ export function DraggableSlot({
       </CardContent>
     </Card>
   );
-}
+});

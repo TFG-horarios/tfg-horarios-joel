@@ -106,10 +106,15 @@ export function DegreeBulkUploader({
         if (onBeforeUpload) return onBeforeUpload(m, validData);
       }}
       onUpload={async (finalData) => {
+        let result;
         if (mode === 'overwrite') {
-          await replaceDegreesAction(organizationId, finalData);
+          result = await replaceDegreesAction(organizationId, finalData);
         } else {
-          await bulkCreateDegrees(organizationId, finalData);
+          result = await bulkCreateDegrees(organizationId, finalData);
+        }
+
+        if (!result.success) {
+          throw new Error(result.message);
         }
       }}
     />

@@ -26,7 +26,7 @@ export async function fetchItinerariesAction(
 export async function bulkCreateItineraries(
   organizationId: string,
   dtos: BulkSaveItineraryDTO[]
-): Promise<ItineraryDTO[]> {
+): Promise<ActionResponse<ItineraryDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -40,28 +40,27 @@ export async function bulkCreateItineraries(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Itinerarios):', errorText);
-      throw new Error(t('server'));
-    }
-
-    if (!response.ok) {
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/itineraries`);
 
-    return ItinerarySchema.array().parse(payload);
+    return {
+      success: true,
+      data: ItinerarySchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Itinerarios Bulk):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 
 export async function replaceItinerariesAction(
   organizationId: string,
   dtos: BulkSaveItineraryDTO[]
-): Promise<ItineraryDTO[]> {
+): Promise<ActionResponse<ItineraryDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -74,19 +73,19 @@ export async function replaceItinerariesAction(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        'ERROR DEL BACKEND DE HONO (Itinerarios Replace):',
-        errorText
-      );
-      throw new Error(t('server'));
+      console.error('ERROR DEL BACKEND DE HONO (Itinerarios Replace):', errorText);
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
     revalidatePath(`/organizations/${organizationId}/itineraries`);
-    return ItinerarySchema.array().parse(payload);
+    return {
+      success: true,
+      data: ItinerarySchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Itinerarios Replace):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 

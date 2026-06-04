@@ -243,10 +243,15 @@ export function SubjectGroupBulkUploader({
           };
         });
 
+        let result;
         if (mode === 'overwrite') {
-          await replaceSubjectGroupsAction(organizationId, dtos);
+          result = await replaceSubjectGroupsAction(organizationId, dtos);
         } else {
-          await bulkCreateSubjectGroups(organizationId, dtos);
+          result = await bulkCreateSubjectGroups(organizationId, dtos);
+        }
+
+        if (!result.success) {
+          throw new Error(result.message);
         }
       }}
     />

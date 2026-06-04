@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
-import { ResourceGrid } from '@/components/shared/resource/resource-grid';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -14,7 +16,7 @@ import { SubjectGroupActions } from '@/features/subject-group/components/subject
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
-import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { SubjectGroupRow } from '@/features/subject-group/components/subject-group-row';
 import { fetchSubjectGroupsAction } from '@/features/subject-group/actions';
 import type { SubjectGroupListQueryDTO } from '@tfg-horarios/shared';
 
@@ -28,10 +30,20 @@ export default async function OrganizationSubjectGroupsPage({
   searchParams,
 }: OrganizationSubjectGroupsPageProps) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-subject-groups')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  const query: SubjectGroupListQueryDTO = {
+  
+  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
+    ? rawSearchParams.view 
+    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const query: SubjectGroupListQueryDTO & { view?: string } = {
+    view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     subjectId:
@@ -98,6 +110,7 @@ export default async function OrganizationSubjectGroupsPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
+          viewToggle={<ResourceViewToggle viewKey="view-subject-groups" defaultView={query.view as 'grid' | 'table'} />}
           search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
           filters={
             <div className="flex flex-wrap gap-2 w-full lg:w-auto">
@@ -143,19 +156,19 @@ export default async function OrganizationSubjectGroupsPage({
         <SubjectGroupActions organizationId={id} subjects={subjects} />
       </div>
       <div>
-        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-          {groups.length > 0 && (
-            <ResourceInfiniteScroll
-              key={JSON.stringify(query)}
-              initialItems={groups}
-              initialMeta={meta}
-              loadMore={fetchSubjectGroupsAction.bind(null, id, query)}
-              ItemComponent={SubjectGroupCard}
-              itemProps={{ subjectMap, degreeMap, translations }}
-              keyProp="id"
-            />
-          )}
-        </ResourceGrid>
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={groups}
+          meta={meta}
+          query={query}
+          loadMore={fetchSubjectGroupsAction.bind(null, id, query)}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={SubjectGroupCard}
+          gridItemProps={{ subjectMap, degreeMap, translations }}
+          tableHeaders={['Nombre', 'Asignatura', 'Tipo', 'Turno', 'Estudiantes', 'Acciones']}
+          TableRowComponent={SubjectGroupRow}
+          tableRowProps={{ subjectMap, degreeMap, translations }}
+        />
       </div>
     </OrganizationSectionShell>
   );

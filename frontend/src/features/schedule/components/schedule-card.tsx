@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import {
   Card,
   CardHeader,
@@ -25,7 +26,7 @@ export interface ScheduleCardProps {
   translations?: Record<string, string>;
 }
 
-export function ScheduleCard({
+export const ScheduleCard = memo(function ScheduleCard({
   item: schedule,
   degreeMap,
   itineraryMap,
@@ -144,4 +145,4 @@ export function ScheduleCard({
       </CardFooter>
     </Card>
   );
-}
+});

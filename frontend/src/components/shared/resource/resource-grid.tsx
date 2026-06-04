@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 export interface ResourceGridProps<T> {
   items?: T[];
   renderItem?: (item: T) => React.ReactNode;
@@ -6,7 +8,7 @@ export interface ResourceGridProps<T> {
   children?: React.ReactNode;
 }
 
-export function ResourceGrid<T>({
+function ResourceGridBase<T>({
   items,
   renderItem,
   emptyState,
@@ -32,3 +34,5 @@ export function ResourceGrid<T>({
     </div>
   );
 }
+
+export const ResourceGrid = memo(ResourceGridBase) as typeof ResourceGridBase;

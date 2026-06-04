@@ -1,0 +1,67 @@
+import { memo } from 'react';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Pencil, Trash, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import type { ScheduleCardProps } from './schedule-card';
+
+export const ScheduleRow = memo(function ScheduleRow({ item: schedule, degreeMap, itineraryMap, organizationId, translations = {} }: ScheduleCardProps) {
+  const degreeName = degreeMap.get(schedule.degreeId) || 'Unknown Degree';
+  const itineraryName = schedule.itineraryId ? itineraryMap.get(schedule.itineraryId) || 'Unknown Itinerary' : translations.globalItinerary || 'Global';
+  
+  const getStatusBadgeVariant = (status: 'draft' | 'published' | 'archived') => {
+    switch (status) {
+      case 'published': return 'default';
+      case 'draft': return 'secondary';
+      case 'archived': return 'outline';
+    }
+  };
+
+  const getStatusLabel = (status: 'draft' | 'published' | 'archived') => {
+    return translations[status] || status;
+  };
+
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={getStatusBadgeVariant(schedule.status)}
+            className={`
+              ${schedule.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : ''}
+              ${schedule.status === 'draft' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : ''}
+              ${schedule.status === 'archived' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : ''}
+            `}
+          >
+            {getStatusLabel(schedule.status)}
+          </Badge>
+          <Badge variant="outline" className="font-mono text-xs">
+            {schedule.version}
+          </Badge>
+        </div>
+      </TableCell>
+      <TableCell className="font-medium">{degreeName}</TableCell>
+      <TableCell>{itineraryName}</TableCell>
+      <TableCell>{schedule.academicYear}</TableCell>
+      <TableCell>{schedule.courseYear}</TableCell>
+      <TableCell>{schedule.period}</TableCell>
+      <TableCell className="capitalize">{schedule.shift || 'Global'}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-2">
+          <Button asChild size="icon" variant="ghost">
+            <Link href={`/organizations/${organizationId}/schedules/${schedule.id}`}>
+              <Eye className="size-4 text-muted-foreground" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" title="Editar">
+            <Pencil className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" title="Eliminar">
+            <Trash className="size-4" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+});

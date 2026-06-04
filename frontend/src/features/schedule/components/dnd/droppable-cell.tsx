@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { useDroppable } from '@dnd-kit/react';
 
 type DroppableCellProps = {
@@ -8,7 +9,7 @@ type DroppableCellProps = {
   className?: string;
 };
 
-export function DroppableCell({
+export const DroppableCell = memo(function DroppableCell({
   id,
   children,
   className = '',
@@ -27,4 +28,4 @@ export function DroppableCell({
       {children}
     </div>
   );
-}
+});

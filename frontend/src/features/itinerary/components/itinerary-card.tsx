@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -14,7 +15,7 @@ export interface ItineraryCardProps {
   translations: Record<string, string>;
 }
 
-export function ItineraryCard({
+export const ItineraryCard = memo(function ItineraryCard({
   item: itinerary,
   degreeMap,
   translations,
@@ -48,4 +49,4 @@ export function ItineraryCard({
       </CardHeader>
     </Card>
   );
-}
+});

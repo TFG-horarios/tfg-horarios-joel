@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { PaginationMetaDTO } from '@tfg-horarios/shared';
 
@@ -13,7 +13,7 @@ export interface ResourceInfiniteScrollProps<T> {
   keyProp: keyof T;
 }
 
-export function ResourceInfiniteScroll<T>({
+function ResourceInfiniteScrollBase<T>({
   initialItems,
   initialMeta,
   loadMore,
@@ -21,19 +21,17 @@ export function ResourceInfiniteScroll<T>({
   itemProps = {},
   keyProp,
 }: ResourceInfiniteScrollProps<T>) {
+  const [prevInitialItems, setPrevInitialItems] = useState(initialItems);
   const [meta, setMeta] = useState(initialMeta);
   const [items, setItems] = useState<T[]>(initialItems);
   const [loading, setLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
-  const initialItemsRef = useRef(initialItems);
 
-  useEffect(() => {
-    if (initialItems !== initialItemsRef.current) {
-      setItems(initialItems);
-      setMeta(initialMeta);
-      initialItemsRef.current = initialItems;
-    }
-  }, [initialItems, initialMeta]);
+  if (initialItems !== prevInitialItems) {
+    setPrevInitialItems(initialItems);
+    setItems(initialItems);
+    setMeta(initialMeta);
+  }
 
   const handleLoadMore = useCallback(async () => {
     if (loading || meta.page >= meta.totalPages) return;
@@ -49,20 +47,23 @@ export function ResourceInfiniteScroll<T>({
     }
   }, [meta, loading, loadMore]);
 
+  const handleLoadMoreRef = useRef(handleLoadMore);
+  handleLoadMoreRef.current = handleLoadMore;
+
   useEffect(() => {
     const target = observerTarget.current;
     if (!target) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          handleLoadMore();
+          handleLoadMoreRef.current();
         }
       },
       { threshold: 0.1 }
     );
     observer.observe(target);
     return () => observer.disconnect();
-  }, [handleLoadMore]);
+  }, []);
 
   return (
     <>
@@ -85,3 +86,5 @@ export function ResourceInfiniteScroll<T>({
     </>
   );
 }
+
+export const ResourceInfiniteScroll = memo(ResourceInfiniteScrollBase) as typeof ResourceInfiniteScrollBase;

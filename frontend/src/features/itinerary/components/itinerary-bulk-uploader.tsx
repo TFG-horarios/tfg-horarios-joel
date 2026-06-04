@@ -132,10 +132,15 @@ export function ItineraryBulkUploader({
           };
         });
 
+        let result;
         if (mode === 'overwrite') {
-          await replaceItinerariesAction(organizationId, dtos);
+          result = await replaceItinerariesAction(organizationId, dtos);
         } else {
-          await bulkCreateItineraries(organizationId, dtos);
+          result = await bulkCreateItineraries(organizationId, dtos);
+        }
+
+        if (!result.success) {
+          throw new Error(result.message);
         }
       }}
     />

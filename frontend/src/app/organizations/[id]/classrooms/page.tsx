@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -9,10 +10,11 @@ import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
-import { ResourceGrid } from '@/components/shared/resource/resource-grid';
-import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { ClassroomCard } from '@/features/classroom/components/classroom-card';
+import { ClassroomRow } from '@/features/classroom/components/classroom-row';
 import { fetchClassroomsAction } from '@/features/classroom/actions';
 
 type OrganizationClassroomsPageProps = {
@@ -25,10 +27,20 @@ export default async function OrganizationClassroomsPage({
   searchParams,
 }: OrganizationClassroomsPageProps) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-classrooms')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
+  
+  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
+    ? rawSearchParams.view 
+    : (viewCookie === 'table' ? 'table' : 'grid');
+
   const query = {
+    view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     type:
@@ -68,6 +80,7 @@ export default async function OrganizationClassroomsPage({
     >
       <div className="flex-none flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
+          viewToggle={<ResourceViewToggle viewKey="view-classrooms" defaultView={query.view as 'grid' | 'table'} />}
           search={
             <ResourceSearch
               placeholder={t('searchPlaceholder') || 'Buscar aulas...'}
@@ -100,19 +113,19 @@ export default async function OrganizationClassroomsPage({
         <ClassroomActions organizationId={id} />
       </div>
       <div>
-        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-          {classrooms.length > 0 && (
-            <ResourceInfiniteScroll
-              key={JSON.stringify(query)}
-              initialItems={classrooms}
-              initialMeta={meta}
-              loadMore={fetchClassroomsAction.bind(null, id, query)}
-              ItemComponent={ClassroomCard}
-              itemProps={{ translations }}
-              keyProp="id"
-            />
-          )}
-        </ResourceGrid>
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={classrooms}
+          meta={meta}
+          query={query}
+          loadMore={fetchClassroomsAction.bind(null, id, query)}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={ClassroomCard}
+          gridItemProps={{ translations }}
+          tableHeaders={['Nombre', 'Tipo', 'Capacidad', 'Acciones']}
+          TableRowComponent={ClassroomRow}
+          tableRowProps={{ translations }}
+        />
       </div>
     </OrganizationSectionShell>
   );

@@ -37,6 +37,50 @@ type SchedulePlannerProps = {
   itineraries: ItineraryDTO[];
 };
 
+type MemoizedScheduleCellProps = {
+  cellId: string;
+  cellSlots: ScheduleSlotDTO[];
+  slotMetaMap: Map<
+    string,
+    { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
+  >;
+};
+
+const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
+  cellId,
+  cellSlots,
+  slotMetaMap,
+}: MemoizedScheduleCellProps) {
+  return (
+    <DroppableCell
+      id={cellId}
+      className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border hover:bg-muted/20 hover:border-muted-foreground/30 h-full min-h-22.5"
+    >
+      {cellSlots.length > 0 ? (
+        cellSlots.map((slot) => {
+          const meta = slotMetaMap.get(slot.subjectGroupId);
+          if (!meta || !meta.subject || !meta.group) return null;
+          return (
+            <div key={slot.id} className="w-full">
+              <DraggableSlot
+                slot={slot}
+                subject={meta.subject}
+                group={meta.group}
+              />
+            </div>
+          );
+        })
+      ) : (
+        <div className="flex-1 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+          <span className="text-[10px] text-muted-foreground font-medium">
+            Drop Here
+          </span>
+        </div>
+      )}
+    </DroppableCell>
+  );
+});
+
 export function SchedulePlanner({
   organization,
   schedule,
@@ -127,22 +171,30 @@ export function SchedulePlanner({
     }
   };
 
-  const getSlotsAtCell = (day: number, slotIndex: number) => {
-    return slots.filter(
-      (s) =>
-        s.dayOfWeek === day &&
-        s.slotIndex === slotIndex &&
-        s.classroomId !== null
-    );
-  };
+  const slotsByCell = React.useMemo(() => {
+    const map = new Map<string, ScheduleSlotDTO[]>();
+    slots.forEach((s) => {
+      if (s.classroomId === null) return;
+      const key = `${s.dayOfWeek}_${s.slotIndex}`;
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(s);
+    });
+    return map;
+  }, [slots]);
 
-  const getSlotMeta = (s: ScheduleSlotDTO) => {
-    const group = subjectGroups.find((g) => g.id === s.subjectGroupId);
-    const subject = group
-      ? subjects.find((sub) => sub.id === group.subjectId)
-      : null;
-    return { group, subject };
-  };
+  const slotMetaMap = React.useMemo(() => {
+    const map = new Map<
+      string,
+      { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
+    >();
+    subjectGroups.forEach((group) => {
+      const subject = subjects.find((sub) => sub.id === group.subjectId);
+      map.set(group.id, { group, subject });
+    });
+    return map;
+  }, [subjectGroups, subjects]);
 
   const handleDragStart = (event: any) => {
     const active = event.active || event.operation?.source;
@@ -206,7 +258,7 @@ export function SchedulePlanner({
   };
 
   const activeSlotDTO = activeId ? slots.find((s) => s.id === activeId) : null;
-  const activeMeta = activeSlotDTO ? getSlotMeta(activeSlotDTO) : null;
+  const activeMeta = activeSlotDTO ? slotMetaMap.get(activeSlotDTO.subjectGroupId) : null;
 
   return (
     <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -304,36 +356,15 @@ export function SchedulePlanner({
                   </div>
 
                   {daysOfWeek.map((day) => {
-                    const cellSlots = getSlotsAtCell(day.value, idx);
                     const cellId = `time_${day.value}_${idx}`;
+                    const cellSlots = slotsByCell.get(`${day.value}_${idx}`) || [];
                     return (
-                      <DroppableCell
+                      <MemoizedScheduleCell
                         key={cellId}
-                        id={cellId}
-                        className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border hover:bg-muted/20 hover:border-muted-foreground/30 h-full min-h-22.5"
-                      >
-                        {cellSlots.length > 0 ? (
-                          cellSlots.map((slot) => {
-                            const meta = getSlotMeta(slot);
-                            if (!meta.subject || !meta.group) return null;
-                            return (
-                              <div key={slot.id} className="w-full">
-                                <DraggableSlot
-                                  slot={slot}
-                                  subject={meta.subject}
-                                  group={meta.group}
-                                />
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div className="flex-1 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <span className="text-[10px] text-muted-foreground font-medium">
-                              Drop Here
-                            </span>
-                          </div>
-                        )}
-                      </DroppableCell>
+                        cellId={cellId}
+                        cellSlots={cellSlots}
+                        slotMetaMap={slotMetaMap}
+                      />
                     );
                   })}
                 </div>

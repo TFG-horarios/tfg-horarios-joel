@@ -34,9 +34,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getSessionUser();
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const [user, locale, messages] = await Promise.all([
+    getSessionUser(),
+    getLocale(),
+    getMessages(),
+  ]);
 
   return (
     <html lang={locale} suppressHydrationWarning>

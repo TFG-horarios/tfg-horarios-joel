@@ -18,7 +18,7 @@ import { type ActionResponse } from '@/types/actions';
 export async function bulkCreateClassrooms(
   organizationId: string,
   dtos: SaveClassroomDTO[]
-): Promise<ClassroomDTO[]> {
+): Promise<ActionResponse<ClassroomDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -32,17 +32,20 @@ export async function bulkCreateClassrooms(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ERROR DEL BACKEND DE HONO (Aulas):', errorText);
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/classrooms`);
 
-    return ClassroomSchema.array().parse(payload);
+    return {
+      success: true,
+      data: ClassroomSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 
@@ -57,7 +60,7 @@ export async function fetchClassroomsAction(
 export async function replaceClassroomsAction(
   organizationId: string,
   dtos: SaveClassroomDTO[]
-): Promise<ClassroomDTO[]> {
+): Promise<ActionResponse<ClassroomDTO[]>> {
   const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
@@ -74,17 +77,20 @@ export async function replaceClassroomsAction(
         'ERROR DEL BACKEND DE HONO (Aulas Reemplazo Bulk):',
         errorText
       );
-      throw new Error(t('server'));
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
 
     revalidatePath(`/organizations/${organizationId}/classrooms`);
 
-    return ClassroomSchema.array().parse(payload);
+    return {
+      success: true,
+      data: ClassroomSchema.array().parse(payload),
+    };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Aulas Reemplazo Bulk):', error);
-    throw error;
+    return { success: false, message: t('server') };
   }
 }
 

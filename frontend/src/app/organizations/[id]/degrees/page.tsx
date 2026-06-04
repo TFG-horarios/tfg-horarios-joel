@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
-import { ResourceGrid } from '@/components/shared/resource/resource-grid';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -11,7 +13,7 @@ import { DegreeActions } from '@/features/degree/components/degree-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
-import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
+import { DegreeRow } from '@/features/degree/components/degree-row';
 import { fetchDegreesAction } from '@/features/degree/actions';
 import type { DegreeListQueryDTO } from '@tfg-horarios/shared';
 
@@ -25,10 +27,20 @@ export default async function OrganizationDegreesPage({
   searchParams,
 }: OrganizationDegreesPageProps) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-degrees')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  const query: DegreeListQueryDTO = {
+  
+  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
+    ? rawSearchParams.view 
+    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const query: DegreeListQueryDTO & { view?: string } = {
+    view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     code:
@@ -57,6 +69,7 @@ export default async function OrganizationDegreesPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
+          viewToggle={<ResourceViewToggle viewKey="view-degrees" defaultView={query.view as 'grid' | 'table'} />}
           search={
             <ResourceSearch
               placeholder={t('searchPlaceholder') || 'Buscar grado...'}
@@ -76,19 +89,19 @@ export default async function OrganizationDegreesPage({
         <DegreeActions organizationId={id} />
       </div>
       <div>
-        <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-          {degrees.length > 0 && (
-            <ResourceInfiniteScroll
-              key={JSON.stringify(query)}
-              initialItems={degrees}
-              initialMeta={meta}
-              loadMore={fetchDegreesAction.bind(null, id, query)}
-              ItemComponent={DegreeCard}
-              itemProps={{ translations }}
-              keyProp="id"
-            />
-          )}
-        </ResourceGrid>
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={degrees}
+          meta={meta}
+          query={query}
+          loadMore={fetchDegreesAction.bind(null, id, query)}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={DegreeCard}
+          gridItemProps={{ translations }}
+          tableHeaders={['Nombre', 'Código', 'Acciones']}
+          TableRowComponent={DegreeRow}
+          tableRowProps={{ translations }}
+        />
       </div>
     </OrganizationSectionShell>
   );

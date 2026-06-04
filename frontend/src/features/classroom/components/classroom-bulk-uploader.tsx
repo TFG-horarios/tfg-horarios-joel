@@ -84,10 +84,15 @@ export function ClassroomBulkUploader({
       mode={mode}
       onBeforeUpload={onBeforeUpload}
       onUpload={async (finalData) => {
+        let result;
         if (mode === 'overwrite') {
-          await replaceClassroomsAction(organizationId, finalData);
+          result = await replaceClassroomsAction(organizationId, finalData);
         } else {
-          await bulkCreateClassrooms(organizationId, finalData);
+          result = await bulkCreateClassrooms(organizationId, finalData);
+        }
+
+        if (!result.success) {
+          throw new Error(result.message);
         }
       }}
     />

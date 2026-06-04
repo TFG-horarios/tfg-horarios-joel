@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
-import { ResourceGrid } from '@/components/shared/resource/resource-grid';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { getSessionUser } from '@/features/auth/queries';
 import {
@@ -12,8 +14,8 @@ import {
 } from '@/features/members/queries';
 import { MemberCard } from '@/features/members/components/member-card';
 import { MemberActions } from '@/features/members/components/member-actions';
+import { MemberRow } from '@/features/members/components/member-row';
 import { fetchMembersAction } from '@/features/members/actions';
-import { ResourceInfiniteScroll } from '@/components/shared/resource/resource-infinite-scroll';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
@@ -30,10 +32,20 @@ export default async function OrganizationMembersPage({
   searchParams,
 }: OrganizationMembersPageProps) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-members')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  const query: MemberListQueryDTO = {
+  
+  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
+    ? rawSearchParams.view 
+    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const query: MemberListQueryDTO & { view?: string } = {
+    view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : 12,
+    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
     name:
       typeof rawSearchParams.name === 'string'
         ? rawSearchParams.name
@@ -78,6 +90,7 @@ export default async function OrganizationMembersPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
+          viewToggle={<ResourceViewToggle viewKey="view-members" defaultView={query.view as 'grid' | 'table'} />}
           search={
             <ResourceSearch
               paramKey="name"
@@ -105,23 +118,29 @@ export default async function OrganizationMembersPage({
         />
         <MemberActions organizationId={id} canManage={canManage} />
       </div>
-      <ResourceGrid emptyState={<ResourceEmptyState message={t('empty')} />}>
-        {members.length > 0 && (
-          <ResourceInfiniteScroll
-            key={JSON.stringify(query)}
-            initialItems={members}
-            initialMeta={meta}
-            loadMore={fetchMembersAction.bind(null, id, query)}
-            ItemComponent={MemberCard}
-            itemProps={{
-              organizationId: id,
-              currentUserId: sessionUser.id,
-              canManage,
-            }}
-            keyProp="id"
-          />
-        )}
-      </ResourceGrid>
+      <div>
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={members}
+          meta={meta}
+          query={query}
+          loadMore={fetchMembersAction.bind(null, id, query)}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={MemberCard}
+          gridItemProps={{
+            organizationId: id,
+            currentUserId: sessionUser.id,
+            canManage,
+          }}
+          tableHeaders={['Usuario', 'Rol', 'Acciones']}
+          TableRowComponent={MemberRow}
+          tableRowProps={{
+            organizationId: id,
+            currentUserId: sessionUser.id,
+            canManage,
+          }}
+        />
+      </div>
     </OrganizationSectionShell>
   );
 }
