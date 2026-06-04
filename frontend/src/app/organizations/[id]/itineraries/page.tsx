@@ -63,14 +63,17 @@ export default async function OrganizationItinerariesPage({
   };
 
   const t = await getTranslations('Organizations.itineraries');
-  const organization = await fetchOrganizationById(id);
+
+  const [organization, { data: itineraries, meta }, degrees] =
+    await Promise.all([
+      fetchOrganizationById(id),
+      fetchItineraries(id, query),
+      fetchAllDegrees(id),
+    ]);
+
   if (!organization) {
     notFound();
   }
-  const [{ data: itineraries, meta }, degrees] = await Promise.all([
-    fetchItineraries(id, query),
-    fetchAllDegrees(id),
-  ]);
   const degreeMap = new Map(degrees.map((d) => [d.id, d]));
   const translations = {
     degree: t('degree'),

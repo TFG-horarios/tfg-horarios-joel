@@ -2,12 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { LogOut, Search } from 'lucide-react';
-import {
-  useOrganizationStore,
-  type OrganizationStore,
-} from '@/store/use-organization-store';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -41,24 +37,33 @@ export function Header({ variant = 'inline' }: HeaderProps) {
 
   const logoHref = isAuthenticated ? '/organizations' : '/';
   const isOrganizations = pathname?.startsWith('/organizations');
-  const searchQuery = useOrganizationStore(
-    (s: OrganizationStore) => s.searchQuery
-  );
-  const setSearchQuery = useOrganizationStore(
-    (s: OrganizationStore) => s.setSearchQuery
-  );
-  const [query, setQuery] = useState(searchQuery);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
 
   useEffect(() => {
-    setQuery(searchQuery);
-  }, [searchQuery]);
+    const currentQ = searchParams.get('q') ?? '';
+    if (currentQ !== query) {
+      setQuery(currentQ);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setSearchQuery(query ?? '');
-    }, 200);
-    return () => clearTimeout(handler);
-  }, [query, setSearchQuery]);
+    const currentQ = searchParams.get('q') ?? '';
+    if (query !== currentQ) {
+      const handler = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (query) {
+          params.set('q', query);
+        } else {
+          params.delete('q');
+        }
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }, 200);
+      return () => clearTimeout(handler);
+    }
+  }, [query, pathname, router, searchParams]);
 
   const baseHeaderStyles =
     'rounded-3xl border border-black/10 bg-white/70 p-2 shadow-lg shadow-black/10 backdrop-blur-lg transition-colors duration-300 text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-black/60';

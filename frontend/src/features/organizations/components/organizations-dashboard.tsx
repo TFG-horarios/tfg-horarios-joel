@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/dialog';
 import { CreateOrganizationForm } from './create-organization-form';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
-import { useOrganizationStore } from '@/store/use-organization-store';
 
 type OrganizationsDashboardProps = {
   initialOrganizations: OrganizationDTO[];
@@ -29,9 +28,6 @@ export function OrganizationsDashboard({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectOrganization = useOrganizationStore(
-    (state) => state.selectOrganization
-  );
   const t = useTranslations('Organizations');
   const isModalOpen = searchParams.get('new') === 'true';
 
@@ -46,7 +42,7 @@ export function OrganizationsDashboard({
   };
 
   const organizations = initialOrganizations;
-  const searchQuery = useOrganizationStore((s) => s.searchQuery) ?? '';
+  const searchQuery = searchParams.get('q') ?? '';
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredOrganizations =
     normalizedQuery.length > 0
@@ -67,7 +63,6 @@ export function OrganizationsDashboard({
   } as const;
 
   const handleSelectOrganization = (orgId: string) => {
-    selectOrganization(orgId);
     router.push(`/organizations/${orgId}`);
   };
 

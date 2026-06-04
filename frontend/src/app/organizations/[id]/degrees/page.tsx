@@ -57,11 +57,15 @@ export default async function OrganizationDegreesPage({
   };
 
   const t = await getTranslations('Organizations.degrees');
-  const organization = await fetchOrganizationById(id);
+
+  const [organization, { data: degrees, meta }] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchDegrees(id, query),
+  ]);
+
   if (!organization) {
     notFound();
   }
-  const { data: degrees, meta } = await fetchDegrees(id, query);
   const translations = {
     empty: t('empty'),
   };

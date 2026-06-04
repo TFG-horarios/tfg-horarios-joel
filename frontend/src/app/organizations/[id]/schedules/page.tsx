@@ -82,17 +82,18 @@ export default async function OrganizationSchedulesPage({
   };
 
   const t = await getTranslations('Organizations.schedules');
-  const organization = await fetchOrganizationById(id);
+
+  const [organization, degrees, itineraries, { data: schedules, meta }] =
+    await Promise.all([
+      fetchOrganizationById(id),
+      fetchAllDegrees(id),
+      fetchAllItineraries(id),
+      fetchSchedules(id, query),
+    ]);
 
   if (!organization) {
     notFound();
   }
-
-  const [degrees, itineraries, { data: schedules, meta }] = await Promise.all([
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
-    fetchSchedules(id, query),
-  ]);
 
   const degreeMap = new Map(degrees.map((d) => [d.id, d.name]));
   const itineraryMap = new Map(itineraries.map((i) => [i.id, i.code]));

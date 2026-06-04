@@ -65,11 +65,15 @@ export default async function OrganizationClassroomsPage({
   };
 
   const t = await getTranslations('Organizations.classrooms');
-  const organization = await fetchOrganizationById(id);
+
+  const [organization, { data: classrooms, meta }] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchClassrooms(id, query),
+  ]);
+
   if (!organization) {
     notFound();
   }
-  const { data: classrooms, meta } = await fetchClassrooms(id, query);
   const translations = {
     'type.theory': t('type.theory'),
     'type.lab': t('type.lab'),

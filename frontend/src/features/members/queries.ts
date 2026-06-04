@@ -13,47 +13,54 @@ type OrganizationMemberContext = {
   currentMember: MemberDTO | null;
 };
 
-export async function fetchMembers(
-  organizationId: string,
-  query?: MemberListQueryDTO
-): Promise<PaginatedResponse<MemberDTO>> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[
-    ':organizationId'
-  ]!.members.$get({
-    param: { organizationId },
-    query: query || {},
-  });
+export const fetchMembers = cache(
+  async (
+    organizationId: string,
+    query?: MemberListQueryDTO
+  ): Promise<PaginatedResponse<MemberDTO>> => {
+    const t = await getTranslations('Common.errors');
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.members.$get({
+      param: { organizationId },
+      query: query || {},
+    });
 
-  const status = response.status as number;
-  if (status === 401 || status === 403) {
-    return { data: [], meta: { total: 0, page: 1, limit: 100, totalPages: 0 } };
+    const status = response.status as number;
+    if (status === 401 || status === 403) {
+      return {
+        data: [],
+        meta: { total: 0, page: 1, limit: 100, totalPages: 0 },
+      };
+    }
+    if (status !== 200) throw new Error(t('fetchFailed'));
+
+    return (await response.json()) as PaginatedResponse<MemberDTO>;
   }
-  if (status !== 200) throw new Error(t('fetchFailed'));
+);
 
-  return (await response.json()) as PaginatedResponse<MemberDTO>;
-}
+const fetchAllMembers = cache(
+  async (organizationId: string): Promise<MemberDTO[]> => {
+    const t = await getTranslations('Common.errors');
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.members.all.$get({
+      param: { organizationId },
+    });
 
-async function fetchAllMembers(organizationId: string): Promise<MemberDTO[]> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[
-    ':organizationId'
-  ]!.members.all.$get({
-    param: { organizationId },
-  });
+    const status = response.status as number;
+    if (status === 401 || status === 403) return [];
 
-  const status = response.status as number;
-  if (status === 401 || status === 403) return [];
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
 
-  if (!response.ok) {
-    throw new Error(t('server'));
+    const payload = await response.json();
+    return MemberSchema.array().parse(payload);
   }
-
-  const payload = await response.json();
-  return MemberSchema.array().parse(payload);
-}
+);
 
 const getOrganizationMemberContext = cache(
   async (
