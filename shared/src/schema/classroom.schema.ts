@@ -40,7 +40,7 @@ export const ClassroomListQuerySchema = PaginationQuerySchema.extend({
 export const SaveClassroomBodySchema = z
   .object({
     name: z.string().min(2).max(100).openapi({ example: 'Aula 1.1' }),
-    capacity: z.number().int().positive().openapi({ example: 60 }),
+    capacity: z.coerce.number().int().positive().openapi({ example: 60 }),
     type: z.enum(['theory', 'lab']).openapi({ example: 'lab' }),
   })
   .openapi('SaveClassroom');

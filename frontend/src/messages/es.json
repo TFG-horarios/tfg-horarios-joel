@@ -26,6 +26,8 @@
 			"saveChanges": "Guardar cambios",
 			"cancel": "Cancelar",
 			"edit": "Editar",
+			"view": "Ver",
+			"open": "Abrir",
 			"delete": "Eliminar",
 			"close": "Cerrar",
 			"resetFilters": "Limpiar filtros",
@@ -279,6 +281,24 @@
 				"replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
 				"create": "Crear aula"
 			},
+			"form": {
+				"name": {
+					"label": "Nombre",
+					"placeholder": "Ej. Aula 1.1"
+				},
+				"capacity": {
+					"label": "Capacidad",
+					"placeholder": "Ej. 60"
+				},
+				"type": {
+					"label": "Tipo de aula",
+					"placeholder": "Selecciona un tipo"
+				},
+				"typeOptions": {
+					"theory": "Teoría",
+					"lab": "Laboratorio"
+				}
+			},
 			"type": {
 				"theory": "Teoría",
 				"lab": "Laboratorio"
@@ -312,7 +332,18 @@
 				"replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
 				"create": "Crear grado"
 			},
+			"form": {
+				"name": {
+					"label": "Nombre del grado",
+					"placeholder": "Ej. Ingeniería Informática"
+				},
+				"code": {
+					"label": "Código / Abreviatura",
+					"placeholder": "Ej. GII"
+				}
+			},
 			"code": "Código",
+			"searchLabel": "Buscar por nombre",
 			"searchPlaceholder": "Buscar grados...",
 			"codePlaceholder": "Código (ej: INF)...",
 			"filteredEmpty": "Ningún grado coincide con tus filtros.",
@@ -335,6 +366,46 @@
 				"replaceAll": "Reemplazar todo",
 				"replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
 				"create": "Crear asignatura"
+			},
+			"form": {
+				"name": {
+					"label": "Nombre de la asignatura",
+					"placeholder": "Ej. Matemáticas I"
+				},
+				"code": {
+					"label": "Código",
+					"placeholder": "Ej. MAT1"
+				},
+				"degreeId": {
+					"label": "Grado",
+					"placeholder": "Selecciona un grado"
+				},
+				"itineraryId": {
+					"label": "Itinerario / Mención",
+					"placeholder": "Selecciona un itinerario"
+				},
+				"availableShifts": {
+					"label": "Turnos disponibles"
+				},
+				"numberOfStudents": {
+					"label": "Número estimado de alumnos",
+					"placeholder": "Ej. 150"
+				},
+				"courseYear": {
+					"label": "Curso",
+					"placeholder": "Ej. 1"
+				},
+				"period": {
+					"label": "Periodo (1º Sem, 2º Sem...)",
+					"placeholder": "Ej. 1"
+				},
+				"weeklyHours": {
+					"label": "Horas semanales",
+					"placeholder": "Ej. 6"
+				},
+				"isCommon": {
+					"label": "Es común a todos los itinerarios"
+				}
 			},
 			"degree": "Grado",
 			"unknownDegree": "Desconocido",
@@ -380,6 +451,20 @@
 				"replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
 				"create": "Crear itinerario"
 			},
+			"form": {
+				"name": {
+					"label": "Nombre del itinerario",
+					"placeholder": "Ej. Ingeniería del Software"
+				},
+				"code": {
+					"label": "Código / Abreviatura",
+					"placeholder": "Ej. IS"
+				},
+				"degreeId": {
+					"label": "Grado asociado",
+					"placeholder": "Selecciona un grado"
+				}
+			},
 			"degree": "Grado",
 			"degreeCode": "Código de grado",
 			"unassigned": "No asignado",
@@ -406,6 +491,36 @@
 				"replaceAll": "Reemplazar todo",
 				"replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
 				"create": "Crear grupo"
+			},
+			"form": {
+				"subjectId": {
+					"label": "Asignatura",
+					"placeholder": "Selecciona una asignatura"
+				},
+				"name": {
+					"label": "Nombre del grupo",
+					"placeholder": "Ej. G1, M1, Prácticas 1"
+				},
+				"groupType": {
+					"label": "Tipo de grupo",
+					"placeholder": "Teoría, Problemas, Prácticas..."
+				},
+				"shift": {
+					"label": "Turno",
+					"placeholder": "Mañana o tarde"
+				},
+				"groupNumber": {
+					"label": "Número de grupo",
+					"placeholder": "Ej. 1"
+				},
+				"weeklyHours": {
+					"label": "Horas semanales",
+					"placeholder": "Ej. 2.5"
+				},
+				"numberOfStudents": {
+					"label": "Número de estudiantes",
+					"placeholder": "Ej. 40"
+				}
 			},
 			"type": "Tipo",
 			"typeOptions": {
@@ -439,6 +554,19 @@
 				"viewer": "Puedes ver la composición actual de la organización y los roles asignados a cada miembro."
 			},
 			"countLabel": "miembros",
+			"actions": {
+				"create": "Añadir miembro"
+			},
+			"form": {
+				"email": {
+					"label": "Correo electrónico",
+					"placeholder": "Ej. usuario@ejemplo.com"
+				},
+				"role": {
+					"label": "Rol",
+					"placeholder": "Selecciona un rol"
+				}
+			},
 			"namePlaceholder": "Buscar por nombre...",
 			"emailPlaceholder": "Buscar por correo...",
 			"rolePlaceholder": "Rol",

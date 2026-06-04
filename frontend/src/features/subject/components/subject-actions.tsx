@@ -1,55 +1,72 @@
 'use client';
 
+import { useState } from 'react';
 import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
 import { SubjectBulkUploader } from '@/features/subject/components/subject-bulk-uploader';
-import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
+import type {
+  DegreeDTO,
+  ItineraryDTO,
+  OrganizationDTO,
+} from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
 import { deleteAllSubjectsAction } from '@/features/subject/actions';
+import { SubjectFormModal } from './subject-form-modal';
 
 interface SubjectActionsProps {
-  organizationId: string;
+  organization: OrganizationDTO;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
 }
 
 export function SubjectActions({
-  organizationId,
+  organization,
   degrees,
   itineraries,
 }: SubjectActionsProps) {
   const t = useTranslations('Organizations.subjects.actions');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   return (
-    <ResourceActionsToolbar
-      onDeleteAll={() => deleteAllSubjectsAction(organizationId)}
-      translations={{
-        deleteAllConfirm: t('deleteAllConfirm'),
-        deleteAllTitle: t('deleteAllTitle'),
-        deleteAllDescription: t('deleteAllDescription'),
-        deleting: t('deleting'),
-        cancel: t('cancel'),
-        import: t('import'),
-        addFromCsv: t('addFromCsv'),
-        replaceAll: t('replaceAll'),
-        replaceAllWarning: t('replaceAllWarning'),
-        create: t('create'),
-      }}
-      appendModalContent={
-        <SubjectBulkUploader
-          organizationId={organizationId}
-          degrees={degrees}
-          itineraries={itineraries}
-          mode="append"
-        />
-      }
-      overwriteModalContent={
-        <SubjectBulkUploader
-          organizationId={organizationId}
-          degrees={degrees}
-          itineraries={itineraries}
-          mode="overwrite"
-        />
-      }
-    />
+    <>
+      <ResourceActionsToolbar
+        onCreateClick={() => setIsCreateOpen(true)}
+        onDeleteAll={() => deleteAllSubjectsAction(organization.id)}
+        translations={{
+          deleteAllConfirm: t('deleteAllConfirm'),
+          deleteAllTitle: t('deleteAllTitle'),
+          deleteAllDescription: t('deleteAllDescription'),
+          deleting: t('deleting'),
+          cancel: t('cancel'),
+          import: t('import'),
+          addFromCsv: t('addFromCsv'),
+          replaceAll: t('replaceAll'),
+          replaceAllWarning: t('replaceAllWarning'),
+          create: t('create'),
+        }}
+        appendModalContent={
+          <SubjectBulkUploader
+            organizationId={organization.id}
+            degrees={degrees}
+            itineraries={itineraries}
+            mode="append"
+          />
+        }
+        overwriteModalContent={
+          <SubjectBulkUploader
+            organizationId={organization.id}
+            degrees={degrees}
+            itineraries={itineraries}
+            mode="overwrite"
+          />
+        }
+      />
+      <SubjectFormModal
+        organization={organization}
+        degrees={degrees}
+        itineraries={itineraries}
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+      />
+    </>
   );
 }

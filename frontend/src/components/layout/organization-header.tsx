@@ -163,7 +163,7 @@ export function OrganizationHeader() {
                         const camel = segment.replace(/-([a-z])/g, (g) =>
                           g[1]!.toUpperCase()
                         );
-                        const translated = tNav(camel as any);
+                        const translated = tNav(camel);
                         const text = translated.includes(
                           'Organizations.navigation'
                         )

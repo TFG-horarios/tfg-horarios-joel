@@ -1,8 +1,12 @@
-import { memo } from 'react';
+'use client';
+
+import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
+import { deleteItineraryAction } from '@/features/itinerary/actions';
+import { toast } from 'sonner';
+import { ItineraryFormModal } from './itinerary-form-modal';
 import type { ItineraryCardProps } from './itinerary-card';
 
 export const ItineraryRow = memo(function ItineraryRow({
@@ -11,33 +15,45 @@ export const ItineraryRow = memo(function ItineraryRow({
   translations,
 }: ItineraryCardProps) {
   const degree = degreeMap.get(itinerary.degreeId);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
   return (
-    <TableRow>
-      <TableCell className="font-medium">{itinerary.name}</TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className="font-mono uppercase tracking-[0.2em] border-purple-500/20 bg-purple-500/5 text-purple-500"
-        >
-          {itinerary.code}
-        </Badge>
-      </TableCell>
-      <TableCell>{degree?.name ?? translations.unassigned}</TableCell>
-      <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="icon" title="Editar">
-            <Pencil className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            title="Eliminar"
+    <>
+      <TableRow>
+        <TableCell className="font-medium">{itinerary.name}</TableCell>
+        <TableCell>
+          <Badge
+            variant="outline"
+            className="font-mono uppercase tracking-[0.2em] border-purple-500/20 bg-purple-500/5 text-purple-500"
           >
-            <Trash className="size-4" />
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
+            {itinerary.code}
+          </Badge>
+        </TableCell>
+        <TableCell>{degree?.name ?? translations.unassigned}</TableCell>
+        <ResourceRowActions
+          itemName={itinerary.name}
+          onEdit={() => setIsEditOpen(true)}
+          onDelete={async () => {
+            const res = await deleteItineraryAction(
+              itinerary.organizationId,
+              itinerary.degreeId,
+              itinerary.id
+            );
+            if (res.success) {
+              toast.success('Itinerario eliminado correctamente');
+            } else {
+              toast.error(res.message);
+            }
+          }}
+        />
+      </TableRow>
+      <ItineraryFormModal
+        organizationId={itinerary.organizationId}
+        degrees={Array.from(degreeMap.values())}
+        itinerary={itinerary}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
+    </>
   );
 });

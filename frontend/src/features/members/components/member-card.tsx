@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Shield, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,10 @@ import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
 } from '@/features/organizations/components/organization-card-styles';
+import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
+import { removeMemberAction } from '@/features/members/actions';
+import { toast } from 'sonner';
+import { MemberFormModal } from './member-form-modal';
 import type { MemberDTO } from '@tfg-horarios/shared';
 
 interface MemberCardProps {
@@ -33,41 +37,71 @@ export const MemberCard = memo(function MemberCard({
 }: MemberCardProps) {
   const t = useTranslations('Organizations.membersManagement');
   const isSelf = member.userId === currentUserId;
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   return (
-    <Card className={`h-full flex flex-col ${organizationHoverCardClassName}`}>
-      <CardHeader className="p-5 pb-3">
-        <CardTitle
-          className={`text-xl flex items-start justify-between gap-4 ${organizationHoverCardTitleClassName}`}
-        >
-          <div className="flex flex-col gap-1 truncate">
-            <span className="truncate flex items-center gap-2">
-              {member.role === 'admin' ? (
-                <Shield className="h-4 w-4 text-primary" />
-              ) : (
-                <User className="h-4 w-4 text-muted-foreground" />
-              )}
-              {member.userName}
-            </span>
-            <span className="text-sm font-normal text-muted-foreground truncate">
-              {member.userEmail}
-            </span>
-          </div>
-          {isSelf && (
-            <Badge variant="outline" className="shrink-0">
-              {t('self')}
-            </Badge>
-          )}
-        </CardTitle>
-      </CardHeader>
+    <>
+      <Card
+        className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
+      >
+        <ResourceCardActions
+          itemName={member.userName}
+          onEdit={isSelf ? undefined : () => setIsEditOpen(true)}
+          onDelete={
+            isSelf
+              ? undefined
+              : async () => {
+                  const res = await removeMemberAction(
+                    member.organizationId,
+                    member.id
+                  );
+                  if (res.success) {
+                    toast.success('Miembro eliminado correctamente');
+                  } else {
+                    toast.error(res.message);
+                  }
+                }
+          }
+        />
+        <CardHeader className="p-5 pb-3">
+          <CardTitle
+            className={`text-xl flex items-start justify-between gap-4 ${organizationHoverCardTitleClassName}`}
+          >
+            <div className="flex flex-col gap-1 truncate">
+              <span className="truncate flex items-center gap-2">
+                {member.role === 'admin' ? (
+                  <Shield className="h-4 w-4 text-primary" />
+                ) : (
+                  <User className="h-4 w-4 text-muted-foreground" />
+                )}
+                {member.userName}
+              </span>
+              <span className="text-sm font-normal text-muted-foreground truncate">
+                {member.userEmail}
+              </span>
+            </div>
+            {isSelf && (
+              <Badge variant="outline" className="shrink-0">
+                {t('self')}
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
 
-      <CardContent className="mt-auto pt-2">
-        <div className="flex items-center justify-between gap-2">
-          <Badge variant={ROLE_BADGE_VARIANTS[member.role]} className="w-fit">
-            {t(`roles.${member.role}`)}
-          </Badge>
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent className="mt-auto pt-2">
+          <div className="flex items-center justify-between gap-2">
+            <Badge variant={ROLE_BADGE_VARIANTS[member.role]} className="w-fit">
+              {t(`roles.${member.role}`)}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+      <MemberFormModal
+        organizationId={member.organizationId}
+        member={member}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
+    </>
   );
 });

@@ -70,9 +70,13 @@ export const SaveSubjectGroupBodySchema = z
       .enum(['theory', 'problems', 'practices'])
       .openapi({ example: 'theory' }),
     shift: z.enum(['morning', 'afternoon']).openapi({ example: 'morning' }),
-    groupNumber: z.number().int().positive().openapi({ example: 1 }),
-    weeklyHours: z.number().positive().openapi({ example: 2.5 }),
-    numberOfStudents: z.number().int().nonnegative().openapi({ example: 50 }),
+    groupNumber: z.coerce.number().int().positive().openapi({ example: 1 }),
+    weeklyHours: z.coerce.number().positive().openapi({ example: 2.5 }),
+    numberOfStudents: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .openapi({ example: 50 }),
   })
   .openapi('SaveSubjectGroup');
 

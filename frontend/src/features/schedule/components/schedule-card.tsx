@@ -89,12 +89,14 @@ export const ScheduleCard = memo(function ScheduleCard({
             title={
               itineraryName !== 'None'
                 ? itineraryName
-                : translations.globalItinerary || tStatus('itineraryOptions.common')
+                : translations.globalItinerary ||
+                  tStatus('itineraryOptions.common')
             }
           >
             {itineraryName !== 'None'
               ? itineraryName
-              : translations.globalItinerary || tStatus('itineraryOptions.common')}
+              : translations.globalItinerary ||
+                tStatus('itineraryOptions.common')}
           </div>
         </CardTitle>
       </CardHeader>
@@ -113,13 +115,17 @@ export const ScheduleCard = memo(function ScheduleCard({
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
               {translations.course || tStatus('courseYear')}
             </span>
-            <span className="font-medium">{t('year', { year: schedule.courseYear })}</span>
+            <span className="font-medium">
+              {t('year', { year: schedule.courseYear })}
+            </span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
               {translations.period || tStatus('period')}
             </span>
-            <span className="font-medium">{t('semester', { period: schedule.period })}</span>
+            <span className="font-medium">
+              {t('semester', { period: schedule.period })}
+            </span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">

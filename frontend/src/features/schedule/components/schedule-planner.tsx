@@ -316,7 +316,9 @@ export function SchedulePlanner({
                 disabled={isPublishing}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
               >
-                {isPublishing ? t('planner.publishing') : t('planner.publishVersion')}
+                {isPublishing
+                  ? t('planner.publishing')
+                  : t('planner.publishVersion')}
               </Button>
             )}
           </div>

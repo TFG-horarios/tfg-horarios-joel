@@ -31,8 +31,6 @@ export async function fetchSchedules(
   return (await response.json()) as PaginatedResponse<ScheduleDTO>;
 }
 
-
-
 export async function fetchSchedule(
   organizationId: string,
   scheduleId: string

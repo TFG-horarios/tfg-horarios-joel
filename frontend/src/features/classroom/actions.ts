@@ -137,6 +137,83 @@ export async function createClassroomAction(
   }
 }
 
+export async function updateClassroomAction(
+  organizationId: string,
+  classroomId: string,
+  dto: SaveClassroomDTO
+): Promise<ActionResponse<ClassroomDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
+
+  if (!parsedInput.success) {
+    return { success: false, message: tErrors('validation') };
+  }
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms[':id'].$put({
+      param: { organizationId, id: classroomId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const classroom = ClassroomSchema.parse(payload);
+
+    revalidatePath(`/organizations/${organizationId}/classrooms`);
+
+    return {
+      success: true,
+      message: tSuccess('updated'),
+      data: classroom,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function deleteClassroomAction(
+  organizationId: string,
+  classroomId: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms[':id'].$delete({
+      param: { organizationId, id: classroomId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}/classrooms`);
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
+  } catch {
+    return {
+      success: false,
+      message: tErrors('server'),
+    };
+  }
+}
+
 export async function deleteAllClassroomsAction(
   organizationId: string
 ): Promise<ActionResponse<void>> {

@@ -66,10 +66,14 @@ export const SaveSubjectBodySchema = z
       .array(z.enum(['morning', 'afternoon']))
       .min(1)
       .openapi({ example: ['morning'] }),
-    numberOfStudents: z.number().int().nonnegative().openapi({ example: 150 }),
-    courseYear: z.number().int().positive().openapi({ example: 1 }),
-    period: z.number().int().nonnegative().openapi({ example: 1 }),
-    weeklyHours: z.number().int().positive().openapi({ example: 6 }),
+    numberOfStudents: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .openapi({ example: 150 }),
+    courseYear: z.coerce.number().int().positive().openapi({ example: 1 }),
+    period: z.coerce.number().int().nonnegative().openapi({ example: 1 }),
+    weeklyHours: z.coerce.number().int().positive().openapi({ example: 6 }),
     isCommon: z.boolean().openapi({ example: true }),
     itineraryId: z
       .uuid()

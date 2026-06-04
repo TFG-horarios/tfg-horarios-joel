@@ -44,7 +44,7 @@ export function FormSelect({
           {label && <FormLabel>{label}</FormLabel>}
           <Select
             onValueChange={field.onChange}
-            value={field.value}
+            value={field.value?.toString()}
             disabled={disabled}
           >
             <FormControl>

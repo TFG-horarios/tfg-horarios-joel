@@ -17,7 +17,7 @@ export function ResourceViewToggle({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [_, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const currentView = searchParams?.get('view') || defaultView;
 

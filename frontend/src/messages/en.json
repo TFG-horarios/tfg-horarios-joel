@@ -26,6 +26,8 @@
 			"saveChanges": "Save changes",
 			"cancel": "Cancel",
 			"edit": "Edit",
+			"view": "View",
+			"open": "Open",
 			"delete": "Delete",
 			"close": "Close",
 			"resetFilters": "Clear filters",
@@ -279,6 +281,24 @@
 				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
 				"create": "Create classroom"
 			},
+			"form": {
+				"name": {
+					"label": "Name",
+					"placeholder": "e.g. Room 1.1"
+				},
+				"capacity": {
+					"label": "Capacity",
+					"placeholder": "e.g. 60"
+				},
+				"type": {
+					"label": "Room type",
+					"placeholder": "Select a type"
+				},
+				"typeOptions": {
+					"theory": "Theory",
+					"lab": "Lab"
+				}
+			},
 			"type": {
 				"theory": "Theory",
 				"lab": "Lab"
@@ -312,6 +332,16 @@
 				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
 				"create": "Create degree"
 			},
+			"form": {
+				"name": {
+					"label": "Degree name",
+					"placeholder": "e.g. Computer Engineering"
+				},
+				"code": {
+					"label": "Code / Abbreviation",
+					"placeholder": "e.g. CE"
+				}
+			},
 			"code": "Code",
 			"searchPlaceholder": "Search degrees...",
 			"codePlaceholder": "Code (e.g. CS)...",
@@ -335,6 +365,46 @@
 				"replaceAll": "Replace all",
 				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
 				"create": "Create subject"
+			},
+			"form": {
+				"name": {
+					"label": "Subject name",
+					"placeholder": "e.g. Mathematics I"
+				},
+				"code": {
+					"label": "Code",
+					"placeholder": "e.g. MAT1"
+				},
+				"degreeId": {
+					"label": "Degree",
+					"placeholder": "Select a degree"
+				},
+				"itineraryId": {
+					"label": "Itinerary / Track",
+					"placeholder": "Select an itinerary"
+				},
+				"availableShifts": {
+					"label": "Available shifts"
+				},
+				"numberOfStudents": {
+					"label": "Estimated number of students",
+					"placeholder": "e.g. 150"
+				},
+				"courseYear": {
+					"label": "Course year",
+					"placeholder": "e.g. 1"
+				},
+				"period": {
+					"label": "Period (1st Sem, 2nd Sem...)",
+					"placeholder": "e.g. 1"
+				},
+				"weeklyHours": {
+					"label": "Weekly hours",
+					"placeholder": "e.g. 6"
+				},
+				"isCommon": {
+					"label": "Is common to all itineraries"
+				}
 			},
 			"degree": "Degree",
 			"unknownDegree": "Unknown",
@@ -380,6 +450,20 @@
 				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
 				"create": "Create itinerary"
 			},
+			"form": {
+				"name": {
+					"label": "Itinerary name",
+					"placeholder": "e.g. Software Engineering"
+				},
+				"code": {
+					"label": "Code / Abbreviation",
+					"placeholder": "e.g. SE"
+				},
+				"degreeId": {
+					"label": "Associated degree",
+					"placeholder": "Select a degree"
+				}
+			},
 			"degree": "Degree",
 			"degreeCode": "Degree code",
 			"unassigned": "Unassigned",
@@ -406,6 +490,36 @@
 				"replaceAll": "Replace all",
 				"replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
 				"create": "Create group"
+			},
+			"form": {
+				"subjectId": {
+					"label": "Subject",
+					"placeholder": "Select a subject"
+				},
+				"name": {
+					"label": "Group name",
+					"placeholder": "e.g. G1, M1, Practices 1"
+				},
+				"groupType": {
+					"label": "Group type",
+					"placeholder": "Theory, Problems, Practices..."
+				},
+				"shift": {
+					"label": "Shift",
+					"placeholder": "Morning or afternoon"
+				},
+				"groupNumber": {
+					"label": "Group number",
+					"placeholder": "e.g. 1"
+				},
+				"weeklyHours": {
+					"label": "Weekly hours",
+					"placeholder": "e.g. 2.5"
+				},
+				"numberOfStudents": {
+					"label": "Number of students",
+					"placeholder": "e.g. 40"
+				}
 			},
 			"type": "Type",
 			"typeOptions": {
@@ -438,6 +552,19 @@
 				"viewer": "You can review the current organization composition and the roles assigned to each member."
 			},
 			"countLabel": "members",
+			"actions": {
+				"create": "Add member"
+			},
+			"form": {
+				"email": {
+					"label": "Email address",
+					"placeholder": "e.g. user@example.com"
+				},
+				"role": {
+					"label": "Role",
+					"placeholder": "Select a role"
+				}
+			},
 			"namePlaceholder": "Search by name...",
 			"emailPlaceholder": "Search by email...",
 			"rolePlaceholder": "Role",

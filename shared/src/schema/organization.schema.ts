@@ -63,7 +63,11 @@ export const SaveOrganizationBodySchema = z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '20:00' }),
-    slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
+    slotDurationMinutes: z.coerce
+      .number()
+      .int()
+      .positive()
+      .openapi({ example: 60 }),
   })
   .refine((data) => data.afternoonEnd > data.afternoonStart, {
     message: 'The end time must be later than the start time',

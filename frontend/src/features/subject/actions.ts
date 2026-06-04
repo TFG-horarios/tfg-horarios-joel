@@ -202,6 +202,39 @@ export async function removeSubjectAction(
   }
 }
 
+export async function deleteSubjectAction(
+  organizationId: string,
+  subjectId: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.subjects[':id'].$delete({
+      param: { organizationId, id: subjectId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}/subjects`);
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
 export async function deleteAllSubjectsAction(
   organizationId: string
 ): Promise<ActionResponse<void>> {

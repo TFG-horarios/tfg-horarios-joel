@@ -35,9 +35,7 @@ export async function fetchMembers(
   return (await response.json()) as PaginatedResponse<MemberDTO>;
 }
 
-async function fetchAllMembers(
-  organizationId: string
-): Promise<MemberDTO[]> {
+async function fetchAllMembers(organizationId: string): Promise<MemberDTO[]> {
   const t = await getTranslations('Common.errors');
   const client = await getServerClient();
   const response = await client.api.organizations[

@@ -172,7 +172,7 @@ export default async function OrganizationSubjectsPage({
           }
         />
         <SubjectActions
-          organizationId={id}
+          organization={organization}
           degrees={degrees}
           itineraries={itineraries}
         />
@@ -186,7 +186,12 @@ export default async function OrganizationSubjectsPage({
           loadMore={fetchSubjectsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectCard}
-          gridItemProps={{ degreeMap, itineraryMap, translations }}
+          gridItemProps={{
+            organization,
+            degreeMap,
+            itineraryMap,
+            translations,
+          }}
           tableHeaders={[
             'Nombre',
             'Código',
@@ -196,7 +201,12 @@ export default async function OrganizationSubjectsPage({
             'Acciones',
           ]}
           TableRowComponent={SubjectRow}
-          tableRowProps={{ degreeMap, itineraryMap, translations }}
+          tableRowProps={{
+            organization,
+            degreeMap,
+            itineraryMap,
+            translations,
+          }}
         />
       </div>
     </OrganizationSectionShell>

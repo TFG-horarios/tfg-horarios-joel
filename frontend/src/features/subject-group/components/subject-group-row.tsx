@@ -1,50 +1,64 @@
-import { memo } from 'react';
+'use client';
+
+import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
+import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
+import { toast } from 'sonner';
+import { SubjectGroupFormModal } from './subject-group-form-modal';
 import type { SubjectGroupCardProps } from './subject-group-card';
 
 export const SubjectGroupRow = memo(function SubjectGroupRow({
   item: group,
   subjectMap,
-  degreeMap,
   translations,
 }: SubjectGroupCardProps) {
   const subject = subjectMap.get(group.subjectId);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
   return (
-    <TableRow>
-      <TableCell className="font-medium">{group.name}</TableCell>
-      <TableCell>{subject?.name ?? '-'}</TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className="uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
-        >
-          {group.groupType
-            ? translations[`typeOptions.${group.groupType}`]
-            : translations['typeOptions.theory']}
-        </Badge>
-      </TableCell>
-      <TableCell className="capitalize">
-        {translations[`shiftOptions.${group.shift}`]}
-      </TableCell>
-      <TableCell>{group.numberOfStudents}</TableCell>
-      <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="icon" title="Editar">
-            <Pencil className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            title="Eliminar"
+    <>
+      <TableRow>
+        <TableCell className="font-medium">{group.name}</TableCell>
+        <TableCell>{subject?.name ?? '-'}</TableCell>
+        <TableCell>
+          <Badge
+            variant="outline"
+            className="uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
           >
-            <Trash className="size-4" />
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
+            {group.groupType
+              ? translations[`typeOptions.${group.groupType}`]
+              : translations['typeOptions.theory']}
+          </Badge>
+        </TableCell>
+        <TableCell className="capitalize">
+          {translations[`shiftOptions.${group.shift}`]}
+        </TableCell>
+        <TableCell>{group.numberOfStudents}</TableCell>
+        <ResourceRowActions
+          itemName={group.name}
+          onEdit={() => setIsEditOpen(true)}
+          onDelete={async () => {
+            const res = await deleteSubjectGroupAction(
+              group.organizationId,
+              group.id
+            );
+            if (res.success) {
+              toast.success('Grupo eliminado correctamente');
+            } else {
+              toast.error(res.message);
+            }
+          }}
+        />
+      </TableRow>
+      <SubjectGroupFormModal
+        organizationId={group.organizationId}
+        subjects={Array.from(subjectMap.values())}
+        group={group}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
+    </>
   );
 });
