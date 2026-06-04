@@ -5,6 +5,7 @@ import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, BookOpen } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -28,6 +29,8 @@ export const DraggableSlot = memo(function DraggableSlot({
     id: slot.id,
     data: { slot, subject, group },
   });
+
+  const t = useTranslations('Organizations.schedules.planner');
 
   return (
     <Card
@@ -86,7 +89,7 @@ export const DraggableSlot = memo(function DraggableSlot({
         <div className="flex items-center justify-between border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
           <span className="font-semibold flex items-center gap-1">
             <Users className="size-3" />
-            {group.numberOfStudents} students
+            {t('students', { count: group.numberOfStudents })}
           </span>
           <span className="capitalize font-mono opacity-80">{group.shift}</span>
         </div>

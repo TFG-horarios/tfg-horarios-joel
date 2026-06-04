@@ -34,15 +34,22 @@ export default async function OrganizationSchedulesPage({
   const limitCookie = cookieStore.get('table-limit')?.value;
   const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  
-  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
-    ? rawSearchParams.view 
-    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
 
   const query: ScheduleListQueryDTO & { view?: string } = {
     view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
         ? rawSearchParams.degreeId
@@ -113,7 +120,12 @@ export default async function OrganizationSchedulesPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
-          viewToggle={<ResourceViewToggle viewKey="view-schedules" defaultView={query.view as 'grid' | 'table'} />}
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-schedules"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
           filters={
             <div className="flex flex-wrap gap-2 w-full lg:w-auto">
               <ResourceFilterSelect
@@ -195,7 +207,16 @@ export default async function OrganizationSchedulesPage({
             organizationId: id,
             translations,
           }}
-          tableHeaders={['Estado', 'Titulación', 'Itinerario', 'Año', 'Curso', 'Período', 'Turno', 'Acciones']}
+          tableHeaders={[
+            'Estado',
+            'Titulación',
+            'Itinerario',
+            'Año',
+            'Curso',
+            'Período',
+            'Turno',
+            'Acciones',
+          ]}
           TableRowComponent={ScheduleRow}
           tableRowProps={{
             degreeMap,

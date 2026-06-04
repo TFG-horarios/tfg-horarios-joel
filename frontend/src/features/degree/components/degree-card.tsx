@@ -14,7 +14,9 @@ export interface DegreeCardProps {
   translations?: Record<string, string>;
 }
 
-export const DegreeCard = memo(function DegreeCard({ item: degree }: DegreeCardProps) {
+export const DegreeCard = memo(function DegreeCard({
+  item: degree,
+}: DegreeCardProps) {
   return (
     <Card className={`h-full ${organizationHoverCardClassName}`}>
       <CardHeader className="space-y-2 p-5">

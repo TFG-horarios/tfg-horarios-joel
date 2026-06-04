@@ -87,4 +87,6 @@ function ResourceInfiniteScrollBase<T>({
   );
 }
 
-export const ResourceInfiniteScroll = memo(ResourceInfiniteScrollBase) as typeof ResourceInfiniteScrollBase;
+export const ResourceInfiniteScroll = memo(
+  ResourceInfiniteScrollBase
+) as typeof ResourceInfiniteScrollBase;

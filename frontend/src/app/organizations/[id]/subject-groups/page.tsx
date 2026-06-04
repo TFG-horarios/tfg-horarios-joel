@@ -35,15 +35,22 @@ export default async function OrganizationSubjectGroupsPage({
   const limitCookie = cookieStore.get('table-limit')?.value;
   const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  
-  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
-    ? rawSearchParams.view 
-    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
 
   const query: SubjectGroupListQueryDTO & { view?: string } = {
     view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     subjectId:
@@ -110,7 +117,12 @@ export default async function OrganizationSubjectGroupsPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
-          viewToggle={<ResourceViewToggle viewKey="view-subject-groups" defaultView={query.view as 'grid' | 'table'} />}
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-subject-groups"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
           search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
           filters={
             <div className="flex flex-wrap gap-2 w-full lg:w-auto">
@@ -165,7 +177,14 @@ export default async function OrganizationSubjectGroupsPage({
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectGroupCard}
           gridItemProps={{ subjectMap, degreeMap, translations }}
-          tableHeaders={['Nombre', 'Asignatura', 'Tipo', 'Turno', 'Estudiantes', 'Acciones']}
+          tableHeaders={[
+            'Nombre',
+            'Asignatura',
+            'Tipo',
+            'Turno',
+            'Estudiantes',
+            'Acciones',
+          ]}
           TableRowComponent={SubjectGroupRow}
           tableRowProps={{ subjectMap, degreeMap, translations }}
         />

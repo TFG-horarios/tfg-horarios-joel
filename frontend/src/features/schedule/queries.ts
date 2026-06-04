@@ -31,27 +31,7 @@ export async function fetchSchedules(
   return (await response.json()) as PaginatedResponse<ScheduleDTO>;
 }
 
-export async function fetchAllSchedules(
-  organizationId: string
-): Promise<ScheduleDTO[]> {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-  const response = await client.api.organizations[
-    ':organizationId'
-  ]!.schedules.all.$get({
-    param: { organizationId },
-  });
 
-  const status = Number(response.status);
-  if (status === 401 || status === 403) return [];
-
-  if (!response.ok) {
-    throw new Error(t('server'));
-  }
-
-  const payload = await response.json();
-  return ScheduleSchema.array().parse(payload);
-}
 
 export async function fetchSchedule(
   organizationId: string,

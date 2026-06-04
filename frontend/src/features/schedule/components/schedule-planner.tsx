@@ -44,12 +44,14 @@ type MemoizedScheduleCellProps = {
     string,
     { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
   >;
+  dropHereText: string;
 };
 
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   cellId,
   cellSlots,
   slotMetaMap,
+  dropHereText,
 }: MemoizedScheduleCellProps) {
   return (
     <DroppableCell
@@ -73,7 +75,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
       ) : (
         <div className="flex-1 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
           <span className="text-[10px] text-muted-foreground font-medium">
-            Drop Here
+            {dropHereText}
           </span>
         </div>
       )}
@@ -143,11 +145,11 @@ export function SchedulePlanner({
   const numSlots = Object.keys(slotTimeLabels).length;
 
   const daysOfWeek = [
-    { value: 1, label: 'Monday' },
-    { value: 2, label: 'Tuesday' },
-    { value: 3, label: 'Wednesday' },
-    { value: 4, label: 'Thursday' },
-    { value: 5, label: 'Friday' },
+    { value: 1, label: t('planner.days.1') },
+    { value: 2, label: t('planner.days.2') },
+    { value: 3, label: t('planner.days.3') },
+    { value: 4, label: t('planner.days.4') },
+    { value: 5, label: t('planner.days.5') },
   ];
 
   const handlePublish = async () => {
@@ -165,7 +167,7 @@ export function SchedulePlanner({
       toast.success(t('actions.publishSuccess'));
     } catch (err) {
       console.error(err);
-      toast.error('Failed to publish schedule.');
+      toast.error(t('planner.failedPublish'));
     } finally {
       setIsPublishing(false);
     }
@@ -253,12 +255,14 @@ export function SchedulePlanner({
       }
     } catch {
       setSlots(oldSlots);
-      toast.error('Failed to assign slot.');
+      toast.error(t('planner.failedAssign'));
     }
   };
 
   const activeSlotDTO = activeId ? slots.find((s) => s.id === activeId) : null;
-  const activeMeta = activeSlotDTO ? slotMetaMap.get(activeSlotDTO.subjectGroupId) : null;
+  const activeMeta = activeSlotDTO
+    ? slotMetaMap.get(activeSlotDTO.subjectGroupId)
+    : null;
 
   return (
     <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -275,7 +279,7 @@ export function SchedulePlanner({
               </Badge>
               <Badge variant="outline" className="font-mono bg-background">
                 {itineraries.find((i) => i.id === localSchedule.itineraryId)
-                  ?.name ?? 'Global Itinerary'}
+                  ?.name ?? t('planner.globalItinerary')}
               </Badge>
               <Badge
                 variant="outline"
@@ -312,7 +316,7 @@ export function SchedulePlanner({
                 disabled={isPublishing}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
               >
-                {isPublishing ? 'Publishing...' : 'Publish Version'}
+                {isPublishing ? t('planner.publishing') : t('planner.publishVersion')}
               </Button>
             )}
           </div>
@@ -322,7 +326,7 @@ export function SchedulePlanner({
           <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
               <Clock className="size-4 text-indigo-500" />
-              Weekly Schedule View
+              {t('planner.weeklyView')}
             </h2>
           </div>
 
@@ -330,7 +334,7 @@ export function SchedulePlanner({
             <div className="min-w-200 p-6 space-y-4">
               <div className="grid grid-cols-6 gap-3">
                 <div className="flex items-center justify-center p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/20 rounded-lg">
-                  Time
+                  {t('planner.time')}
                 </div>
                 {daysOfWeek.map((day) => (
                   <div
@@ -348,7 +352,7 @@ export function SchedulePlanner({
                 <div key={idx} className="grid grid-cols-6 gap-3 min-h-22.5">
                   <div className="flex flex-col items-center justify-center p-3 bg-muted/20 border border-dashed border-border rounded-lg text-center">
                     <span className="text-xs font-semibold text-foreground font-mono">
-                      Block {idx + 1}
+                      {t('planner.block', { index: idx + 1 })}
                     </span>
                     <span className="text-[10px] text-muted-foreground font-mono mt-1">
                       {slotTimeLabels[idx]}
@@ -357,13 +361,15 @@ export function SchedulePlanner({
 
                   {daysOfWeek.map((day) => {
                     const cellId = `time_${day.value}_${idx}`;
-                    const cellSlots = slotsByCell.get(`${day.value}_${idx}`) || [];
+                    const cellSlots =
+                      slotsByCell.get(`${day.value}_${idx}`) || [];
                     return (
                       <MemoizedScheduleCell
                         key={cellId}
                         cellId={cellId}
                         cellSlots={cellSlots}
                         slotMetaMap={slotMetaMap}
+                        dropHereText={t('planner.dropHere')}
                       />
                     );
                   })}

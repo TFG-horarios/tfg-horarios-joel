@@ -8,7 +8,7 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
-export type OrganizationMemberContext = {
+type OrganizationMemberContext = {
   members: MemberDTO[];
   currentMember: MemberDTO | null;
 };
@@ -35,7 +35,7 @@ export async function fetchMembers(
   return (await response.json()) as PaginatedResponse<MemberDTO>;
 }
 
-export async function fetchAllMembers(
+async function fetchAllMembers(
   organizationId: string
 ): Promise<MemberDTO[]> {
   const t = await getTranslations('Common.errors');
@@ -57,7 +57,7 @@ export async function fetchAllMembers(
   return MemberSchema.array().parse(payload);
 }
 
-export const getOrganizationMemberContext = cache(
+const getOrganizationMemberContext = cache(
   async (
     organizationId: string,
     userId: string | null

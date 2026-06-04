@@ -27,14 +27,19 @@ const ROLE_BADGE_VARIANTS: Record<
   viewer: 'outline',
 };
 
-export const MemberCard = memo(function MemberCard({ item: member, currentUserId }: MemberCardProps) {
+export const MemberCard = memo(function MemberCard({
+  item: member,
+  currentUserId,
+}: MemberCardProps) {
   const t = useTranslations('Organizations.membersManagement');
   const isSelf = member.userId === currentUserId;
 
   return (
     <Card className={`h-full flex flex-col ${organizationHoverCardClassName}`}>
       <CardHeader className="p-5 pb-3">
-        <CardTitle className={`text-xl flex items-start justify-between gap-4 ${organizationHoverCardTitleClassName}`}>
+        <CardTitle
+          className={`text-xl flex items-start justify-between gap-4 ${organizationHoverCardTitleClassName}`}
+        >
           <div className="flex flex-col gap-1 truncate">
             <span className="truncate flex items-center gap-2">
               {member.role === 'admin' ? (

@@ -73,7 +73,10 @@ export async function replaceItinerariesAction(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('ERROR DEL BACKEND DE HONO (Itinerarios Replace):', errorText);
+      console.error(
+        'ERROR DEL BACKEND DE HONO (Itinerarios Replace):',
+        errorText
+      );
       return { success: false, message: t('server') };
     }
 

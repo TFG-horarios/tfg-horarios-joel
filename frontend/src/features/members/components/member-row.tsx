@@ -6,13 +6,22 @@ import { Pencil, Trash, Shield, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { MemberDTO } from '@tfg-horarios/shared';
 
-const ROLE_BADGE_VARIANTS: Record<MemberDTO['role'], 'default' | 'secondary' | 'outline'> = {
+const ROLE_BADGE_VARIANTS: Record<
+  MemberDTO['role'],
+  'default' | 'secondary' | 'outline'
+> = {
   admin: 'default',
   editor: 'secondary',
   viewer: 'outline',
 };
 
-export const MemberRow = memo(function MemberRow({ item: member, currentUserId }: { item: MemberDTO; currentUserId: string }) {
+export const MemberRow = memo(function MemberRow({
+  item: member,
+  currentUserId,
+}: {
+  item: MemberDTO;
+  currentUserId: string;
+}) {
   const t = useTranslations('Organizations.membersManagement');
   const isSelf = member.userId === currentUserId;
 
@@ -26,7 +35,9 @@ export const MemberRow = memo(function MemberRow({ item: member, currentUserId }
         )}
         <div className="flex flex-col">
           <span>{member.userName}</span>
-          <span className="text-xs text-muted-foreground font-normal">{member.userEmail}</span>
+          <span className="text-xs text-muted-foreground font-normal">
+            {member.userEmail}
+          </span>
         </div>
       </TableCell>
       <TableCell>
@@ -44,7 +55,12 @@ export const MemberRow = memo(function MemberRow({ item: member, currentUserId }
           <Button variant="ghost" size="icon" title="Editar">
             <Pencil className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" title="Eliminar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            title="Eliminar"
+          >
             <Trash className="size-4" />
           </Button>
         </div>

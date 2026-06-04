@@ -29,9 +29,7 @@ export const ClassroomCard = memo(function ClassroomCard({
             ? translations['type.theory']
             : translations['type.lab']}
         </Badge>
-        <CardTitle
-          className={`text-xl ${organizationHoverCardTitleClassName}`}
-        >
+        <CardTitle className={`text-xl ${organizationHoverCardTitleClassName}`}>
           {classroom.name}
         </CardTitle>
         <div className="space-y-1 pt-1 text-sm text-muted-foreground">

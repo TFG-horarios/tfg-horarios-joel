@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 
-export type ErrorSeverity = 'error' | 'warning';
-export type ErrorCategory =
+type ErrorSeverity = 'error' | 'warning';
+type ErrorCategory =
   | 'structure'
   | 'parse'
   | 'validation'

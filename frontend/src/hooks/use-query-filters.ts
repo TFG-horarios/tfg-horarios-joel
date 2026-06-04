@@ -53,7 +53,7 @@ export function useQueryFilters() {
     const params = new URLSearchParams();
     const limit = searchParams.get('limit');
     const view = searchParams.get('view');
-    
+
     if (limit) params.set('limit', limit);
     if (view) params.set('view', view);
 
@@ -61,7 +61,10 @@ export function useQueryFilters() {
     router.push(`${pathname}${queryString ? `?${queryString}` : ''}`);
   }, [pathname, router, searchParams]);
 
-  const hasAnyFilter = Array.from(searchParams.keys()).filter(key => !['page', 'limit', 'view'].includes(key)).length > 0;
+  const hasAnyFilter =
+    Array.from(searchParams.keys()).filter(
+      (key) => !['page', 'limit', 'view'].includes(key)
+    ).length > 0;
 
   return {
     setFilter,

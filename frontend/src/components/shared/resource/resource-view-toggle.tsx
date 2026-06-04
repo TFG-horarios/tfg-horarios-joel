@@ -10,12 +10,14 @@ export interface ResourceViewToggleProps {
   defaultView?: 'grid' | 'table';
 }
 
-export function ResourceViewToggle({ viewKey, defaultView = 'grid' }: ResourceViewToggleProps) {
+export function ResourceViewToggle({
+  viewKey,
+  defaultView = 'grid',
+}: ResourceViewToggleProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [_, startTransition] = useTransition();
-
 
   const currentView = searchParams?.get('view') || defaultView;
 
@@ -27,10 +29,10 @@ export function ResourceViewToggle({ viewKey, defaultView = 'grid' }: ResourceVi
       params.delete('view');
     }
     params.delete('page');
-    
+
     const newQueryString = params.toString();
     const newUrl = `${pathname}${newQueryString ? `?${newQueryString}` : ''}`;
-    
+
     startTransition(() => {
       router.replace(newUrl, { scroll: false });
       router.refresh();

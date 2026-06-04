@@ -5,7 +5,11 @@ import { Pencil, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ItineraryCardProps } from './itinerary-card';
 
-export const ItineraryRow = memo(function ItineraryRow({ item: itinerary, degreeMap, translations }: ItineraryCardProps) {
+export const ItineraryRow = memo(function ItineraryRow({
+  item: itinerary,
+  degreeMap,
+  translations,
+}: ItineraryCardProps) {
   const degree = degreeMap.get(itinerary.degreeId);
   return (
     <TableRow>
@@ -18,15 +22,18 @@ export const ItineraryRow = memo(function ItineraryRow({ item: itinerary, degree
           {itinerary.code}
         </Badge>
       </TableCell>
-      <TableCell>
-        {degree?.name ?? translations.unassigned}
-      </TableCell>
+      <TableCell>{degree?.name ?? translations.unassigned}</TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" size="icon" title="Editar">
             <Pencil className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" title="Eliminar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            title="Eliminar"
+          >
             <Trash className="size-4" />
           </Button>
         </div>

@@ -126,19 +126,26 @@ export function OrganizationHeader() {
                           className="flex items-center gap-1.5 transition-colors hover:text-purple-600 dark:hover:text-purple-400"
                         >
                           <Building2 className="size-4" />
-                          <span className="hidden sm:inline">Organizaciones</span>
+                          <span className="hidden sm:inline">
+                            Organizaciones
+                          </span>
                         </Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
 
                     {pathSegments.slice(1).map((segment, index) => {
                       const isLast = index === pathSegments.length - 2;
-                      const href = '/' + pathSegments.slice(0, index + 2).join('/');
+                      const href =
+                        '/' + pathSegments.slice(0, index + 2).join('/');
                       const realIndex = index + 1;
 
                       let label: React.ReactNode = segment;
                       if (realIndex === 1) {
-                        const text = orgName || (segment.length > 8 ? segment.substring(0, 8) : segment);
+                        const text =
+                          orgName ||
+                          (segment.length > 8
+                            ? segment.substring(0, 8)
+                            : segment);
                         label = (
                           <span className="inline-block max-w-[100px] truncate align-bottom sm:max-w-[200px] md:max-w-[350px]">
                             {text}
@@ -147,7 +154,9 @@ export function OrganizationHeader() {
                       } else if (realIndex === 3) {
                         label = (
                           <span className="inline-block max-w-[100px] truncate align-bottom">
-                            {segment.length > 8 ? segment.substring(0, 8) : segment}
+                            {segment.length > 8
+                              ? segment.substring(0, 8)
+                              : segment}
                           </span>
                         );
                       } else if (realIndex === 2) {
@@ -155,7 +164,11 @@ export function OrganizationHeader() {
                           g[1]!.toUpperCase()
                         );
                         const translated = tNav(camel as any);
-                        const text = translated.includes('Organizations.navigation') ? segment : translated;
+                        const text = translated.includes(
+                          'Organizations.navigation'
+                        )
+                          ? segment
+                          : translated;
                         label = (
                           <span className="inline-block max-w-[150px] truncate align-bottom">
                             {text}

@@ -4,17 +4,33 @@ import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { ScheduleCardProps } from './schedule-card';
 
-export const ScheduleRow = memo(function ScheduleRow({ item: schedule, degreeMap, itineraryMap, organizationId, translations = {} }: ScheduleCardProps) {
-  const degreeName = degreeMap.get(schedule.degreeId) || 'Unknown Degree';
-  const itineraryName = schedule.itineraryId ? itineraryMap.get(schedule.itineraryId) || 'Unknown Itinerary' : translations.globalItinerary || 'Global';
-  
-  const getStatusBadgeVariant = (status: 'draft' | 'published' | 'archived') => {
+export const ScheduleRow = memo(function ScheduleRow({
+  item: schedule,
+  degreeMap,
+  itineraryMap,
+  organizationId,
+  translations = {},
+}: ScheduleCardProps) {
+  const t = useTranslations('Organizations.schedules.card');
+  const tStatus = useTranslations('Organizations.schedules');
+  const degreeName = degreeMap.get(schedule.degreeId) || t('unknownDegree');
+  const itineraryName = schedule.itineraryId
+    ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
+    : translations.globalItinerary || tStatus('itineraryOptions.common');
+
+  const getStatusBadgeVariant = (
+    status: 'draft' | 'published' | 'archived'
+  ) => {
     switch (status) {
-      case 'published': return 'default';
-      case 'draft': return 'secondary';
-      case 'archived': return 'outline';
+      case 'published':
+        return 'default';
+      case 'draft':
+        return 'secondary';
+      case 'archived':
+        return 'outline';
     }
   };
 
@@ -50,14 +66,21 @@ export const ScheduleRow = memo(function ScheduleRow({ item: schedule, degreeMap
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           <Button asChild size="icon" variant="ghost">
-            <Link href={`/organizations/${organizationId}/schedules/${schedule.id}`}>
+            <Link
+              href={`/organizations/${organizationId}/schedules/${schedule.id}`}
+            >
               <Eye className="size-4 text-muted-foreground" />
             </Link>
           </Button>
           <Button variant="ghost" size="icon" title="Editar">
             <Pencil className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" title="Eliminar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            title="Eliminar"
+          >
             <Trash className="size-4" />
           </Button>
         </div>

@@ -37,15 +37,22 @@ export default async function OrganizationMembersPage({
   const limitCookie = cookieStore.get('table-limit')?.value;
   const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  
-  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
-    ? rawSearchParams.view 
-    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
 
   const query: MemberListQueryDTO & { view?: string } = {
     view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
     name:
       typeof rawSearchParams.name === 'string'
         ? rawSearchParams.name
@@ -90,7 +97,12 @@ export default async function OrganizationMembersPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
-          viewToggle={<ResourceViewToggle viewKey="view-members" defaultView={query.view as 'grid' | 'table'} />}
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-members"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
           search={
             <ResourceSearch
               paramKey="name"

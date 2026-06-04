@@ -32,15 +32,22 @@ export default async function OrganizationClassroomsPage({
   const limitCookie = cookieStore.get('table-limit')?.value;
   const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  
-  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
-    ? rawSearchParams.view 
-    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
 
   const query = {
     view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     type:
@@ -80,7 +87,12 @@ export default async function OrganizationClassroomsPage({
     >
       <div className="flex-none flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
-          viewToggle={<ResourceViewToggle viewKey="view-classrooms" defaultView={query.view as 'grid' | 'table'} />}
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-classrooms"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
           search={
             <ResourceSearch
               placeholder={t('searchPlaceholder') || 'Buscar aulas...'}

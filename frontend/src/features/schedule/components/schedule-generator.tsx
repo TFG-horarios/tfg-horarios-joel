@@ -54,11 +54,11 @@ export function ScheduleGenerator({
   const [statusStep, setStatusStep] = useState(0);
 
   const steps = [
-    'Analyzing curriculum constraints...',
-    'Assigning practice lab classrooms...',
-    'Optimizing morning/afternoon shifts...',
-    'Running Tabu Search metaheuristics...',
-    'Persisting generated schedules...',
+    t('generator.steps.0'),
+    t('generator.steps.1'),
+    t('generator.steps.2'),
+    t('generator.steps.3'),
+    t('generator.steps.4'),
   ];
 
   const handleGenerate = async () => {
@@ -113,7 +113,7 @@ export function ScheduleGenerator({
     }));
 
   const courseYearOptions = ['1', '2', '3', '4', '5'].map((y) => ({
-    label: `Course Year ${y}`,
+    label: `${t('courseYear')} ${y}`,
     value: y,
   }));
 
@@ -151,7 +151,7 @@ export function ScheduleGenerator({
                   {steps[statusStep]}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  This takes a few seconds
+                  {t('generator.takesAWhile')}
                 </p>
               </div>
               <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -192,8 +192,8 @@ export function ScheduleGenerator({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">Semester 1</SelectItem>
-                      <SelectItem value="2">Semester 2</SelectItem>
+                      <SelectItem value="1">{t('periodOptions.1')}</SelectItem>
+                      <SelectItem value="2">{t('periodOptions.2')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

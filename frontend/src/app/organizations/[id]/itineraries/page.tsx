@@ -34,15 +34,22 @@ export default async function OrganizationItinerariesPage({
   const limitCookie = cookieStore.get('table-limit')?.value;
   const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
   const rawSearchParams = await searchParams;
-  
-  const currentView = rawSearchParams.view === 'table' || rawSearchParams.view === 'grid' 
-    ? rawSearchParams.view 
-    : (viewCookie === 'table' ? 'table' : 'grid');
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
 
   const query: ItineraryListQueryDTO & { view?: string } = {
     view: currentView,
     page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit ? Number(rawSearchParams.limit) : (currentView === 'table' ? defaultTableLimit : 12),
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     code:
@@ -82,7 +89,12 @@ export default async function OrganizationItinerariesPage({
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
         <ResourceToolbar
-          viewToggle={<ResourceViewToggle viewKey="view-itineraries" defaultView={query.view as 'grid' | 'table'} />}
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-itineraries"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
           search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
           filters={
             <div className="flex gap-2 w-full lg:w-auto">

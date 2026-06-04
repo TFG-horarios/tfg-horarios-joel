@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Layers, Calendar, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
@@ -33,10 +34,12 @@ export const ScheduleCard = memo(function ScheduleCard({
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
-  const degreeName = degreeMap.get(schedule.degreeId) || 'Unknown Degree';
+  const t = useTranslations('Organizations.schedules.card');
+  const tStatus = useTranslations('Organizations.schedules');
+  const degreeName = degreeMap.get(schedule.degreeId) || t('unknownDegree');
   const itineraryName = schedule.itineraryId
-    ? itineraryMap.get(schedule.itineraryId) || 'Unknown Itinerary'
-    : translations.commonItinerary || 'Common';
+    ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
+    : translations.commonItinerary || tStatus('itineraryOptions.common');
   const getStatusBadgeVariant = (
     status: 'draft' | 'published' | 'archived'
   ) => {
@@ -86,12 +89,12 @@ export const ScheduleCard = memo(function ScheduleCard({
             title={
               itineraryName !== 'None'
                 ? itineraryName
-                : translations.globalItinerary || 'Global'
+                : translations.globalItinerary || tStatus('itineraryOptions.common')
             }
           >
             {itineraryName !== 'None'
               ? itineraryName
-              : translations.globalItinerary || 'Global'}
+              : translations.globalItinerary || tStatus('itineraryOptions.common')}
           </div>
         </CardTitle>
       </CardHeader>
@@ -99,7 +102,7 @@ export const ScheduleCard = memo(function ScheduleCard({
         <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.academicYear || 'Academic Year'}
+              {translations.academicYear || tStatus('form.academicYear')}
             </span>
             <span className="font-medium flex items-center gap-1.5">
               <Calendar className="size-3 text-muted-foreground" />{' '}
@@ -108,19 +111,19 @@ export const ScheduleCard = memo(function ScheduleCard({
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.course || 'Course'}
+              {translations.course || tStatus('courseYear')}
             </span>
-            <span className="font-medium">Year {schedule.courseYear}</span>
+            <span className="font-medium">{t('year', { year: schedule.courseYear })}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.period || 'Period'}
+              {translations.period || tStatus('period')}
             </span>
-            <span className="font-medium">Semester {schedule.period}</span>
+            <span className="font-medium">{t('semester', { period: schedule.period })}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.shift || 'Shift'}
+              {translations.shift || tStatus('shift')}
             </span>
             <span className="font-medium capitalize">
               {schedule.shift || 'Global'}
@@ -139,7 +142,7 @@ export const ScheduleCard = memo(function ScheduleCard({
             href={`/organizations/${organizationId}/schedules/${schedule.id}`}
           >
             <Eye className="size-4 mr-2" />
-            {translations.viewPlanner || 'View Planner'}
+            {translations.viewPlanner || tStatus('actions.publish')}
           </Link>
         </Button>
       </CardFooter>

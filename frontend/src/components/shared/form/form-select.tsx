@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import type { ReactNode } from 'react';
 
-export interface FormSelectOption {
+interface FormSelectOption {
   label: string;
   value: string;
 }

@@ -130,56 +130,6 @@
 				"duplicate": "This group already exists for this subject. It will be skipped."
 			}
 		},
-		"membersManagement": {
-			"addTitle": "Add member",
-			"addDescription": "Add existing users to {organizationName} and assign their initial role.",
-			"emailLabel": "Email",
-			"emailPlaceholder": "user@example.com",
-			"roleLabel": "Initial role",
-			"rolePlaceholder": "Select a role",
-			"roleOptions": {
-				"admin": "Admin",
-				"editor": "Editor",
-				"viewer": "Viewer"
-			},
-			"adding": "Adding...",
-			"addButton": "Add member",
-			"readOnlyTitle": "Read-only access",
-			"readOnlyDescription": "Only administrators can add, edit, or remove members.",
-			"tableTitle": "Registered members",
-			"tableDescription": "Review the current members and, if you have permissions, adjust their roles or remove them.",
-			"headers": {
-				"name": "Name",
-				"email": "Email",
-				"role": "Role",
-				"updated": "Updated",
-				"actions": "Actions"
-			},
-			"self": "(you)",
-			"roles": {
-				"admin": "Admin",
-				"editor": "Editor",
-				"viewer": "Viewer"
-			},
-			"saving": "Saving",
-			"save": "Save",
-			"delete": "Delete",
-			"empty": "There are no registered members yet.",
-			"deleteTitle": "Delete member",
-			"deleteDescription": "You are about to remove {name} from {organizationName}. This action cannot be undone.",
-			"cancel": "Cancel",
-			"confirmDelete": "Delete",
-			"message": {
-				"invalidEmail": "You must provide a valid email to add the member.",
-				"added": "Member added successfully.",
-				"addFailed": "Could not add the member.",
-				"roleUnchanged": "The role is already up to date.",
-				"roleUpdated": "Role updated successfully.",
-				"roleUpdateFailed": "Could not update the role.",
-				"removed": "Member removed successfully.",
-				"removeFailed": "Could not remove the member."
-			}
-		},
 		"empty": {
 			"title": "No results",
 			"description": "There are no items to display right now."
@@ -276,8 +226,6 @@
 		"page": {
 			"title": "Your organizations",
 			"description": "Select an organization to manage its academic schedules.",
-			"emptyTitle": "You don't have any organizations yet",
-			"emptyDescription": "Create your first organization to start configuring schedules, degrees, and classrooms.",
 			"count": {
 				"one": "1 organization",
 				"other": "{count} organizations"
@@ -524,6 +472,41 @@
 				"1": "1st Semester / Trimester",
 				"2": "2nd Semester / Trimester",
 				"3": "3rd Trimester"
+			},
+			"card": {
+				"unknownDegree": "Unknown degree",
+				"unknownItinerary": "Unknown itinerary",
+				"year": "Year {year}",
+				"semester": "Semester {period}"
+			},
+			"planner": {
+				"publishVersion": "Publish Version",
+				"publishing": "Publishing...",
+				"failedPublish": "Failed to publish schedule.",
+				"failedAssign": "Failed to assign slot.",
+				"globalItinerary": "Global Itinerary",
+				"weeklyView": "Weekly Schedule View",
+				"time": "Time",
+				"block": "Block {index}",
+				"dropHere": "Drop Here",
+				"students": "{count} students",
+				"days": {
+					"1": "Monday",
+					"2": "Tuesday",
+					"3": "Wednesday",
+					"4": "Thursday",
+					"5": "Friday"
+				}
+			},
+			"generator": {
+				"steps": {
+					"0": "Analyzing curriculum constraints...",
+					"1": "Assigning practice lab classrooms...",
+					"2": "Optimizing morning/afternoon shifts...",
+					"3": "Running Tabu Search metaheuristics...",
+					"4": "Persisting generated schedules..."
+				},
+				"takesAWhile": "This takes a few seconds"
 			},
 			"actions": {
 				"publish": "Publish",

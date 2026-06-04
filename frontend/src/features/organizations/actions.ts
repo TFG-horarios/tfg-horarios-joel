@@ -116,7 +116,7 @@ export async function getOrganizationNameAction(
     if (response.status === 404) {
       return { success: false, message: 'Not found' };
     }
-    
+
     if (!response.ok) {
       throw new Error(tErrors('server'));
     }

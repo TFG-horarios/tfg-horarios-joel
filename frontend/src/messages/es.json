@@ -130,56 +130,6 @@
 				"duplicate": "Este grupo ya existe para esta asignatura. Se ignorará."
 			}
 		},
-		"membersManagement": {
-			"addTitle": "Añadir miembro",
-			"addDescription": "Agrega usuarios existentes a {organizationName} y asigna su rol inicial.",
-			"emailLabel": "Correo electrónico",
-			"emailPlaceholder": "usuario@ejemplo.com",
-			"roleLabel": "Rol inicial",
-			"rolePlaceholder": "Selecciona un rol",
-			"roleOptions": {
-				"admin": "Administrador",
-				"editor": "Editor",
-				"viewer": "Visualizador"
-			},
-			"adding": "Añadiendo...",
-			"addButton": "Añadir miembro",
-			"readOnlyTitle": "Acceso de solo lectura",
-			"readOnlyDescription": "Solo los administradores pueden añadir, editar o eliminar miembros.",
-			"tableTitle": "Miembros registrados",
-			"tableDescription": "Revisa los miembros actuales y, si tienes permisos, ajusta sus roles o elimínalos.",
-			"headers": {
-				"name": "Nombre",
-				"email": "Correo",
-				"role": "Rol",
-				"updated": "Actualizado",
-				"actions": "Acciones"
-			},
-			"self": "(tú)",
-			"roles": {
-				"admin": "Administrador",
-				"editor": "Editor",
-				"viewer": "Visualizador"
-			},
-			"saving": "Guardando",
-			"save": "Guardar",
-			"delete": "Eliminar",
-			"empty": "No hay miembros registrados todavía.",
-			"deleteTitle": "Eliminar miembro",
-			"deleteDescription": "Vas a eliminar a {name} de {organizationName}. Esta acción no se puede deshacer.",
-			"cancel": "Cancelar",
-			"confirmDelete": "Eliminar",
-			"message": {
-				"invalidEmail": "Debes indicar un correo válido para añadir al miembro.",
-				"added": "Miembro añadido correctamente.",
-				"addFailed": "No se pudo añadir el miembro.",
-				"roleUnchanged": "El rol ya está actualizado.",
-				"roleUpdated": "Rol actualizado correctamente.",
-				"roleUpdateFailed": "No se pudo actualizar el rol.",
-				"removed": "Miembro eliminado correctamente.",
-				"removeFailed": "No se pudo eliminar el miembro."
-			}
-		},
 		"empty": {
 			"title": "Sin resultados",
 			"description": "No hay elementos para mostrar en este momento."
@@ -276,8 +226,6 @@
 		"page": {
 			"title": "Tus organizaciones",
 			"description": "Selecciona una organización para gestionar sus horarios académicos.",
-			"emptyTitle": "Aún no tienes organizaciones",
-			"emptyDescription": "Crea tu primera organización para empezar a configurar horarios, grados y aulas.",
 			"count": {
 				"one": "1 organización",
 				"other": "{count} organizaciones"
@@ -525,6 +473,41 @@
 				"1": "1º Semestre / Cuatrimestre",
 				"2": "2º Semestre / Cuatrimestre",
 				"3": "3º Trimestre"
+			},
+			"card": {
+				"unknownDegree": "Grado desconocido",
+				"unknownItinerary": "Itinerario desconocido",
+				"year": "Año {year}",
+				"semester": "Semestre {period}"
+			},
+			"planner": {
+				"publishVersion": "Publicar versión",
+				"publishing": "Publicando...",
+				"failedPublish": "Error al publicar el horario.",
+				"failedAssign": "Error al asignar la franja horaria.",
+				"globalItinerary": "Itinerario Global",
+				"weeklyView": "Vista Semanal",
+				"time": "Hora",
+				"block": "Bloque {index}",
+				"dropHere": "Soltar aquí",
+				"students": "{count} estudiantes",
+				"days": {
+					"1": "Lunes",
+					"2": "Martes",
+					"3": "Miércoles",
+					"4": "Jueves",
+					"5": "Viernes"
+				}
+			},
+			"generator": {
+				"steps": {
+					"0": "Analizando restricciones del plan de estudios...",
+					"1": "Asignando aulas de prácticas y laboratorio...",
+					"2": "Optimizando turnos de mañana/tarde...",
+					"3": "Ejecutando metaheurística Tabu Search...",
+					"4": "Guardando horarios generados..."
+				},
+				"takesAWhile": "Esto tomará unos segundos"
 			},
 			"actions": {
 				"publish": "Publicar",

@@ -5,7 +5,9 @@ import { Pencil, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { DegreeCardProps } from './degree-card';
 
-export const DegreeRow = memo(function DegreeRow({ item: degree }: DegreeCardProps) {
+export const DegreeRow = memo(function DegreeRow({
+  item: degree,
+}: DegreeCardProps) {
   return (
     <TableRow>
       <TableCell className="font-medium">{degree.name}</TableCell>
@@ -22,7 +24,12 @@ export const DegreeRow = memo(function DegreeRow({ item: degree }: DegreeCardPro
           <Button variant="ghost" size="icon" title="Editar">
             <Pencil className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" title="Eliminar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            title="Eliminar"
+          >
             <Trash className="size-4" />
           </Button>
         </div>

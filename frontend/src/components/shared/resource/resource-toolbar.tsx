@@ -6,7 +6,11 @@ export interface ResourceToolbarProps {
   viewToggle?: React.ReactNode;
 }
 
-export function ResourceToolbar({ search, filters, viewToggle }: ResourceToolbarProps) {
+export function ResourceToolbar({
+  search,
+  filters,
+  viewToggle,
+}: ResourceToolbarProps) {
   return (
     <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-end">
       {search && (

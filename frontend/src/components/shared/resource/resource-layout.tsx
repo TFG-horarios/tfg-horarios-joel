@@ -18,14 +18,14 @@ export interface ResourceLayoutProps<T> {
   query: any;
   loadMore: (page: number) => Promise<{ data: T[]; meta: PaginationMetaDTO }>;
   emptyState: React.ReactNode;
-  
+
   GridItemComponent: React.ComponentType<{ item: T } & any>;
   gridItemProps?: Record<string, any>;
-  
+
   tableHeaders: React.ReactNode[];
   TableRowComponent: React.ComponentType<{ item: T } & any>;
   tableRowProps?: Record<string, any>;
-  
+
   keyProp?: keyof T;
 }
 
@@ -50,13 +50,16 @@ export function ResourceLayout<T>({
   if (view === 'table') {
     return (
       <div className="flex flex-col gap-4">
-        <div id="resource-table-container" className="rounded-xl border border-black/10 shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40 overflow-hidden bg-transparent">
+        <div
+          id="resource-table-container"
+          className="rounded-xl border border-black/10 shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40 overflow-hidden bg-transparent"
+        >
           <Table>
             <TableHeader className="bg-black/5 dark:bg-white/5">
               <TableRow>
                 {tableHeaders.map((header, index) => (
-                  <TableHead 
-                    key={index} 
+                  <TableHead
+                    key={index}
                     className={`text-foreground font-semibold ${index === tableHeaders.length - 1 ? 'text-right' : ''}`}
                   >
                     {header}
