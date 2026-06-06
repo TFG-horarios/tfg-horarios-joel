@@ -6,14 +6,12 @@ import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 describe('GetScheduleUseCase', () => {
   const repositoryMock = {
     findById: mock(),
-    findPublishedByScope: mock(),
-    findLatestVersionByScope: mock(),
+    findByScope: mock(),
     findAll: mock(),
     findPaginated: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
-    publishAndArchive: mock(),
   };
 
   const memberProviderMock = {

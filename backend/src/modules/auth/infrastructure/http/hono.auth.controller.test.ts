@@ -75,6 +75,7 @@ describe('HonoAuthController Integration', () => {
         name: 'Jane',
         email: 'jane@e.com',
         password: 'password123',
+        confirmPassword: 'password123',
       }),
     });
     expect(res.status).toBe(201);

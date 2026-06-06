@@ -1,22 +1,23 @@
 {
 	"ZodErrors": {
-		"invalid_type": "The {path} field has an invalid type or is required.",
-		"invalid_string": "The {path} field has an invalid format.",
-		"invalid_format": "The {path} field has an invalid format.",
-		"invalid_date": "The {path} field contains an invalid date.",
-		"invalid_value": "The value for {path} is invalid.",
-		"invalid_literal": "The value for {path} does not match the expected value.",
-		"invalid_union": "The {path} field does not match any of the allowed options.",
-		"invalid_intersection_types": "The {path} field does not satisfy all combined constraints.",
-		"invalid_enum_value": "The value for {path} is not one of the allowed options.",
+		"invalid_type": "The field has an invalid type or is required.",
+		"invalid_string": "The field has an invalid format.",
+		"invalid_format": "The field has an invalid format.",
+		"invalid_date": "The field contains an invalid date.",
+		"invalid_value": "The value for field is invalid.",
+		"invalid_literal": "The value for field does not match the expected value.",
+		"invalid_union": "The field does not match any of the allowed options.",
+		"invalid_intersection_types": "The field does not satisfy all combined constraints.",
+		"invalid_enum_value": "The value for field is not one of the allowed options.",
 		"unrecognized_keys": "The form contains unrecognized fields.",
-		"too_small": "The {path} field does not meet the minimum allowed value or length.",
-		"too_big": "The {path} field exceeds the maximum allowed value or length.",
-		"not_multiple_of": "The {path} field must be an allowed multiple.",
-		"not_finite": "The {path} field must be a finite number.",
-		"custom": "The {path} field is invalid.",
-		"invalid_key": "The {path} field contains an invalid key.",
-		"invalid_element": "The {path} field contains an invalid element."
+		"too_small": "The field does not meet the minimum allowed value or length.",
+		"too_big": "The field exceeds the maximum allowed value or length.",
+		"not_multiple_of": "The field must be an allowed multiple.",
+		"not_finite": "The field must be a finite number.",
+		"custom": "The field is invalid.",
+		"invalid_key": "The field contains an invalid key.",
+		"invalid_element": "The field contains an invalid element.",
+		"passwords_mismatch": "Passwords do not match."
 	},
 	"Common": {
 		"actions": {
@@ -423,8 +424,8 @@
 				"afternoon": "Afternoon"
 			},
 			"periodOptions": {
-				"1": "1st Semester / Term",
-				"2": "2nd Semester / Term",
+				"1": "1st Semester",
+				"2": "2nd Semester",
 				"3": "3rd Term",
 				"annual": "Annual"
 			},
@@ -573,16 +574,16 @@
 		"schedules": {
 			"label": "Schedules",
 			"title": "Schedules in {organization}",
-			"description": "Generate and manage interactive schedules massively or by segment with version control and smart conflict resolution.",
+			"description": "Generate and manage interactive schedules massively or by segment with smart conflict resolution.",
 			"countLabel": "schedules",
+			"all": "All",
 			"empty": "No schedules have been generated for this organization yet.",
 			"generate": "Generate schedules",
-			"version": "Version",
+			"viewSchedule": "View Schedule",
 			"status": "Status",
 			"statusLabel": "Status",
 			"published": "Published",
 			"draft": "Draft",
-			"archived": "Archived",
 			"degreePlaceholder": "Degree",
 			"itineraryPlaceholder": "Itinerary",
 			"itineraryOptions": {
@@ -596,8 +597,8 @@
 			"courseYear": "Course Year",
 			"period": "Period",
 			"periodOptions": {
-				"1": "1st Semester / Trimester",
-				"2": "2nd Semester / Trimester",
+				"1": "1st Semester",
+				"2": "2nd Semester",
 				"3": "3rd Trimester"
 			},
 			"card": {
@@ -607,7 +608,7 @@
 				"semester": "Semester {period}"
 			},
 			"planner": {
-				"publishVersion": "Publish Version",
+				"publishSchedule": "Publish Schedule",
 				"publishing": "Publishing...",
 				"failedPublish": "Failed to publish schedule.",
 				"failedAssign": "Failed to assign slot.",
@@ -643,14 +644,19 @@
 			},
 			"form": {
 				"academicYear": "Academic Year",
-				"period": "Period / Semester",
-				"degrees": "Selected Degrees",
+				"period": "Period",
+				"periodPlaceholder": "All periods",
+				"degrees": "Selected degrees",
 				"degreesPlaceholder": "All degrees",
 				"itineraries": "Selected Itineraries",
 				"itinerariesPlaceholder": "All itineraries",
 				"courseYears": "Selected Course Years",
 				"courseYearsPlaceholder": "All course years",
-				"submit": "Generate"
+				"submit": "Generate",
+				"overwriteTitle": "Generate new schedules?",
+				"overwriteWarning": "Warning! If generated schedules already exist for these criteria, their slots will be overwritten and you will lose any manual modifications you have made. Are you sure you want to continue?",
+				"cancel": "Cancel",
+				"confirmOverwrite": "Yes, overwrite"
 			},
 			"grid": {
 				"unassignedTitle": "Reserves (Unassigned Slots)",

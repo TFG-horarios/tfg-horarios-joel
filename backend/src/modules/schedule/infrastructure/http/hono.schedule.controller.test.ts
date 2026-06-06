@@ -21,6 +21,8 @@ describe('HonoScheduleController Integration', () => {
   const generateMock = { execute: mock() };
   const listSlotsMock = { execute: mock() };
   const updateSlotMock = { execute: mock() };
+  const listClassroomSlotsMock = { execute: mock() };
+  const listActiveClassroomSchedulesMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoScheduleController>;
   const controller = new HonoScheduleController(
@@ -30,7 +32,9 @@ describe('HonoScheduleController Integration', () => {
     publishMock as unknown as Params[3],
     generateMock as unknown as Params[4],
     listSlotsMock as unknown as Params[5],
-    updateSlotMock as unknown as Params[6]
+    updateSlotMock as unknown as Params[6],
+    listClassroomSlotsMock as unknown as Params[7],
+    listActiveClassroomSchedulesMock as unknown as Params[8]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -134,7 +138,7 @@ describe('HonoScheduleController Integration', () => {
   test('POST /organizations/:organizationId/schedules/generate should return 201', async () => {
     const validBody = {
       academicYear: '2025/2026',
-      period: 1,
+      periods: [1],
       courseYears: [1, 2],
       degreeIds: ['d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a55'],
     };

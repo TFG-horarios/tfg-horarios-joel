@@ -75,11 +75,6 @@ export default async function OrganizationDetailLayout({
         ]
       : []),
     {
-      label: t('classroomSchedules'),
-      href: `/organizations/${organization.id}/classroom-schedules`,
-      icon: 'classroomSchedules',
-    },
-    {
       label: t('reserve'),
       href: `/organizations/${organization.id}/reserve`,
       icon: 'reserve',

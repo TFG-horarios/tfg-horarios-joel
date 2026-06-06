@@ -9,6 +9,13 @@ export function useZodErrorMap() {
       type TranslationKey = Parameters<typeof t>[0];
       const key = issue.code as TranslationKey;
       const translatedMessage = t(key, { path });
+      if (
+        issue.code === 'custom' &&
+        issue.message &&
+        issue.message !== 'Invalid input'
+      ) {
+        return { message: t(issue.message as any) || issue.message };
+      }
       return {
         message: translatedMessage || issue.message || 'Validation error',
       };

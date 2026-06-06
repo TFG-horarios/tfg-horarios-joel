@@ -5,21 +5,18 @@ import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 
 describe('PublishScheduleUseCase', () => {
   beforeEach(() => {
-    repositoryMock.findPublishedByScope.mockClear();
-    repositoryMock.publishAndArchive.mockClear();
     repositoryMock.findById.mockClear();
+    repositoryMock.update.mockClear();
   });
 
   const repositoryMock = {
     findById: mock(),
-    findPublishedByScope: mock(),
-    findLatestVersionByScope: mock(),
+    findByScope: mock(),
     findAll: mock(),
     findPaginated: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
-    publishAndArchive: mock(),
   };
 
   const memberProviderMock = {
@@ -42,44 +39,10 @@ describe('PublishScheduleUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(schedule);
-    repositoryMock.findPublishedByScope.mockResolvedValueOnce(null);
+    repositoryMock.update.mockResolvedValueOnce(undefined);
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.status).toBe('published');
-    expect(repositoryMock.publishAndArchive).toHaveBeenCalledWith(
-      schedule,
-      null
-    );
-  });
-
-  test('should archive previously published schedule and publish new one', async () => {
-    const newSchedule = Schedule.create({
-      organizationId: 'org-1',
-      degreeId: 'deg-1',
-      academicYear: '2023-2024',
-      shift: 'morning',
-      courseYear: 1,
-      period: 1,
-      version: 'v2',
-    });
-    const oldSchedule = Schedule.create({
-      organizationId: 'org-1',
-      degreeId: 'deg-1',
-      academicYear: '2023-2024',
-      shift: 'morning',
-      courseYear: 1,
-      period: 1,
-      status: 'published',
-    });
-    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
-    repositoryMock.findById.mockResolvedValueOnce(newSchedule);
-    repositoryMock.findPublishedByScope.mockResolvedValueOnce(oldSchedule);
-    const result = await useCase.execute('org-1', 'user-1', newSchedule.id);
-    expect(result.status).toBe('published');
-    expect(oldSchedule.status).toBe('archived');
-    expect(repositoryMock.publishAndArchive).toHaveBeenCalledWith(
-      newSchedule,
-      oldSchedule
-    );
+    expect(repositoryMock.update).toHaveBeenCalledWith(schedule);
   });
 
   test('should return without changes if schedule is already published', async () => {
@@ -96,7 +59,7 @@ describe('PublishScheduleUseCase', () => {
     repositoryMock.findById.mockResolvedValueOnce(schedule);
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.status).toBe('published');
-    expect(repositoryMock.findPublishedByScope).not.toHaveBeenCalled();
+    expect(repositoryMock.update).not.toHaveBeenCalled();
   });
 
   test('should throw ForbiddenError if user lacks permission', async () => {

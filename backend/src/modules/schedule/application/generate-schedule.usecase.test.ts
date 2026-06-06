@@ -5,14 +5,12 @@ import { ForbiddenError } from '@/core/errors/app.error';
 describe('GenerateScheduleUseCase', () => {
   const repositoryMock = {
     findById: mock(),
-    findPublishedByScope: mock(),
-    findLatestVersionByScope: mock(),
+    findByScope: mock(),
     findAll: mock(),
     findPaginated: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
-    publishAndArchive: mock(),
   };
 
   const dataProviderMock = {
@@ -74,13 +72,12 @@ describe('GenerateScheduleUseCase', () => {
       ],
       unassigned: [],
     });
-    repositoryMock.findLatestVersionByScope.mockResolvedValueOnce('v1');
+    repositoryMock.findByScope.mockResolvedValueOnce(null);
     const result = await useCase.execute('org-1', 'user-1', {
       academicYear: '2023-2024',
-      period: 1,
+      periods: [1],
     });
     expect(result).toHaveLength(1);
-    expect(result[0]?.version).toBe('v2');
     expect(repositoryMock.createSchedulesWithSlots).toHaveBeenCalled();
   });
 
@@ -89,7 +86,7 @@ describe('GenerateScheduleUseCase', () => {
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce([]);
     const result = await useCase.execute('org-1', 'user-1', {
       academicYear: '2023-2024',
-      period: 1,
+      periods: [1],
     });
     expect(result).toHaveLength(0);
   });
@@ -99,7 +96,7 @@ describe('GenerateScheduleUseCase', () => {
     expect(
       useCase.execute('org-1', 'user-1', {
         academicYear: '2023-2024',
-        period: 1,
+        periods: [1],
       })
     ).rejects.toThrow(ForbiddenError);
   });

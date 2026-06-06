@@ -12,6 +12,7 @@ import { deleteDegreeAction } from '@/features/degree/actions';
 import { toast } from 'sonner';
 import { DegreeFormModal } from './degree-form-modal';
 import type { DegreeDTO } from '@tfg-horarios/shared';
+import { GraduationCap } from 'lucide-react';
 
 export interface DegreeCardProps {
   item: DegreeDTO;
@@ -26,7 +27,7 @@ export const DegreeCard = memo(function DegreeCard({
   return (
     <>
       <Card
-        className={`h-full relative group ${organizationHoverCardClassName}`}
+        className={`h-full relative group flex flex-col ${organizationHoverCardClassName}`}
       >
         <ResourceCardActions
           itemName={degree.name}
@@ -43,18 +44,25 @@ export const DegreeCard = memo(function DegreeCard({
             }
           }}
         />
-        <CardHeader className="space-y-2 p-5">
+        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
           <Badge
             variant="outline"
-            className="w-fit font-mono uppercase tracking-[0.2em] border-purple-500/20 bg-purple-500/5 text-purple-500"
+            className="w-fit mx-auto font-mono uppercase tracking-widest border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 flex items-center gap-1 px-2.5 py-0.5"
           >
             {degree.code}
           </Badge>
-          <CardTitle
-            className={`text-xl ${organizationHoverCardTitleClassName}`}
-          >
-            {degree.name}
-          </CardTitle>
+          <div className="flex items-center gap-3 pr-8">
+            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <CardTitle
+                className={`text-xl leading-tight ${organizationHoverCardTitleClassName}`}
+              >
+                {degree.name}
+              </CardTitle>
+            </div>
+          </div>
         </CardHeader>
       </Card>
       <DegreeFormModal

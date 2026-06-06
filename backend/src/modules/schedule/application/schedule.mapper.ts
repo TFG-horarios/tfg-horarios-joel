@@ -13,7 +13,6 @@ export class ScheduleMapper {
       courseYear: schedule.courseYear,
       period: schedule.period,
       status: schedule.status,
-      version: schedule.version,
       createdAt: schedule.createdAt.toISOString(),
       updatedAt: schedule.updatedAt.toISOString(),
     };

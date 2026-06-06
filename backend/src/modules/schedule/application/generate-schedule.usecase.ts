@@ -54,101 +54,115 @@ export class GenerateScheduleUseCase {
       };
     }
 
-    const groupsData = await this.dataProvider.getGroupsInScope(
-      organizationId,
-      scope.period,
-      targetDegreeIds,
-      scope.itineraryIds,
-      scope.courseYears
-    );
-
-    if (groupsData.length === 0) return [];
-
-    const organization =
-      await this.dataProvider.getOrganizationConstraints(organizationId);
-    if (!organization) {
-      throw new Error('Organization not found');
-    }
-
-    const parseTime = (timeStr: string) => {
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      return (hours || 0) * 60 + (minutes || 0);
-    };
-
-    const morningStart = parseTime(organization.morningStart);
-    const morningEnd = parseTime(organization.morningEnd);
-    const afternoonStart = parseTime(organization.afternoonStart);
-    const afternoonEnd = parseTime(organization.afternoonEnd);
-
-    const slotDuration = organization.slotDurationMinutes;
-    const maxMorningSlots = Math.floor(
-      (morningEnd - morningStart) / slotDuration
-    );
-    const maxAfternoonSlots = Math.floor(
-      (afternoonEnd - afternoonStart) / slotDuration
-    );
-    const solution = await this.engineProvider.runGeneration(
-      groupsData,
-      classroomsCache,
-      availableClassrooms,
-      maxMorningSlots,
-      maxAfternoonSlots,
-      slotDuration
-    );
-
-    const itinerariesPerDegreeYearShift = new Map<string, Set<string>>();
-
-    for (const group of groupsData) {
-      if (!group.isCommon && group.itineraryId) {
-        const key = `${group.degreeId}_${group.courseYear}_${group.shift}`;
-        if (!itinerariesPerDegreeYearShift.has(key)) {
-          itinerariesPerDegreeYearShift.set(key, new Set());
-        }
-        itinerariesPerDegreeYearShift.get(key)!.add(group.itineraryId);
-      }
-    }
-
-    type ScopeKey = string;
-    const scopeAssignments = new Map<
-      ScopeKey,
-      {
-        degreeId: string;
-        itineraryId: string | null;
-        courseYear: number;
-        shift: 'morning' | 'afternoon';
-        assignments: typeof solution.assignments;
-      }
-    >();
-
-    for (const assignment of solution.assignments) {
-      const group = groupsData.find(
-        (r) => r.subjectGroupId === assignment.subjectGroupId
+    const generateForPeriod = async (period: number) => {
+      const groupsData = await this.dataProvider.getGroupsInScope(
+        organizationId,
+        period,
+        targetDegreeIds,
+        scope.itineraryIds,
+        scope.courseYears
       );
-      if (!group) continue;
 
-      const baseKey = `${assignment.degreeId}_${assignment.courseYear}_${assignment.shift}`;
-      const itineraries = itinerariesPerDegreeYearShift.get(baseKey);
+      if (groupsData.length === 0) return [];
 
-      if (!itineraries || itineraries.size === 0) {
-        const key = `${baseKey}_common`;
-        if (!scopeAssignments.has(key)) {
-          scopeAssignments.set(key, {
-            degreeId: assignment.degreeId,
-            itineraryId: null,
-            courseYear: assignment.courseYear,
-            shift: assignment.shift,
-            assignments: [],
-          });
+      const organization =
+        await this.dataProvider.getOrganizationConstraints(organizationId);
+      if (!organization) {
+        throw new Error('Organization not found');
+      }
+
+      const parseTime = (timeStr: string) => {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return (hours || 0) * 60 + (minutes || 0);
+      };
+
+      const morningStart = parseTime(organization.morningStart);
+      const morningEnd = parseTime(organization.morningEnd);
+      const afternoonStart = parseTime(organization.afternoonStart);
+      const afternoonEnd = parseTime(organization.afternoonEnd);
+
+      const slotDuration = organization.slotDurationMinutes;
+      const maxMorningSlots = Math.floor(
+        (morningEnd - morningStart) / slotDuration
+      );
+      const maxAfternoonSlots = Math.floor(
+        (afternoonEnd - afternoonStart) / slotDuration
+      );
+      const solution = await this.engineProvider.runGeneration(
+        groupsData,
+        classroomsCache,
+        availableClassrooms,
+        maxMorningSlots,
+        maxAfternoonSlots,
+        slotDuration
+      );
+
+      const itinerariesPerDegreeYearShift = new Map<string, Set<string>>();
+
+      for (const group of groupsData) {
+        if (!group.isCommon && group.itineraryId) {
+          const key = `${group.degreeId}_${group.courseYear}_${group.shift}`;
+          if (!itinerariesPerDegreeYearShift.has(key)) {
+            itinerariesPerDegreeYearShift.set(key, new Set());
+          }
+          itinerariesPerDegreeYearShift.get(key)!.add(group.itineraryId);
         }
-        scopeAssignments.get(key)!.assignments.push(assignment);
-      } else {
-        if (group.isCommon) {
-          for (const itinId of itineraries) {
-            const key = `${baseKey}_${itinId}`;
+      }
+
+      type ScopeKey = string;
+      const scopeAssignments = new Map<
+        ScopeKey,
+        {
+          degreeId: string;
+          itineraryId: string | null;
+          courseYear: number;
+          shift: 'morning' | 'afternoon';
+          assignments: typeof solution.assignments;
+        }
+      >();
+
+      for (const assignment of solution.assignments) {
+        const group = groupsData.find(
+          (r) => r.subjectGroupId === assignment.subjectGroupId
+        );
+        if (!group) continue;
+
+        const baseKey = `${assignment.degreeId}_${assignment.courseYear}_${assignment.shift}`;
+        const itineraries = itinerariesPerDegreeYearShift.get(baseKey);
+
+        if (!itineraries || itineraries.size === 0) {
+          const key = `${baseKey}_common`;
+          if (!scopeAssignments.has(key)) {
+            scopeAssignments.set(key, {
+              degreeId: assignment.degreeId,
+              itineraryId: null,
+              courseYear: assignment.courseYear,
+              shift: assignment.shift,
+              assignments: [],
+            });
+          }
+          scopeAssignments.get(key)!.assignments.push(assignment);
+        } else {
+          if (group.isCommon) {
+            for (const itinId of itineraries) {
+              const key = `${baseKey}_${itinId}`;
+              if (!scopeAssignments.has(key)) {
+                scopeAssignments.set(key, {
+                  degreeId: assignment.degreeId,
+                  itineraryId: itinId,
+                  courseYear: assignment.courseYear,
+                  shift: assignment.shift,
+                  assignments: [],
+                });
+              }
+              scopeAssignments.get(key)!.assignments.push(assignment);
+            }
+          } else if (group.itineraryId) {
+            const key = `${baseKey}_${group.itineraryId}`;
             if (!scopeAssignments.has(key)) {
               scopeAssignments.set(key, {
                 degreeId: assignment.degreeId,
-                itineraryId: itinId,
+                itineraryId: group.itineraryId,
                 courseYear: assignment.courseYear,
                 shift: assignment.shift,
                 assignments: [],
@@ -156,90 +170,77 @@ export class GenerateScheduleUseCase {
             }
             scopeAssignments.get(key)!.assignments.push(assignment);
           }
-        } else if (group.itineraryId) {
-          const key = `${baseKey}_${group.itineraryId}`;
-          if (!scopeAssignments.has(key)) {
-            scopeAssignments.set(key, {
-              degreeId: assignment.degreeId,
-              itineraryId: group.itineraryId,
-              courseYear: assignment.courseYear,
-              shift: assignment.shift,
-              assignments: [],
-            });
-          }
-          scopeAssignments.get(key)!.assignments.push(assignment);
         }
       }
-    }
 
-    const schedulesToPersist: {
-      schedule: Schedule;
-      slots: Parameters<
-        IScheduleRepository['createSchedulesWithSlots']
-      >[0][0]['slots'];
-    }[] = [];
-    const generatedSchedules: Schedule[] = [];
+      const schedulesToPersist: {
+        schedule: Schedule;
+        slots: Parameters<
+          IScheduleRepository['createSchedulesWithSlots']
+        >[0][0]['slots'];
+      }[] = [];
+      const generatedSchedules: Schedule[] = [];
 
-    for (const [, sData] of scopeAssignments.entries()) {
-      const latestVersion =
-        await this.scheduleRepository.findLatestVersionByScope(
+      for (const [, sData] of scopeAssignments.entries()) {
+        const existingSchedule = await this.scheduleRepository.findByScope(
           organizationId,
           sData.degreeId,
           sData.itineraryId,
           scope.academicYear,
           sData.courseYear,
-          scope.period,
+          period,
           sData.shift
         );
 
-      const nextVersion = this.incrementVersion(latestVersion);
+        const schedule =
+          existingSchedule ||
+          Schedule.create({
+            organizationId,
+            degreeId: sData.degreeId,
+            itineraryId: sData.itineraryId,
+            academicYear: scope.academicYear,
+            courseYear: sData.courseYear,
+            period: period,
+            shift: sData.shift,
+            status: 'draft',
+          });
 
-      const schedule = Schedule.create({
-        organizationId,
-        degreeId: sData.degreeId,
-        itineraryId: sData.itineraryId,
-        academicYear: scope.academicYear,
-        courseYear: sData.courseYear,
-        period: scope.period,
-        shift: sData.shift,
-        status: 'draft',
-        version: nextVersion,
-      });
+        if (existingSchedule) {
+          schedule.markAsDraft();
+        }
 
-      const slots = sData.assignments.map((asm) => ({
-        scheduleId: schedule.id,
-        subjectGroupId: asm.subjectGroupId,
-        classroomId: asm.classroomId,
-        dayOfWeek: asm.dayOfWeek,
-        slotIndex:
-          asm.slotIndex !== null
-            ? sData.shift === 'afternoon'
-              ? asm.slotIndex - maxMorningSlots
-              : asm.slotIndex
-            : null,
-        duration: asm.duration,
-      }));
+        const slots = sData.assignments.map((asm) => ({
+          scheduleId: schedule.id,
+          subjectGroupId: asm.subjectGroupId,
+          classroomId: asm.classroomId,
+          dayOfWeek: asm.dayOfWeek,
+          slotIndex:
+            asm.slotIndex !== null
+              ? sData.shift === 'afternoon'
+                ? asm.slotIndex - maxMorningSlots
+                : asm.slotIndex
+              : null,
+          duration: asm.duration,
+        }));
 
-      schedulesToPersist.push({ schedule, slots });
-      generatedSchedules.push(schedule);
-    }
+        schedulesToPersist.push({ schedule, slots });
+        generatedSchedules.push(schedule);
+      }
 
-    if (schedulesToPersist.length > 0) {
-      await this.scheduleRepository.createSchedulesWithSlots(
-        schedulesToPersist
-      );
-    }
+      if (schedulesToPersist.length > 0) {
+        await this.scheduleRepository.createSchedulesWithSlots(
+          schedulesToPersist
+        );
+      }
 
-    return generatedSchedules.map((s) => ScheduleMapper.toDTO(s));
-  }
+      return generatedSchedules;
+    };
 
-  private incrementVersion(version: string | null): string {
-    if (!version) return 'v1';
-    const match = version.match(/^v(\d+)$/);
-    if (match && match[1]) {
-      const num = parseInt(match[1], 10);
-      return `v${num + 1}`;
-    }
-    return 'v1';
+    const results = await Promise.all(
+      scope.periods.map((period) => generateForPeriod(period))
+    );
+
+    const allSchedules = results.flat();
+    return allSchedules.map((s) => ScheduleMapper.toDTO(s));
   }
 }

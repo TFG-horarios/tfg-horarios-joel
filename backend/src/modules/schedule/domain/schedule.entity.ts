@@ -7,8 +7,7 @@ export interface ScheduleProps {
   shift: 'morning' | 'afternoon';
   courseYear: number;
   period: number;
-  status: 'draft' | 'published' | 'archived';
-  version: string;
+  status: 'draft' | 'published';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,19 +16,14 @@ export class Schedule {
   private constructor(private readonly props: ScheduleProps) {}
 
   public static create(
-    props: Omit<
-      ScheduleProps,
-      'id' | 'createdAt' | 'updatedAt' | 'version' | 'status'
-    > & {
-      version?: string;
-      status?: 'draft' | 'published' | 'archived';
+    props: Omit<ScheduleProps, 'id' | 'createdAt' | 'updatedAt' | 'status'> & {
+      status?: 'draft' | 'published';
     }
   ): Schedule {
     return new Schedule({
       ...props,
       id: crypto.randomUUID(),
       status: props.status ?? 'draft',
-      version: props.version ?? 'v1',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -44,8 +38,8 @@ export class Schedule {
     this.props.updatedAt = new Date();
   }
 
-  public archive(): void {
-    this.props.status = 'archived';
+  public markAsDraft(): void {
+    this.props.status = 'draft';
     this.props.updatedAt = new Date();
   }
 
@@ -75,9 +69,6 @@ export class Schedule {
   }
   get status() {
     return this.props.status;
-  }
-  get version() {
-    return this.props.version;
   }
   get createdAt() {
     return this.props.createdAt;

@@ -82,6 +82,7 @@ export default async function OrganizationSubjectsPage({
   };
 
   const t = await getTranslations('Organizations.subjects');
+  const tSubjectGroups = await getTranslations('Organizations.subjectGroups');
 
   const [organization, { data: subjects, meta }, degrees, itineraries] =
     await Promise.all([
@@ -105,6 +106,16 @@ export default async function OrganizationSubjectsPage({
     weeklyHours: t('weeklyHours'),
     common: t('common'),
     empty: t('empty'),
+    period: t('form.period.label'),
+    students: tSubjectGroups('students'),
+    shifts: t('form.availableShifts.label'),
+    itinerary: t('itineraryPlaceholder'),
+    shiftMorning: t('shiftOptions.morning'),
+    shiftAfternoon: t('shiftOptions.afternoon'),
+    periodAnnual: t('periodOptions.annual'),
+    period1: t('periodOptions.1'),
+    period2: t('periodOptions.2'),
+    period3: t('periodOptions.3'),
   };
 
   return (
@@ -196,11 +207,15 @@ export default async function OrganizationSubjectsPage({
             translations,
           }}
           tableHeaders={[
-            'Nombre',
             'Código',
-            'Titulación',
-            'Curso',
+            'Nombre',
             'Itinerario',
+            translations.degree,
+            'Curso',
+            'Periodo',
+            'Horas',
+            'Turnos',
+            'Estudiantes',
             'Acciones',
           ]}
           TableRowComponent={SubjectRow}

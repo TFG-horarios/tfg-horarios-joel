@@ -4,18 +4,19 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, BookOpen } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { BookOpen, MapPin } from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
   type SubjectGroupDTO,
+  type ClassroomDTO,
 } from '@tfg-horarios/shared';
 
 type DraggableSlotProps = {
   slot: ScheduleSlotDTO;
   subject: SubjectDTO;
   group: SubjectGroupDTO;
+  classroom?: ClassroomDTO;
   isOverlay?: boolean;
 };
 
@@ -23,14 +24,13 @@ export const DraggableSlot = memo(function DraggableSlot({
   slot,
   subject,
   group,
+  classroom,
   isOverlay = false,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
     data: { slot, subject, group },
   });
-
-  const t = useTranslations('Organizations.schedules.planner');
 
   return (
     <Card
@@ -68,12 +68,12 @@ export const DraggableSlot = memo(function DraggableSlot({
       >
         <div className="space-y-1">
           <div className="flex items-start justify-between gap-2">
-            <span className="text-xs font-bold text-foreground">
+            <span className="text-xs font-bold text-foreground break-words whitespace-normal">
               {subject.name}
             </span>
             <Badge
               variant="outline"
-              className={`text-[9px] uppercase scale-90 px-1 py-0
+              className={`text-[9px] uppercase scale-90 px-1 py-0 shrink-0
                 ${group.groupType === 'practices' ? 'text-purple-500 border-purple-500/20 bg-purple-500/5' : 'text-blue-500 border-blue-500/20 bg-blue-500/5'}
               `}
             >
@@ -86,13 +86,28 @@ export const DraggableSlot = memo(function DraggableSlot({
           </p>
         </div>
 
-        <div className="flex items-center justify-between border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
-          <span className="font-semibold flex items-center gap-1">
-            <Users className="size-3" />
-            {t('students', { count: group.numberOfStudents })}
-          </span>
-          <span className="capitalize font-mono opacity-80">{group.shift}</span>
-        </div>
+        {classroom ? (
+          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
+            <MapPin className="size-3 text-purple-500/70 shrink-0" />
+            <span className="font-semibold break-words whitespace-normal">
+              {classroom.name}
+            </span>
+          </div>
+        ) : slot.classroomId ? (
+          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-destructive/90">
+            <MapPin className="size-3 shrink-0" />
+            <span className="font-semibold break-words whitespace-normal">
+              Aula eliminada
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-amber-600/90 dark:text-amber-500/90">
+            <MapPin className="size-3 shrink-0" />
+            <span className="font-semibold break-words whitespace-normal">
+              Sin aula asignada
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

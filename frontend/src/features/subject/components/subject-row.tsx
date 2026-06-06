@@ -2,7 +2,6 @@
 
 import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { deleteSubjectAction } from '@/features/subject/actions';
 import { toast } from 'sonner';
@@ -16,39 +15,42 @@ export const SubjectRow = memo(function SubjectRow({
   itineraryMap,
   translations,
 }: SubjectCardProps) {
-  const degreeName =
-    degreeMap.get(subject.degreeId)?.name ?? translations.unassigned;
-  const itineraryName = subject.itineraryId
-    ? itineraryMap.get(subject.itineraryId)?.name
+  const degreeCode =
+    degreeMap.get(subject.degreeId)?.code ?? translations.unassigned;
+  const itinerary = subject.itineraryId
+    ? itineraryMap.get(subject.itineraryId)
+    : undefined;
+  const itineraryCodeOrCommon = itinerary
+    ? itinerary.code
     : translations.common;
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const periodText =
+    subject.period === 0
+      ? translations.periodAnnual
+      : translations[`period${subject.period}` as keyof typeof translations] ||
+        subject.period;
+
+  const shiftsText = subject.availableShifts
+    .map((s) =>
+      s === 'morning' ? translations.shiftMorning : translations.shiftAfternoon
+    )
+    .join(', ');
 
   return (
     <>
       <TableRow>
+        <TableCell className="font-mono uppercase tracking-widest text-muted-foreground">
+          {subject.code}
+        </TableCell>
         <TableCell className="font-medium">{subject.name}</TableCell>
-        <TableCell>
-          <Badge
-            variant="outline"
-            className="font-mono uppercase tracking-[0.2em] border-purple-500/20 bg-purple-500/5 text-purple-500"
-          >
-            {subject.code}
-          </Badge>
-        </TableCell>
-        <TableCell>{degreeName}</TableCell>
-        <TableCell>{subject.courseYear}</TableCell>
-        <TableCell>
-          <Badge
-            variant={subject.itineraryId ? 'secondary' : 'default'}
-            className={
-              subject.itineraryId
-                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-            }
-          >
-            {itineraryName}
-          </Badge>
-        </TableCell>
+        <TableCell>{itineraryCodeOrCommon}</TableCell>
+        <TableCell>{degreeCode}</TableCell>
+        <TableCell>{subject.courseYear}º</TableCell>
+        <TableCell>{periodText}</TableCell>
+        <TableCell>{subject.weeklyHours}h</TableCell>
+        <TableCell>{shiftsText}</TableCell>
+        <TableCell>{subject.numberOfStudents}</TableCell>
         <ResourceRowActions
           itemName={subject.name}
           onEdit={() => setIsEditOpen(true)}

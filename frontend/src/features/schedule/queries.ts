@@ -31,7 +31,7 @@ export const fetchSchedules = cache(
         meta: { total: 0, page: 1, limit: 100, totalPages: 0 },
       };
     }
-    if (status !== 200) throw new Error(t('fetchFailed'));
+    if (status !== 200) throw new Error(t('server'));
 
     return (await response.json()) as PaginatedResponse<ScheduleDTO>;
   }

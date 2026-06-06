@@ -16,7 +16,6 @@ import { sql } from 'drizzle-orm';
 export const scheduleStatusEnum = pgEnum('schedule_status', [
   'draft',
   'published',
-  'archived',
 ]);
 
 export const schedulesTable = pgTable(
@@ -37,7 +36,6 @@ export const schedulesTable = pgTable(
     courseYear: integer('course_year').notNull(),
     period: integer('period').notNull(),
     status: scheduleStatusEnum('status').notNull().default('draft'),
-    version: text('version').notNull().default('v1'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()
@@ -53,8 +51,7 @@ export const schedulesTable = pgTable(
         table.academicYear,
         table.courseYear,
         table.period,
-        table.shift,
-        table.version
+        table.shift
       )
       .where(sql`itinerary_id IS NOT NULL`),
     uniqueIndex('schedule_common_unique_idx')
@@ -64,8 +61,7 @@ export const schedulesTable = pgTable(
         table.academicYear,
         table.courseYear,
         table.period,
-        table.shift,
-        table.version
+        table.shift
       )
       .where(sql`itinerary_id IS NULL`),
   ]

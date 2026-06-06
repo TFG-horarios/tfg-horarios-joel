@@ -6,15 +6,12 @@ import { ForbiddenError } from '@/core/errors/app.error';
 describe('ListAllSchedulesUseCase', () => {
   const repositoryMock = {
     findById: mock(),
-    findPublishedByScope: mock(),
-    findLatestVersionByScope: mock(),
+    findByScope: mock(),
     findAll: mock(),
     findPaginated: mock(),
-    findIdentifiers: mock(),
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
-    publishAndArchive: mock(),
   };
 
   const memberProviderMock = {
@@ -43,7 +40,6 @@ describe('ListAllSchedulesUseCase', () => {
       shift: 'morning',
       period: 1,
       status: 'draft',
-      version: 'v1.0',
       createdAt: new Date(),
       updatedAt: new Date(),
     });

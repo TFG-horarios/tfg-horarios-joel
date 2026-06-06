@@ -1,22 +1,23 @@
 {
 	"ZodErrors": {
-		"invalid_type": "El campo {path} tiene un tipo no válido o es obligatorio.",
-		"invalid_string": "El campo {path} tiene un formato no válido.",
-		"invalid_format": "El campo {path} tiene un formato no válido.",
-		"invalid_date": "El campo {path} contiene una fecha no válida.",
-		"invalid_value": "El valor de {path} no es válido.",
-		"invalid_literal": "El valor de {path} no coincide con el valor esperado.",
-		"invalid_union": "El campo {path} no coincide con ninguna de las opciones permitidas.",
-		"invalid_intersection_types": "El campo {path} no cumple todas las restricciones combinadas.",
-		"invalid_enum_value": "El valor de {path} no pertenece a las opciones permitidas.",
+		"invalid_type": "El campo tiene un tipo no válido o es obligatorio.",
+		"invalid_string": "El campo tiene un formato no válido.",
+		"invalid_format": "El campo tiene un formato no válido.",
+		"invalid_date": "El campo contiene una fecha no válida.",
+		"invalid_value": "El valor de no es válido.",
+		"invalid_literal": "El valor de no coincide con el valor esperado.",
+		"invalid_union": "El campo no coincide con ninguna de las opciones permitidas.",
+		"invalid_intersection_types": "El campo no cumple todas las restricciones combinadas.",
+		"invalid_enum_value": "El valor de no pertenece a las opciones permitidas.",
 		"unrecognized_keys": "El formulario contiene campos no reconocidos.",
-		"too_small": "El campo {path} no alcanza el mínimo permitido.",
-		"too_big": "El campo {path} supera el máximo permitido.",
-		"not_multiple_of": "El campo {path} debe ser un valor permitido.",
-		"not_finite": "El campo {path} debe ser un número finito.",
-		"custom": "El campo {path} no es válido.",
-		"invalid_key": "El campo {path} contiene una clave no válida.",
-		"invalid_element": "El campo {path} contiene un elemento no válido."
+		"too_small": "El campo no alcanza el mínimo permitido.",
+		"too_big": "El campo supera el máximo permitido.",
+		"not_multiple_of": "El campo debe ser un valor permitido.",
+		"not_finite": "El campo debe ser un número finito.",
+		"custom": "El campo no es válido.",
+		"invalid_key": "El campo contiene una clave no válida.",
+		"invalid_element": "El campo contiene un elemento inválido.",
+		"passwords_mismatch": "Las contraseñas no coinciden."
 	},
 	"Common": {
 		"actions": {
@@ -181,7 +182,7 @@
 				},
 				"password": {
 					"label": "Contraseña",
-					"placeholder": "Mínimo 10 caracteres"
+					"placeholder": "********"
 				}
 			},
 			"submit": "Iniciar sesión",
@@ -424,8 +425,8 @@
 				"afternoon": "Tarde"
 			},
 			"periodOptions": {
-				"1": "1º Semestre / Cuatrimestre",
-				"2": "2º Semestre / Cuatrimestre",
+				"1": "1º Semestre",
+				"2": "2º Semestre",
 				"3": "3º Trimestre",
 				"annual": "Anual"
 			},
@@ -528,7 +529,6 @@
 				"problems": "Problemas",
 				"practices": "Prácticas"
 			},
-
 			"itineraryOptions": {
 				"common": "Comunes (sin itinerario)"
 			},
@@ -575,16 +575,16 @@
 		"schedules": {
 			"label": "Horarios",
 			"title": "Horarios de {organization}",
-			"description": "Genera y administra horarios interactivos de forma masiva o segmentada con control de versiones y resolución inteligente de conflictos.",
+			"description": "Genera y administra horarios interactivos de forma masiva o segmentada con resolución inteligente de conflictos.",
 			"countLabel": "horarios",
+			"all": "Todos",
 			"empty": "Aún no se han generado horarios para esta organización.",
 			"generate": "Generar horarios",
-			"version": "Versión",
+			"viewSchedule": "Ver horario",
 			"status": "Estado",
 			"statusLabel": "Estado",
 			"published": "Publicado",
 			"draft": "Borrador",
-			"archived": "Archivado",
 			"degreePlaceholder": "Grado",
 			"itineraryPlaceholder": "Itinerario",
 			"itineraryOptions": {
@@ -598,8 +598,8 @@
 			"courseYear": "Curso",
 			"period": "Período",
 			"periodOptions": {
-				"1": "1º Semestre / Cuatrimestre",
-				"2": "2º Semestre / Cuatrimestre",
+				"1": "1º Semestre",
+				"2": "2º Semestre",
 				"3": "3º Trimestre"
 			},
 			"card": {
@@ -609,7 +609,7 @@
 				"semester": "Semestre {period}"
 			},
 			"planner": {
-				"publishVersion": "Publicar versión",
+				"publishSchedule": "Publicar horario",
 				"publishing": "Publicando...",
 				"failedPublish": "Error al publicar el horario.",
 				"failedAssign": "Error al asignar la franja horaria.",
@@ -645,14 +645,19 @@
 			},
 			"form": {
 				"academicYear": "Año Académico",
-				"period": "Período / Cuatrimestre",
+				"period": "Período",
+				"periodPlaceholder": "Todos los periodos",
 				"degrees": "Grados seleccionados",
 				"degreesPlaceholder": "Todos los grados",
 				"itineraries": "Itinerarios seleccionados",
 				"itinerariesPlaceholder": "Todos los itinerarios",
 				"courseYears": "Cursos seleccionados",
 				"courseYearsPlaceholder": "Todos los cursos",
-				"submit": "Generar"
+				"submit": "Generar",
+				"overwriteTitle": "¿Generar nuevos horarios?",
+				"overwriteWarning": "¡Atención! Si ya existen horarios generados para estos criterios, sus huecos se sobrescribirán y perderás cualquier modificación manual que hayas hecho. ¿Estás seguro de que quieres continuar?",
+				"cancel": "Cancelar",
+				"confirmOverwrite": "Sí, sobrescribir"
 			},
 			"grid": {
 				"unassignedTitle": "Bandeja de Reserva (No Asignados)",

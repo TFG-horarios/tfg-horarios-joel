@@ -18,10 +18,7 @@ export const ScheduleSchema = z
     shift: z.enum(['morning', 'afternoon']).openapi({ example: 'morning' }),
     courseYear: z.number().int().positive().openapi({ example: 1 }),
     period: z.number().int().positive().openapi({ example: 1 }),
-    status: z
-      .enum(['draft', 'published', 'archived'])
-      .openapi({ example: 'draft' }),
-    version: z.string().openapi({ example: 'v1.0' }),
+    status: z.enum(['draft', 'published']).openapi({ example: 'draft' }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
   })
@@ -56,7 +53,7 @@ export const ScheduleListQuerySchema = PaginationQuerySchema.extend({
   shift: z.enum(['morning', 'afternoon']).optional(),
   courseYear: z.coerce.number().int().positive().optional(),
   period: z.coerce.number().int().positive().optional(),
-  status: z.enum(['draft', 'published', 'archived']).optional(),
+  status: z.enum(['draft', 'published']).optional(),
 });
 
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;
@@ -68,7 +65,10 @@ export type ScheduleListQueryDTO = z.infer<typeof ScheduleListQuerySchema>;
 export const GenerationScopeSchema = z
   .object({
     academicYear: z.string().openapi({ example: '2025-2026' }),
-    period: z.number().int().min(1).max(4).openapi({ example: 1 }),
+    periods: z
+      .array(z.number().int().min(1).max(4))
+      .min(1)
+      .openapi({ example: [1, 2] }),
     degreeIds: z
       .array(z.uuid())
       .optional()

@@ -22,7 +22,7 @@ export function FormInput({ name, label, helpText, ...props }: FormInputProps) {
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <Input {...field} {...props} />
+            <Input {...field} value={field.value ?? ''} {...props} />
           </FormControl>
           <FormMessage />
           {helpText && (

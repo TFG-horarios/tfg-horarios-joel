@@ -81,6 +81,7 @@ export default async function OrganizationSubjectGroupsPage({
   };
 
   const t = await getTranslations('Organizations.subjectGroups');
+  const tSubjects = await getTranslations('Organizations.subjects');
 
   const [organization, { data: groups, meta }, subjects, degrees, itineraries] =
     await Promise.all([
@@ -96,6 +97,9 @@ export default async function OrganizationSubjectGroupsPage({
   }
   const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
+  const itineraryMap = new Map(
+    itineraries.map((itinerary) => [itinerary.id, itinerary])
+  );
   const translations = {
     type: t('type'),
     'typeOptions.theory': t('typeOptions.theory'),
@@ -107,6 +111,11 @@ export default async function OrganizationSubjectGroupsPage({
     students: t('students'),
     hours: t('hours'),
     empty: t('empty'),
+    number: t('form.groupNumber.label'),
+    degree: tSubjects('degree'),
+    itinerary: tSubjects('itineraryPlaceholder'),
+    subject: tSubjects('label'),
+    common: tSubjects('common'),
   };
 
   return (
@@ -178,17 +187,21 @@ export default async function OrganizationSubjectGroupsPage({
           loadMore={fetchSubjectGroupsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectGroupCard}
-          gridItemProps={{ subjectMap, degreeMap, translations }}
+          gridItemProps={{ subjectMap, degreeMap, itineraryMap, translations }}
           tableHeaders={[
+            translations.type,
+            translations.number,
             'Nombre',
-            'Asignatura',
-            'Tipo',
-            'Turno',
-            'Estudiantes',
+            'Horas',
+            translations.students,
+            translations.shift,
+            translations.degree,
+            translations.itinerary,
+            translations.subject,
             'Acciones',
           ]}
           TableRowComponent={SubjectGroupRow}
-          tableRowProps={{ subjectMap, degreeMap, translations }}
+          tableRowProps={{ subjectMap, degreeMap, itineraryMap, translations }}
         />
       </div>
     </OrganizationSectionShell>

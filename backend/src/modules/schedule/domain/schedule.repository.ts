@@ -15,7 +15,7 @@ export interface CreateScheduleSlotInput {
 
 export interface IScheduleRepository {
   findById(id: string, organizationId: string): Promise<Schedule | null>;
-  findPublishedByScope(
+  findByScope(
     organizationId: string,
     degreeId: string,
     itineraryId: string | null,
@@ -24,15 +24,6 @@ export interface IScheduleRepository {
     period: number,
     shift: 'morning' | 'afternoon'
   ): Promise<Schedule | null>;
-  findLatestVersionByScope(
-    organizationId: string,
-    degreeId: string,
-    itineraryId: string | null,
-    academicYear: string,
-    courseYear: number,
-    period: number,
-    shift: 'morning' | 'afternoon'
-  ): Promise<string | null>;
   findAll(organizationId: string): Promise<Schedule[]>;
   findPaginated(
     organizationId: string,
@@ -42,9 +33,5 @@ export interface IScheduleRepository {
   update(schedule: Schedule): Promise<void>;
   createSchedulesWithSlots(
     items: { schedule: Schedule; slots: CreateScheduleSlotInput[] }[]
-  ): Promise<void>;
-  publishAndArchive(
-    toPublish: Schedule,
-    toArchive: Schedule | null
   ): Promise<void>;
 }

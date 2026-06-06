@@ -44,6 +44,7 @@ type MemoizedScheduleCellProps = {
     string,
     { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
   >;
+  classroomMap: Map<string, ClassroomDTO>;
   dropHereText: string;
 };
 
@@ -51,6 +52,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   cellId,
   cellSlots,
   slotMetaMap,
+  classroomMap,
   dropHereText,
 }: MemoizedScheduleCellProps) {
   return (
@@ -62,12 +64,16 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
         cellSlots.map((slot) => {
           const meta = slotMetaMap.get(slot.subjectGroupId);
           if (!meta || !meta.subject || !meta.group) return null;
+          const classroom = slot.classroomId
+            ? classroomMap.get(slot.classroomId)
+            : undefined;
           return (
             <div key={slot.id} className="w-full">
               <DraggableSlot
                 slot={slot}
                 subject={meta.subject}
                 group={meta.group}
+                classroom={classroom}
               />
             </div>
           );
@@ -176,7 +182,6 @@ export function SchedulePlanner({
   const slotsByCell = React.useMemo(() => {
     const map = new Map<string, ScheduleSlotDTO[]>();
     slots.forEach((s) => {
-      if (s.classroomId === null) return;
       const key = `${s.dayOfWeek}_${s.slotIndex}`;
       if (!map.has(key)) {
         map.set(key, []);
@@ -197,6 +202,10 @@ export function SchedulePlanner({
     });
     return map;
   }, [subjectGroups, subjects]);
+
+  const classroomMap = React.useMemo(() => {
+    return new Map(classrooms.map((c) => [c.id, c]));
+  }, [classrooms]);
 
   const handleDragStart = (event: any) => {
     const active = event.active || event.operation?.source;
@@ -287,17 +296,11 @@ export function SchedulePlanner({
               >
                 {localSchedule.shift} Shift
               </Badge>
-              <Badge
-                variant="outline"
-                className="font-mono bg-background text-indigo-500"
-              >
-                {localSchedule.version}
-              </Badge>
+
               <Badge
                 className={`
                   ${localSchedule.status === 'published' ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20' : ''}
                   ${localSchedule.status === 'draft' ? 'bg-blue-500/15 text-blue-500 border-blue-500/20' : ''}
-                  ${localSchedule.status === 'archived' ? 'bg-amber-500/15 text-amber-500 border-amber-500/20' : ''}
                 `}
               >
                 {localSchedule.status.toUpperCase()}
@@ -318,7 +321,7 @@ export function SchedulePlanner({
               >
                 {isPublishing
                   ? t('planner.publishing')
-                  : t('planner.publishVersion')}
+                  : t('planner.publishSchedule')}
               </Button>
             )}
           </div>
@@ -371,6 +374,7 @@ export function SchedulePlanner({
                         cellId={cellId}
                         cellSlots={cellSlots}
                         slotMetaMap={slotMetaMap}
+                        classroomMap={classroomMap}
                         dropHereText={t('planner.dropHere')}
                       />
                     );
@@ -391,6 +395,11 @@ export function SchedulePlanner({
                 slot={activeSlotDTO}
                 subject={activeMeta.subject}
                 group={activeMeta.group}
+                classroom={
+                  activeSlotDTO.classroomId
+                    ? classroomMap.get(activeSlotDTO.classroomId)
+                    : undefined
+                }
                 isOverlay
               />
             </div>

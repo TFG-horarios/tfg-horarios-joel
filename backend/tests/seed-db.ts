@@ -141,7 +141,6 @@ export const seedTestDb = async (db: TestDbConnection) => {
     courseYear: 1,
     period: 1,
     status: 'draft',
-    version: 'vSEED',
     createdAt: now,
     updatedAt: now,
   });

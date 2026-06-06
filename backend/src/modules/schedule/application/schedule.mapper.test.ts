@@ -16,7 +16,6 @@ describe('ScheduleMapper', () => {
       courseYear: 1,
       period: 1,
       status: 'draft',
-      version: 'v1',
       createdAt: date,
       updatedAt: date,
     });
@@ -32,7 +31,6 @@ describe('ScheduleMapper', () => {
       courseYear: 1,
       period: 1,
       status: 'draft',
-      version: 'v1',
       createdAt: date.toISOString(),
       updatedAt: date.toISOString(),
     });

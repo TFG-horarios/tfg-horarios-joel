@@ -127,7 +127,7 @@ export default async function OrganizationItinerariesPage({
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ItineraryCard}
           gridItemProps={{ degreeMap, translations }}
-          tableHeaders={['Nombre', 'Código', 'Titulación', 'Acciones']}
+          tableHeaders={['Nombre', 'Código', translations.degree, 'Acciones']}
           TableRowComponent={ItineraryRow}
           tableRowProps={{ degreeMap, translations }}
         />

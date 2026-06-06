@@ -75,13 +75,13 @@ export default async function OrganizationSchedulesPage({
     status:
       typeof rawSearchParams.status === 'string' &&
       (rawSearchParams.status === 'draft' ||
-        rawSearchParams.status === 'published' ||
-        rawSearchParams.status === 'archived')
+        rawSearchParams.status === 'published')
         ? rawSearchParams.status
         : undefined,
   };
 
   const t = await getTranslations('Organizations.schedules');
+  const tSubjects = await getTranslations('Organizations.subjects');
 
   const [organization, degrees, itineraries, { data: schedules, meta }] =
     await Promise.all([
@@ -102,14 +102,26 @@ export default async function OrganizationSchedulesPage({
     empty: t('empty'),
     published: t('published'),
     draft: t('draft'),
-    archived: t('archived'),
     viewPlanner: 'View Planner',
     academicYear: 'Academic Year',
     course: 'Course',
     period: 'Period',
     shift: 'Shift',
     globalItinerary: 'Global',
+    itinerary: tSubjects('itineraryPlaceholder'),
+    common: tSubjects('common'),
   };
+
+  const numPeriods =
+    organization.periodType === 'annual'
+      ? 1
+      : organization.periodType === 'trimester'
+        ? 3
+        : 2;
+  const periodOptions = Array.from({ length: numPeriods }, (_, i) => {
+    const p = String(i + 1);
+    return { label: t(`periodOptions.${p}`), value: p };
+  });
 
   return (
     <OrganizationSectionShell
@@ -165,11 +177,7 @@ export default async function OrganizationSchedulesPage({
               <ResourceFilterSelect
                 paramKey="period"
                 placeholder={t('period')}
-                options={[
-                  { label: t('periodOptions.1'), value: '1' },
-                  { label: t('periodOptions.2'), value: '2' },
-                  { label: t('periodOptions.3'), value: '3' },
-                ]}
+                options={periodOptions}
               />
               <ResourceFilterSelect
                 paramKey="status"
@@ -177,7 +185,6 @@ export default async function OrganizationSchedulesPage({
                 options={[
                   { label: t('draft'), value: 'draft' },
                   { label: t('published'), value: 'published' },
-                  { label: t('archived'), value: 'archived' },
                 ]}
               />
               <ResourceFilterClear />
@@ -187,6 +194,7 @@ export default async function OrganizationSchedulesPage({
         <ResourceActions>
           <ScheduleGenerator
             organizationId={id}
+            periodType={organization.periodType}
             degrees={degrees}
             itineraries={itineraries}
           />

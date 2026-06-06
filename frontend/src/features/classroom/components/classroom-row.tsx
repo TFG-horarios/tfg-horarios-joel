@@ -2,7 +2,6 @@
 
 import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { deleteClassroomAction } from '@/features/classroom/actions';
 import { toast } from 'sonner';
@@ -19,15 +18,10 @@ export const ClassroomRow = memo(function ClassroomRow({
     <>
       <TableRow>
         <TableCell className="font-medium">{classroom.name}</TableCell>
-        <TableCell>
-          <Badge
-            variant="outline"
-            className="uppercase border-purple-500/20 bg-purple-500/5 text-purple-500"
-          >
-            {classroom.type === 'theory'
-              ? translations['type.theory']
-              : translations['type.lab']}
-          </Badge>
+        <TableCell className="capitalize text-muted-foreground">
+          {classroom.type === 'theory'
+            ? translations['type.theory']
+            : translations['type.lab']}
         </TableCell>
         <TableCell>{classroom.capacity}</TableCell>
         <ResourceRowActions

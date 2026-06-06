@@ -43,11 +43,10 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(foundSchedule?.academicYear).toBe('2025/2026');
   });
 
-  test('should find published schedule by scope', async () => {
+  test('should find schedule by scope', async () => {
     const schedule = createValidSchedule();
-    schedule.publish();
     await repository.create(schedule);
-    const foundSchedule = await repository.findPublishedByScope(
+    const foundSchedule = await repository.findByScope(
       testOrgId,
       testDegreeId,
       null,
@@ -105,30 +104,6 @@ describe('DrizzleScheduleRepository Integration', () => {
     await repository.update(schedule);
     const updated = await repository.findById(schedule.id, testOrgId);
     expect(updated?.status).toBe('published');
-  });
-
-  test('should publish and archive', async () => {
-    const oldSchedule = createValidSchedule();
-    oldSchedule.publish();
-    await repository.create(oldSchedule);
-    const newSchedule = Schedule.create({
-      organizationId: testOrgId,
-      degreeId: testDegreeId,
-      academicYear: '2025/2026',
-      shift: 'morning',
-      courseYear: 1,
-      period: 1,
-      itineraryId: null,
-      version: 'v2',
-    });
-    await repository.create(newSchedule);
-    oldSchedule.archive();
-    newSchedule.publish();
-    await repository.publishAndArchive(newSchedule, oldSchedule);
-    const oldAfter = await repository.findById(oldSchedule.id, testOrgId);
-    const newAfter = await repository.findById(newSchedule.id, testOrgId);
-    expect(oldAfter?.status).toBe('archived');
-    expect(newAfter?.status).toBe('published');
   });
 
   test('should create schedule with slots', async () => {

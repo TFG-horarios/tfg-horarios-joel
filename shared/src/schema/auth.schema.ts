@@ -33,6 +33,13 @@ export const RegisterSchema = z
     password: z.string().min(10).max(128).openapi({
       example: 'password123',
     }),
+    confirmPassword: z.string().min(10).max(128).openapi({
+      example: 'password123',
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'passwords_mismatch',
+    path: ['confirmPassword'],
   })
   .openapi('Register');
 

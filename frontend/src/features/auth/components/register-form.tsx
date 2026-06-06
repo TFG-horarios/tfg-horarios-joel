@@ -23,6 +23,7 @@ export function RegisterForm() {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
@@ -50,6 +51,14 @@ export function RegisterForm() {
           type="password"
           label={t('fields.password.label')}
           placeholder={t('fields.password.placeholder')}
+          autoComplete="new-password"
+        />
+
+        <FormInput
+          name="confirmPassword"
+          type="password"
+          label={t('fields.confirmPassword.label')}
+          placeholder={t('fields.confirmPassword.placeholder')}
           autoComplete="new-password"
         />
 

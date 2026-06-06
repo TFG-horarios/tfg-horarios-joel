@@ -66,3 +66,30 @@ export const fetchAllClassrooms = cache(
     return ClassroomSchema.array().parse(payload);
   }
 );
+
+export const fetchClassroomById = cache(
+  async (
+    organizationId: string,
+    classroomId: string
+  ): Promise<ClassroomDTO | null> => {
+    const t = await getTranslations('Common.errors');
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms[':id']!.$get({
+      param: { organizationId, id: classroomId },
+    });
+
+    const status = response.status + 0;
+
+    if (status === 404) return null;
+    if (status === 401 || status === 403) return null;
+
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    return ClassroomSchema.parse(payload);
+  }
+);

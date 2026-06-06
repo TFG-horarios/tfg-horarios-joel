@@ -19,6 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { generateSchedulesAction } from '@/features/schedule/actions';
@@ -35,23 +45,33 @@ type ScheduleGeneratorProps = {
   organizationId: string;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
+  periodType?: 'semester' | 'trimester' | 'annual';
 };
 
 export function ScheduleGenerator({
   organizationId,
   degrees,
   itineraries,
+  periodType = 'semester',
 }: ScheduleGeneratorProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
+
+  const numPeriods =
+    periodType === 'annual' ? 1 : periodType === 'trimester' ? 3 : 2;
+  const initialPeriods = Array.from({ length: numPeriods }, (_, i) =>
+    String(i + 1)
+  );
+
   const [isOpen, setIsOpen] = useState(false);
   const [academicYear, setAcademicYear] = useState('2025-2026');
-  const [period, setPeriod] = useState('1');
+  const [periods, setPeriods] = useState<string[]>([]);
   const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
   const [selectedItineraries, setSelectedItineraries] = useState<string[]>([]);
   const [selectedCourseYears, setSelectedCourseYears] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusStep, setStatusStep] = useState(0);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const steps = [
     t('generator.steps.0'),
@@ -72,7 +92,8 @@ export function ScheduleGenerator({
     try {
       const result = await generateSchedulesAction(organizationId, {
         academicYear,
-        period: parseInt(period),
+        periods:
+          periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
         degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
         itineraryIds:
           selectedItineraries.length > 0 ? selectedItineraries : undefined,
@@ -111,6 +132,11 @@ export function ScheduleGenerator({
       label: i.name,
       value: i.id,
     }));
+
+  const periodOptions = Array.from({ length: numPeriods }, (_, i) => {
+    const p = String(i + 1);
+    return { label: t(`periodOptions.${p}`), value: p };
+  });
 
   const courseYearOptions = ['1', '2', '3', '4', '5'].map((y) => ({
     label: `${t('courseYear')} ${y}`,
@@ -167,7 +193,7 @@ export function ScheduleGenerator({
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                void handleGenerate();
+                setIsConfirmOpen(true);
               }}
               className="space-y-4 pt-2"
             >
@@ -187,15 +213,12 @@ export function ScheduleGenerator({
 
                 <div className="space-y-2">
                   <Label htmlFor="period">{t('form.period')}</Label>
-                  <Select value={period} onValueChange={setPeriod}>
-                    <SelectTrigger id="period">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">{t('periodOptions.1')}</SelectItem>
-                      <SelectItem value="2">{t('periodOptions.2')}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    options={periodOptions}
+                    selected={periods}
+                    onChange={setPeriods}
+                    placeholder={t('form.periodPlaceholder')}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -234,6 +257,30 @@ export function ScheduleGenerator({
                   {t('form.submit')}
                 </Button>
               </div>
+
+              <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t('form.overwriteTitle')}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t('form.overwriteWarning')}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t('form.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        setIsConfirmOpen(false);
+                        void handleGenerate();
+                      }}
+                    >
+                      {t('form.confirmOverwrite')}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </form>
           )}
         </DialogContent>

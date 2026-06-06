@@ -1,16 +1,9 @@
 'use client';
 
 import { memo } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardFooter,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Layers, Calendar, Eye } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -40,118 +33,113 @@ export const ScheduleCard = memo(function ScheduleCard({
   const itineraryName = schedule.itineraryId
     ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
     : translations.commonItinerary || tStatus('itineraryOptions.common');
-  const getStatusBadgeVariant = (
-    status: 'draft' | 'published' | 'archived'
-  ) => {
+
+  const getStatusBadgeVariant = (status: 'draft' | 'published') => {
     switch (status) {
       case 'published':
         return 'default';
       case 'draft':
         return 'secondary';
-      case 'archived':
-        return 'outline';
     }
   };
 
-  const getStatusLabel = (status: 'draft' | 'published' | 'archived') => {
+  const getStatusLabel = (status: 'draft' | 'published') => {
     return translations[status] || status;
   };
 
   return (
-    <Card className={`h-full flex flex-col ${organizationHoverCardClassName}`}>
-      <CardHeader className="space-y-3 p-5 pb-2">
-        <div className="flex items-center justify-between">
-          <Badge
-            variant={getStatusBadgeVariant(schedule.status)}
-            className={`
-              ${schedule.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20' : ''}
-              ${schedule.status === 'draft' ? 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20' : ''}
-              ${schedule.status === 'archived' ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' : ''}
-            `}
-          >
-            {getStatusLabel(schedule.status)}
-          </Badge>
-          <Badge variant="outline" className="font-mono text-xs">
-            {schedule.version}
-          </Badge>
-        </div>
-        <CardTitle
-          className={`text-xl ${organizationHoverCardTitleClassName} leading-tight`}
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <Layers className="size-4 text-indigo-500/80 shrink-0" />
-            <span className="truncate" title={degreeName}>
-              {degreeName}
-            </span>
+    <Link
+      href={`/organizations/${organizationId}/schedules/${schedule.id}`}
+      className="block h-full cursor-pointer"
+    >
+      <Card
+        className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
+      >
+        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
+          <div className="flex flex-row items-center justify-center gap-2 flex-wrap w-full">
+            <Badge
+              variant={getStatusBadgeVariant(schedule.status)}
+              className={`
+                ${schedule.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20' : ''}
+                ${schedule.status === 'draft' ? 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20' : ''}
+              `}
+            >
+              {getStatusLabel(schedule.status).toUpperCase()}
+            </Badge>
           </div>
-          <div
-            className="text-sm font-normal text-muted-foreground mt-1 truncate"
-            title={
-              itineraryName !== 'None'
-                ? itineraryName
-                : translations.globalItinerary ||
-                  tStatus('itineraryOptions.common')
-            }
-          >
-            {itineraryName !== 'None'
-              ? itineraryName
-              : translations.globalItinerary ||
-                tStatus('itineraryOptions.common')}
+
+          <div className="flex items-center gap-3 pr-8">
+            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div className="space-y-1 min-w-0 flex-1">
+              <CardTitle
+                className={`text-xl leading-tight ${organizationHoverCardTitleClassName} truncate`}
+                title={degreeName}
+              >
+                {degreeName}
+              </CardTitle>
+            </div>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-5 pt-3 flex-grow">
-        <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
-          <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.academicYear || tStatus('form.academicYear')}
-            </span>
-            <span className="font-medium flex items-center gap-1.5">
-              <Calendar className="size-3 text-muted-foreground" />{' '}
-              {schedule.academicYear}
-            </span>
+        </CardHeader>
+        <CardContent className="p-5 pt-0 mt-auto flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+            <div className="flex flex-col min-w-0">
+              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+                {translations.academicYear || tStatus('form.academicYear')}
+              </span>
+              <span className="font-medium truncate">
+                {schedule.academicYear}
+              </span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+                {translations.course || tStatus('courseYear')}
+              </span>
+              <span className="font-medium truncate">
+                {t('year', { year: schedule.courseYear })}
+              </span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+                {translations.period || tStatus('period')}
+              </span>
+              <span className="font-medium truncate">
+                {t('semester', { period: schedule.period })}
+              </span>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+                {translations.shift || tStatus('shift')}
+              </span>
+              <span className="font-medium capitalize truncate">
+                {schedule.shift || 'Global'}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.course || tStatus('courseYear')}
-            </span>
-            <span className="font-medium">
-              {t('year', { year: schedule.courseYear })}
-            </span>
+
+          <div className="flex items-center justify-center gap-2 flex-wrap mt-1">
+            {schedule.itineraryId ? (
+              <Badge
+                variant="outline"
+                className="w-fit font-mono uppercase tracking-widest border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300 flex items-center gap-1 px-2.5 py-0.5"
+              >
+                <span>
+                  {translations.itinerary?.toUpperCase() || 'ITINERARY'}:{' '}
+                  <strong className="font-semibold">{itineraryName}</strong>
+                </span>
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="w-fit font-medium border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300 flex items-center gap-1 px-2.5 py-0.5"
+              >
+                <span>{translations.common || itineraryName}</span>
+              </Badge>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.period || tStatus('period')}
-            </span>
-            <span className="font-medium">
-              {t('semester', { period: schedule.period })}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-              {translations.shift || tStatus('shift')}
-            </span>
-            <span className="font-medium capitalize">
-              {schedule.shift || 'Global'}
-            </span>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="p-0 mt-auto border-t border-border/50 bg-muted/10">
-        <Button
-          asChild
-          size="sm"
-          variant="ghost"
-          className="w-full h-12 rounded-none hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors"
-        >
-          <Link
-            href={`/organizations/${organizationId}/schedules/${schedule.id}`}
-          >
-            <Eye className="size-4 mr-2" />
-            {translations.viewPlanner || tStatus('actions.publish')}
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 });

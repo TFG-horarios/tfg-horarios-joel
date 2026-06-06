@@ -15,7 +15,6 @@ describe('Schedule', () => {
     const schedule = Schedule.create(baseProps);
     expect(schedule.organizationId).toBe(baseProps.organizationId);
     expect(schedule.status).toBe('draft');
-    expect(schedule.version).toBe('v1');
     expect(schedule.id).toBeString();
     expect(schedule.createdAt).toBeInstanceOf(Date);
     expect(schedule.updatedAt).toBeInstanceOf(Date);
@@ -27,14 +26,12 @@ describe('Schedule', () => {
       ...baseProps,
       id: 'sch-1',
       status: 'published' as const,
-      version: 'v2',
       createdAt: date,
       updatedAt: date,
     };
     const schedule = Schedule.reconstitute(persistedProps);
     expect(schedule.id).toBe('sch-1');
     expect(schedule.status).toBe('published');
-    expect(schedule.version).toBe('v2');
   });
 
   test('publishes a schedule and updates timestamp', () => {
@@ -47,11 +44,12 @@ describe('Schedule', () => {
     );
   });
 
-  test('archives a schedule and updates timestamp', () => {
+  test('marks a schedule as draft and updates timestamp', () => {
     const schedule = Schedule.create(baseProps);
+    schedule.publish();
     const previousUpdatedAt = schedule.updatedAt;
-    schedule.archive();
-    expect(schedule.status).toBe('archived');
+    schedule.markAsDraft();
+    expect(schedule.status).toBe('draft');
     expect(schedule.updatedAt.getTime()).toBeGreaterThanOrEqual(
       previousUpdatedAt.getTime()
     );

@@ -24,20 +24,16 @@ export const ScheduleRow = memo(function ScheduleRow({
     ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
     : translations.globalItinerary || tStatus('itineraryOptions.common');
 
-  const getStatusBadgeVariant = (
-    status: 'draft' | 'published' | 'archived'
-  ) => {
+  const getStatusBadgeVariant = (status: 'draft' | 'published') => {
     switch (status) {
       case 'published':
         return 'default';
       case 'draft':
         return 'secondary';
-      case 'archived':
-        return 'outline';
     }
   };
 
-  const getStatusLabel = (status: 'draft' | 'published' | 'archived') => {
+  const getStatusLabel = (status: 'draft' | 'published') => {
     return translations[status] || status;
   };
 
@@ -50,13 +46,9 @@ export const ScheduleRow = memo(function ScheduleRow({
             className={`
               ${schedule.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : ''}
               ${schedule.status === 'draft' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : ''}
-              ${schedule.status === 'archived' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : ''}
             `}
           >
             {getStatusLabel(schedule.status)}
-          </Badge>
-          <Badge variant="outline" className="font-mono text-xs">
-            {schedule.version}
           </Badge>
         </div>
       </TableCell>

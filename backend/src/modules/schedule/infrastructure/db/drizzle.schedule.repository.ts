@@ -32,7 +32,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       courseYear: row.courseYear,
       period: row.period,
       status: row.status,
-      version: row.version,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -49,7 +48,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       courseYear: domain.courseYear,
       period: domain.period,
       status: domain.status,
-      version: domain.version,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
     };
@@ -69,7 +67,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findPublishedByScope(
+  async findByScope(
     organizationId: string,
     degreeId: string,
     itineraryId: string | null,
@@ -85,7 +83,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       eq(schedulesTable.courseYear, courseYear),
       eq(schedulesTable.period, period),
       eq(schedulesTable.shift, shift),
-      eq(schedulesTable.status, 'published'),
     ];
 
     if (itineraryId) {
@@ -101,40 +98,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .limit(1);
 
     return rows[0] ? this.mapToDomain(rows[0]) : null;
-  }
-
-  async findLatestVersionByScope(
-    organizationId: string,
-    degreeId: string,
-    itineraryId: string | null,
-    academicYear: string,
-    courseYear: number,
-    period: number,
-    shift: 'morning' | 'afternoon'
-  ): Promise<string | null> {
-    const conditions = [
-      eq(schedulesTable.organizationId, organizationId),
-      eq(schedulesTable.degreeId, degreeId),
-      eq(schedulesTable.academicYear, academicYear),
-      eq(schedulesTable.courseYear, courseYear),
-      eq(schedulesTable.period, period),
-      eq(schedulesTable.shift, shift),
-    ];
-
-    if (itineraryId) {
-      conditions.push(eq(schedulesTable.itineraryId, itineraryId));
-    } else {
-      conditions.push(isNull(schedulesTable.itineraryId));
-    }
-
-    const rows = await this.database
-      .select({ version: schedulesTable.version })
-      .from(schedulesTable)
-      .where(and(...conditions))
-      .orderBy(desc(schedulesTable.createdAt))
-      .limit(1);
-
-    return rows[0] ? rows[0].version : null;
   }
 
   async findAll(organizationId: string): Promise<Schedule[]> {
@@ -229,7 +192,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .update(schedulesTable)
       .set({
         status: rawData.status,
-        version: rawData.version,
         updatedAt: new Date(),
       })
       .where(
@@ -263,9 +225,29 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     try {
       await this.database.transaction(async (tx) => {
         for (const item of items) {
-          await tx
-            .insert(schedulesTable)
-            .values(this.mapToPersistence(item.schedule));
+          const existing = await tx
+            .select({ id: schedulesTable.id })
+            .from(schedulesTable)
+            .where(eq(schedulesTable.id, item.schedule.id))
+            .limit(1);
+
+          if (existing.length === 0) {
+            await tx
+              .insert(schedulesTable)
+              .values(this.mapToPersistence(item.schedule));
+          } else {
+            await tx
+              .update(schedulesTable)
+              .set({
+                status: item.schedule.status,
+                updatedAt: new Date(),
+              })
+              .where(eq(schedulesTable.id, item.schedule.id));
+
+            await tx
+              .delete(scheduleSlotsTable)
+              .where(eq(scheduleSlotsTable.scheduleId, item.schedule.id));
+          }
 
           if (item.slots.length > 0) {
             const valuesToInsert = item.slots.map((s) =>
@@ -283,42 +265,5 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       }
       throw error;
     }
-  }
-
-  async publishAndArchive(
-    toPublish: Schedule,
-    toArchive: Schedule | null
-  ): Promise<void> {
-    await this.database.transaction(async (tx) => {
-      if (toArchive) {
-        const rawArchive = this.mapToPersistence(toArchive);
-        await tx
-          .update(schedulesTable)
-          .set({
-            status: rawArchive.status,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(schedulesTable.id, toArchive.id),
-              eq(schedulesTable.organizationId, toArchive.organizationId)
-            )
-          );
-      }
-
-      const rawPublish = this.mapToPersistence(toPublish);
-      await tx
-        .update(schedulesTable)
-        .set({
-          status: rawPublish.status,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(schedulesTable.id, toPublish.id),
-            eq(schedulesTable.organizationId, toPublish.organizationId)
-          )
-        );
-    });
   }
 }

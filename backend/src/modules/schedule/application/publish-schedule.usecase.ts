@@ -39,27 +39,9 @@ export class PublishScheduleUseCase {
       return ScheduleMapper.toDTO(schedule);
     }
 
-    const currentlyPublished =
-      await this.scheduleRepository.findPublishedByScope(
-        organizationId,
-        schedule.degreeId,
-        schedule.itineraryId ?? null,
-        schedule.academicYear,
-        schedule.courseYear,
-        schedule.period,
-        schedule.shift
-      );
-
-    if (currentlyPublished) {
-      currentlyPublished.archive();
-    }
-
     schedule.publish();
 
-    await this.scheduleRepository.publishAndArchive(
-      schedule,
-      currentlyPublished
-    );
+    await this.scheduleRepository.update(schedule);
 
     return ScheduleMapper.toDTO(schedule);
   }
