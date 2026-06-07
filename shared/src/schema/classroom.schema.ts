@@ -1,5 +1,6 @@
 import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
+import { AcademicYearSchema } from './academic-year.schema';
 
 export const ClassroomSchema = z
   .object({
@@ -45,9 +46,29 @@ export const SaveClassroomBodySchema = z
   })
   .openapi('SaveClassroom');
 
+export const ClassroomScheduleQuerySchema = z.object({
+  academicYear: AcademicYearSchema.optional(),
+  shift: z.enum(['morning', 'afternoon']).optional(),
+  period: z.coerce.number().int().positive().optional(),
+});
+
+export const ClassroomConfigurationListQuerySchema =
+  PaginationQuerySchema.extend({
+    search: z.string().optional(),
+    academicYear: AcademicYearSchema.optional(),
+    shift: z.enum(['morning', 'afternoon']).optional(),
+    period: z.coerce.number().int().positive().optional(),
+  });
+
 export type ClassroomDTO = z.infer<typeof ClassroomSchema>;
 export type ClassroomBaseParamDTO = z.infer<typeof ClassroomBaseParamSchema>;
 export type ClassroomIdParamDTO = z.infer<typeof ClassroomIdParamSchema>;
 export type SaveClassroomDTO = z.infer<typeof SaveClassroomBodySchema>;
 export type ClassroomIdentifierDTO = z.infer<typeof ClassroomIdentifierSchema>;
 export type ClassroomListQueryDTO = z.infer<typeof ClassroomListQuerySchema>;
+export type ClassroomScheduleQueryDTO = z.infer<
+  typeof ClassroomScheduleQuerySchema
+>;
+export type ClassroomConfigurationListQueryDTO = z.infer<
+  typeof ClassroomConfigurationListQuerySchema
+>;

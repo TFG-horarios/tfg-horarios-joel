@@ -12,6 +12,8 @@ import {
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
   listAllClassroomsRoute,
+  getActiveClassroomConfigurationsRoute,
+  getClassroomScheduleSlotsRoute,
 } from './hono.classroom.routes';
 import { ListClassroomsUseCase } from '../../application/list-classroom.usecase';
 import { ListAllClassroomsUseCase } from '../../application/list-all-classrooms.usecase';
@@ -22,6 +24,8 @@ import { GetClassroomUseCase } from '../../application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from '../../application/bulk-create-classroom.usecase';
 import { DeleteAllClassroomsUseCase } from '../../application/delete-all-classrooms.usecase';
 import { ReplaceClassroomsUseCase } from '../../application/replace-classrooms.usecase';
+import { GetActiveClassroomConfigurationsUseCase } from '../../application/get-active-classroom-configurations.usecase';
+import { GetClassroomScheduleSlotsUseCase } from '../../application/get-classroom-schedule-slots.usecase';
 
 export class HonoClassroomController {
   constructor(
@@ -34,7 +38,9 @@ export class HonoClassroomController {
     private readonly deleteAllClassroomsUseCase: DeleteAllClassroomsUseCase,
     private readonly replaceClassroomsUseCase: ReplaceClassroomsUseCase,
     private readonly getClassroomIdentifiersUseCase: GetClassroomIdentifiersUseCase,
-    private readonly listAllClassroomsUseCase: ListAllClassroomsUseCase
+    private readonly listAllClassroomsUseCase: ListAllClassroomsUseCase,
+    private readonly getActiveClassroomConfigurationsUseCase: GetActiveClassroomConfigurationsUseCase,
+    private readonly getClassroomScheduleSlotsUseCase: GetClassroomScheduleSlotsUseCase
   ) {}
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
@@ -153,5 +159,37 @@ export class HonoClassroomController {
       requesterUserId
     );
     return c.json(classrooms, 200);
+  };
+
+  getActiveConfigurations: RouteHandler<
+    typeof getActiveClassroomConfigurationsRoute,
+    AppEnv
+  > = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
+    const requesterUserId = c.get('userId');
+    const configurations =
+      await this.getActiveClassroomConfigurationsUseCase.execute(
+        organizationId,
+        requesterUserId,
+        query
+      );
+    return c.json(configurations, 200);
+  };
+
+  getScheduleSlots: RouteHandler<
+    typeof getClassroomScheduleSlotsRoute,
+    AppEnv
+  > = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const query = c.req.valid('query');
+    const requesterUserId = c.get('userId');
+    const slots = await this.getClassroomScheduleSlotsUseCase.execute(
+      organizationId,
+      id,
+      requesterUserId,
+      query
+    );
+    return c.json(slots, 200);
   };
 }

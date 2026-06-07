@@ -1,5 +1,5 @@
 {
-  "id": "06ae54c3-20a1-42d7-957e-56544c9762c9",
+  "id": "a7062a73-ddeb-45dd-9150-1aec3252cfa9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -631,11 +631,11 @@
         }
       },
       "indexes": {
-        "itinerary_code_degree_idx": {
-          "name": "itinerary_code_degree_idx",
+        "itinerary_code_org_idx": {
+          "name": "itinerary_code_org_idx",
           "columns": [
             {
-              "expression": "degree_id",
+              "expression": "organization_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -750,13 +750,6 @@
           "notNull": true,
           "default": "'draft'"
         },
-        "version": {
-          "name": "version",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'v1'"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -817,12 +810,6 @@
               "isExpression": false,
               "asc": true,
               "nulls": "last"
-            },
-            {
-              "expression": "version",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -866,12 +853,6 @@
             },
             {
               "expression": "shift",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "version",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1324,8 +1305,7 @@
       "schema": "public",
       "values": [
         "draft",
-        "published",
-        "archived"
+        "published"
       ]
     },
     "public.role": {

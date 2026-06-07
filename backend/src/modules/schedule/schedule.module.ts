@@ -13,6 +13,7 @@ import { ListAllSchedulesUseCase } from './application/list-all-schedules.usecas
 import { GetScheduleUseCase } from './application/get-schedule.usecase';
 import { PublishScheduleUseCase } from './application/publish-schedule.usecase';
 import { GenerateScheduleUseCase } from './application/generate-schedule.usecase';
+import { GetScheduleAcademicYearsUseCase } from './application/get-schedule-academic-years.usecase';
 import { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
 import { ScheduleSlotMemberAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-member.adapter';
@@ -28,6 +29,7 @@ import {
   updateScheduleSlotRoute,
   generateScheduleRoute,
   listAllSchedulesRoute,
+  getAcademicYearsRoute,
 } from './infrastructure/http/hono.schedule.routes';
 
 export const createScheduleModule = (db: DbConnection) => {
@@ -62,12 +64,14 @@ export const createScheduleModule = (db: DbConnection) => {
       engineProvider
     ),
     new ListScheduleSlotsUseCase(scheduleSlotRepository, slotMemberProvider),
-    new UpdateScheduleSlotUseCase(scheduleSlotRepository, slotMemberProvider)
+    new UpdateScheduleSlotUseCase(scheduleSlotRepository, slotMemberProvider),
+    new GetScheduleAcademicYearsUseCase(scheduleRepository, memberProvider)
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(listAllSchedulesRoute, controller.listAll)
+    .openapi(getAcademicYearsRoute, controller.getAcademicYears)
     .openapi(listSchedulesRoute, controller.list)
     .openapi(getScheduleRoute, controller.get)
     .openapi(publishScheduleRoute, controller.publish)

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and, isNotNull, count, ilike, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -7,8 +7,15 @@ import {
   type DrizzleScheduleSlot,
   type NewDrizzleScheduleSlot,
 } from './drizzle.schedule-slot.schema';
+import { schedulesTable } from '@/modules/schedule/infrastructure/db/drizzle.schedule.schema';
+import { classroomsTable } from '@/modules/classroom/infrastructure/db/drizzle.classroom.schema';
 import type { IScheduleSlotRepository } from '../../domain/schedule-slot.repository';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
+import type {
+  ClassroomConfigurationListQueryDTO,
+  ClassroomScheduleQueryDTO,
+  PaginatedResponse,
+} from '@tfg-horarios/shared';
 
 export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   constructor(private readonly database: DbConnection) {}
@@ -56,6 +63,143 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       .from(scheduleSlotsTable)
       .where(eq(scheduleSlotsTable.scheduleId, scheduleId));
     return rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findActiveClassroomConfigurationsPaginated(
+    organizationId: string,
+    filters?: ClassroomConfigurationListQueryDTO
+  ): Promise<
+    PaginatedResponse<{
+      classroomId: string;
+      academicYear: string;
+      shift: 'morning' | 'afternoon';
+      period: number;
+    }>
+  > {
+    const conditions: SQL[] = [
+      eq(schedulesTable.organizationId, organizationId),
+      isNotNull(scheduleSlotsTable.classroomId),
+    ];
+
+    if (filters?.academicYear) {
+      conditions.push(eq(schedulesTable.academicYear, filters.academicYear));
+    }
+    if (filters?.shift) {
+      conditions.push(eq(schedulesTable.shift, filters.shift));
+    }
+    if (filters?.period) {
+      conditions.push(eq(schedulesTable.period, filters.period));
+    }
+    if (filters?.search) {
+      conditions.push(ilike(classroomsTable.name, `%${filters.search}%`));
+    }
+
+    const subquery = this.database
+      .select({
+        classroomId: scheduleSlotsTable.classroomId,
+        academicYear: schedulesTable.academicYear,
+        shift: schedulesTable.shift,
+        period: schedulesTable.period,
+      })
+      .from(scheduleSlotsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
+      )
+      .innerJoin(
+        classroomsTable,
+        eq(scheduleSlotsTable.classroomId, classroomsTable.id)
+      )
+      .where(and(...conditions))
+      .groupBy(
+        scheduleSlotsTable.classroomId,
+        schedulesTable.academicYear,
+        schedulesTable.shift,
+        schedulesTable.period
+      )
+      .as('subquery');
+
+    const totalResult = await this.database
+      .select({ value: count() })
+      .from(subquery);
+
+    const total = totalResult[0]?.value ?? 0;
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 20;
+    const totalPages = Math.ceil(total / limit);
+
+    const rows = await this.database
+      .select({
+        classroomId: scheduleSlotsTable.classroomId,
+        academicYear: schedulesTable.academicYear,
+        shift: schedulesTable.shift,
+        period: schedulesTable.period,
+      })
+      .from(scheduleSlotsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
+      )
+      .where(and(...conditions))
+      .groupBy(
+        scheduleSlotsTable.classroomId,
+        schedulesTable.academicYear,
+        schedulesTable.shift,
+        schedulesTable.period
+      )
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    const data = rows.map((r) => ({
+      classroomId: r.classroomId as string,
+      academicYear: r.academicYear,
+      shift: r.shift as 'morning' | 'afternoon',
+      period: r.period,
+    }));
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
+  }
+
+  async findSlotsByClassroomIdAndFilters(
+    classroomId: string,
+    organizationId: string,
+    filters?: ClassroomScheduleQueryDTO
+  ): Promise<ScheduleSlot[]> {
+    const conditions: SQL[] = [
+      eq(scheduleSlotsTable.classroomId, classroomId),
+      eq(schedulesTable.organizationId, organizationId),
+    ];
+
+    if (filters?.academicYear) {
+      conditions.push(eq(schedulesTable.academicYear, filters.academicYear));
+    }
+    if (filters?.shift) {
+      conditions.push(eq(schedulesTable.shift, filters.shift));
+    }
+    if (filters?.period) {
+      conditions.push(eq(schedulesTable.period, filters.period));
+    }
+
+    const rows = await this.database
+      .select({
+        slot: scheduleSlotsTable,
+      })
+      .from(scheduleSlotsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
+      )
+      .where(and(...conditions));
+
+    return rows.map((r) => this.mapToDomain(r.slot));
   }
 
   async create(slot: ScheduleSlot): Promise<void> {

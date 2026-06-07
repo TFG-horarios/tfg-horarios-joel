@@ -9,6 +9,7 @@ import {
   GenerationScopeSchema,
   ScheduleListQuerySchema,
   createPaginatedSchema,
+  AcademicYearSchema,
 } from '@tfg-horarios/shared';
 
 export const listSchedulesRoute = createRoute({
@@ -42,6 +43,23 @@ export const listAllSchedulesRoute = createRoute({
       description: 'Listado completo de horarios',
       content: {
         'application/json': { schema: z.array(ScheduleSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getAcademicYearsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/schedules/academic-years',
+  request: {
+    params: ScheduleBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Listado de cursos académicos con horarios',
+      content: {
+        'application/json': { schema: z.array(AcademicYearSchema) },
       },
     },
     403: { description: 'Forbidden' },

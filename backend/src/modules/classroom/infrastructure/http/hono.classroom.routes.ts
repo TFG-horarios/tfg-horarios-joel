@@ -8,6 +8,9 @@ import {
   ClassroomIdentifierSchema,
   ClassroomListQuerySchema,
   createPaginatedSchema,
+  ClassroomConfigurationListQuerySchema,
+  ClassroomScheduleQuerySchema,
+  ScheduleSlotSchema,
 } from '@tfg-horarios/shared';
 
 export const listClassroomsRoute = createRoute({
@@ -185,5 +188,51 @@ export const deleteAllClassroomsRoute = createRoute({
   responses: {
     204: { description: 'All classrooms deleted' },
     403: { description: 'Forbidden' },
+  },
+});
+
+export const getActiveClassroomConfigurationsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classrooms/active-configurations',
+  request: {
+    params: ClassroomBaseParamSchema,
+    query: ClassroomConfigurationListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Active classroom configurations list',
+      content: {
+        'application/json': {
+          schema: createPaginatedSchema(
+            z.object({
+              classroomId: z.string(),
+              academicYear: z.string(),
+              shift: z.enum(['morning', 'afternoon']),
+              period: z.number(),
+            })
+          ),
+        },
+      },
+    },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const getClassroomScheduleSlotsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classrooms/{id}/slots',
+  request: {
+    params: ClassroomIdParamSchema,
+    query: ClassroomScheduleQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Classroom schedule slots',
+      content: {
+        'application/json': { schema: z.array(ScheduleSlotSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+    404: { description: 'Classroom not found' },
   },
 });

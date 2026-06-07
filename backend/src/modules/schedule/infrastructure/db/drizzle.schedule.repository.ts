@@ -16,6 +16,7 @@ import { Schedule } from '../../domain/schedule.entity';
 import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
+  AcademicYear,
 } from '@tfg-horarios/shared';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
@@ -27,7 +28,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       organizationId: row.organizationId,
       degreeId: row.degreeId,
       itineraryId: row.itineraryId,
-      academicYear: row.academicYear,
+      academicYear: row.academicYear as AcademicYear,
       shift: row.shift,
       courseYear: row.courseYear,
       period: row.period,
@@ -98,6 +99,16 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .limit(1);
 
     return rows[0] ? this.mapToDomain(rows[0]) : null;
+  }
+
+  async findDistinctAcademicYears(organizationId: string): Promise<string[]> {
+    const rows = await this.database
+      .selectDistinct({ academicYear: schedulesTable.academicYear })
+      .from(schedulesTable)
+      .where(eq(schedulesTable.organizationId, organizationId))
+      .orderBy(desc(schedulesTable.academicYear));
+
+    return rows.map((r) => r.academicYear);
   }
 
   async findAll(organizationId: string): Promise<Schedule[]> {

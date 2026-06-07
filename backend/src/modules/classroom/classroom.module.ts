@@ -15,6 +15,8 @@ import {
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
   listAllClassroomsRoute,
+  getActiveClassroomConfigurationsRoute,
+  getClassroomScheduleSlotsRoute,
 } from './infrastructure/http/hono.classroom.routes';
 import { DeleteClassroomUseCase } from './application/delete-classroom.usecase';
 import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
@@ -25,14 +27,18 @@ import { GetClassroomUseCase } from './application/get-classroom.usecase';
 import { BulkCreateClassroomsUseCase } from './application/bulk-create-classroom.usecase';
 import { DeleteAllClassroomsUseCase } from './application/delete-all-classrooms.usecase';
 import { ReplaceClassroomsUseCase } from './application/replace-classrooms.usecase';
+import { GetActiveClassroomConfigurationsUseCase } from './application/get-active-classroom-configurations.usecase';
+import { GetClassroomScheduleSlotsUseCase } from './application/get-classroom-schedule-slots.usecase';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ClassroomMemberAdapter } from './infrastructure/adapters/classroom-member.adapter';
+import { DrizzleScheduleSlotRepository } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
 
 export const createClassroomModule = (
   db: DbConnection,
   memberRepository: IMemberRepository
 ) => {
   const classroomRepository = new DrizzleClassroomRepository(db);
+  const scheduleSlotRepository = new DrizzleScheduleSlotRepository(db);
   const memberProvider = new ClassroomMemberAdapter(memberRepository);
 
   const createUseCase = new CreateClassroomUseCase(
@@ -85,6 +91,18 @@ export const createClassroomModule = (
     memberProvider
   );
 
+  const getActiveConfigurationsUseCase =
+    new GetActiveClassroomConfigurationsUseCase(
+      scheduleSlotRepository,
+      memberProvider
+    );
+
+  const getScheduleSlotsUseCase = new GetClassroomScheduleSlotsUseCase(
+    scheduleSlotRepository,
+    classroomRepository,
+    memberProvider
+  );
+
   const controller = new HonoClassroomController(
     createUseCase,
     listUseCase,
@@ -95,7 +113,9 @@ export const createClassroomModule = (
     deleteAllUseCase,
     replaceUseCase,
     getIdentifiersUseCase,
-    listAllUseCase
+    listAllUseCase,
+    getActiveConfigurationsUseCase,
+    getScheduleSlotsUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -105,8 +125,13 @@ export const createClassroomModule = (
     .openapi(replaceClassroomsRoute, controller.replace)
     .openapi(listClassroomsRoute, controller.list)
     .openapi(listAllClassroomsRoute, controller.listAll)
+    .openapi(
+      getActiveClassroomConfigurationsRoute,
+      controller.getActiveConfigurations
+    )
     .openapi(getClassroomIdentifiersRoute, controller.getIdentifiers)
     .openapi(getClassroomRoute, controller.get)
+    .openapi(getClassroomScheduleSlotsRoute, controller.getScheduleSlots)
     .openapi(updateClassroomRoute, controller.update)
     .openapi(deleteClassroomRoute, controller.delete)
     .openapi(deleteAllClassroomsRoute, controller.deleteAll);

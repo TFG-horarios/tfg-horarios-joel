@@ -39,6 +39,7 @@ describe('RegisterUseCase', () => {
       name: 'John',
       email: 'j@e.com',
       password: 'password123',
+      confirmPassword: 'password123',
     });
     expect(result.token).toBe('token');
   });
@@ -50,6 +51,7 @@ describe('RegisterUseCase', () => {
         name: 'John',
         email: 'j@e.com',
         password: 'password123',
+        confirmPassword: 'password123',
       })
     ).rejects.toThrow(ConflictError);
   });
@@ -57,7 +59,12 @@ describe('RegisterUseCase', () => {
   test('throws ValidationError if password too short', async () => {
     authUserRepositoryMock.findByEmail.mockResolvedValueOnce(null);
     expect(
-      useCase.execute({ name: 'John', email: 'j@e.com', password: 'short' })
+      useCase.execute({
+        name: 'John',
+        email: 'j@e.com',
+        password: 'short',
+        confirmPassword: 'short',
+      })
     ).rejects.toThrow(ValidationError);
   });
 });

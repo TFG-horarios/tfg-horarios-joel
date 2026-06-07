@@ -2,7 +2,7 @@ CREATE TYPE "public"."period_type" AS ENUM('semester', 'trimester', 'annual');--
 CREATE TYPE "public"."classroom_type" AS ENUM('theory', 'lab');--> statement-breakpoint
 CREATE TYPE "public"."shift" AS ENUM('morning', 'afternoon');--> statement-breakpoint
 CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices');--> statement-breakpoint
-CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published', 'archived');--> statement-breakpoint
+CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'editor', 'viewer');--> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -92,7 +92,6 @@ CREATE TABLE "schedule" (
 	"course_year" integer NOT NULL,
 	"period" integer NOT NULL,
 	"status" "schedule_status" DEFAULT 'draft' NOT NULL,
-	"version" text DEFAULT 'v1' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -149,9 +148,9 @@ ALTER TABLE "member" ADD CONSTRAINT "member_user_id_user_id_fk" FOREIGN KEY ("us
 CREATE UNIQUE INDEX "classroom_name_org_idx" ON "classroom" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_code_org_idx" ON "subject" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_group_logic_idx" ON "subject_group" USING btree ("subject_id","group_type","group_number","shift") WHERE deleted_at IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "itinerary_code_degree_idx" ON "itinerary" USING btree ("degree_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "schedule_itinerary_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","itinerary_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NOT NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "schedule_common_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","academic_year","course_year","period","shift","version") WHERE itinerary_id IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "itinerary_code_org_idx" ON "itinerary" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "schedule_itinerary_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","itinerary_id","academic_year","course_year","period","shift") WHERE itinerary_id IS NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "schedule_common_unique_idx" ON "schedule" USING btree ("organization_id","degree_id","academic_year","course_year","period","shift") WHERE itinerary_id IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "degree_code_org_idx" ON "degree" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "degree_name_org_idx" ON "degree" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_slot_classroom_time_unique_idx" ON "schedule_slot" USING btree ("classroom_id","day_of_week","slot_index","schedule_id") WHERE classroom_id IS NOT NULL AND day_of_week IS NOT NULL AND slot_index IS NOT NULL;

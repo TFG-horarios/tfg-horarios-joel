@@ -32,7 +32,11 @@ import {
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { generateSchedulesAction } from '@/features/schedule/actions';
-import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
+import type {
+  DegreeDTO,
+  ItineraryDTO,
+  AcademicYear,
+} from '@tfg-horarios/shared';
 import { Loader2, Sparkles } from 'lucide-react';
 import {
   Tooltip,
@@ -40,6 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { getAcademicYearOptions } from '@/lib/utils';
 
 type ScheduleGeneratorProps = {
   organizationId: string;
@@ -91,7 +96,7 @@ export function ScheduleGenerator({
 
     try {
       const result = await generateSchedulesAction(organizationId, {
-        academicYear,
+        academicYear: academicYear as AcademicYear,
         periods:
           periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
         degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
@@ -205,8 +210,11 @@ export function ScheduleGenerator({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2025-2026">2025-2026</SelectItem>
-                      <SelectItem value="2026-2027">2026-2027</SelectItem>
+                      {getAcademicYearOptions().map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

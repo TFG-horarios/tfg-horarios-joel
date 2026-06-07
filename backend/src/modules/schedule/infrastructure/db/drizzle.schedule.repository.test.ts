@@ -1,3 +1,4 @@
+import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleScheduleRepository } from './drizzle.schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
@@ -27,7 +28,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
-      academicYear: '2025/2026',
+      academicYear: '2025/2026' as AcademicYear,
       shift: 'morning',
       courseYear: 1,
       period: 1,
@@ -40,7 +41,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
     expect(foundSchedule?.id).toBe(schedule.id);
-    expect(foundSchedule?.academicYear).toBe('2025/2026');
+    expect(foundSchedule?.academicYear).toBe(schedule.academicYear);
   });
 
   test('should find schedule by scope', async () => {
@@ -64,7 +65,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     const s2 = Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
-      academicYear: '2025/2026',
+      academicYear: '2025/2026' as AcademicYear,
       shift: 'afternoon',
       courseYear: 1,
       period: 1,

@@ -1,3 +1,4 @@
+import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { ListSchedulesUseCase } from './list-schedules.usecase';
 import { Schedule } from '../domain/schedule.entity';
@@ -7,6 +8,7 @@ describe('ListSchedulesUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findByScope: mock(),
+    findDistinctAcademicYears: mock(),
     findAll: mock(),
     findPaginated: mock(),
     create: mock(),
@@ -24,7 +26,7 @@ describe('ListSchedulesUseCase', () => {
     const schedule = Schedule.create({
       organizationId: 'org-1',
       degreeId: 'deg-1',
-      academicYear: '2023-2024',
+      academicYear: '2023-2024' as AcademicYear,
       shift: 'morning',
       courseYear: 1,
       period: 1,

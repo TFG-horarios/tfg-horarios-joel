@@ -1,9 +1,11 @@
+import type { AcademicYear } from '@tfg-horarios/shared';
+
 export interface ScheduleProps {
   id: string;
   organizationId: string;
   degreeId: string;
   itineraryId?: string | null;
-  academicYear: string;
+  academicYear: AcademicYear;
   shift: 'morning' | 'afternoon';
   courseYear: number;
   period: number;

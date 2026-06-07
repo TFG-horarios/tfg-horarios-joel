@@ -11,6 +11,8 @@ describe('ListScheduleSlotsUseCase', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    findActiveClassroomConfigurationsPaginated: mock(),
+    findSlotsByClassroomIdAndFilters: mock(),
   };
 
   const memberProviderMock = {

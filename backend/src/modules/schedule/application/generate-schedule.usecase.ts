@@ -6,6 +6,7 @@ import type { IScheduleMemberProvider } from '../domain/schedule-member.provider
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
+import type { AppRole } from '@/core/permissions/roles';
 import type {
   IScheduleEngineProvider,
   ScheduleEngineClassroomMap,
@@ -24,7 +25,7 @@ export class GenerateScheduleUseCase {
     requesterUserId: string,
     scope: GenerationScopeDTO
   ): Promise<ScheduleDTO[]> {
-    const role = await this.memberProvider.getMemberRole(
+    const role: AppRole | null = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
     );

@@ -14,6 +14,8 @@ import {
   replaceClassroomsRoute,
   getClassroomIdentifiersRoute,
   listAllClassroomsRoute,
+  getActiveClassroomConfigurationsRoute,
+  getClassroomScheduleSlotsRoute,
 } from './hono.classroom.routes';
 
 describe('HonoClassroomController Integration', () => {
@@ -27,6 +29,8 @@ describe('HonoClassroomController Integration', () => {
   const replaceMock = { execute: mock() };
   const getIdentifiersMock = { execute: mock() };
   const listAllMock = { execute: mock() };
+  const getActiveConfigurationsMock = { execute: mock() };
+  const getScheduleSlotsMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoClassroomController>;
   const controller = new HonoClassroomController(
@@ -39,7 +43,9 @@ describe('HonoClassroomController Integration', () => {
     deleteAllMock as unknown as Params[6],
     replaceMock as unknown as Params[7],
     getIdentifiersMock as unknown as Params[8],
-    listAllMock as unknown as Params[9]
+    listAllMock as unknown as Params[9],
+    getActiveConfigurationsMock as unknown as Params[10],
+    getScheduleSlotsMock as unknown as Params[11]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -48,7 +54,12 @@ describe('HonoClassroomController Integration', () => {
   router.openapi(replaceClassroomsRoute, controller.replace);
   router.openapi(getClassroomIdentifiersRoute, controller.getIdentifiers);
   router.openapi(listAllClassroomsRoute, controller.listAll);
+  router.openapi(
+    getActiveClassroomConfigurationsRoute,
+    controller.getActiveConfigurations
+  );
   router.openapi(getClassroomRoute, controller.get);
+  router.openapi(getClassroomScheduleSlotsRoute, controller.getScheduleSlots);
   router.openapi(listClassroomsRoute, controller.list);
   router.openapi(updateClassroomRoute, controller.update);
   router.openapi(deleteClassroomRoute, controller.delete);
@@ -211,5 +222,41 @@ describe('HonoClassroomController Integration', () => {
     expect(replaceMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', [
       validBody,
     ]);
+  });
+
+  test('GET /organizations/:organizationId/classrooms/active-configurations should return paginated configurations', async () => {
+    const mockResponse = {
+      data: [
+        { classroomId, academicYear: '2025-2026', shift: 'morning', period: 1 },
+      ],
+      meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+    };
+    getActiveConfigurationsMock.execute.mockResolvedValueOnce(mockResponse);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/active-configurations?academicYear=2025-2026`
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(mockResponse);
+    expect(getActiveConfigurationsMock.execute).toHaveBeenCalledWith(
+      orgId,
+      'u-admin',
+      { academicYear: '2025-2026' }
+    );
+  });
+
+  test('GET /organizations/:organizationId/classrooms/:id/slots should return schedule slots', async () => {
+    const mockResponse = [{ id: 'slot-1', classroomId }];
+    getScheduleSlotsMock.execute.mockResolvedValueOnce(mockResponse);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/${classroomId}/slots?academicYear=2025-2026`
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(mockResponse);
+    expect(getScheduleSlotsMock.execute).toHaveBeenCalledWith(
+      orgId,
+      classroomId,
+      'u-admin',
+      { academicYear: '2025-2026' }
+    );
   });
 });

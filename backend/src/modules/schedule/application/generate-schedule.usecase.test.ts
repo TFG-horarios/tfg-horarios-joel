@@ -1,3 +1,4 @@
+import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { GenerateScheduleUseCase } from './generate-schedule.usecase';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -6,6 +7,7 @@ describe('GenerateScheduleUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findByScope: mock(),
+    findDistinctAcademicYears: mock(),
     findAll: mock(),
     findPaginated: mock(),
     create: mock(),
@@ -74,7 +76,7 @@ describe('GenerateScheduleUseCase', () => {
     });
     repositoryMock.findByScope.mockResolvedValueOnce(null);
     const result = await useCase.execute('org-1', 'user-1', {
-      academicYear: '2023-2024',
+      academicYear: '2023-2024' as AcademicYear,
       periods: [1],
     });
     expect(result).toHaveLength(1);
@@ -85,7 +87,7 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce([]);
     const result = await useCase.execute('org-1', 'user-1', {
-      academicYear: '2023-2024',
+      academicYear: '2023-2024' as AcademicYear,
       periods: [1],
     });
     expect(result).toHaveLength(0);
@@ -95,7 +97,7 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     expect(
       useCase.execute('org-1', 'user-1', {
-        academicYear: '2023-2024',
+        academicYear: '2023-2024' as AcademicYear,
         periods: [1],
       })
     ).rejects.toThrow(ForbiddenError);

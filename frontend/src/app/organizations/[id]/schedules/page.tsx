@@ -5,7 +5,10 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
-import { fetchSchedules } from '@/features/schedule/queries';
+import {
+  fetchSchedules,
+  fetchScheduleAcademicYears,
+} from '@/features/schedule/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
@@ -17,7 +20,7 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { fetchSchedulesAction } from '@/features/schedule/actions';
 import { ScheduleCard } from '@/features/schedule/components/schedule-card';
 import { ScheduleRow } from '@/features/schedule/components/schedule-row';
-import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
+import type { ScheduleListQueryDTO, AcademicYear } from '@tfg-horarios/shared';
 
 type OrganizationSchedulesPageProps = {
   params: Promise<{ id: string }>;
@@ -50,6 +53,10 @@ export default async function OrganizationSchedulesPage({
       : currentView === 'table'
         ? defaultTableLimit
         : 12,
+    academicYear:
+      typeof rawSearchParams.academicYear === 'string'
+        ? (rawSearchParams.academicYear as AcademicYear)
+        : undefined,
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
         ? rawSearchParams.degreeId
@@ -83,13 +90,19 @@ export default async function OrganizationSchedulesPage({
   const t = await getTranslations('Organizations.schedules');
   const tSubjects = await getTranslations('Organizations.subjects');
 
-  const [organization, degrees, itineraries, { data: schedules, meta }] =
-    await Promise.all([
-      fetchOrganizationById(id),
-      fetchAllDegrees(id),
-      fetchAllItineraries(id),
-      fetchSchedules(id, query),
-    ]);
+  const [
+    organization,
+    degrees,
+    itineraries,
+    academicYears,
+    { data: schedules, meta },
+  ] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchAllDegrees(id),
+    fetchAllItineraries(id),
+    fetchScheduleAcademicYears(id),
+    fetchSchedules(id, query),
+  ]);
 
   if (!organization) {
     notFound();
@@ -97,6 +110,10 @@ export default async function OrganizationSchedulesPage({
 
   const degreeMap = new Map(degrees.map((d) => [d.id, d.name]));
   const itineraryMap = new Map(itineraries.map((i) => [i.id, i.code]));
+  const academicYearOptions = academicYears.map((y) => ({
+    label: y,
+    value: y,
+  }));
 
   const translations = {
     empty: t('empty'),
@@ -141,6 +158,11 @@ export default async function OrganizationSchedulesPage({
           }
           filters={
             <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+              <ResourceFilterSelect
+                paramKey="academicYear"
+                placeholder={translations.academicYear}
+                options={academicYearOptions}
+              />
               <ResourceFilterSelect
                 paramKey="degreeId"
                 placeholder={t('degreePlaceholder')}
