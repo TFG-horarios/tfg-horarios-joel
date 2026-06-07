@@ -39,7 +39,9 @@
       "register": "Crear cuenta",
       "signOut": "Cerrar sesión",
       "toggleTheme": "Cambiar tema",
-      "toggleLanguage": "Cambiar idioma"
+      "toggleLanguage": "Cambiar idioma",
+      "publish": "Publicar",
+      "downloadPdf": "Descargar PDF"
     },
     "languages": {
       "es": "Español",
@@ -773,7 +775,8 @@
       "label": "Horarios por Aula",
       "title": "Horarios por Aula",
       "description": "Consulta y gestiona todos los horarios activos para las aulas de tu organización.",
-      "countLabel": "configuraciones activas",
+      "countLabel": "horarios de aula",
+      "searchPlaceholder": "Buscar aula...",
       "empty": "No se encontraron horarios de aulas que coincidan con tu búsqueda.",
       "headers": {
         "classroom": "Aula",

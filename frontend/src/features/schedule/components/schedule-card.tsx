@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from 'lucide-react';
+import { Calendar, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -55,6 +55,9 @@ export const ScheduleCard = memo(function ScheduleCard({
       <Card
         className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
       >
+        <div className="absolute bottom-5 right-5 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
+          <ArrowRight className="w-5 h-5" />
+        </div>
         <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
           <div className="flex flex-row items-center justify-center gap-2 flex-wrap w-full">
             <Badge

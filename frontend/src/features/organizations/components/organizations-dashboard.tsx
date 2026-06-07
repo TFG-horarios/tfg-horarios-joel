@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from '@/lib/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Building2 } from 'lucide-react';
+import { Plus, Building2, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -102,9 +102,12 @@ export function OrganizationsDashboard({
         {filteredOrganizations.map((org) => (
           <Card
             key={org.id}
-            className="group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
+            className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
             onClick={() => handleSelectOrganization(org.id)}
           >
+            <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
+              <ArrowRight className="w-5 h-5" />
+            </div>
             <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
               {org.name}
             </h3>

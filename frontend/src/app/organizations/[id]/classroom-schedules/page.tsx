@@ -14,8 +14,8 @@ import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { fetchActiveClassroomConfigurationsAction } from '@/features/classroom-schedule/actions';
-import { ClassroomConfigurationCard } from '@/features/classroom-schedule/components/classroom-configuration-card';
-import { ClassroomConfigurationRow } from '@/features/classroom-schedule/components/classroom-configuration-row';
+import { ClassroomScheduleCard } from '@/features/classroom-schedule/components/classroom-schedule-card';
+import { ClassroomScheduleRow } from '@/features/classroom-schedule/components/classroom-schedule-row';
 import type {
   ClassroomConfigurationListQueryDTO,
   AcademicYear,
@@ -174,7 +174,7 @@ export default async function OrganizationClassroomSchedulesPage({
             query
           )}
           emptyState={<ResourceEmptyState message={t('empty')} />}
-          GridItemComponent={ClassroomConfigurationCard}
+          GridItemComponent={ClassroomScheduleCard}
           gridItemProps={{
             classroomMap,
             organizationId: id,
@@ -187,7 +187,7 @@ export default async function OrganizationClassroomSchedulesPage({
             tStatus('shift'),
             t('headers.actions'),
           ]}
-          TableRowComponent={ClassroomConfigurationRow}
+          TableRowComponent={ClassroomScheduleRow}
           tableRowProps={{
             classroomMap,
             organizationId: id,

@@ -39,7 +39,9 @@
       "register": "Create account",
       "signOut": "Sign out",
       "toggleTheme": "Toggle theme",
-      "toggleLanguage": "Toggle language"
+      "toggleLanguage": "Toggle language",
+      "publish": "Publish",
+      "downloadPdf": "Download PDF"
     },
     "languages": {
       "es": "Spanish",
@@ -772,7 +774,8 @@
       "label": "Classroom Schedules",
       "title": "Classroom Schedules",
       "description": "View and manage all active classroom schedules for your organization.",
-      "countLabel": "active configurations",
+      "countLabel": "classroom schedules",
+      "searchPlaceholder": "Search classrooms...",
       "empty": "No classroom schedules found matching your criteria.",
       "headers": {
         "classroom": "Classroom",

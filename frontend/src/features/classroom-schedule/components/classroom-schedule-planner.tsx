@@ -3,8 +3,12 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Calendar, Building2, Download, Loader2 } from 'lucide-react';
 import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot';
+import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
+import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
+import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
 import {
   type ScheduleSlotDTO,
   type ClassroomDTO,
@@ -12,7 +16,6 @@ import {
   type SubjectGroupDTO,
   type OrganizationDTO,
 } from '@tfg-horarios/shared';
-import { Calendar, Clock, Building2 } from 'lucide-react';
 
 type ClassroomSchedulePlannerProps = {
   organization: OrganizationDTO;
@@ -74,48 +77,8 @@ export function ClassroomSchedulePlanner({
 }: ClassroomSchedulePlannerProps) {
   const t = useTranslations('Organizations.classroomSchedules.planner');
 
-  const parseTime = (timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
-  };
-
-  const formatTime = (minutesTotal: number) => {
-    const h = Math.floor(minutesTotal / 60)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor(minutesTotal % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${h}:${m}`;
-  };
-
-  const generateTimeLabels = () => {
-    let startMins;
-    let endMins;
-
-    if (shift === 'morning') {
-      startMins = parseTime(organization.morningStart);
-      endMins = parseTime(organization.morningEnd);
-    } else {
-      startMins = parseTime(organization.afternoonStart);
-      endMins = parseTime(organization.afternoonEnd);
-    }
-
-    const count = Math.floor(
-      (endMins - startMins) / organization.slotDurationMinutes
-    );
-    const labels: Record<number, string> = {};
-
-    for (let i = 0; i < count; i++) {
-      const slotStart = startMins + i * organization.slotDurationMinutes;
-      const slotEnd = slotStart + organization.slotDurationMinutes;
-      labels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
-    }
-    return labels;
-  };
-
-  const slotTimeLabels = generateTimeLabels();
-  const numSlots = Object.keys(slotTimeLabels).length;
+  const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
+  const { slotTimeLabels, numSlots } = useScheduleGrid(organization, shift);
 
   const daysOfWeek = [
     { value: 1, label: t('days.1') },
@@ -170,62 +133,40 @@ export function ClassroomSchedulePlanner({
             {academicYear} • {t('semester', { period })}
           </p>
         </div>
-      </div>
 
-      <div className="flex flex-col h-[calc(100vh-16rem)] min-h-125 bg-card/30 backdrop-blur-sm border border-border rounded-xl shadow-inner overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
-          <h2 className="font-semibold text-foreground flex items-center gap-2">
-            <Clock className="size-4 text-indigo-500" />
-            {t('weeklyView')}
-          </h2>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => exportPDF(`horario-${classroom.name}-${academicYear}-P${period}`)}
+            disabled={isExportingPDF}
+            variant="outline"
+            className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+          >
+            {isExportingPDF ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            Exportar PDF
+          </Button>
         </div>
-
-        <ScrollArea className="flex-1 w-full overflow-auto">
-          <div className="min-w-200 p-6 space-y-4">
-            <div className="grid grid-cols-6 gap-3">
-              <div className="flex items-center justify-center p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/20 rounded-lg">
-                {t('time')}
-              </div>
-              {daysOfWeek.map((day) => (
-                <div
-                  key={day.value}
-                  className="flex flex-col items-center justify-center p-3 bg-muted/40 rounded-lg border border-border/50 shadow-sm"
-                >
-                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                    {day.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {Array.from({ length: numSlots }).map((_, idx) => (
-              <div key={idx} className="grid grid-cols-6 gap-3 min-h-22.5">
-                <div className="flex flex-col items-center justify-center p-3 bg-muted/20 border border-dashed border-border rounded-lg text-center">
-                  <span className="text-xs font-semibold text-foreground font-mono">
-                    {t('block', { index: idx + 1 })}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground font-mono mt-1">
-                    {slotTimeLabels[idx]}
-                  </span>
-                </div>
-
-                {daysOfWeek.map((day) => {
-                  const cellSlots =
-                    slotsByCell.get(`${day.value}_${idx}`) || [];
-                  return (
-                    <MemoizedScheduleCell
-                      key={`${day.value}_${idx}`}
-                      cellSlots={cellSlots}
-                      slotMetaMap={slotMetaMap}
-                      classroom={classroom}
-                    />
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
       </div>
+
+      <WeeklyScheduleGrid
+        gridRef={gridRef}
+        daysOfWeek={daysOfWeek}
+        numSlots={numSlots}
+        slotTimeLabels={slotTimeLabels}
+        renderCell={(day, slotIndex) => {
+          const cellSlots = slotsByCell.get(`${day}_${slotIndex}`) || [];
+          return (
+            <MemoizedScheduleCell
+              cellSlots={cellSlots}
+              slotMetaMap={slotMetaMap}
+              classroom={classroom}
+            />
+          );
+        }}
+      />
     </div>
   );
 }

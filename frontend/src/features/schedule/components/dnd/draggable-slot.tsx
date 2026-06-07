@@ -11,6 +11,7 @@ import {
   type SubjectGroupDTO,
   type ClassroomDTO,
 } from '@tfg-horarios/shared';
+import { getSubjectColorClasses } from '@/lib/subject-colors';
 
 type DraggableSlotProps = {
   slot: ScheduleSlotDTO;
@@ -57,9 +58,9 @@ export const DraggableSlot = memo(function DraggableSlot({
             ? `calc(100% * ${slot.duration} + 12px * ${slot.duration - 1} - 8px)`
             : '100%',
       }}
-      className={`border bg-background/90 hover:bg-background transition-all duration-200 shadow-sm
-        ${group.groupType === 'practices' ? 'border-purple-500/30' : 'border-blue-500/30'}
-        ${isOverlay ? 'border-primary shadow-xl pointer-events-none' : 'hover:border-primary/50'}
+      className={`border transition-all duration-200 shadow-sm
+        ${getSubjectColorClasses(subject.id)}
+        ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
       `}
     >
       <CardContent
@@ -68,40 +69,39 @@ export const DraggableSlot = memo(function DraggableSlot({
       >
         <div className="space-y-1">
           <div className="flex items-start justify-between gap-2">
-            <span className="text-xs font-bold text-foreground break-words whitespace-normal">
+            <span className="text-xs font-bold break-words whitespace-normal leading-tight">
               {subject.name}
             </span>
             <Badge
               variant="outline"
-              className={`text-[9px] uppercase scale-90 px-1 py-0 shrink-0
-                ${group.groupType === 'practices' ? 'text-purple-500 border-purple-500/20 bg-purple-500/5' : 'text-blue-500 border-blue-500/20 bg-blue-500/5'}
+              className={`text-[9px] uppercase scale-90 px-1 py-0 shrink-0 opacity-80 border-current/30
               `}
             >
               {group.groupType}
             </Badge>
           </div>
-          <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
-            <BookOpen className="size-3 text-indigo-500/80" />
+          <p className="text-[10px] font-medium flex items-center gap-1 opacity-80">
+            <BookOpen className="size-3" />
             {group.name}
           </p>
         </div>
 
         {classroom ? (
-          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
-            <MapPin className="size-3 text-purple-500/70 shrink-0" />
+          <div className="flex items-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90">
+            <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal">
               {classroom.name}
             </span>
           </div>
         ) : slot.classroomId ? (
-          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-destructive/90">
+          <div className="flex items-center gap-1 border-t border-current/20 pt-2 text-[10px] text-destructive dark:text-red-400">
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal">
               Aula eliminada
             </span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 border-t border-border/40 pt-2 text-[10px] text-amber-600/90 dark:text-amber-500/90">
+          <div className="flex items-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-70">
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal">
               Sin aula asignada

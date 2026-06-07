@@ -101,14 +101,16 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findDistinctAcademicYears(organizationId: string): Promise<string[]> {
+  async findDistinctAcademicYears(
+    organizationId: string
+  ): Promise<AcademicYear[]> {
     const rows = await this.database
       .selectDistinct({ academicYear: schedulesTable.academicYear })
       .from(schedulesTable)
       .where(eq(schedulesTable.organizationId, organizationId))
       .orderBy(desc(schedulesTable.academicYear));
 
-    return rows.map((r) => r.academicYear);
+    return rows.map((r) => r.academicYear as AcademicYear);
   }
 
   async findAll(organizationId: string): Promise<Schedule[]> {
