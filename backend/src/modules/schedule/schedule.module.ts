@@ -31,8 +31,8 @@ import {
   listAllSchedulesRoute,
   getAcademicYearsRoute,
 } from './infrastructure/http/hono.schedule.routes';
-
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
+import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
 
 export const createScheduleModule = (db: DbConnection) => {
   const scheduleRepository = new DrizzleScheduleRepository(db);
@@ -60,6 +60,11 @@ export const createScheduleModule = (db: DbConnection) => {
     dataProvider
   );
 
+  const slotDataProvider = new ScheduleSlotDataAdapter(
+    scheduleRepository,
+    dataProvider
+  );
+
   const controller = new HonoScheduleController(
     new ListSchedulesUseCase(scheduleRepository, memberProvider),
     new ListAllSchedulesUseCase(scheduleRepository, memberProvider),
@@ -74,6 +79,7 @@ export const createScheduleModule = (db: DbConnection) => {
     new ListScheduleSlotsUseCase(scheduleSlotRepository, slotMemberProvider),
     new UpdateScheduleSlotUseCase(
       scheduleSlotRepository,
+      slotDataProvider,
       slotMemberProvider,
       slotValidationProvider
     ),

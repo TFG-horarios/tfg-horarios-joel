@@ -24,6 +24,15 @@ export interface IScheduleSlotRepository {
     organizationId: string,
     filters?: ClassroomScheduleQueryDTO
   ): Promise<ScheduleSlot[]>;
+  findLinkedSlots(
+    subjectGroupId: string,
+    academicYear: string,
+    shift: 'morning' | 'afternoon',
+    originalClassroomId: string | null,
+    originalDayOfWeek: number | null,
+    originalSlotIndex: number | null,
+    duration: number
+  ): Promise<ScheduleSlot[]>;
   create(slot: ScheduleSlot): Promise<void>;
   createMany(slots: ScheduleSlot[]): Promise<void>;
   update(slot: ScheduleSlot): Promise<void>;

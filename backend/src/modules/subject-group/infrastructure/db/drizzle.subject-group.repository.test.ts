@@ -218,8 +218,9 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       [testDegreeId],
       [testItineraryId]
     );
-    expect(groupsInItinerary.length).toBe(1);
-    expect(groupsInItinerary[0]?.subjectId).toBe(testSubject2Id);
+    expect(groupsInItinerary.length).toBe(3);
+    expect(groupsInItinerary.map((g) => g.subjectId)).toContain(testSubject2Id);
+    expect(groupsInItinerary.map((g) => g.subjectId)).toContain(testSubjectId);
     const groupsInYear2 = await repository.findGroupsWithSubjectsInScope(
       testOrgId,
       1,

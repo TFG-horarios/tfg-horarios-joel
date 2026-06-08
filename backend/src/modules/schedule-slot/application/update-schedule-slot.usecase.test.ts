@@ -13,6 +13,12 @@ describe('UpdateScheduleSlotUseCase', () => {
     delete: mock(),
     findActiveClassroomConfigurationsPaginated: mock(),
     findSlotsByClassroomIdAndFilters: mock(),
+    findLinkedSlots: mock(),
+  };
+
+  const dataProviderMock = {
+    getScheduleContext: mock(),
+    isGroupCommon: mock(),
   };
 
   const memberProviderMock = {
@@ -25,8 +31,9 @@ describe('UpdateScheduleSlotUseCase', () => {
 
   const useCase = new UpdateScheduleSlotUseCase(
     repositoryMock,
-    memberProviderMock,
-    validationProviderMock
+    dataProviderMock as any,
+    memberProviderMock as any,
+    validationProviderMock as any
   );
 
   test('should update schedule slot successfully', async () => {
@@ -37,6 +44,12 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
+    dataProviderMock.getScheduleContext.mockResolvedValueOnce({
+      academicYear: '2023',
+      shift: 'morning',
+    });
+    dataProviderMock.isGroupCommon.mockResolvedValueOnce(true);
+    repositoryMock.findLinkedSlots.mockResolvedValueOnce([slot]);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
     const dto = { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 1 };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
@@ -67,6 +80,11 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
+    dataProviderMock.getScheduleContext.mockResolvedValueOnce({
+      academicYear: '2023',
+      shift: 'morning',
+    });
+    dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
 
     const dto = { classroomId: 'c-2' };

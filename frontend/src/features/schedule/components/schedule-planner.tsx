@@ -70,14 +70,13 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
             ? classroomMap.get(slot.classroomId)
             : undefined;
           return (
-            <div key={slot.id} className="w-full">
-              <DraggableSlot
-                slot={slot}
-                subject={meta.subject}
-                group={meta.group}
-                classroom={classroom}
-              />
-            </div>
+            <DraggableSlot
+              key={slot.id}
+              slot={slot}
+              subject={meta.subject}
+              group={meta.group}
+              classroom={classroom}
+            />
           );
         })
       ) : (

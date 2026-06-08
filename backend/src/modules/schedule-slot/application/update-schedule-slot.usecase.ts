@@ -3,6 +3,7 @@ import type {
   SaveScheduleSlotDTO,
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
+import type { IScheduleSlotDataProvider } from '../domain/schedule-slot-data.provider';
 import type { IScheduleSlotMemberProvider } from '../domain/schedule-slot-member.provider';
 import type { IScheduleSlotValidationProvider } from '../domain/schedule-slot-validation.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
@@ -12,6 +13,7 @@ import { ScheduleSlotMapper } from './schedule-slot.mapper';
 export class UpdateScheduleSlotUseCase {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
+    private readonly dataProvider: IScheduleSlotDataProvider,
     private readonly memberProvider: IScheduleSlotMemberProvider,
     private readonly validationProvider: IScheduleSlotValidationProvider
   ) {}
@@ -45,17 +47,49 @@ export class UpdateScheduleSlotUseCase {
     const slotIndex =
       dto.slotIndex !== undefined ? dto.slotIndex : slot.slotIndex;
 
-    await this.validationProvider.validateMove(
-      organizationId,
-      slot,
-      classroomId,
-      dayOfWeek,
-      slotIndex
+    const scheduleContext = await this.dataProvider.getScheduleContext(
+      slot.scheduleId,
+      organizationId
+    );
+    if (!scheduleContext) {
+      throw new NotFoundError('Schedule', slot.scheduleId);
+    }
+
+    const isCommon = await this.dataProvider.isGroupCommon(
+      slot.subjectGroupId,
+      slot.scheduleId,
+      organizationId
     );
 
-    slot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
+    let linkedSlots = [slot];
 
-    await this.scheduleSlotRepository.update(slot);
+    if (isCommon) {
+      linkedSlots = await this.scheduleSlotRepository.findLinkedSlots(
+        slot.subjectGroupId,
+        scheduleContext.academicYear,
+        scheduleContext.shift,
+        slot.classroomId,
+        slot.dayOfWeek,
+        slot.slotIndex,
+        slot.duration
+      );
+    }
+
+    for (const linkedSlot of linkedSlots) {
+      await this.validationProvider.validateMove(
+        organizationId,
+        linkedSlot,
+        classroomId,
+        dayOfWeek,
+        slotIndex
+      );
+    }
+
+    for (const linkedSlot of linkedSlots) {
+      linkedSlot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
+      await this.scheduleSlotRepository.update(linkedSlot);
+    }
+
     return ScheduleSlotMapper.toDTO(slot);
   }
 }

@@ -1,4 +1,12 @@
-import { eq, and, isNotNull, count, ilike, type SQL } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  isNotNull,
+  isNull,
+  count,
+  ilike,
+  type SQL,
+} from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -186,6 +194,54 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     }
     if (filters?.period) {
       conditions.push(eq(schedulesTable.period, filters.period));
+    }
+
+    const rows = await this.database
+      .select({
+        slot: scheduleSlotsTable,
+      })
+      .from(scheduleSlotsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
+      )
+      .where(and(...conditions));
+
+    return rows.map((r) => this.mapToDomain(r.slot));
+  }
+
+  async findLinkedSlots(
+    subjectGroupId: string,
+    academicYear: string,
+    shift: 'morning' | 'afternoon',
+    originalClassroomId: string | null,
+    originalDayOfWeek: number | null,
+    originalSlotIndex: number | null,
+    duration: number
+  ): Promise<ScheduleSlot[]> {
+    const conditions: SQL[] = [
+      eq(scheduleSlotsTable.subjectGroupId, subjectGroupId),
+      eq(schedulesTable.academicYear, academicYear),
+      eq(schedulesTable.shift, shift),
+      eq(scheduleSlotsTable.duration, duration),
+    ];
+
+    if (originalClassroomId === null) {
+      conditions.push(isNull(scheduleSlotsTable.classroomId));
+    } else {
+      conditions.push(eq(scheduleSlotsTable.classroomId, originalClassroomId));
+    }
+
+    if (originalDayOfWeek === null) {
+      conditions.push(isNull(scheduleSlotsTable.dayOfWeek));
+    } else {
+      conditions.push(eq(scheduleSlotsTable.dayOfWeek, originalDayOfWeek));
+    }
+
+    if (originalSlotIndex === null) {
+      conditions.push(isNull(scheduleSlotsTable.slotIndex));
+    } else {
+      conditions.push(eq(scheduleSlotsTable.slotIndex, originalSlotIndex));
     }
 
     const rows = await this.database

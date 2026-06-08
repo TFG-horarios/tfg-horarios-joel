@@ -15,6 +15,7 @@ import {
   type SubjectDTO,
   type SubjectGroupDTO,
   type OrganizationDTO,
+  type DegreeDTO,
 } from '@tfg-horarios/shared';
 
 type ClassroomSchedulePlannerProps = {
@@ -23,6 +24,7 @@ type ClassroomSchedulePlannerProps = {
   classroom: ClassroomDTO;
   subjects: SubjectDTO[];
   subjectGroups: SubjectGroupDTO[];
+  degrees: DegreeDTO[];
   academicYear: string;
   shift: 'morning' | 'afternoon';
   period: number;
@@ -32,7 +34,11 @@ type MemoizedScheduleCellProps = {
   cellSlots: ScheduleSlotDTO[];
   slotMetaMap: Map<
     string,
-    { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
+    {
+      group: SubjectGroupDTO | undefined;
+      subject: SubjectDTO | undefined;
+      degree: DegreeDTO | undefined;
+    }
   >;
   classroom: ClassroomDTO;
 };
@@ -40,7 +46,6 @@ type MemoizedScheduleCellProps = {
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   cellSlots,
   slotMetaMap,
-  classroom,
 }: MemoizedScheduleCellProps) {
   return (
     <div className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border/50 bg-background/30 h-full min-h-22.5">
@@ -55,7 +60,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
                   slot={slot}
                   subject={meta.subject}
                   group={meta.group}
-                  classroom={classroom}
+                  degree={meta.degree}
                 />
               </div>
             </div>
@@ -71,6 +76,7 @@ export function ClassroomSchedulePlanner({
   classroom,
   subjects,
   subjectGroups,
+  degrees,
   academicYear,
   shift,
   period,
@@ -103,14 +109,21 @@ export function ClassroomSchedulePlanner({
   const slotMetaMap = React.useMemo(() => {
     const map = new Map<
       string,
-      { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
+      {
+        group: SubjectGroupDTO | undefined;
+        subject: SubjectDTO | undefined;
+        degree: DegreeDTO | undefined;
+      }
     >();
     subjectGroups.forEach((group) => {
       const subject = subjects.find((sub) => sub.id === group.subjectId);
-      map.set(group.id, { group, subject });
+      const degree = subject
+        ? degrees.find((d) => d.id === subject.degreeId)
+        : undefined;
+      map.set(group.id, { group, subject, degree });
     });
     return map;
-  }, [subjectGroups, subjects]);
+  }, [subjectGroups, subjects, degrees]);
 
   return (
     <div className="flex flex-col h-full space-y-6">

@@ -13,33 +13,33 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
           continue;
         }
 
-        const hasTheory = classesAtThisTime.some(
-          (a) => a.groupType === 'theory'
-        );
+        for (let i = 0; i < classesAtThisTime.length; i++) {
+          for (let j = i + 1; j < classesAtThisTime.length; j++) {
+            const a = classesAtThisTime[i]!;
+            const b = classesAtThisTime[j]!;
 
-        if (hasTheory) {
-          // Rule 1: Theory cannot overlap with anything.
-          penalty += 1000 * (classesAtThisTime.length - 1);
-        } else {
-          const hasPractices = classesAtThisTime.some(
-            (a) => a.groupType === 'practices'
-          );
-          const hasProblems = classesAtThisTime.some(
-            (a) => a.groupType === 'problems'
-          );
+            const conflict =
+              a.isCommon || b.isCommon || a.itineraryName === b.itineraryName;
 
-          // Rule 2: Practices and Problems cannot overlap with each other.
-          if (hasPractices && hasProblems) {
-            penalty += 1000;
-          }
+            if (conflict) {
+              const hasTheory =
+                a.groupType === 'theory' || b.groupType === 'theory';
 
-          // Rule 3: They must be from different subjects.
-          const subjectIds = new Set<string>();
-          for (const assignment of classesAtThisTime) {
-            if (subjectIds.has(assignment.subjectId)) {
-              penalty += 1000;
+              if (hasTheory) {
+                // Rule 1: Theory cannot overlap with anything for the same student
+                penalty += 1000;
+              } else {
+                // Rule 2: Practices and Problems cannot overlap with each other
+                if (a.groupType !== b.groupType) {
+                  penalty += 1000;
+                }
+              }
+
+              // Rule 3: Groups of the SAME subject can NEVER overlap.
+              if (a.subjectId === b.subjectId) {
+                penalty += 1000;
+              }
             }
-            subjectIds.add(assignment.subjectId);
           }
         }
       }

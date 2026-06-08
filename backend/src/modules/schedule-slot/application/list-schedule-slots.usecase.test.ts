@@ -7,6 +7,7 @@ describe('ListScheduleSlotsUseCase', () => {
   const repositoryMock = {
     findById: mock(),
     findByScheduleId: mock(),
+    findLinkedSlots: mock(),
     create: mock(),
     createMany: mock(),
     update: mock(),

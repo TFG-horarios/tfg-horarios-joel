@@ -1,4 +1,13 @@
-import { eq, and, isNull, inArray, ilike, count, type SQL } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  or,
+  isNull,
+  inArray,
+  ilike,
+  count,
+  type SQL,
+} from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -344,7 +353,12 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     ];
 
     if (itineraryIds && itineraryIds.length > 0) {
-      queryConditions.push(inArray(subjectsTable.itineraryId, itineraryIds));
+      queryConditions.push(
+        or(
+          inArray(subjectsTable.itineraryId, itineraryIds),
+          eq(subjectsTable.isCommon, true)
+        )!
+      );
     }
 
     if (courseYears && courseYears.length > 0) {

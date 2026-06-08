@@ -13,6 +13,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     createMany: mock(),
     update: mock(),
     delete: mock(),
+    findLinkedSlots: mock(),
   };
 
   const scheduleRepositoryMock = {

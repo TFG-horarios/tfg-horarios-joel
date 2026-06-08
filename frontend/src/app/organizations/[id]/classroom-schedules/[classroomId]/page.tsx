@@ -3,6 +3,7 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchClassroomById } from '@/features/classroom/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
+import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchClassroomScheduleSlots } from '@/features/classroom-schedule/queries';
 import { ClassroomSchedulePlanner } from '@/features/classroom-schedule/components/classroom-schedule-planner';
 import type { AcademicYear } from '@tfg-horarios/shared';
@@ -38,7 +39,7 @@ export default async function ClassroomScheduleDetailPage({
     notFound();
   }
 
-  const [organization, classroom, subjects, subjectGroups, slots] =
+  const [organization, classroom, subjects, subjectGroups, slots, degrees] =
     await Promise.all([
       fetchOrganizationById(id),
       fetchClassroomById(id, classroomId),
@@ -49,6 +50,7 @@ export default async function ClassroomScheduleDetailPage({
         shift,
         period,
       }),
+      fetchAllDegrees(id),
     ]);
 
   if (!organization || !classroom) {
@@ -63,6 +65,7 @@ export default async function ClassroomScheduleDetailPage({
         slots={slots}
         subjects={subjects}
         subjectGroups={subjectGroups}
+        degrees={degrees}
         academicYear={academicYear}
         shift={shift}
         period={period}
