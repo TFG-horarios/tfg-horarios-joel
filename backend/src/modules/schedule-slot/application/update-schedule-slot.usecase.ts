@@ -4,6 +4,7 @@ import type {
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
 import type { IScheduleSlotMemberProvider } from '../domain/schedule-slot-member.provider';
+import type { IScheduleSlotValidationProvider } from '../domain/schedule-slot-validation.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleSlotMapper } from './schedule-slot.mapper';
@@ -11,7 +12,8 @@ import { ScheduleSlotMapper } from './schedule-slot.mapper';
 export class UpdateScheduleSlotUseCase {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
-    private readonly memberProvider: IScheduleSlotMemberProvider
+    private readonly memberProvider: IScheduleSlotMemberProvider,
+    private readonly validationProvider: IScheduleSlotValidationProvider
   ) {}
 
   async execute(
@@ -42,6 +44,14 @@ export class UpdateScheduleSlotUseCase {
       dto.dayOfWeek !== undefined ? dto.dayOfWeek : slot.dayOfWeek;
     const slotIndex =
       dto.slotIndex !== undefined ? dto.slotIndex : slot.slotIndex;
+
+    await this.validationProvider.validateMove(
+      organizationId,
+      slot,
+      classroomId,
+      dayOfWeek,
+      slotIndex
+    );
 
     slot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
 

@@ -209,11 +209,11 @@ export function SchedulePlanner({
       prev.map((s) =>
         s.id === slotId
           ? {
-            ...s,
-            classroomId: targetClassroom,
-            dayOfWeek: targetDay,
-            slotIndex: targetSlot,
-          }
+              ...s,
+              classroomId: targetClassroom,
+              dayOfWeek: targetDay,
+              slotIndex: targetSlot,
+            }
           : s
       )
     );
@@ -333,9 +333,9 @@ export function SchedulePlanner({
 
         <DragOverlay dropAnimation={null}>
           {activeSlotDTO &&
-            activeMeta &&
-            activeMeta.group &&
-            activeMeta.subject ? (
+          activeMeta &&
+          activeMeta.group &&
+          activeMeta.subject ? (
             <div className="w-45">
               <DraggableSlot
                 slot={activeSlotDTO}

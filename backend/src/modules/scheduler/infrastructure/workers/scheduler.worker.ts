@@ -4,7 +4,7 @@ import { RoomOverlapConstraint } from '../../domain/constraints/room-overlap.con
 import { ShiftConstraint } from '../../domain/constraints/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/room-capacity.constraint';
 import { GroupOverlapConstraint } from '../../domain/constraints/group-overlap.constraint';
-import { ItineraryOverlapConstraint } from '../../domain/constraints/itinerary-overlap.constraint';
+import { CourseOverlapConstraint } from '../../domain/constraints/course-overlap.constraint';
 import { LCGGenerator } from '../../domain/random-generator';
 import { InitialSolution } from '../../domain/initial-solution';
 import type {
@@ -41,7 +41,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new ShiftConstraint(),
       new RoomCapacityConstraint(),
       new GroupOverlapConstraint(),
-      new ItineraryOverlapConstraint(),
+      new CourseOverlapConstraint(),
     ];
 
     const penaltyCalculator = new PenaltyCalculator(

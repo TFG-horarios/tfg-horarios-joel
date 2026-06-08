@@ -136,7 +136,9 @@ export function ClassroomSchedulePlanner({
 
         <div className="flex items-center gap-3">
           <Button
-            onClick={() => exportPDF(`horario-${classroom.name}-${academicYear}-P${period}`)}
+            onClick={() =>
+              exportPDF(`horario-${classroom.name}-${academicYear}-P${period}`)
+            }
             disabled={isExportingPDF}
             variant="outline"
             className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"

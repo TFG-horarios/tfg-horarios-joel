@@ -19,9 +19,14 @@ describe('UpdateScheduleSlotUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const validationProviderMock = {
+    validateMove: mock(),
+  };
+
   const useCase = new UpdateScheduleSlotUseCase(
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    validationProviderMock
   );
 
   test('should update schedule slot successfully', async () => {
@@ -32,11 +37,19 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
+    validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
     const dto = { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 1 };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
     expect(result.classroomId).toBe('c-2');
     expect(result.dayOfWeek).toBe(2);
     expect(result.slotIndex).toBe(1);
+    expect(validationProviderMock.validateMove).toHaveBeenCalledWith(
+      'org-1',
+      slot,
+      'c-2',
+      2,
+      1
+    );
     expect(repositoryMock.update).toHaveBeenCalledWith(slot);
   });
 
@@ -54,11 +67,20 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
+    validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
+
     const dto = { classroomId: 'c-2' };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
     expect(result.classroomId).toBe('c-2');
     expect(result.dayOfWeek).toBe(1);
     expect(result.slotIndex).toBe(0);
+    expect(validationProviderMock.validateMove).toHaveBeenCalledWith(
+      'org-1',
+      slot,
+      'c-2',
+      1,
+      0
+    );
   });
 
   test('should throw ForbiddenError if user lacks permission', async () => {
