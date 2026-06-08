@@ -17,7 +17,7 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
           for (let j = i + 1; j < classesAtThisTime.length; j++) {
             const a = classesAtThisTime[i]!;
             const b = classesAtThisTime[j]!;
-
+            // TODO: REVISAR BIEN LAS CONDICIONES DE SOLAPAMIENTO
             const conflict =
               a.isCommon || b.isCommon || a.itineraryName === b.itineraryName;
 

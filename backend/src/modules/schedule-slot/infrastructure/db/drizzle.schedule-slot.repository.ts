@@ -148,6 +148,10 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
         schedulesTable,
         eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
       )
+      .innerJoin(
+        classroomsTable,
+        eq(scheduleSlotsTable.classroomId, classroomsTable.id)
+      )
       .where(and(...conditions))
       .groupBy(
         scheduleSlotsTable.classroomId,
