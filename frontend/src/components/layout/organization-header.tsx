@@ -189,6 +189,10 @@ export function OrganizationHeader() {
                               <BreadcrumbPage className="truncate font-medium text-purple-700 dark:text-purple-300">
                                 {label}
                               </BreadcrumbPage>
+                            ) : segment === 'academic-years' ? (
+                              <span className="truncate text-muted-foreground font-medium">
+                                {label}
+                              </span>
                             ) : (
                               <BreadcrumbLink
                                 asChild

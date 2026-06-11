@@ -16,7 +16,6 @@ import { Schedule } from '../../domain/schedule.entity';
 import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
-  AcademicYear,
 } from '@tfg-horarios/shared';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
@@ -28,7 +27,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       organizationId: row.organizationId,
       degreeId: row.degreeId,
       itineraryId: row.itineraryId,
-      academicYear: row.academicYear as AcademicYear,
+      academicYearId: row.academicYearId,
       shift: row.shift,
       courseYear: row.courseYear,
       period: row.period,
@@ -44,7 +43,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       organizationId: domain.organizationId,
       degreeId: domain.degreeId,
       itineraryId: domain.itineraryId,
-      academicYear: domain.academicYear,
+      academicYearId: domain.academicYearId,
       shift: domain.shift,
       courseYear: domain.courseYear,
       period: domain.period,
@@ -72,7 +71,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     organizationId: string,
     degreeId: string,
     itineraryId: string | null,
-    academicYear: string,
+    academicYearId: string,
     courseYear: number,
     period: number,
     shift: 'morning' | 'afternoon'
@@ -80,7 +79,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     const conditions = [
       eq(schedulesTable.organizationId, organizationId),
       eq(schedulesTable.degreeId, degreeId),
-      eq(schedulesTable.academicYear, academicYear),
+      eq(schedulesTable.academicYearId, academicYearId),
       eq(schedulesTable.courseYear, courseYear),
       eq(schedulesTable.period, period),
       eq(schedulesTable.shift, shift),
@@ -101,16 +100,14 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findDistinctAcademicYears(
-    organizationId: string
-  ): Promise<AcademicYear[]> {
+  async findDistinctAcademicYears(organizationId: string): Promise<string[]> {
     const rows = await this.database
-      .selectDistinct({ academicYear: schedulesTable.academicYear })
+      .selectDistinct({ academicYearId: schedulesTable.academicYearId })
       .from(schedulesTable)
       .where(eq(schedulesTable.organizationId, organizationId))
-      .orderBy(desc(schedulesTable.academicYear));
+      .orderBy(desc(schedulesTable.academicYearId));
 
-    return rows.map((r) => r.academicYear as AcademicYear);
+    return rows.map((r) => r.academicYearId);
   }
 
   async findAll(organizationId: string): Promise<Schedule[]> {

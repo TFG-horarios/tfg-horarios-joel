@@ -49,23 +49,6 @@ export const listAllSchedulesRoute = createRoute({
   },
 });
 
-export const getAcademicYearsRoute = createRoute({
-  method: 'get',
-  path: '/organizations/{organizationId}/schedules/academic-years',
-  request: {
-    params: ScheduleBaseParamSchema,
-  },
-  responses: {
-    200: {
-      description: 'Listado de cursos académicos con horarios',
-      content: {
-        'application/json': { schema: z.array(AcademicYearSchema) },
-      },
-    },
-    403: { description: 'Forbidden' },
-  },
-});
-
 export const getScheduleRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules/{id}',
@@ -158,5 +141,28 @@ export const generateScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict: Generation already exists or in progress' },
+  },
+});
+
+export const checkOverwriteScheduleRoute = createRoute({
+  method: 'post',
+  path: '/organizations/{organizationId}/schedules/check-overwrite',
+  request: {
+    params: ScheduleBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: GenerationScopeSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Schedules that will be overwritten',
+      content: { 'application/json': { schema: z.array(ScheduleSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
   },
 });

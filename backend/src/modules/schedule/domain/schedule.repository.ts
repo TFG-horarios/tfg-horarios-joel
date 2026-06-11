@@ -2,7 +2,6 @@ import { Schedule } from './schedule.entity';
 import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
-  AcademicYear,
 } from '@tfg-horarios/shared';
 
 export interface CreateScheduleSlotInput {
@@ -20,12 +19,12 @@ export interface IScheduleRepository {
     organizationId: string,
     degreeId: string,
     itineraryId: string | null,
-    academicYear: string,
+    academicYearId: string,
     courseYear: number,
     period: number,
     shift: 'morning' | 'afternoon'
   ): Promise<Schedule | null>;
-  findDistinctAcademicYears(organizationId: string): Promise<AcademicYear[]>;
+  findDistinctAcademicYears(organizationId: string): Promise<string[]>;
   findAll(organizationId: string): Promise<Schedule[]>;
   findPaginated(
     organizationId: string,

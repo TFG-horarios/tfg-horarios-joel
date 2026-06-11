@@ -10,6 +10,7 @@ import * as scheduleSchema from '@/modules/schedule/infrastructure/db/drizzle.sc
 import * as scheduleSlotSchema from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
 import * as degreeSchema from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 import * as itinerarySchema from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
+import * as academicYearSchema from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
 
 const schema = {
   ...userSchema,
@@ -22,6 +23,7 @@ const schema = {
   ...scheduleSlotSchema,
   ...degreeSchema,
   ...itinerarySchema,
+  ...academicYearSchema,
 };
 const connectionString = Bun.env.DATABASE_URL;
 

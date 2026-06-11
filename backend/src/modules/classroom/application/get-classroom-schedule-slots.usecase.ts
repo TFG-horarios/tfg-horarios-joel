@@ -45,6 +45,14 @@ export class GetClassroomScheduleSlotsUseCase {
         filters
       );
 
-    return slots.map(ScheduleSlotMapper.toDTO);
+    const uniqueSlotsMap = new Map<string, (typeof slots)[0]>();
+    for (const slot of slots) {
+      const key = `${slot.dayOfWeek}-${slot.slotIndex}-${slot.subjectGroupId}`;
+      if (!uniqueSlotsMap.has(key)) {
+        uniqueSlotsMap.set(key, slot);
+      }
+    }
+
+    return Array.from(uniqueSlotsMap.values()).map(ScheduleSlotMapper.toDTO);
   }
 }

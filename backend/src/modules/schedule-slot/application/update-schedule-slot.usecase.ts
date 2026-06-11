@@ -66,7 +66,7 @@ export class UpdateScheduleSlotUseCase {
     if (isCommon) {
       linkedSlots = await this.scheduleSlotRepository.findLinkedSlots(
         slot.subjectGroupId,
-        scheduleContext.academicYear,
+        scheduleContext.academicYearId,
         scheduleContext.shift,
         slot.classroomId,
         slot.dayOfWeek,

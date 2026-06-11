@@ -1,4 +1,3 @@
-import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ListAllSchedulesUseCase } from './list-all-schedules.usecase';
 import { Schedule } from '../domain/schedule.entity';
@@ -37,7 +36,7 @@ describe('ListAllSchedulesUseCase', () => {
       organizationId: 'org-1',
       degreeId: 'deg-1',
       itineraryId: null,
-      academicYear: '2025-2026' as AcademicYear,
+      academicYearId: 'ay-1',
       courseYear: 1,
       shift: 'morning',
       period: 1,

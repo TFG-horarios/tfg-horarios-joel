@@ -56,7 +56,43 @@ export async function generateSchedulesAction(
     const payload = await response.json();
     const schedules = ScheduleSchema.array().parse(payload);
 
-    revalidatePath(`/organizations/${organizationId}/schedules`);
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+
+    return { success: true, data: schedules };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function checkScheduleOverwriteAction(
+  organizationId: string,
+  scope: GenerationScopeDTO
+): Promise<ActionResponse<ScheduleDTO[]>> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = GenerationScopeSchema.safeParse(scope);
+
+  if (!parsedInput.success) {
+    return { success: false, message: tErrors('validation') };
+  }
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.schedules['check-overwrite'].$post({
+      param: { organizationId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const schedules = ScheduleSchema.array().parse(payload);
 
     return { success: true, data: schedules };
   } catch (error) {
@@ -89,7 +125,7 @@ export async function publishScheduleAction(
     const payload = await response.json();
     const schedule = ScheduleSchema.parse(payload);
 
-    revalidatePath(`/organizations/${organizationId}/schedules`);
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
     revalidatePath(`/organizations/${organizationId}/schedules/${scheduleId}`);
 
     return { success: true, message: tSuccess('updated'), data: schedule };
@@ -129,7 +165,7 @@ export async function updateScheduleSlotAction(
     const payload = await response.json();
     const slot = ScheduleSlotSchema.parse(payload);
 
-    revalidatePath(`/organizations/${organizationId}/schedules`);
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
 
     return { success: true, data: slot };
   } catch (error) {

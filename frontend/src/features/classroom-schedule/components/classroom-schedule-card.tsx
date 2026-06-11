@@ -13,34 +13,41 @@ import {
 
 export interface ClassroomScheduleDTO {
   classroomId: string;
-  academicYear: string;
+  academicYearId: string;
   shift: 'morning' | 'afternoon';
   period: number;
 }
 
 export interface ClassroomScheduleCardProps {
   item: ClassroomScheduleDTO;
-  classroomMap: Map<string, string>;
+  classroomMap: Record<string, string>;
+  academicYearMap: Record<string, string>;
   organizationId: string;
+  academicYearId: string;
   translations?: Record<string, string>;
 }
 
 export const ClassroomScheduleCard = memo(function ClassroomScheduleCard({
   item: config,
   classroomMap,
+  academicYearMap,
   organizationId,
+  academicYearId,
   translations = {},
 }: ClassroomScheduleCardProps) {
   const t = useTranslations('Organizations.classroomSchedules.card');
   const classroomName =
-    classroomMap.get(config.classroomId) || t('unknownClassroom');
+    classroomMap[config.classroomId] || t('unknownClassroom');
 
   const shiftLabel = translations[`shift_${config.shift}`] || config.shift;
 
-  const scheduleUrl = `/organizations/${organizationId}/classroom-schedules/${config.classroomId}?academicYear=${encodeURIComponent(config.academicYear)}&shift=${config.shift}&period=${config.period}`;
+  const scheduleUrl = `/organizations/${organizationId}/academic-years/${academicYearId}/classroom-schedules/${config.classroomId}?shift=${config.shift}&period=${config.period}`;
 
   return (
-    <Link href={scheduleUrl} className="block h-full cursor-pointer">
+    <Link
+      href={scheduleUrl}
+      className="block h-full cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
       <Card
         className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
       >
@@ -69,7 +76,7 @@ export const ClassroomScheduleCard = memo(function ClassroomScheduleCard({
                 {translations.academicYear || 'Academic Year'}
               </span>
               <span className="font-medium truncate">
-                {config.academicYear}
+                {academicYearMap[config.academicYearId]}
               </span>
             </div>
             <div className="flex flex-col min-w-0">

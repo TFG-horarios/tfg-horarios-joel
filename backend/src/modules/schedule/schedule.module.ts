@@ -8,12 +8,13 @@ import { DrizzleDegreeRepository } from '@/modules/degree/infrastructure/db/driz
 import { DrizzleClassroomRepository } from '@/modules/classroom/infrastructure/db/drizzle.classroom.repository';
 import { DrizzleSubjectGroupRepository } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.repository';
 import { DrizzleOrganizationRepository } from '@/modules/organization/infrastructure/db/drizzle.organization.repository';
+import { DrizzleClassroomReservationRepository } from '@/modules/classroom-reservation/infrastructure/db/drizzle.classroom-reservation.repository';
 import { ListSchedulesUseCase } from './application/list-schedules.usecase';
 import { ListAllSchedulesUseCase } from './application/list-all-schedules.usecase';
 import { GetScheduleUseCase } from './application/get-schedule.usecase';
 import { PublishScheduleUseCase } from './application/publish-schedule.usecase';
 import { GenerateScheduleUseCase } from './application/generate-schedule.usecase';
-import { GetScheduleAcademicYearsUseCase } from './application/get-schedule-academic-years.usecase';
+import { CheckScheduleOverwriteUseCase } from './application/check-schedule-overwrite.usecase';
 import { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
 import { ScheduleSlotMemberAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-member.adapter';
@@ -28,8 +29,8 @@ import {
   listScheduleSlotsRoute,
   updateScheduleSlotRoute,
   generateScheduleRoute,
+  checkOverwriteScheduleRoute,
   listAllSchedulesRoute,
-  getAcademicYearsRoute,
 } from './infrastructure/http/hono.schedule.routes';
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
@@ -54,10 +55,13 @@ export const createScheduleModule = (db: DbConnection) => {
 
   const engineProvider = new SchedulerEngineAdapter();
 
+  const reservationRepository = new DrizzleClassroomReservationRepository(db);
+
   const slotValidationProvider = new ScheduleSlotValidationAdapter(
     scheduleSlotRepository,
     scheduleRepository,
-    dataProvider
+    dataProvider,
+    reservationRepository
   );
 
   const slotDataProvider = new ScheduleSlotDataAdapter(
@@ -76,24 +80,28 @@ export const createScheduleModule = (db: DbConnection) => {
       memberProvider,
       engineProvider
     ),
+    new CheckScheduleOverwriteUseCase(
+      scheduleRepository,
+      dataProvider,
+      memberProvider
+    ),
     new ListScheduleSlotsUseCase(scheduleSlotRepository, slotMemberProvider),
     new UpdateScheduleSlotUseCase(
       scheduleSlotRepository,
       slotDataProvider,
       slotMemberProvider,
       slotValidationProvider
-    ),
-    new GetScheduleAcademicYearsUseCase(scheduleRepository, memberProvider)
+    )
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(listAllSchedulesRoute, controller.listAll)
-    .openapi(getAcademicYearsRoute, controller.getAcademicYears)
     .openapi(listSchedulesRoute, controller.list)
     .openapi(getScheduleRoute, controller.get)
     .openapi(publishScheduleRoute, controller.publish)
     .openapi(generateScheduleRoute, controller.generate)
+    .openapi(checkOverwriteScheduleRoute, controller.checkOverwrite)
     .openapi(listScheduleSlotsRoute, controller.listSlots)
     .openapi(updateScheduleSlotRoute, controller.updateSlot);
 

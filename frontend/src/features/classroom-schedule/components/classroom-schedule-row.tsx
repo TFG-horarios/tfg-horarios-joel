@@ -7,25 +7,36 @@ import { Button } from '@/components/ui/button';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import type { ClassroomScheduleCardProps } from './classroom-schedule-card';
+import type { ClassroomScheduleDTO } from './classroom-schedule-card';
+
+export interface ClassroomScheduleCardProps {
+  item: ClassroomScheduleDTO;
+  classroomMap: Record<string, string>;
+  academicYearMap: Record<string, string>;
+  organizationId: string;
+  academicYearId: string;
+  translations?: Record<string, string>;
+}
 
 export const ClassroomScheduleRow = memo(function ClassroomScheduleRow({
   item: config,
   classroomMap,
+  academicYearMap,
   organizationId,
+  academicYearId,
   translations = {},
 }: ClassroomScheduleCardProps) {
   const t = useTranslations('Organizations.classroomSchedules.card');
   const classroomName =
-    classroomMap.get(config.classroomId) || t('unknownClassroom');
+    classroomMap[config.classroomId] || t('unknownClassroom');
   const shiftLabel = translations[`shift_${config.shift}`] || config.shift;
 
-  const scheduleUrl = `/organizations/${organizationId}/classroom-schedules/${config.classroomId}?academicYear=${encodeURIComponent(config.academicYear)}&shift=${config.shift}&period=${config.period}`;
+  const scheduleUrl = `/organizations/${organizationId}/academic-years/${academicYearId}/classroom-schedules/${config.classroomId}?shift=${config.shift}&period=${config.period}`;
 
   return (
     <TableRow>
       <TableCell className="font-medium">{classroomName}</TableCell>
-      <TableCell>{config.academicYear}</TableCell>
+      <TableCell>{academicYearMap[config.academicYearId]}</TableCell>
       <TableCell>{config.period}</TableCell>
       <TableCell className="capitalize">{shiftLabel}</TableCell>
       <ResourceRowActions>

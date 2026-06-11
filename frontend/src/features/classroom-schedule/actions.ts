@@ -19,7 +19,7 @@ export async function fetchActiveClassroomConfigurationsAction(
       success: false,
       data: [] as {
         classroomId: string;
-        academicYear: string;
+        academicYearId: string;
         shift: 'morning' | 'afternoon';
         period: number;
       }[],

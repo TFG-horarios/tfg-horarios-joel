@@ -187,7 +187,7 @@ export class GenerateScheduleUseCase {
           organizationId,
           sData.degreeId,
           sData.itineraryId,
-          scope.academicYear,
+          scope.academicYearId,
           sData.courseYear,
           period,
           sData.shift
@@ -199,7 +199,7 @@ export class GenerateScheduleUseCase {
             organizationId,
             degreeId: sData.degreeId,
             itineraryId: sData.itineraryId,
-            academicYear: scope.academicYear,
+            academicYearId: scope.academicYearId,
             courseYear: sData.courseYear,
             period: period,
             shift: sData.shift,

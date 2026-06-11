@@ -9,7 +9,8 @@ export default function OrganizationLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isListPage = pathname === '/organizations';
+  const isListPage =
+    pathname === '/organizations' || /^\/organizations\/[^/]+$/.test(pathname);
 
   return (
     <div className="relative h-screen w-full overflow-hidden text-foreground">

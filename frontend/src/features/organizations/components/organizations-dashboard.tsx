@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { CreateOrganizationForm } from './create-organization-form';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
+import { DashboardGrid } from '@/components/layout/dashboard-grid';
 
 type OrganizationsDashboardProps = {
   initialOrganizations: OrganizationDTO[];
@@ -67,109 +68,93 @@ export function OrganizationsDashboard({
   };
 
   return (
-    <div className="space-y-8">
-      <div className="mb-8 mt-2 flex flex-col justify-between gap-4 border-b border-black/10 pb-6 dark:border-white/10 sm:flex-row sm:items-end">
-        <div>
-          <div className="mb-2 flex items-center gap-3">
-            <div className="rounded-lg border border-black/10 bg-white/70 p-2 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
-              <Building2 className="size-5 text-purple-600 dark:text-purple-200" />
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              {t('page.title')}
-            </h2>
-            <span className="flex items-center justify-center rounded-full border border-purple-500/40 bg-purple-500/15 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
-              {organizationCountLabel}
-            </span>
-          </div>
-          <p className="text-muted-foreground">{t('page.description')}</p>
-        </div>
-
+    <DashboardGrid
+      icon={
+        <Building2 className="size-5 text-purple-600 dark:text-purple-200" />
+      }
+      title={t('page.title')}
+      countLabel={organizationCountLabel}
+      description={t('page.description')}
+      error={error}
+      actionButton={
         <Button
           onClick={() => handleModalChange(true)}
           className="h-11 shrink-0 cursor-pointer bg-purple-600/90 px-5 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600/80 dark:bg-purple-500/80 dark:hover:bg-purple-500/70"
         >
           {t('actions.create')}
         </Button>
-      </div>
-
-      {error && (
-        <Card className="border-red-500/30 bg-red-500/10 p-4">
-          <p className="text-red-700 dark:text-red-200">{error}</p>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredOrganizations.map((org) => (
-          <Card
-            key={org.id}
-            className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
-            onClick={() => handleSelectOrganization(org.id)}
-          >
-            <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-            <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
-              {org.name}
-            </h3>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>
-                <span className="font-medium text-muted-foreground">
-                  {t('detail.periodType')}:
-                </span>{' '}
-                <span className="font-medium text-foreground">
-                  {periodTypeLabels[org.periodType]}
-                </span>
-              </p>
-              <p>
-                <span className="font-medium text-muted-foreground">
-                  {t('detail.morning')}:
-                </span>{' '}
-                <span className="font-medium text-foreground">
-                  {org.morningStart} - {org.morningEnd}
-                </span>
-              </p>
-              <p>
-                <span className="font-medium text-muted-foreground">
-                  {t('detail.afternoon')}:
-                </span>{' '}
-                <span className="font-medium text-foreground">
-                  {org.afternoonStart} - {org.afternoonEnd}
-                </span>
-              </p>
-              <p>
-                <span className="font-medium text-muted-foreground">
-                  {t('detail.slotDuration')}:
-                </span>{' '}
-                <span className="font-medium text-foreground">
-                  {org.slotDurationMinutes} min
-                </span>
-              </p>
-            </div>
-          </Card>
-        ))}
-
+      }
+    >
+      {filteredOrganizations.map((org) => (
         <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => handleModalChange(true)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              handleModalChange(true);
-            }
-          }}
-          className="group hover-lift h-full min-h-48 cursor-pointer border-2 border-dashed border-black/10 bg-transparent p-6 transition-all duration-300 hover:border-purple-400/40 hover:shadow-lg hover:shadow-black/10 dark:border-white/20 dark:hover:shadow-black/50"
+          key={org.id}
+          className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
+          onClick={() => handleSelectOrganization(org.id)}
         >
-          <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 dark:text-purple-200">
-              <Plus className="size-8" />
-            </div>
-            <p className="text-lg font-medium text-foreground">
-              {t('actions.createNew')}
+          <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
+            <ArrowRight className="w-5 h-5" />
+          </div>
+          <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
+            {org.name}
+          </h3>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>
+              <span className="font-medium text-muted-foreground">
+                {t('detail.periodType')}:
+              </span>{' '}
+              <span className="font-medium text-foreground">
+                {periodTypeLabels[org.periodType]}
+              </span>
+            </p>
+            <p>
+              <span className="font-medium text-muted-foreground">
+                {t('detail.morning')}:
+              </span>{' '}
+              <span className="font-medium text-foreground">
+                {org.morningStart} - {org.morningEnd}
+              </span>
+            </p>
+            <p>
+              <span className="font-medium text-muted-foreground">
+                {t('detail.afternoon')}:
+              </span>{' '}
+              <span className="font-medium text-foreground">
+                {org.afternoonStart} - {org.afternoonEnd}
+              </span>
+            </p>
+            <p>
+              <span className="font-medium text-muted-foreground">
+                {t('detail.slotDuration')}:
+              </span>{' '}
+              <span className="font-medium text-foreground">
+                {org.slotDurationMinutes} min
+              </span>
             </p>
           </div>
         </Card>
-      </div>
+      ))}
+
+      <Card
+        role="button"
+        tabIndex={0}
+        onClick={() => handleModalChange(true)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleModalChange(true);
+          }
+        }}
+        className="group hover-lift h-full min-h-48 cursor-pointer border-2 border-dashed border-black/10 bg-transparent p-6 transition-all duration-300 hover:border-purple-400/40 hover:shadow-lg hover:shadow-black/10 dark:border-white/20 dark:hover:shadow-black/50"
+      >
+        <div className="flex h-full flex-col items-center justify-center text-center">
+          <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 dark:text-purple-200">
+            <Plus className="size-8" />
+          </div>
+          <p className="text-lg font-medium text-foreground">
+            {t('actions.createNew')}
+          </p>
+        </div>
+      </Card>
 
       <Dialog open={isModalOpen} onOpenChange={handleModalChange}>
         <DialogContent className="sm:max-w-md lg:max-w-lg lg:p-8">
@@ -185,6 +170,6 @@ export function OrganizationsDashboard({
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardGrid>
   );
 }

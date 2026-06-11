@@ -53,7 +53,9 @@
       "creating": "Creating...",
       "deleting": "Deleting...",
       "processing": "Processing...",
-      "searching": "Searching..."
+      "searching": "Searching...",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "errors": {
       "generic": "An unexpected error occurred.",
@@ -251,7 +253,8 @@
       "schedules": "Schedules",
       "members": "Members",
       "classroomSchedules": "Classroom schedules",
-      "reserve": "Reserve"
+      "reserve": "Reserve",
+      "academicYears": "Academic years"
     },
     "dialog": {
       "title": "New organization",

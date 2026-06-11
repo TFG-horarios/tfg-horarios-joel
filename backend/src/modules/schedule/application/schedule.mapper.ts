@@ -8,7 +8,7 @@ export class ScheduleMapper {
       organizationId: schedule.organizationId,
       degreeId: schedule.degreeId,
       itineraryId: schedule.itineraryId ?? undefined,
-      academicYear: schedule.academicYear,
+      academicYearId: schedule.academicYearId,
       shift: schedule.shift,
       courseYear: schedule.courseYear,
       period: schedule.period,

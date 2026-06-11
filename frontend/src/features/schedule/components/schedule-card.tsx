@@ -14,8 +14,9 @@ import type { ScheduleDTO } from '@tfg-horarios/shared';
 
 export interface ScheduleCardProps {
   item: ScheduleDTO;
-  degreeMap: Map<string, string>;
-  itineraryMap: Map<string, string>;
+  degreeMap: Record<string, string>;
+  itineraryMap: Record<string, string>;
+  academicYearMap: Record<string, string>;
   organizationId: string;
   translations?: Record<string, string>;
 }
@@ -24,14 +25,15 @@ export const ScheduleCard = memo(function ScheduleCard({
   item: schedule,
   degreeMap,
   itineraryMap,
+  academicYearMap,
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
   const t = useTranslations('Organizations.schedules.card');
   const tStatus = useTranslations('Organizations.schedules');
-  const degreeName = degreeMap.get(schedule.degreeId) || t('unknownDegree');
+  const degreeName = degreeMap[schedule.degreeId] || t('unknownDegree');
   const itineraryName = schedule.itineraryId
-    ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
+    ? itineraryMap[schedule.itineraryId] || t('unknownItinerary')
     : translations.commonItinerary || tStatus('itineraryOptions.common');
 
   const getStatusBadgeVariant = (status: 'draft' | 'published') => {
@@ -49,8 +51,8 @@ export const ScheduleCard = memo(function ScheduleCard({
 
   return (
     <Link
-      href={`/organizations/${organizationId}/schedules/${schedule.id}`}
-      className="block h-full cursor-pointer"
+      href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
+      className="block h-full cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Card
         className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
@@ -92,7 +94,7 @@ export const ScheduleCard = memo(function ScheduleCard({
                 {translations.academicYear || tStatus('form.academicYear')}
               </span>
               <span className="font-medium truncate">
-                {schedule.academicYear}
+                {academicYearMap[schedule.academicYearId]}
               </span>
             </div>
             <div className="flex flex-col min-w-0">

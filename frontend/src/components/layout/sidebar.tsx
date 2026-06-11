@@ -62,6 +62,12 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
   if (segments.length > 1) {
     if (segments.length === 3 && segments[0] === 'organizations') {
       defaultBackUrl = `/${segments[0]}`;
+    } else if (
+      segments.length === 4 &&
+      segments[0] === 'organizations' &&
+      segments[2] === 'academic-years'
+    ) {
+      defaultBackUrl = `/organizations/${segments[1]}`;
     } else {
       defaultBackUrl = `/${segments.slice(0, -1).join('/')}`;
     }

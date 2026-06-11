@@ -1,5 +1,5 @@
 export interface IScheduleSlotContext {
-  academicYear: string;
+  academicYearId: string;
   shift: 'morning' | 'afternoon';
 }
 

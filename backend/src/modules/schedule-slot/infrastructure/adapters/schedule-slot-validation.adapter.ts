@@ -14,11 +14,14 @@ import type {
   ClassroomMap,
 } from '@/modules/scheduler/domain/types';
 
+import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
+
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly scheduleRepository: IScheduleRepository,
-    private readonly dataProvider: IScheduleDataProvider
+    private readonly dataProvider: IScheduleDataProvider,
+    private readonly reservationRepository: IClassroomReservationRepository
   ) {}
 
   async validateMove(
@@ -147,6 +150,26 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       throw new ConflictError(
         'The move violates strong constraints (overlap or capacity).'
       );
+    }
+
+    if (
+      newClassroomId !== null &&
+      newDayOfWeek !== null &&
+      newSlotIndex !== null
+    ) {
+      const hasReservation =
+        await this.reservationRepository.hasAcceptedFutureReservation(
+          organizationId,
+          newClassroomId,
+          newDayOfWeek,
+          newSlotIndex
+        );
+
+      if (hasReservation) {
+        throw new ConflictError(
+          'El aula tiene una reserva aceptada para ese horario en el futuro.'
+        );
+      }
     }
   }
 }

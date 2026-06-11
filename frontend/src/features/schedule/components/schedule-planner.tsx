@@ -37,6 +37,7 @@ type SchedulePlannerProps = {
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
+  academicYearName: string;
 };
 
 type MemoizedScheduleCellProps = {
@@ -99,6 +100,7 @@ export function SchedulePlanner({
   subjectGroups,
   degrees,
   itineraries,
+  academicYearName,
 }: SchedulePlannerProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
@@ -272,7 +274,7 @@ export function SchedulePlanner({
             </div>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <Calendar className="size-4" />
-              {localSchedule.academicYear} • Semester {localSchedule.period}
+              {academicYearName} • Semester {localSchedule.period}
             </p>
           </div>
 
@@ -291,7 +293,7 @@ export function SchedulePlanner({
               <Button
                 onClick={() =>
                   exportPDF(
-                    `horario-${localSchedule.academicYear}-P${localSchedule.period}`
+                    `horario-${academicYearName}-P${localSchedule.period}`
                   )
                 }
                 disabled={isExportingPDF}

@@ -11,3 +11,4 @@ export * from './schema/itinerary.schema';
 export * from './schema/degree.schema';
 export * from './schema/pagination.schema';
 export * from './schema/academic-year.schema';
+export * from './schema/classroom-reservation.schema';

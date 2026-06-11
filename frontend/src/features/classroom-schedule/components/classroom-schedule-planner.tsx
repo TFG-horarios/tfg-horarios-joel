@@ -101,7 +101,14 @@ export function ClassroomSchedulePlanner({
       if (!map.has(key)) {
         map.set(key, []);
       }
-      map.get(key)!.push(s);
+      const cellSlots = map.get(key)!;
+      if (
+        !cellSlots.some(
+          (existing) => existing.subjectGroupId === s.subjectGroupId
+        )
+      ) {
+        cellSlots.push(s);
+      }
     });
     return map;
   }, [slots]);

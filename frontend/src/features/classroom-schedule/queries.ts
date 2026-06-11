@@ -18,7 +18,7 @@ export const fetchActiveClassroomConfigurations = cache(
   ): Promise<
     PaginatedResponse<{
       classroomId: string;
-      academicYear: string;
+      academicYearId: string;
       shift: 'morning' | 'afternoon';
       period: number;
     }>
@@ -49,7 +49,7 @@ export const fetchActiveClassroomConfigurations = cache(
     const schema = createPaginatedSchema(
       z.object({
         classroomId: z.string(),
-        academicYear: z.string(),
+        academicYearId: z.string(),
         shift: z.enum(['morning', 'afternoon']),
         period: z.number(),
       })

@@ -1,6 +1,7 @@
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ScheduleSlotValidationAdapter } from './schedule-slot-validation.adapter';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
+import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import { NotFoundError, ConflictError } from '@/core/errors/app.error';
 
 describe('ScheduleSlotValidationAdapter', () => {
@@ -34,10 +35,15 @@ describe('ScheduleSlotValidationAdapter', () => {
     getOrganizationConstraints: mock(),
   };
 
+  const reservationRepositoryMock = {
+    hasAcceptedFutureReservation: mock(),
+  } as unknown as IClassroomReservationRepository;
+
   const adapter = new ScheduleSlotValidationAdapter(
     scheduleSlotRepositoryMock,
     scheduleRepositoryMock,
-    dataProviderMock
+    dataProviderMock,
+    reservationRepositoryMock
   );
 
   beforeEach(() => {
@@ -46,6 +52,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     dataProviderMock.getGroupsInScope.mockReset();
     dataProviderMock.getOrganizationConstraints.mockReset();
     dataProviderMock.getAvailableClassrooms.mockReset();
+    (reservationRepositoryMock.hasAcceptedFutureReservation as any).mockReset();
   });
 
   const slot = ScheduleSlot.create({

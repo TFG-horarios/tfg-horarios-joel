@@ -18,6 +18,11 @@ import { createSubjectGroupModule } from './modules/subject-group/subject-group.
 import { createScheduleModule } from './modules/schedule/schedule.module';
 import { DrizzleMemberRepository } from './modules/member/infrastructure/db/drizzle.member.repository';
 import { DrizzleSubjectRepository } from './modules/subject/infrastructure/db/drizzle.subject.repository';
+import { createClassroomReservationModule } from './modules/classroom-reservation/classroom-reservation.module';
+import { DrizzleScheduleRepository } from './modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleScheduleSlotRepository } from './modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
+import { createAcademicYearModule } from './modules/academic-year/academic-year.module';
+import { DrizzleAcademicYearRepository } from './modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
 
 const api = new OpenAPIHono();
 const protectedApi = new OpenAPIHono();
@@ -30,6 +35,9 @@ const authMiddleware = createAuthMiddleware(jwtService);
 const userRepository = new DrizzleUserRepository(db);
 const memberRepository = new DrizzleMemberRepository(db);
 const subjectRepository = new DrizzleSubjectRepository(db);
+const scheduleRepository = new DrizzleScheduleRepository(db);
+const scheduleSlotRepository = new DrizzleScheduleSlotRepository(db);
+const academicYearRepository = new DrizzleAcademicYearRepository(db);
 
 api.use(
   '/api/*',
@@ -52,7 +60,18 @@ const protectedRoutes = protectedApi
   .route('/', createItineraryModule(db, memberRepository))
   .route('/', createSubjectModule(db, memberRepository))
   .route('/', createSubjectGroupModule(db, memberRepository, subjectRepository))
-  .route('/', createScheduleModule(db));
+  .route('/', createScheduleModule(db))
+  .route('/', createAcademicYearModule(db, memberRepository))
+  .route(
+    '/',
+    createClassroomReservationModule(
+      db,
+      memberRepository,
+      scheduleRepository,
+      scheduleSlotRepository,
+      academicYearRepository
+    )
+  );
 
 const routes = api
   .route('/api', createAuthModule(jwtService, userRepository))

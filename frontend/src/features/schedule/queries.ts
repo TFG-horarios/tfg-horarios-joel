@@ -88,24 +88,3 @@ export const fetchScheduleSlots = cache(
     return ScheduleSlotSchema.array().parse(payload);
   }
 );
-
-export const fetchScheduleAcademicYears = cache(
-  async (organizationId: string): Promise<string[]> => {
-    const t = await getTranslations('Common.errors');
-    const client = await getServerClient();
-    const response = await client.api.organizations[
-      ':organizationId'
-    ]!.schedules['academic-years'].$get({
-      param: { organizationId },
-    });
-
-    const status = response.status as number;
-    if (status === 401 || status === 403) return [];
-
-    if (!response.ok) {
-      throw new Error(t('server'));
-    }
-
-    return (await response.json()) as string[];
-  }
-);

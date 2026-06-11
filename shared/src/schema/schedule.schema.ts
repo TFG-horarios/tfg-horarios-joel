@@ -1,6 +1,5 @@
 import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
-import { AcademicYearSchema } from './academic-year.schema';
 
 export const ScheduleSchema = z
   .object({
@@ -15,7 +14,7 @@ export const ScheduleSchema = z
       .uuid()
       .optional()
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174003' }),
-    academicYear: AcademicYearSchema,
+    academicYearId: z.uuid(),
     shift: z.enum(['morning', 'afternoon']).openapi({ example: 'morning' }),
     courseYear: z.number().int().positive().openapi({ example: 1 }),
     period: z.number().int().positive().openapi({ example: 1 }),
@@ -37,7 +36,7 @@ export const ScheduleIdParamSchema = ScheduleBaseParamSchema.extend({
 
 export const SaveScheduleBodySchema = z
   .object({
-    academicYear: AcademicYearSchema,
+    academicYearId: z.uuid(),
     shift: z.enum(['morning', 'afternoon']).openapi({ example: 'morning' }),
     courseYear: z.number().int().positive().openapi({ example: 1 }),
     period: z.number().int().positive().openapi({ example: 1 }),
@@ -49,7 +48,7 @@ export const SaveScheduleBodySchema = z
   .openapi('SaveSchedule');
 
 export const ScheduleListQuerySchema = PaginationQuerySchema.extend({
-  academicYear: AcademicYearSchema.optional(),
+  academicYearId: z.uuid().optional(),
   degreeId: z.string().optional(),
   itineraryId: z.string().optional(),
   shift: z.enum(['morning', 'afternoon']).optional(),
@@ -66,7 +65,9 @@ export type ScheduleListQueryDTO = z.infer<typeof ScheduleListQuerySchema>;
 
 export const GenerationScopeSchema = z
   .object({
-    academicYear: AcademicYearSchema,
+    academicYearId: z
+      .uuid()
+      .openapi({ example: '123e4567-e89b-12d3-a456-426614174004' }),
     periods: z
       .array(z.number().int().min(1).max(4))
       .min(1)

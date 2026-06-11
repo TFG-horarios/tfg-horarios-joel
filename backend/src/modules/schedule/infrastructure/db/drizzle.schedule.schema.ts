@@ -11,6 +11,7 @@ import { organizationsTable } from '@/modules/organization/infrastructure/db/dri
 import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
 import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
+import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
 import { sql } from 'drizzle-orm';
 
 export const scheduleStatusEnum = pgEnum('schedule_status', [
@@ -31,7 +32,9 @@ export const schedulesTable = pgTable(
     itineraryId: uuid('itinerary_id').references(() => itinerariesTable.id, {
       onDelete: 'restrict',
     }),
-    academicYear: text('academic_year').notNull(),
+    academicYearId: uuid('academic_year_id')
+      .notNull()
+      .references(() => academicYearsTable.id, { onDelete: 'cascade' }),
     shift: shiftEnum('shift').notNull(),
     courseYear: integer('course_year').notNull(),
     period: integer('period').notNull(),
@@ -48,7 +51,7 @@ export const schedulesTable = pgTable(
         table.organizationId,
         table.degreeId,
         table.itineraryId,
-        table.academicYear,
+        table.academicYearId,
         table.courseYear,
         table.period,
         table.shift
@@ -58,7 +61,7 @@ export const schedulesTable = pgTable(
       .on(
         table.organizationId,
         table.degreeId,
-        table.academicYear,
+        table.academicYearId,
         table.courseYear,
         table.period,
         table.shift

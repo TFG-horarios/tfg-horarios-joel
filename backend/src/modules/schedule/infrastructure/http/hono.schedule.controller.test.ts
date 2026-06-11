@@ -1,4 +1,3 @@
-import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import type { AppEnv } from '@/core/types/app-types';
 import { HonoScheduleController } from './hono.schedule.controller';
@@ -12,7 +11,6 @@ import {
   updateScheduleSlotRoute,
   generateScheduleRoute,
   listAllSchedulesRoute,
-  getAcademicYearsRoute,
 } from './hono.schedule.routes';
 
 describe('HonoScheduleController Integration', () => {
@@ -21,9 +19,9 @@ describe('HonoScheduleController Integration', () => {
   const getMock = { execute: mock() };
   const publishMock = { execute: mock() };
   const generateMock = { execute: mock() };
+  const checkOverwriteMock = { execute: mock() };
   const listSlotsMock = { execute: mock() };
   const updateSlotMock = { execute: mock() };
-  const getAcademicYearsMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoScheduleController>;
   const controller = new HonoScheduleController(
@@ -32,9 +30,9 @@ describe('HonoScheduleController Integration', () => {
     getMock as unknown as Params[2],
     publishMock as unknown as Params[3],
     generateMock as unknown as Params[4],
-    listSlotsMock as unknown as Params[5],
-    updateSlotMock as unknown as Params[6],
-    getAcademicYearsMock as unknown as Params[7]
+    checkOverwriteMock as unknown as Params[5],
+    listSlotsMock as unknown as Params[6],
+    updateSlotMock as unknown as Params[7]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -45,7 +43,6 @@ describe('HonoScheduleController Integration', () => {
   router.openapi(listScheduleSlotsRoute, controller.listSlots);
   router.openapi(updateScheduleSlotRoute, controller.updateSlot);
   router.openapi(generateScheduleRoute, controller.generate);
-  router.openapi(getAcademicYearsRoute, controller.getAcademicYears);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -64,7 +61,7 @@ describe('HonoScheduleController Integration', () => {
   test('GET /organizations/:organizationId/schedules/:id should return 200', async () => {
     getMock.execute.mockResolvedValueOnce({
       id: scheduleId,
-      academicYear: '2025/2026' as AcademicYear,
+      academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
     });
     const res = await app.request(
       `/api/organizations/${orgId}/schedules/${scheduleId}`
@@ -72,7 +69,7 @@ describe('HonoScheduleController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
       id: scheduleId,
-      academicYear: '2025/2026' as AcademicYear,
+      academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
     });
     expect(getMock.execute).toHaveBeenCalledWith(orgId, 'u-admin', scheduleId);
   });
@@ -138,7 +135,7 @@ describe('HonoScheduleController Integration', () => {
 
   test('POST /organizations/:organizationId/schedules/generate should return 201', async () => {
     const validBody = {
-      academicYear: '2025-2026' as AcademicYear,
+      academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
       periods: [1],
       courseYears: [1, 2],
       degreeIds: ['d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a55'],

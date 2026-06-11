@@ -206,7 +206,7 @@ export const getActiveClassroomConfigurationsRoute = createRoute({
           schema: createPaginatedSchema(
             z.object({
               classroomId: z.string(),
-              academicYear: z.string(),
+              academicYearId: z.string(),
               shift: z.enum(['morning', 'afternoon']),
               period: z.number(),
             })

@@ -14,7 +14,7 @@ export interface IScheduleSlotRepository {
   ): Promise<
     PaginatedResponse<{
       classroomId: string;
-      academicYear: string;
+      academicYearId: string;
       shift: 'morning' | 'afternoon';
       period: number;
     }>
@@ -26,7 +26,7 @@ export interface IScheduleSlotRepository {
   ): Promise<ScheduleSlot[]>;
   findLinkedSlots(
     subjectGroupId: string,
-    academicYear: string,
+    academicYearId: string,
     shift: 'morning' | 'afternoon',
     originalClassroomId: string | null,
     originalDayOfWeek: number | null,

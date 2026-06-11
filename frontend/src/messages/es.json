@@ -53,7 +53,9 @@
       "creating": "Creando...",
       "deleting": "Eliminando...",
       "processing": "Procesando...",
-      "searching": "Buscando..."
+      "searching": "Buscando...",
+      "active": "Activo",
+      "inactive": "Inactivo"
     },
     "errors": {
       "generic": "Ha ocurrido un error inesperado.",
@@ -251,7 +253,8 @@
       "schedules": "Horarios",
       "members": "Miembros",
       "classroomSchedules": "Horarios por aula",
-      "reserve": "Reserva de aulas"
+      "reserve": "Reserva de aulas",
+      "academicYears": "Cursos académicos"
     },
     "dialog": {
       "title": "Nueva organización",

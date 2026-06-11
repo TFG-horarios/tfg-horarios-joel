@@ -1,0 +1,203 @@
+import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
+import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
+import { fetchOrganizationById } from '@/features/organizations/queries';
+import { fetchAllClassrooms } from '@/features/classroom/queries';
+import { fetchAcademicYears } from '@/features/academic-year/queries';
+import { fetchActiveClassroomConfigurations } from '@/features/classroom-schedule/queries';
+import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
+import { ResourceSearch } from '@/components/shared/resource/resource-search';
+import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
+import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
+import { ResourceLayout } from '@/components/shared/resource/resource-layout';
+import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
+import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
+import { fetchActiveClassroomConfigurationsAction } from '@/features/classroom-schedule/actions';
+import { ClassroomScheduleCard } from '@/features/classroom-schedule/components/classroom-schedule-card';
+import { ClassroomScheduleRow } from '@/features/classroom-schedule/components/classroom-schedule-row';
+import type { ClassroomConfigurationListQueryDTO } from '@tfg-horarios/shared';
+
+type OrganizationClassroomSchedulesPageProps = {
+  params: Promise<{ id: string; academicYearId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function OrganizationClassroomSchedulesPage({
+  params,
+  searchParams,
+}: OrganizationClassroomSchedulesPageProps) {
+  const { id, academicYearId } = await params;
+  const cookieStore = await cookies();
+  const viewCookie = cookieStore.get('view-classroom-schedules')?.value;
+  const limitCookie = cookieStore.get('table-limit')?.value;
+  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const rawSearchParams = await searchParams;
+
+  const currentView =
+    rawSearchParams.view === 'table' || rawSearchParams.view === 'grid'
+      ? rawSearchParams.view
+      : viewCookie === 'table'
+        ? 'table'
+        : 'grid';
+
+  const query: ClassroomConfigurationListQueryDTO & { view?: string } = {
+    view: currentView,
+    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
+    limit: rawSearchParams.limit
+      ? Number(rawSearchParams.limit)
+      : currentView === 'table'
+        ? defaultTableLimit
+        : 12,
+    search:
+      typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
+    academicYearId,
+    shift:
+      typeof rawSearchParams.shift === 'string' &&
+      (rawSearchParams.shift === 'morning' ||
+        rawSearchParams.shift === 'afternoon')
+        ? rawSearchParams.shift
+        : undefined,
+    period:
+      typeof rawSearchParams.period === 'string'
+        ? parseInt(rawSearchParams.period, 10)
+        : undefined,
+  };
+
+  const t = await getTranslations('Organizations.classroomSchedules');
+  const tStatus = await getTranslations('Organizations.schedules');
+
+  const [
+    organization,
+    classrooms,
+    academicYears,
+    { data: configurations, meta },
+  ] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchAllClassrooms(id),
+    fetchAcademicYears(id),
+    fetchActiveClassroomConfigurations(id, query),
+  ]);
+
+  if (!organization) {
+    notFound();
+  }
+
+  const classroomMap = classrooms.reduce(
+    (acc, c) => {
+      acc[c.id] = c.name;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const academicYearMap = academicYears.reduce(
+    (acc, ay) => {
+      acc[ay.id] = ay.name;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const translations = {
+    empty: t('empty'),
+    academicYear: tStatus('form.academicYear'),
+    period: tStatus('period'),
+    shift: tStatus('shift'),
+    shift_morning: t('shiftOptions.morning'),
+    shift_afternoon: t('shiftOptions.afternoon'),
+  };
+
+  const numPeriods =
+    organization.periodType === 'annual'
+      ? 1
+      : organization.periodType === 'trimester'
+        ? 3
+        : 2;
+  const periodOptions = Array.from({ length: numPeriods }, (_, i) => {
+    const p = String(i + 1);
+    return { label: tStatus(`periodOptions.${p}`), value: p };
+  });
+
+  return (
+    <OrganizationSectionShell
+      label={t('label')}
+      title={t('title')}
+      description={t('description')}
+      count={meta.total}
+      countLabel={t('countLabel')}
+    >
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
+        <ResourceToolbar
+          viewToggle={
+            <ResourceViewToggle
+              viewKey="view-classroom-schedules"
+              defaultView={query.view as 'grid' | 'table'}
+            />
+          }
+          search={
+            <ResourceSearch
+              placeholder={t('searchPlaceholder') || 'Buscar aula...'}
+            />
+          }
+          filters={
+            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+              <ResourceFilterSelect
+                paramKey="shift"
+                placeholder={tStatus('shift')}
+                options={[
+                  { label: t('shiftOptions.morning'), value: 'morning' },
+                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="period"
+                placeholder={tStatus('period')}
+                options={periodOptions}
+              />
+              <ResourceFilterClear />
+            </div>
+          }
+        />
+      </div>
+
+      <div className="mt-6">
+        <ResourceLayout
+          view={query.view as 'grid' | 'table'}
+          items={configurations}
+          meta={meta}
+          query={query}
+          loadMore={fetchActiveClassroomConfigurationsAction.bind(
+            null,
+            id,
+            query
+          )}
+          emptyState={<ResourceEmptyState message={t('empty')} />}
+          GridItemComponent={ClassroomScheduleCard}
+          gridItemProps={{
+            classroomMap,
+            academicYearMap,
+            organizationId: id,
+            academicYearId,
+            translations,
+          }}
+          tableHeaders={[
+            t('headers.classroom'),
+            tStatus('form.academicYear'),
+            tStatus('period'),
+            tStatus('shift'),
+            t('headers.actions'),
+          ]}
+          TableRowComponent={ClassroomScheduleRow}
+          tableRowProps={{
+            classroomMap,
+            academicYearMap,
+            organizationId: id,
+            academicYearId,
+            translations,
+          }}
+        />
+      </div>
+    </OrganizationSectionShell>
+  );
+}

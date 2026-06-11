@@ -7,15 +7,15 @@ import type {
   listScheduleSlotsRoute,
   updateScheduleSlotRoute,
   generateScheduleRoute,
+  checkOverwriteScheduleRoute,
   listAllSchedulesRoute,
-  getAcademicYearsRoute,
 } from './hono.schedule.routes';
 import type { ListSchedulesUseCase } from '../../application/list-schedules.usecase';
 import type { ListAllSchedulesUseCase } from '../../application/list-all-schedules.usecase';
 import type { GetScheduleUseCase } from '../../application/get-schedule.usecase';
 import type { PublishScheduleUseCase } from '../../application/publish-schedule.usecase';
 import type { GenerateScheduleUseCase } from '../../application/generate-schedule.usecase';
-import type { GetScheduleAcademicYearsUseCase } from '../../application/get-schedule-academic-years.usecase';
+import type { CheckScheduleOverwriteUseCase } from '../../application/check-schedule-overwrite.usecase';
 import type { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import type { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
 
@@ -26,9 +26,9 @@ export class HonoScheduleController {
     private readonly getScheduleUseCase: GetScheduleUseCase,
     private readonly publishScheduleUseCase: PublishScheduleUseCase,
     private readonly generateScheduleUseCase: GenerateScheduleUseCase,
+    private readonly checkScheduleOverwriteUseCase: CheckScheduleOverwriteUseCase,
     private readonly listScheduleSlotsUseCase: ListScheduleSlotsUseCase,
-    private readonly updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
-    private readonly getAcademicYearsUseCase: GetScheduleAcademicYearsUseCase
+    private readonly updateScheduleSlotUseCase: UpdateScheduleSlotUseCase
   ) {}
 
   list: RouteHandler<typeof listSchedulesRoute, AppEnv> = async (c) => {
@@ -114,15 +114,17 @@ export class HonoScheduleController {
     return c.json(generatedSchedules, 201);
   };
 
-  getAcademicYears: RouteHandler<typeof getAcademicYearsRoute, AppEnv> = async (
-    c
-  ) => {
-    const { organizationId } = c.req.valid('param');
-    const requesterUserId = c.get('userId');
-    const years = await this.getAcademicYearsUseCase.execute(
-      organizationId,
-      requesterUserId
-    );
-    return c.json(years, 200);
-  };
+  checkOverwrite: RouteHandler<typeof checkOverwriteScheduleRoute, AppEnv> =
+    async (c) => {
+      const { organizationId } = c.req.valid('param');
+      const body = c.req.valid('json');
+      const requesterUserId = c.get('userId');
+      const overwrittenSchedules =
+        await this.checkScheduleOverwriteUseCase.execute(
+          organizationId,
+          requesterUserId,
+          body
+        );
+      return c.json(overwrittenSchedules, 200);
+    };
 }

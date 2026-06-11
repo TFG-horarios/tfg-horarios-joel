@@ -14,14 +14,15 @@ export const ScheduleRow = memo(function ScheduleRow({
   item: schedule,
   degreeMap,
   itineraryMap,
+  academicYearMap,
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
   const t = useTranslations('Organizations.schedules.card');
   const tStatus = useTranslations('Organizations.schedules');
-  const degreeName = degreeMap.get(schedule.degreeId) || t('unknownDegree');
+  const degreeName = degreeMap[schedule.degreeId] || t('unknownDegree');
   const itineraryName = schedule.itineraryId
-    ? itineraryMap.get(schedule.itineraryId) || t('unknownItinerary')
+    ? itineraryMap[schedule.itineraryId] || t('unknownItinerary')
     : translations.globalItinerary || tStatus('itineraryOptions.common');
 
   const getStatusBadgeVariant = (status: 'draft' | 'published') => {
@@ -54,7 +55,7 @@ export const ScheduleRow = memo(function ScheduleRow({
       </TableCell>
       <TableCell className="font-medium">{degreeName}</TableCell>
       <TableCell>{itineraryName}</TableCell>
-      <TableCell>{schedule.academicYear}</TableCell>
+      <TableCell>{academicYearMap[schedule.academicYearId]}</TableCell>
       <TableCell>{schedule.courseYear}</TableCell>
       <TableCell>{schedule.period}</TableCell>
       <TableCell className="capitalize">{schedule.shift || 'Global'}</TableCell>
@@ -64,7 +65,7 @@ export const ScheduleRow = memo(function ScheduleRow({
       >
         <Button asChild size="icon" variant="ghost">
           <Link
-            href={`/organizations/${organizationId}/schedules/${schedule.id}`}
+            href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
           >
             <Eye className="size-4 text-muted-foreground" />
           </Link>

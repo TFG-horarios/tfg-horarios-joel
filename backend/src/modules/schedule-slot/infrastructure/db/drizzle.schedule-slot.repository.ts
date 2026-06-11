@@ -79,7 +79,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   ): Promise<
     PaginatedResponse<{
       classroomId: string;
-      academicYear: string;
+      academicYearId: string;
       shift: 'morning' | 'afternoon';
       period: number;
     }>
@@ -89,8 +89,10 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       isNotNull(scheduleSlotsTable.classroomId),
     ];
 
-    if (filters?.academicYear) {
-      conditions.push(eq(schedulesTable.academicYear, filters.academicYear));
+    if (filters?.academicYearId) {
+      conditions.push(
+        eq(schedulesTable.academicYearId, filters.academicYearId)
+      );
     }
     if (filters?.shift) {
       conditions.push(eq(schedulesTable.shift, filters.shift));
@@ -105,7 +107,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     const subquery = this.database
       .select({
         classroomId: scheduleSlotsTable.classroomId,
-        academicYear: schedulesTable.academicYear,
+        academicYearId: schedulesTable.academicYearId,
         shift: schedulesTable.shift,
         period: schedulesTable.period,
       })
@@ -121,7 +123,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       .where(and(...conditions))
       .groupBy(
         scheduleSlotsTable.classroomId,
-        schedulesTable.academicYear,
+        schedulesTable.academicYearId,
         schedulesTable.shift,
         schedulesTable.period
       )
@@ -139,7 +141,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     const rows = await this.database
       .select({
         classroomId: scheduleSlotsTable.classroomId,
-        academicYear: schedulesTable.academicYear,
+        academicYearId: schedulesTable.academicYearId,
         shift: schedulesTable.shift,
         period: schedulesTable.period,
       })
@@ -155,7 +157,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       .where(and(...conditions))
       .groupBy(
         scheduleSlotsTable.classroomId,
-        schedulesTable.academicYear,
+        schedulesTable.academicYearId,
         schedulesTable.shift,
         schedulesTable.period
       )
@@ -164,7 +166,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
 
     const data = rows.map((r) => ({
       classroomId: r.classroomId as string,
-      academicYear: r.academicYear,
+      academicYearId: r.academicYearId as string,
       shift: r.shift as 'morning' | 'afternoon',
       period: r.period,
     }));
@@ -190,8 +192,10 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       eq(schedulesTable.organizationId, organizationId),
     ];
 
-    if (filters?.academicYear) {
-      conditions.push(eq(schedulesTable.academicYear, filters.academicYear));
+    if (filters?.academicYearId) {
+      conditions.push(
+        eq(schedulesTable.academicYearId, filters.academicYearId)
+      );
     }
     if (filters?.shift) {
       conditions.push(eq(schedulesTable.shift, filters.shift));
@@ -216,7 +220,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
 
   async findLinkedSlots(
     subjectGroupId: string,
-    academicYear: string,
+    academicYearId: string,
     shift: 'morning' | 'afternoon',
     originalClassroomId: string | null,
     originalDayOfWeek: number | null,
@@ -225,7 +229,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   ): Promise<ScheduleSlot[]> {
     const conditions: SQL[] = [
       eq(scheduleSlotsTable.subjectGroupId, subjectGroupId),
-      eq(schedulesTable.academicYear, academicYear),
+      eq(schedulesTable.academicYearId, academicYearId),
       eq(schedulesTable.shift, shift),
       eq(scheduleSlotsTable.duration, duration),
     ];

@@ -7,6 +7,7 @@ import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subje
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { classroomsTable } from '@/modules/classroom/infrastructure/db/drizzle.classroom.schema';
 import { schedulesTable } from '@/modules/schedule/infrastructure/db/drizzle.schedule.schema';
+import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
 
 export const testUserId = '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a00';
 export const testOrgId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
@@ -16,6 +17,7 @@ export const testSubjectId = 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44';
 export const testSubjectGroupId = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55';
 export const testClassroomId = 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a66';
 export const testScheduleId = '20eebc99-9c0b-4ef8-bb6d-6bb9bd380a77';
+export const testAcademicYearId = '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88';
 
 export const seedTestUser = async (
   db: TestDbConnection,
@@ -69,6 +71,23 @@ export const seedTestDb = async (db: TestDbConnection) => {
     id: testOrgId,
     name: 'Seed Org',
     periodType: 'semester',
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  await db.insert(academicYearsTable).values({
+    id: testAcademicYearId,
+    organizationId: testOrgId,
+    name: '2030/2031',
+    isActive: true,
+    period0Start: null,
+    period0End: null,
+    period1Start: '2030-09-01',
+    period1End: '2031-01-31',
+    period2Start: '2031-02-01',
+    period2End: '2031-06-30',
+    period3Start: null,
+    period3End: null,
     createdAt: now,
     updatedAt: now,
   });
@@ -136,7 +155,7 @@ export const seedTestDb = async (db: TestDbConnection) => {
     id: testScheduleId,
     organizationId: testOrgId,
     degreeId: testDegreeId,
-    academicYear: '2030/2031',
+    academicYearId: testAcademicYearId,
     shift: 'morning',
     courseYear: 1,
     period: 1,

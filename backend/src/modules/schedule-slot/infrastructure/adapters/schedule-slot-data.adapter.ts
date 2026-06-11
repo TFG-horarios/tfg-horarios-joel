@@ -22,7 +22,7 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
     if (!schedule) return null;
 
     return {
-      academicYear: schedule.academicYear,
+      academicYearId: schedule.academicYearId,
       shift: schedule.shift,
     };
   }

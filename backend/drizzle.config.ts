@@ -12,6 +12,8 @@ export default defineConfig({
     './src/modules/degree/infrastructure/db/*.schema.ts',
     './src/modules/schedule-slot/infrastructure/db/*.schema.ts',
     './src/modules/member/infrastructure/db/*.schema.ts',
+    './src/modules/classroom-reservation/infrastructure/db/*.schema.ts',
+    './src/modules/academic-year/infrastructure/db/*.schema.ts',
   ],
   out: './drizzle',
   dialect: 'postgresql',

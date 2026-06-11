@@ -1,4 +1,3 @@
-import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleScheduleRepository } from './drizzle.schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
@@ -9,6 +8,7 @@ import {
   testDegreeId,
   testSubjectGroupId,
   testClassroomId,
+  testAcademicYearId,
 } from '@/tests/seed-db';
 
 describe('DrizzleScheduleRepository Integration', () => {
@@ -28,9 +28,9 @@ describe('DrizzleScheduleRepository Integration', () => {
     Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
-      academicYear: '2025/2026' as AcademicYear,
+      academicYearId: testAcademicYearId,
       shift: 'morning',
-      courseYear: 1,
+      courseYear: 2,
       period: 1,
       itineraryId: null,
     });
@@ -41,7 +41,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
     expect(foundSchedule?.id).toBe(schedule.id);
-    expect(foundSchedule?.academicYear).toBe(schedule.academicYear);
+    expect(foundSchedule?.academicYearId).toBe(schedule.academicYearId);
   });
 
   test('should find schedule by scope', async () => {
@@ -51,8 +51,8 @@ describe('DrizzleScheduleRepository Integration', () => {
       testOrgId,
       testDegreeId,
       null,
-      '2025/2026',
-      1,
+      testAcademicYearId,
+      2,
       1,
       'morning'
     );
@@ -65,7 +65,7 @@ describe('DrizzleScheduleRepository Integration', () => {
     const s2 = Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
-      academicYear: '2025/2026' as AcademicYear,
+      academicYearId: testAcademicYearId,
       shift: 'afternoon',
       courseYear: 1,
       period: 1,

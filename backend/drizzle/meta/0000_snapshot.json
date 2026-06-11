@@ -1,5 +1,5 @@
 {
-  "id": "a7062a73-ddeb-45dd-9150-1aec3252cfa9",
+  "id": "a4860a6d-a986-4820-93b8-306bf53bd9b8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -717,9 +717,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "academic_year": {
-          "name": "academic_year",
-          "type": "text",
+        "academic_year_id": {
+          "name": "academic_year_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -788,7 +788,7 @@
               "nulls": "last"
             },
             {
-              "expression": "academic_year",
+              "expression": "academic_year_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -834,7 +834,7 @@
               "nulls": "last"
             },
             {
-              "expression": "academic_year",
+              "expression": "academic_year_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -903,6 +903,19 @@
             "id"
           ],
           "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "schedule_academic_year_id_academic_year_id_fk": {
+          "name": "schedule_academic_year_id_academic_year_id_fk",
+          "tableFrom": "schedule",
+          "tableTo": "academic_year",
+          "columnsFrom": [
+            "academic_year_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1260,6 +1273,256 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.classroom_reservations": {
+      "name": "classroom_reservations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requester_user_id": {
+          "name": "requester_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "classroom_id": {
+          "name": "classroom_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "academic_year_id": {
+          "name": "academic_year_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_index": {
+          "name": "slot_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "classroom_reservations_organization_id_organization_id_fk": {
+          "name": "classroom_reservations_organization_id_organization_id_fk",
+          "tableFrom": "classroom_reservations",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "classroom_reservations_requester_user_id_user_id_fk": {
+          "name": "classroom_reservations_requester_user_id_user_id_fk",
+          "tableFrom": "classroom_reservations",
+          "tableTo": "user",
+          "columnsFrom": [
+            "requester_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "classroom_reservations_classroom_id_classroom_id_fk": {
+          "name": "classroom_reservations_classroom_id_classroom_id_fk",
+          "tableFrom": "classroom_reservations",
+          "tableTo": "classroom",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "classroom_reservations_academic_year_id_academic_year_id_fk": {
+          "name": "classroom_reservations_academic_year_id_academic_year_id_fk",
+          "tableFrom": "classroom_reservations",
+          "tableTo": "academic_year",
+          "columnsFrom": [
+            "academic_year_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.academic_year": {
+      "name": "academic_year",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "period_0_start": {
+          "name": "period_0_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_0_end": {
+          "name": "period_0_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_1_start": {
+          "name": "period_1_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_1_end": {
+          "name": "period_1_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_2_start": {
+          "name": "period_2_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_2_end": {
+          "name": "period_2_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_3_start": {
+          "name": "period_3_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "period_3_end": {
+          "name": "period_3_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "academic_year_organization_id_organization_id_fk": {
+          "name": "academic_year_organization_id_organization_id_fk",
+          "tableFrom": "academic_year",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

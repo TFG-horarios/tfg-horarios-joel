@@ -1,4 +1,3 @@
-import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { PublishScheduleUseCase } from './publish-schedule.usecase';
 import { Schedule } from '../domain/schedule.entity';
@@ -34,7 +33,7 @@ describe('PublishScheduleUseCase', () => {
     const schedule = Schedule.create({
       organizationId: 'org-1',
       degreeId: 'deg-1',
-      academicYear: '2023-2024' as AcademicYear,
+      academicYearId: 'ay-1',
       shift: 'morning',
       courseYear: 1,
       period: 1,
@@ -51,7 +50,7 @@ describe('PublishScheduleUseCase', () => {
     const schedule = Schedule.create({
       organizationId: 'org-1',
       degreeId: 'deg-1',
-      academicYear: '2023-2024' as AcademicYear,
+      academicYearId: 'ay-1',
       shift: 'morning',
       courseYear: 1,
       period: 1,

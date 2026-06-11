@@ -19,7 +19,7 @@ export class GetActiveClassroomConfigurationsUseCase {
   ): Promise<
     PaginatedResponse<{
       classroomId: string;
-      academicYear: string;
+      academicYearId: string;
       shift: 'morning' | 'afternoon';
       period: number;
     }>

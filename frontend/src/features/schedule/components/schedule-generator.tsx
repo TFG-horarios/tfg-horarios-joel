@@ -13,13 +13,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -31,11 +24,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { generateSchedulesAction } from '@/features/schedule/actions';
+import {
+  generateSchedulesAction,
+  checkScheduleOverwriteAction,
+} from '@/features/schedule/actions';
 import type {
   DegreeDTO,
   ItineraryDTO,
-  AcademicYear,
+  ScheduleDTO,
 } from '@tfg-horarios/shared';
 import { Loader2, Sparkles } from 'lucide-react';
 import {
@@ -44,13 +40,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { getAcademicYearOptions } from '@/lib/utils';
 
 type ScheduleGeneratorProps = {
   organizationId: string;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
   periodType?: 'semester' | 'trimester' | 'annual';
+  academicYearId: string;
 };
 
 export function ScheduleGenerator({
@@ -58,6 +54,7 @@ export function ScheduleGenerator({
   degrees,
   itineraries,
   periodType = 'semester',
+  academicYearId,
 }: ScheduleGeneratorProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
@@ -69,7 +66,6 @@ export function ScheduleGenerator({
   );
 
   const [isOpen, setIsOpen] = useState(false);
-  const [academicYear, setAcademicYear] = useState('2025-2026');
   const [periods, setPeriods] = useState<string[]>([]);
   const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
   const [selectedItineraries, setSelectedItineraries] = useState<string[]>([]);
@@ -77,6 +73,10 @@ export function ScheduleGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusStep, setStatusStep] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [overwrittenSchedules, setOverwrittenSchedules] = useState<
+    ScheduleDTO[]
+  >([]);
 
   const steps = [
     t('generator.steps.0'),
@@ -96,7 +96,7 @@ export function ScheduleGenerator({
 
     try {
       const result = await generateSchedulesAction(organizationId, {
-        academicYear: academicYear as AcademicYear,
+        academicYearId,
         periods:
           periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
         degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
@@ -120,6 +120,35 @@ export function ScheduleGenerator({
       console.error(err);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCheck = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsChecking(true);
+    try {
+      const result = await checkScheduleOverwriteAction(organizationId, {
+        academicYearId,
+        periods:
+          periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
+        degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
+        itineraryIds:
+          selectedItineraries.length > 0 ? selectedItineraries : undefined,
+        courseYears:
+          selectedCourseYears.length > 0
+            ? selectedCourseYears.map(Number)
+            : undefined,
+      });
+      if (result.success && result.data && result.data.length > 0) {
+        setOverwrittenSchedules(result.data);
+        setIsConfirmOpen(true);
+      } else {
+        void handleGenerate();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -195,30 +224,8 @@ export function ScheduleGenerator({
               </div>
             </div>
           ) : (
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                setIsConfirmOpen(true);
-              }}
-              className="space-y-4 pt-2"
-            >
+            <form onSubmit={handleCheck} className="space-y-4 pt-2">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="academicYear">{t('form.academicYear')}</Label>
-                  <Select value={academicYear} onValueChange={setAcademicYear}>
-                    <SelectTrigger id="academicYear">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getAcademicYearOptions().map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="period">{t('form.period')}</Label>
                   <MultiSelect
@@ -261,19 +268,54 @@ export function ScheduleGenerator({
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button type="submit" className="h-10 w-full sm:w-auto">
+                <Button
+                  type="submit"
+                  className="h-10 w-full sm:w-auto"
+                  disabled={isChecking}
+                >
+                  {isChecking ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   {t('form.submit')}
                 </Button>
               </div>
 
               <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent className="max-w-md">
                   <AlertDialogHeader>
                     <AlertDialogTitle>
                       {t('form.overwriteTitle')}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t('form.overwriteWarning')}
+                      <span className="block mb-2 font-medium text-foreground">
+                        Se van a sobrescribir los siguientes horarios:
+                      </span>
+                      <ul className="list-disc list-inside space-y-1 text-sm max-h-40 overflow-y-auto">
+                        {overwrittenSchedules.map((s) => {
+                          const degree = degrees.find(
+                            (d) => d.id === s.degreeId
+                          );
+                          const itinerary = itineraries.find(
+                            (i) => i.id === s.itineraryId
+                          );
+                          const degreeName = degree
+                            ? degree.code
+                            : 'Desconocido';
+                          const itineraryName = itinerary
+                            ? ` - ${itinerary.name}`
+                            : ' - Común';
+                          return (
+                            <li key={s.id}>
+                              {degreeName}
+                              {itineraryName} (Año {s.courseYear}, Período{' '}
+                              {s.period})
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <span className="block mt-4">
+                        {t('form.overwriteWarning')}
+                      </span>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

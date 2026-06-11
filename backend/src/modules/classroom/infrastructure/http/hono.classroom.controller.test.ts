@@ -227,20 +227,20 @@ describe('HonoClassroomController Integration', () => {
   test('GET /organizations/:organizationId/classrooms/active-configurations should return paginated configurations', async () => {
     const mockResponse = {
       data: [
-        { classroomId, academicYear: '2025-2026', shift: 'morning', period: 1 },
+        { classroomId, academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88', shift: 'morning', period: 1 },
       ],
       meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
     };
     getActiveConfigurationsMock.execute.mockResolvedValueOnce(mockResponse);
     const res = await app.request(
-      `/api/organizations/${orgId}/classrooms/active-configurations?academicYear=2025-2026`
+      `/api/organizations/${orgId}/classrooms/active-configurations?academicYearId=30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88`
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(mockResponse);
     expect(getActiveConfigurationsMock.execute).toHaveBeenCalledWith(
       orgId,
       'u-admin',
-      { academicYear: '2025-2026' }
+      { academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88' }
     );
   });
 
@@ -248,7 +248,7 @@ describe('HonoClassroomController Integration', () => {
     const mockResponse = [{ id: 'slot-1', classroomId }];
     getScheduleSlotsMock.execute.mockResolvedValueOnce(mockResponse);
     const res = await app.request(
-      `/api/organizations/${orgId}/classrooms/${classroomId}/slots?academicYear=2025-2026`
+      `/api/organizations/${orgId}/classrooms/${classroomId}/slots?academicYearId=30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88`
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(mockResponse);
@@ -256,7 +256,7 @@ describe('HonoClassroomController Integration', () => {
       orgId,
       classroomId,
       'u-admin',
-      { academicYear: '2025-2026' }
+      { academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88' }
     );
   });
 });

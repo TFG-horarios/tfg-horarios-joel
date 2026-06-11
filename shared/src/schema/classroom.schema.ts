@@ -1,6 +1,5 @@
 import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
-import { AcademicYearSchema } from './academic-year.schema';
 
 export const ClassroomSchema = z
   .object({
@@ -47,7 +46,7 @@ export const SaveClassroomBodySchema = z
   .openapi('SaveClassroom');
 
 export const ClassroomScheduleQuerySchema = z.object({
-  academicYear: AcademicYearSchema.optional(),
+  academicYearId: z.uuid().optional(),
   shift: z.enum(['morning', 'afternoon']).optional(),
   period: z.coerce.number().int().positive().optional(),
 });
@@ -55,7 +54,7 @@ export const ClassroomScheduleQuerySchema = z.object({
 export const ClassroomConfigurationListQuerySchema =
   PaginationQuerySchema.extend({
     search: z.string().optional(),
-    academicYear: AcademicYearSchema.optional(),
+    academicYearId: z.uuid().optional(),
     shift: z.enum(['morning', 'afternoon']).optional(),
     period: z.coerce.number().int().positive().optional(),
   });

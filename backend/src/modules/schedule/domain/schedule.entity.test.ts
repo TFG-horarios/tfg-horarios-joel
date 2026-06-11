@@ -1,4 +1,3 @@
-import type { AcademicYear } from '@tfg-horarios/shared';
 import { describe, expect, test } from 'bun:test';
 import { Schedule } from './schedule.entity';
 
@@ -6,7 +5,7 @@ describe('Schedule', () => {
   const baseProps = {
     organizationId: 'org-1',
     degreeId: 'deg-1',
-    academicYear: '2023-2024' as AcademicYear,
+    academicYearId: 'ay-1',
     shift: 'morning' as const,
     courseYear: 1,
     period: 1,
