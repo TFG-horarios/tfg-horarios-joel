@@ -8,8 +8,6 @@ export interface AcademicYearProps {
   period1End: string | null;
   period2Start: string | null;
   period2End: string | null;
-  period3Start: string | null;
-  period3End: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,7 +55,6 @@ export class AcademicYear {
       { start: this.period0Start, end: this.period0End },
       { start: this.period1Start, end: this.period1End },
       { start: this.period2Start, end: this.period2End },
-      { start: this.period3Start, end: this.period3End },
     ];
 
     for (const p of periods) {
@@ -95,14 +92,6 @@ export class AcademicYear {
     return this.props.period2End;
   }
 
-  public get period3Start(): string | null {
-    return this.props.period3Start;
-  }
-
-  public get period3End(): string | null {
-    return this.props.period3End;
-  }
-
   public get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -132,10 +121,6 @@ export class AcademicYear {
       this.props.period2Start = props.period2Start;
     if (props.period2End !== undefined)
       this.props.period2End = props.period2End;
-    if (props.period3Start !== undefined)
-      this.props.period3Start = props.period3Start;
-    if (props.period3End !== undefined)
-      this.props.period3End = props.period3End;
     this.props.updatedAt = new Date();
   }
 
@@ -156,7 +141,6 @@ export class AcademicYear {
     checkPeriod(0, this.period0Start, this.period0End);
     checkPeriod(1, this.period1Start, this.period1End);
     checkPeriod(2, this.period2Start, this.period2End);
-    checkPeriod(3, this.period3Start, this.period3End);
 
     return matchingPeriods;
   }

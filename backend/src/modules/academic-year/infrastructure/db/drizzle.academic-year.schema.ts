@@ -21,8 +21,6 @@ export const academicYearsTable = pgTable('academic_year', {
   period1End: date('period_1_end'),
   period2Start: date('period_2_start'),
   period2End: date('period_2_end'),
-  period3Start: date('period_3_start'),
-  period3End: date('period_3_end'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
     .notNull()

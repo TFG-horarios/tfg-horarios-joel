@@ -61,8 +61,6 @@ describe('RequestClassroomReservationUseCase', () => {
     period1End: '2025-01-31',
     period2Start: null,
     period2End: null,
-    period3Start: null,
-    period3End: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

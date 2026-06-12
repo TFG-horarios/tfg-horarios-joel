@@ -26,22 +26,48 @@ import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
 import { requestReservationAction } from '../actions';
 import { toast } from 'sonner';
-import type { ClassroomDTO, OrganizationDTO } from '@tfg-horarios/shared';
+import type { ClassroomDTO, OrganizationDTO, AcademicYearDTO } from '@tfg-horarios/shared';
 
 type ReservationPlannerProps = {
   organization: OrganizationDTO;
   classrooms: ClassroomDTO[];
-  academicYearId: string;
+  academicYear: AcademicYearDTO;
 };
 
 export function ReservationPlanner({
   organization,
   classrooms,
-  academicYearId,
+  academicYear,
 }: ReservationPlannerProps) {
   const router = useRouter();
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  const startDates = [
+    academicYear.period0Start,
+    academicYear.period1Start,
+    academicYear.period2Start,
+  ].filter(Boolean) as string[];
+
+  const endDates = [
+    academicYear.period0End,
+    academicYear.period1End,
+    academicYear.period2End,
+  ].filter(Boolean) as string[];
+
+  const minDate = startDates.length > 0 ? new Date(startDates[0] as string) : undefined;
+  const maxDate = endDates.length > 0 ? new Date(endDates[endDates.length - 1] as string) : undefined;
+
+  const disabledDates = [];
+  if (minDate) disabledDates.push({ before: minDate });
+  if (maxDate) disabledDates.push({ after: maxDate });
+
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    minDate && new Date() < minDate
+      ? minDate
+      : maxDate && new Date() > maxDate
+      ? maxDate
+      : new Date()
+  );
 
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
@@ -94,7 +120,7 @@ export function ReservationPlanner({
 
       const result = await requestReservationAction(organization.id, {
         classroomId: selectedClassroom,
-        academicYearId,
+        academicYearId: academicYear.id,
         date: formattedDate,
         slotIndex: selectedSlot.index,
         reason: reason || undefined,
@@ -146,6 +172,7 @@ export function ReservationPlanner({
                   setSelectedDate(date);
                 }
               }}
+              disabled={disabledDates}
               className="w-full"
             />
           </div>

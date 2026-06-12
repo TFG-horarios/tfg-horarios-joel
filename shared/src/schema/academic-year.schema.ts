@@ -17,8 +17,6 @@ export const AcademicYearSchema = z
     period1End: z.string().nullable().openapi({ example: '2026-01-31' }),
     period2Start: z.string().nullable().openapi({ example: '2026-02-01' }),
     period2End: z.string().nullable().openapi({ example: '2026-06-30' }),
-    period3Start: z.string().nullable().openapi({ example: null }),
-    period3End: z.string().nullable().openapi({ example: null }),
     createdAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
   })
@@ -35,8 +33,6 @@ export const SaveAcademicYearBodySchema = z
     period1End: z.string().nullable().optional(),
     period2Start: z.string().nullable().optional(),
     period2End: z.string().nullable().optional(),
-    period3Start: z.string().nullable().optional(),
-    period3End: z.string().nullable().optional(),
   })
   .refine(
     (data) => {
@@ -48,9 +44,6 @@ export const SaveAcademicYearBodySchema = z
       }
       if (data.period2Start && data.period2End) {
         return data.period2Start <= data.period2End;
-      }
-      if (data.period3Start && data.period3End) {
-        return data.period3Start <= data.period3End;
       }
       return true;
     },
@@ -65,9 +58,6 @@ export const SaveAcademicYearBodySchema = z
       }
       if (data.period1End && data.period2Start) {
         return data.period1End <= data.period2Start;
-      }
-      if (data.period2End && data.period3Start) {
-        return data.period2End <= data.period3Start;
       }
       return true;
     },

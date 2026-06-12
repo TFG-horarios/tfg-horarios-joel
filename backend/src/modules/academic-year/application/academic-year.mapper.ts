@@ -14,8 +14,6 @@ export class AcademicYearMapper {
       period1End: academicYear.period1End,
       period2Start: academicYear.period2Start,
       period2End: academicYear.period2End,
-      period3Start: academicYear.period3Start,
-      period3End: academicYear.period3End,
       createdAt: academicYear.createdAt.toISOString(),
       updatedAt: academicYear.updatedAt.toISOString(),
     };

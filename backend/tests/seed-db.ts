@@ -86,8 +86,6 @@ export const seedTestDb = async (db: TestDbConnection) => {
     period1End: '2031-01-31',
     period2Start: '2031-02-01',
     period2End: '2031-06-30',
-    period3Start: null,
-    period3End: null,
     createdAt: now,
     updatedAt: now,
   });

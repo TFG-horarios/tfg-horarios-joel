@@ -47,8 +47,6 @@ export class CreateAcademicYearUseCase {
       period1End: data.period1End ?? null,
       period2Start: data.period2Start ?? null,
       period2End: data.period2End ?? null,
-      period3Start: data.period3Start ?? null,
-      period3End: data.period3End ?? null,
     });
 
     await this.academicYearRepository.save(academicYear);

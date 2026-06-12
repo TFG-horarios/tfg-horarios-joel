@@ -115,7 +115,6 @@ export default async function OrganizationSubjectsPage({
     periodAnnual: t('periodOptions.annual'),
     period1: t('periodOptions.1'),
     period2: t('periodOptions.2'),
-    period3: t('periodOptions.3'),
   };
 
   return (
@@ -165,7 +164,7 @@ export default async function OrganizationSubjectsPage({
               <ResourceFilterSelect
                 paramKey="period"
                 placeholder={t('periodPlaceholder')}
-                options={[0, 1, 2, 3].map((p) => ({
+                options={[0, 1, 2].map((p) => ({
                   label:
                     p === 0
                       ? t('periodOptions.annual')

@@ -21,8 +21,6 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period1End: row.period1End,
       period2Start: row.period2Start,
       period2End: row.period2End,
-      period3Start: row.period3Start,
-      period3End: row.period3End,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -40,8 +38,6 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period1End: academicYear.period1End,
       period2Start: academicYear.period2Start,
       period2End: academicYear.period2End,
-      period3Start: academicYear.period3Start,
-      period3End: academicYear.period3End,
       createdAt: academicYear.createdAt,
       updatedAt: academicYear.updatedAt,
     });
@@ -59,8 +55,6 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
         period1End: academicYear.period1End,
         period2Start: academicYear.period2Start,
         period2End: academicYear.period2End,
-        period3Start: academicYear.period3Start,
-        period3End: academicYear.period3End,
         updatedAt: academicYear.updatedAt,
       })
       .where(eq(academicYearsTable.id, academicYear.id));

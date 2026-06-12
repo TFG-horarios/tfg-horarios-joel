@@ -1,5 +1,5 @@
 {
-  "id": "a4860a6d-a986-4820-93b8-306bf53bd9b8",
+  "id": "e56ae3aa-b0b3-4ea8-9269-614e81a49f4e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1474,18 +1474,6 @@
         },
         "period_2_end": {
           "name": "period_2_end",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "period_3_start": {
-          "name": "period_3_start",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "period_3_end": {
-          "name": "period_3_end",
           "type": "date",
           "primaryKey": false,
           "notNull": false

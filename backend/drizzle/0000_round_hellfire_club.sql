@@ -153,8 +153,6 @@ CREATE TABLE "academic_year" (
 	"period_1_end" date,
 	"period_2_start" date,
 	"period_2_end" date,
-	"period_3_start" date,
-	"period_3_end" date,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

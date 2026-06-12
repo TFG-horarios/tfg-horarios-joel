@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
+import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { ReservationPlanner } from '@/features/classroom-reservation/components/reservation-planner';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -17,12 +18,18 @@ export default async function OrganizationNewReservationPage({
 }: OrganizationNewReservationPageProps) {
   const { id, academicYearId } = await params;
 
-  const [organization, classrooms] = await Promise.all([
+  const [organization, classrooms, academicYears] = await Promise.all([
     fetchOrganizationById(id),
     fetchAllClassrooms(id),
+    fetchAcademicYears(id),
   ]);
 
   if (!organization) {
+    notFound();
+  }
+
+  const academicYear = academicYears.find((ay) => ay.id === academicYearId);
+  if (!academicYear) {
     notFound();
   }
 
@@ -50,7 +57,7 @@ export default async function OrganizationNewReservationPage({
       <ReservationPlanner
         organization={organization}
         classrooms={classrooms}
-        academicYearId={academicYearId}
+        academicYear={academicYear}
       />
     </OrganizationSectionShell>
   );
