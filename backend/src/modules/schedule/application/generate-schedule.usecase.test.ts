@@ -51,7 +51,13 @@ describe('GenerateScheduleUseCase', () => {
         isCommon: true,
       },
     ]);
-    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({});
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
     engineProviderMock.runGeneration.mockResolvedValueOnce({
       assignments: [
         {

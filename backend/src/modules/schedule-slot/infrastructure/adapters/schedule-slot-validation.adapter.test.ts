@@ -87,7 +87,13 @@ describe('ScheduleSlotValidationAdapter', () => {
         numberOfStudents: 50,
       },
     ]);
-    dataProviderMock.getAcademicYearConstraints.mockResolvedValue({});
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValue({
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
     dataProviderMock.getAvailableClassrooms.mockResolvedValue([
       { id: 'c-1', capacity: 100, type: 'theory' },
       { id: 'c-2', capacity: 100, type: 'theory' },
