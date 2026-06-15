@@ -1,4 +1,4 @@
-import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
+import type { IClassroomScheduleSlotProvider } from '../domain/classroom-schedule-slot.provider';
 import type { IClassroomRepository } from '@/modules/classroom/domain/classroom.repository';
 import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
 import type {
@@ -6,11 +6,10 @@ import type {
   ScheduleSlotDTO,
 } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
-import { ScheduleSlotMapper } from '@/modules/schedule-slot/application/schedule-slot.mapper';
 
 export class GetClassroomScheduleSlotsUseCase {
   constructor(
-    private readonly scheduleSlotRepository: IScheduleSlotRepository,
+    private readonly scheduleSlotProvider: IClassroomScheduleSlotProvider,
     private readonly classroomRepository: IClassroomRepository,
     private readonly memberProvider: IClassroomMemberProvider
   ) {}
@@ -38,21 +37,10 @@ export class GetClassroomScheduleSlotsUseCase {
       throw new NotFoundError('Classroom', classroomId);
     }
 
-    const slots =
-      await this.scheduleSlotRepository.findSlotsByClassroomIdAndFilters(
-        classroomId,
-        organizationId,
-        filters
-      );
-
-    const uniqueSlotsMap = new Map<string, (typeof slots)[0]>();
-    for (const slot of slots) {
-      const key = `${slot.dayOfWeek}-${slot.slotIndex}-${slot.subjectGroupId}`;
-      if (!uniqueSlotsMap.has(key)) {
-        uniqueSlotsMap.set(key, slot);
-      }
-    }
-
-    return Array.from(uniqueSlotsMap.values()).map(ScheduleSlotMapper.toDTO);
+    return this.scheduleSlotProvider.findUniqueSlotsByClassroomIdAndFilters(
+      classroomId,
+      organizationId,
+      filters
+    );
   }
 }

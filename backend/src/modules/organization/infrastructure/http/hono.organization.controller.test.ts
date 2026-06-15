@@ -38,12 +38,6 @@ describe('HonoOrganizationController Integration', () => {
 
   const validBody = {
     name: 'Tech University',
-    periodType: 'semester',
-    morningStart: '08:00',
-    afternoonStart: '15:00',
-    morningEnd: '14:00',
-    afternoonEnd: '21:00',
-    slotDurationMinutes: 60,
   };
 
   test('POST /organizations should return 201 with new org', async () => {

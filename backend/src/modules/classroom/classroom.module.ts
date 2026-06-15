@@ -32,6 +32,7 @@ import { GetClassroomScheduleSlotsUseCase } from './application/get-classroom-sc
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { ClassroomMemberAdapter } from './infrastructure/adapters/classroom-member.adapter';
 import { DrizzleScheduleSlotRepository } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
+import { ClassroomScheduleSlotAdapter } from './infrastructure/adapters/classroom-schedule-slot.adapter';
 
 export const createClassroomModule = (
   db: DbConnection,
@@ -39,6 +40,9 @@ export const createClassroomModule = (
 ) => {
   const classroomRepository = new DrizzleClassroomRepository(db);
   const scheduleSlotRepository = new DrizzleScheduleSlotRepository(db);
+  const scheduleSlotProvider = new ClassroomScheduleSlotAdapter(
+    scheduleSlotRepository
+  );
   const memberProvider = new ClassroomMemberAdapter(memberRepository);
 
   const createUseCase = new CreateClassroomUseCase(
@@ -93,12 +97,12 @@ export const createClassroomModule = (
 
   const getActiveConfigurationsUseCase =
     new GetActiveClassroomConfigurationsUseCase(
-      scheduleSlotRepository,
+      scheduleSlotProvider,
       memberProvider
     );
 
   const getScheduleSlotsUseCase = new GetClassroomScheduleSlotsUseCase(
-    scheduleSlotRepository,
+    scheduleSlotProvider,
     classroomRepository,
     memberProvider
   );

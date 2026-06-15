@@ -17,12 +17,6 @@ describe('ListOrganizationsUseCase', () => {
     const org = Organization.reconstitute({
       id: 'org-1',
       name: 'Test Org',
-      periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

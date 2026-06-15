@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchReservations } from '@/features/classroom-reservation/queries';
+import { fetchReservationsAction } from '@/features/classroom-reservation/actions';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
@@ -23,11 +23,6 @@ import { hasPermission } from '@/core/permissions/authorization';
 type OrganizationClassroomReservationsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-const fetchReservationsAction = async (organizationId: string, query: any) => {
-  'use server';
-  return await fetchReservations(organizationId, query);
 };
 
 export default async function OrganizationClassroomReservationsPage({
@@ -63,8 +58,6 @@ export default async function OrganizationClassroomReservationsPage({
         : undefined,
     academicYearId,
   };
-
-  const t = await getTranslations('Organizations.classroomReservations');
 
   const [organization, { data: reservations, meta }, classroomsData, user] =
     await Promise.all([

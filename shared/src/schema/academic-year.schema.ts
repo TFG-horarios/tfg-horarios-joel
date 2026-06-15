@@ -17,6 +17,26 @@ export const AcademicYearSchema = z
     period1End: z.string().nullable().openapi({ example: '2026-01-31' }),
     period2Start: z.string().nullable().openapi({ example: '2026-02-01' }),
     period2End: z.string().nullable().openapi({ example: '2026-06-30' }),
+    periodType: z
+      .enum(['semester', 'trimester', 'annual'])
+      .openapi({ example: 'semester' }),
+    morningStart: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '08:00' }),
+    morningEnd: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '14:00' }),
+    afternoonStart: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '14:00' }),
+    afternoonEnd: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '20:00' }),
+    slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
     createdAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
   })
@@ -33,6 +53,30 @@ export const SaveAcademicYearBodySchema = z
     period1End: z.string().nullable().optional(),
     period2Start: z.string().nullable().optional(),
     period2End: z.string().nullable().optional(),
+    periodType: z
+      .enum(['semester', 'trimester', 'annual'])
+      .openapi({ example: 'semester' }),
+    morningStart: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '08:00' }),
+    morningEnd: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '14:00' }),
+    afternoonStart: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '14:00' }),
+    afternoonEnd: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+      .openapi({ example: '20:00' }),
+    slotDurationMinutes: z.coerce
+      .number()
+      .int()
+      .positive()
+      .openapi({ example: 60 }),
   })
   .refine(
     (data) => {
@@ -63,6 +107,30 @@ export const SaveAcademicYearBodySchema = z
     },
     {
       message: 'Period end date must be before the next period start date.',
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.afternoonStart && data.afternoonEnd) {
+        return data.afternoonEnd > data.afternoonStart;
+      }
+      return true;
+    },
+    {
+      message: 'The end time must be later than the start time',
+      path: ['afternoonEnd'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.morningStart && data.morningEnd) {
+        return data.morningEnd > data.morningStart;
+      }
+      return true;
+    },
+    {
+      message: 'The end time must be later than the start time',
+      path: ['morningEnd'],
     }
   )
   .openapi('SaveAcademicYearBody');

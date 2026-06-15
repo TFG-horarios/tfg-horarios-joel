@@ -1,4 +1,3 @@
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import type { IClassroomReservationRepository } from '../../domain/classroom-reservation.repository';
 import { ClassroomReservation } from '../../domain/classroom-reservation.entity';
@@ -8,9 +7,27 @@ import type {
   ClassroomReservationStatusDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
+import type { DbConnection } from '@/core/db/connection';
+import type { DrizzleClassroomReservation } from './drizzle.classroom-reservation.schema';
 
 export class DrizzleClassroomReservationRepository implements IClassroomReservationRepository {
-  constructor(private readonly db: NodePgDatabase<any>) {}
+  constructor(private readonly db: DbConnection) {}
+
+  private mapToDomain(row: DrizzleClassroomReservation): ClassroomReservation {
+    return ClassroomReservation.reconstitute({
+      id: row.id,
+      organizationId: row.organizationId,
+      requesterUserId: row.requesterUserId,
+      classroomId: row.classroomId,
+      academicYearId: row.academicYearId,
+      date: row.date,
+      slotIndex: row.slotIndex,
+      status: row.status as ClassroomReservationStatusDTO,
+      reason: row.reason,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    });
+  }
 
   async findById(id: string): Promise<ClassroomReservation | null> {
     const [row] = await this.db
@@ -22,7 +39,7 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       return null;
     }
 
-    return this.mapToEntity(row);
+    return this.mapToDomain(row);
   }
 
   async save(reservation: ClassroomReservation): Promise<void> {
@@ -103,7 +120,7 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       .offset(offset);
 
     return {
-      data: rows.map(this.mapToEntity),
+      data: rows.map(this.mapToDomain),
       meta: {
         total,
         page,
@@ -139,21 +156,5 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       .limit(1);
 
     return !!row;
-  }
-
-  private mapToEntity(row: any): ClassroomReservation {
-    return ClassroomReservation.reconstitute({
-      id: row.id,
-      organizationId: row.organizationId,
-      requesterUserId: row.requesterUserId,
-      classroomId: row.classroomId,
-      academicYearId: row.academicYearId,
-      date: row.date,
-      slotIndex: row.slotIndex,
-      status: row.status as ClassroomReservationStatusDTO,
-      reason: row.reason,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    });
   }
 }

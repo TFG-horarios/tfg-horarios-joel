@@ -15,12 +15,6 @@ describe('CreateOrganizationUseCase', () => {
   test('should create an organization successfully', async () => {
     const dto = {
       name: 'Test Org',
-      periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     };
     const result = await useCase.execute(dto, 'user-1');
     expect(result.name).toBe('Test Org');

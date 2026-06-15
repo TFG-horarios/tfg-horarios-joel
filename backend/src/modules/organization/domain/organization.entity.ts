@@ -1,16 +1,8 @@
 import { ValidationError } from '@/core/errors/app.error';
 
-export type OrganizationPeriodType = 'semester' | 'trimester' | 'annual';
-
 export interface OrganizationProps {
   id: string;
   name: string;
-  periodType: OrganizationPeriodType;
-  morningStart: string;
-  afternoonStart: string;
-  morningEnd: string;
-  afternoonEnd: string;
-  slotDurationMinutes: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,17 +17,6 @@ export class Organization {
       throw new ValidationError(
         'Organization name must be at least 2 characters long'
       );
-    }
-
-    if (props.slotDurationMinutes <= 0) {
-      throw new ValidationError('Slot duration must be greater than 0');
-    }
-
-    if (props.morningStart >= props.morningEnd) {
-      throw new ValidationError('Morning start time must be before end time');
-    }
-    if (props.afternoonStart >= props.afternoonEnd) {
-      throw new ValidationError('Afternoon start time must be before end time');
     }
 
     return new Organization({
@@ -58,24 +39,8 @@ export class Organization {
         'Organization name must be at least 2 characters long'
       );
     }
-    if (props.slotDurationMinutes <= 0) {
-      throw new ValidationError('Slot duration must be greater than 0');
-    }
-
-    if (props.morningStart >= props.morningEnd) {
-      throw new ValidationError('Morning start time must be before end time');
-    }
-    if (props.afternoonStart >= props.afternoonEnd) {
-      throw new ValidationError('Afternoon start time must be before end time');
-    }
 
     this.props.name = props.name;
-    this.props.periodType = props.periodType;
-    this.props.morningStart = props.morningStart;
-    this.props.morningEnd = props.morningEnd;
-    this.props.afternoonStart = props.afternoonStart;
-    this.props.afternoonEnd = props.afternoonEnd;
-    this.props.slotDurationMinutes = props.slotDurationMinutes;
     this.props.updatedAt = new Date();
   }
 
@@ -85,30 +50,6 @@ export class Organization {
 
   get name(): string {
     return this.props.name;
-  }
-
-  get periodType(): OrganizationPeriodType {
-    return this.props.periodType;
-  }
-
-  get morningStart(): string {
-    return this.props.morningStart;
-  }
-
-  get afternoonStart(): string {
-    return this.props.afternoonStart;
-  }
-
-  get morningEnd(): string {
-    return this.props.morningEnd;
-  }
-
-  get afternoonEnd(): string {
-    return this.props.afternoonEnd;
-  }
-
-  get slotDurationMinutes(): number {
-    return this.props.slotDurationMinutes;
   }
 
   get createdAt(): Date {

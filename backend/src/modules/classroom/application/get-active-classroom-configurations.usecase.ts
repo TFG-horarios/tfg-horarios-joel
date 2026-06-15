@@ -1,4 +1,4 @@
-import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
+import type { IClassroomScheduleSlotProvider } from '../domain/classroom-schedule-slot.provider';
 import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
 import type {
   ClassroomConfigurationListQueryDTO,
@@ -8,7 +8,7 @@ import { ForbiddenError } from '@/core/errors/app.error';
 
 export class GetActiveClassroomConfigurationsUseCase {
   constructor(
-    private readonly scheduleSlotRepository: IScheduleSlotRepository,
+    private readonly scheduleSlotProvider: IClassroomScheduleSlotProvider,
     private readonly memberProvider: IClassroomMemberProvider
   ) {}
 
@@ -32,7 +32,7 @@ export class GetActiveClassroomConfigurationsUseCase {
       throw new ForbiddenError('You do not have access to this organization');
     }
 
-    return this.scheduleSlotRepository.findActiveClassroomConfigurationsPaginated(
+    return this.scheduleSlotProvider.findActiveClassroomConfigurationsPaginated(
       organizationId,
       filters
     );

@@ -1,13 +1,12 @@
 'use client';
 
-import { memo, useState, useTransition } from 'react';
+import { memo, useTransition } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { updateReservationStatusAction } from '../actions';
 import { toast } from 'sonner';
-import { hasPermission } from '@/core/permissions/authorization';
 import type { ClassroomReservationDTO } from '@tfg-horarios/shared';
 
 export type ClassroomReservationRowProps = {

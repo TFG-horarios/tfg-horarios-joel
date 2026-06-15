@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import type { OrganizationDTO } from '@tfg-horarios/shared';
+import type { AcademicYearDTO } from '@tfg-horarios/shared';
 
 export function useScheduleGrid(
-  organization: OrganizationDTO,
+  academicYear: AcademicYearDTO,
   shift: 'morning' | 'afternoon' | 'global' | string
 ) {
   const parseTime = (timeStr: string) => {
@@ -25,28 +25,28 @@ export function useScheduleGrid(
     let endMins;
 
     if (shift === 'morning') {
-      startMins = parseTime(organization.morningStart);
-      endMins = parseTime(organization.morningEnd);
+      startMins = parseTime(academicYear.morningStart);
+      endMins = parseTime(academicYear.morningEnd);
     } else if (shift === 'afternoon') {
-      startMins = parseTime(organization.afternoonStart);
-      endMins = parseTime(organization.afternoonEnd);
+      startMins = parseTime(academicYear.afternoonStart);
+      endMins = parseTime(academicYear.afternoonEnd);
     } else {
-      startMins = parseTime(organization.morningStart);
-      endMins = parseTime(organization.afternoonEnd);
+      startMins = parseTime(academicYear.morningStart);
+      endMins = parseTime(academicYear.afternoonEnd);
     }
 
     const count = Math.floor(
-      (endMins - startMins) / organization.slotDurationMinutes
+      (endMins - startMins) / academicYear.slotDurationMinutes
     );
     const labels: Record<number, string> = {};
 
     for (let i = 0; i < count; i++) {
-      const slotStart = startMins + i * organization.slotDurationMinutes;
-      const slotEnd = slotStart + organization.slotDurationMinutes;
+      const slotStart = startMins + i * academicYear.slotDurationMinutes;
+      const slotEnd = slotStart + academicYear.slotDurationMinutes;
       labels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
     }
     return labels;
-  }, [organization, shift]);
+  }, [academicYear, shift]);
 
   const numSlots = Object.keys(slotTimeLabels).length;
 

@@ -1,5 +1,5 @@
 {
-  "id": "e56ae3aa-b0b3-4ea8-9269-614e81a49f4e",
+  "id": "fdf3f89a-af97-4e27-9226-167be5f9371d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -80,48 +80,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "period_type": {
-          "name": "period_type",
-          "type": "period_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "morning_start": {
-          "name": "morning_start",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'08:00:00'"
-        },
-        "afternoon_start": {
-          "name": "afternoon_start",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'14:00:00'"
-        },
-        "morning_end": {
-          "name": "morning_end",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'14:00:00'"
-        },
-        "afternoon_end": {
-          "name": "afternoon_end",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'20:00:00'"
-        },
-        "slot_duration_minutes": {
-          "name": "slot_duration_minutes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 60
         },
         "created_at": {
           "name": "created_at",
@@ -1478,6 +1436,43 @@
           "primaryKey": false,
           "notNull": false
         },
+        "period_type": {
+          "name": "period_type",
+          "type": "period_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "morning_start": {
+          "name": "morning_start",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "morning_end": {
+          "name": "morning_end",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "afternoon_start": {
+          "name": "afternoon_start",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "afternoon_end": {
+          "name": "afternoon_end",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_duration_minutes": {
+          "name": "slot_duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1493,7 +1488,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "unique_name_org": {
+          "name": "unique_name_org",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "academic_year_organization_id_organization_id_fk": {
           "name": "academic_year_organization_id_organization_id_fk",
@@ -1517,15 +1534,6 @@
     }
   },
   "enums": {
-    "public.period_type": {
-      "name": "period_type",
-      "schema": "public",
-      "values": [
-        "semester",
-        "trimester",
-        "annual"
-      ]
-    },
     "public.classroom_type": {
       "name": "classroom_type",
       "schema": "public",
@@ -1566,6 +1574,15 @@
         "admin",
         "editor",
         "viewer"
+      ]
+    },
+    "public.period_type": {
+      "name": "period_type",
+      "schema": "public",
+      "values": [
+        "semester",
+        "trimester",
+        "annual"
       ]
     }
   },

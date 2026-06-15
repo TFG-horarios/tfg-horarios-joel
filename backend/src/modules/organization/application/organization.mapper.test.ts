@@ -7,12 +7,6 @@ describe('OrganizationMapper', () => {
   const baseProps = {
     id: 'org-1',
     name: 'Test Org',
-    periodType: 'semester' as const,
-    morningStart: '08:00:00',
-    morningEnd: '14:00:00',
-    afternoonStart: '15:00:00',
-    afternoonEnd: '21:00:00',
-    slotDurationMinutes: 60,
     createdAt: date,
     updatedAt: date,
   };
@@ -23,12 +17,6 @@ describe('OrganizationMapper', () => {
     expect(dto).toEqual({
       id: 'org-1',
       name: 'Test Org',
-      periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
       createdAt: date.toISOString(),
       updatedAt: date.toISOString(),
     });

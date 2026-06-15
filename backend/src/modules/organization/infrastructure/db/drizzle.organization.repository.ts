@@ -17,12 +17,6 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
     return Organization.reconstitute({
       id: row.id,
       name: row.name,
-      periodType: row.periodType,
-      morningStart: row.morningStart,
-      afternoonStart: row.afternoonStart,
-      morningEnd: row.morningEnd,
-      afternoonEnd: row.afternoonEnd,
-      slotDurationMinutes: row.slotDurationMinutes,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -57,12 +51,6 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
         await tx.insert(organizationsTable).values({
           id: organization.id,
           name: organization.name,
-          periodType: organization.periodType,
-          morningStart: organization.morningStart,
-          afternoonStart: organization.afternoonStart,
-          morningEnd: organization.morningEnd,
-          afternoonEnd: organization.afternoonEnd,
-          slotDurationMinutes: organization.slotDurationMinutes,
           createdAt: organization.createdAt,
           updatedAt: organization.updatedAt,
         });
@@ -95,12 +83,6 @@ export class DrizzleOrganizationRepository implements IOrganizationRepository {
         .update(organizationsTable)
         .set({
           name: domainEntity.name,
-          periodType: domainEntity.periodType,
-          morningStart: domainEntity.morningStart,
-          afternoonStart: domainEntity.afternoonStart,
-          morningEnd: domainEntity.morningEnd,
-          afternoonEnd: domainEntity.afternoonEnd,
-          slotDurationMinutes: domainEntity.slotDurationMinutes,
         })
         .where(eq(organizationsTable.id, domainEntity.id));
     } catch (error: unknown) {

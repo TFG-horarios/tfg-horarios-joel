@@ -99,3 +99,19 @@ export const updateAcademicYearRoute = createRoute({
     },
   },
 });
+
+export const deleteAcademicYearRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/academic-years/{id}',
+  request: {
+    params: z.object({
+      organizationId: z.uuid(),
+      id: z.uuid(),
+    }),
+  },
+  responses: {
+    204: {
+      description: 'Academic Year deleted',
+    },
+  },
+});

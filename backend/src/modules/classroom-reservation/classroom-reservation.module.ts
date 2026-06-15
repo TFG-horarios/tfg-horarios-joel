@@ -17,6 +17,7 @@ import {
   updateReservationStatusRoute,
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
+import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
 
 export const createClassroomReservationModule = (
   db: DbConnection,
@@ -34,18 +35,22 @@ export const createClassroomReservationModule = (
     scheduleSlotRepository
   );
 
+  const academicYearProvider = new ClassroomReservationAcademicYearAdapter(
+    academicYearRepository
+  );
+
   const requestUseCase = new RequestClassroomReservationUseCase(
     reservationRepository,
     scheduleProvider,
     memberProvider,
-    academicYearRepository
+    academicYearProvider
   );
 
   const updateStatusUseCase = new UpdateClassroomReservationStatusUseCase(
     reservationRepository,
     scheduleProvider,
     memberProvider,
-    academicYearRepository
+    academicYearProvider
   );
 
   const listUseCase = new ListClassroomReservationsUseCase(

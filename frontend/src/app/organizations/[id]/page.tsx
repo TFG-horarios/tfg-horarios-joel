@@ -29,9 +29,9 @@ export default async function OrganizationDetailPage({
 
   return (
     <AcademicYearsDashboard
-      organizationId={organization.id}
       initialAcademicYears={academicYears}
       isAdmin={isAdmin}
+      organization={organization}
     />
   );
 }

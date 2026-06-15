@@ -10,13 +10,13 @@ import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { SchedulePlanner } from '@/features/schedule/components/schedule-planner';
 
 type SchedulePlannerPageProps = {
-  params: Promise<{ id: string; academicYearId: string; scheduleId: string }>;
+  params: Promise<{ id: string; scheduleId: string }>;
 };
 
 export default async function SchedulePlannerPage({
   params,
 }: SchedulePlannerPageProps) {
-  const { id, academicYearId, scheduleId } = await params;
+  const { id, scheduleId } = await params;
 
   const [
     organization,
@@ -55,9 +55,8 @@ export default async function SchedulePlannerPage({
         subjectGroups={subjectGroups}
         degrees={degrees}
         itineraries={itineraries}
-        academicYearName={
-          academicYears.find((ay) => ay.id === schedule.academicYearId)?.name ??
-          'Unknown Year'
+        academicYear={
+          academicYears.find((ay) => ay.id === schedule.academicYearId)!
         }
       />
     </div>

@@ -25,12 +25,6 @@ describe('UpdateOrganizationUseCase', () => {
     const org = Organization.reconstitute({
       id: 'org-1',
       name: 'Old Org',
-      periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -38,16 +32,9 @@ describe('UpdateOrganizationUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const dto = {
       name: 'New Org',
-      periodType: 'annual' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     };
     const result = await useCase.execute('org-1', 'user-1', dto);
     expect(result.name).toBe('New Org');
-    expect(result.periodType).toBe('annual');
     expect(repositoryMock.update).toHaveBeenCalledWith(org);
   });
 
@@ -55,12 +42,6 @@ describe('UpdateOrganizationUseCase', () => {
     repositoryMock.findById.mockResolvedValueOnce(null);
     const dto = {
       name: 'New Org',
-      periodType: 'annual' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     };
     expect(useCase.execute('org-1', 'user-1', dto)).rejects.toThrow(
       NotFoundError
@@ -72,12 +53,6 @@ describe('UpdateOrganizationUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     const dto = {
       name: 'New Org',
-      periodType: 'annual' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     };
     expect(useCase.execute('org-1', 'user-1', dto)).rejects.toThrow(
       ForbiddenError

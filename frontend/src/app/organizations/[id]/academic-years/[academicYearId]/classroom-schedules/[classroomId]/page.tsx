@@ -65,18 +65,19 @@ export default async function ClassroomScheduleDetailPage({
   const academicYearObj = academicYearsList.find(
     (ay) => ay.id === academicYearId
   );
-  const academicYear = academicYearObj ? academicYearObj.name : 'Unknown';
+  if (!academicYearObj) {
+    notFound();
+  }
 
   return (
     <div className="h-full flex flex-col">
       <ClassroomSchedulePlanner
-        organization={organization}
         classroom={classroom}
         slots={slots}
         subjects={subjects}
         subjectGroups={subjectGroups}
         degrees={degrees}
-        academicYear={academicYear}
+        academicYear={academicYearObj}
         shift={shift}
         period={period}
       />

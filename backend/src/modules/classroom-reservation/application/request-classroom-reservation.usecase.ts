@@ -6,7 +6,7 @@ import { ClassroomReservation } from '../domain/classroom-reservation.entity';
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
 import type { IClassroomReservationScheduleProvider } from '../domain/classroom-reservation-schedule.provider';
 import type { IClassroomReservationMemberProvider } from '../domain/classroom-reservation-member.provider';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
+import type { IClassroomReservationAcademicYearProvider } from '../domain/classroom-reservation-academic-year.provider';
 import { ClassroomReservationMapper } from './classroom-reservation.mapper';
 import {
   ForbiddenError,
@@ -20,7 +20,7 @@ export class RequestClassroomReservationUseCase {
     private readonly repository: IClassroomReservationRepository,
     private readonly scheduleProvider: IClassroomReservationScheduleProvider,
     private readonly memberProvider: IClassroomReservationMemberProvider,
-    private readonly academicYearRepository: IAcademicYearRepository
+    private readonly academicYearProvider: IClassroomReservationAcademicYearProvider
   ) {}
 
   async execute(
@@ -39,11 +39,15 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const academicYear = await this.academicYearRepository.findById(
-      dto.academicYearId
+    const reservationDate = new Date(dto.date);
+    const matchingPeriods = await this.academicYearProvider.getMatchingPeriods(
+      organizationId,
+      dto.academicYearId,
+      reservationDate
     );
-    if (!academicYear || academicYear.organizationId !== organizationId) {
-      throw new NotFoundError('Academic year', organizationId);
+
+    if (!matchingPeriods) {
+      throw new NotFoundError('Academic year', dto.academicYearId);
     }
 
     const areSchedulesPublished =
@@ -58,11 +62,8 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const reservationDate = new Date(dto.date);
     const jsDay = reservationDate.getDay();
     const systemDayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
-
-    const matchingPeriods = academicYear.getMatchingPeriods(reservationDate);
 
     const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
       organizationId,

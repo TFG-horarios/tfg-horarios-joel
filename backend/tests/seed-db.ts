@@ -70,7 +70,6 @@ export const seedTestDb = async (db: TestDbConnection) => {
   await db.insert(organizationsTable).values({
     id: testOrgId,
     name: 'Seed Org',
-    periodType: 'semester',
     createdAt: now,
     updatedAt: now,
   });
@@ -86,6 +85,12 @@ export const seedTestDb = async (db: TestDbConnection) => {
     period1End: '2031-01-31',
     period2Start: '2031-02-01',
     period2End: '2031-06-30',
+    periodType: 'semester',
+    morningStart: '08:00',
+    morningEnd: '14:00',
+    afternoonStart: '15:00',
+    afternoonEnd: '21:00',
+    slotDurationMinutes: 60,
     createdAt: now,
     updatedAt: now,
   });

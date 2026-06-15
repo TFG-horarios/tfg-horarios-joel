@@ -31,9 +31,9 @@ describe('UpdateScheduleSlotUseCase', () => {
 
   const useCase = new UpdateScheduleSlotUseCase(
     repositoryMock,
-    dataProviderMock as any,
-    memberProviderMock as any,
-    validationProviderMock as any
+    dataProviderMock,
+    memberProviderMock,
+    validationProviderMock
   );
 
   test('should update schedule slot successfully', async () => {

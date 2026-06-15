@@ -5,7 +5,7 @@ import type {
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
 import type { IClassroomReservationScheduleProvider } from '../domain/classroom-reservation-schedule.provider';
 import type { IClassroomReservationMemberProvider } from '../domain/classroom-reservation-member.provider';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
+import type { IClassroomReservationAcademicYearProvider } from '../domain/classroom-reservation-academic-year.provider';
 import { ClassroomReservationMapper } from './classroom-reservation.mapper';
 import {
   ForbiddenError,
@@ -19,7 +19,7 @@ export class UpdateClassroomReservationStatusUseCase {
     private readonly repository: IClassroomReservationRepository,
     private readonly scheduleProvider: IClassroomReservationScheduleProvider,
     private readonly memberProvider: IClassroomReservationMemberProvider,
-    private readonly academicYearRepository: IAcademicYearRepository
+    private readonly academicYearProvider: IClassroomReservationAcademicYearProvider
   ) {}
 
   async execute(
@@ -55,14 +55,16 @@ export class UpdateClassroomReservationStatusUseCase {
       const jsDay = reservationDate.getDay();
       const systemDayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
 
-      const academicYear = await this.academicYearRepository.findById(
-        reservation.academicYearId
-      );
-      if (!academicYear || academicYear.organizationId !== organizationId) {
+      const matchingPeriods =
+        await this.academicYearProvider.getMatchingPeriods(
+          organizationId,
+          reservation.academicYearId,
+          reservationDate
+        );
+
+      if (!matchingPeriods) {
         throw new NotFoundError('AcademicYear', reservation.academicYearId);
       }
-
-      const matchingPeriods = academicYear.getMatchingPeriods(reservationDate);
 
       const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
         organizationId,

@@ -6,7 +6,11 @@ import type {
   SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
 import type { IAcademicYearOrganizationProvider } from '../domain/academic-year-organization.provider';
-import { NotFoundError, ForbiddenError } from '@/core/errors/app.error';
+import {
+  NotFoundError,
+  ForbiddenError,
+  ConflictError,
+} from '@/core/errors/app.error';
 import type { IAcademicYearMemberProvider } from '../domain/academic-year-member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
@@ -32,10 +36,18 @@ export class CreateAcademicYearUseCase {
       );
     }
 
-    const organizationExists =
+    const exists =
       await this.organizationProvider.organizationExists(organizationId);
-    if (!organizationExists) {
+    if (!exists) {
       throw new NotFoundError('Organization', organizationId);
+    }
+
+    const existingYears =
+      await this.academicYearRepository.findByOrganizationId(organizationId);
+    if (existingYears.some((ay) => ay.name === data.name)) {
+      throw new ConflictError(
+        `An academic year with the name '${data.name}' already exists in this organization`
+      );
     }
 
     const academicYear = AcademicYear.create({
@@ -47,6 +59,12 @@ export class CreateAcademicYearUseCase {
       period1End: data.period1End ?? null,
       period2Start: data.period2Start ?? null,
       period2End: data.period2End ?? null,
+      periodType: data.periodType,
+      morningStart: data.morningStart,
+      morningEnd: data.morningEnd,
+      afternoonStart: data.afternoonStart,
+      afternoonEnd: data.afternoonEnd,
+      slotDurationMinutes: data.slotDurationMinutes,
     });
 
     await this.academicYearRepository.save(academicYear);

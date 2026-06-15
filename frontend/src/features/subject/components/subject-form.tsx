@@ -12,7 +12,6 @@ import {
   type SubjectDTO,
   type DegreeDTO,
   type ItineraryDTO,
-  type OrganizationDTO,
 } from '@tfg-horarios/shared';
 import { useActionForm } from '@/hooks/use-action-form';
 import type { ActionResponse } from '@/types/actions';
@@ -26,7 +25,7 @@ export const SubjectFormSchema = SaveSubjectBodySchema.extend({
 export type SubjectFormDTO = z.infer<typeof SubjectFormSchema>;
 
 type SubjectFormProps = {
-  organization: OrganizationDTO;
+  periodType: 'annual' | 'semester' | 'trimester';
   action: (data: SubjectFormDTO) => Promise<ActionResponse<SubjectDTO>>;
   defaultValues?: Partial<SubjectFormDTO>;
   degrees: DegreeDTO[];
@@ -39,7 +38,7 @@ type SubjectFormProps = {
 };
 
 export function SubjectForm({
-  organization,
+  periodType,
   action,
   defaultValues,
   degrees,
@@ -158,17 +157,17 @@ export function SubjectForm({
             label={t('period.label')}
             placeholder={t('period.placeholder')}
             options={
-              organization.periodType === 'annual'
+              periodType === 'annual'
                 ? [{ label: 'Anual', value: '0' }]
-                : organization.periodType === 'semester'
+                : periodType === 'semester'
                   ? [
-                      { label: '1º Semestre', value: '1' },
-                      { label: '2º Semestre', value: '2' },
+                      { label: '1º Semestre', value: '0' },
+                      { label: '2º Semestre', value: '1' },
                     ]
                   : [
-                      { label: '1º Trimestre', value: '1' },
-                      { label: '2º Trimestre', value: '2' },
-                      { label: '3º Trimestre', value: '3' },
+                      { label: '1º Trimestre', value: '0' },
+                      { label: '2º Trimestre', value: '1' },
+                      { label: '3º Trimestre', value: '2' },
                     ]
             }
           />

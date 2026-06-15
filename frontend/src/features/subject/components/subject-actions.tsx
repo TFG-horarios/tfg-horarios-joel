@@ -7,6 +7,7 @@ import type {
   DegreeDTO,
   ItineraryDTO,
   OrganizationDTO,
+  AcademicYearDTO,
 } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
 import { deleteAllSubjectsAction } from '@/features/subject/actions';
@@ -14,12 +15,14 @@ import { SubjectFormModal } from './subject-form-modal';
 
 interface SubjectActionsProps {
   organization: OrganizationDTO;
+  academicYear: AcademicYearDTO;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
 }
 
 export function SubjectActions({
   organization,
+  academicYear,
   degrees,
   itineraries,
 }: SubjectActionsProps) {
@@ -62,6 +65,7 @@ export function SubjectActions({
       />
       <SubjectFormModal
         organization={organization}
+        academicYear={academicYear}
         degrees={degrees}
         itineraries={itineraries}
         open={isCreateOpen}

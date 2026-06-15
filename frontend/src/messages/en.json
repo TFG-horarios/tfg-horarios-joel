@@ -258,7 +258,9 @@
     },
     "dialog": {
       "title": "New organization",
-      "description": "Set up the basic parameters for your organization."
+      "description": "Set up the basic parameters for your organization.",
+      "editTitle": "Edit organization",
+      "editDescription": "Modify the organization's details."
     },
     "detail": {
       "label": "Organization details",
@@ -768,6 +770,9 @@
       "afternoon": "Afternoon",
       "slotDuration": "Slot duration",
       "actions": "Actions"
+    },
+    "warnings": {
+      "editGrid": "Changes to start/end times and slot duration will only take effect for academic years created from now on. To modify existing schedules, you must edit the specific academic year."
     },
     "empty": {
       "title": "No organizations yet",

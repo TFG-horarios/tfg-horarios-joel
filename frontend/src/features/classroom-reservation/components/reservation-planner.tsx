@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,9 +24,14 @@ import {
 } from '@/components/ui/dialog';
 import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
-import { requestReservationAction } from '../actions';
+import { requestReservationAction, getOccupiedSlotsAction } from '../actions';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
-import type { ClassroomDTO, OrganizationDTO, AcademicYearDTO } from '@tfg-horarios/shared';
+import type {
+  ClassroomDTO,
+  OrganizationDTO,
+  AcademicYearDTO,
+} from '@tfg-horarios/shared';
 
 type ReservationPlannerProps = {
   organization: OrganizationDTO;
@@ -41,7 +46,7 @@ export function ReservationPlanner({
 }: ReservationPlannerProps) {
   const router = useRouter();
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
-  
+
   const startDates = [
     academicYear.period0Start,
     academicYear.period1Start,
@@ -54,8 +59,12 @@ export function ReservationPlanner({
     academicYear.period2End,
   ].filter(Boolean) as string[];
 
-  const minDate = startDates.length > 0 ? new Date(startDates[0] as string) : undefined;
-  const maxDate = endDates.length > 0 ? new Date(endDates[endDates.length - 1] as string) : undefined;
+  const minDate =
+    startDates.length > 0 ? new Date(startDates[0] as string) : undefined;
+  const maxDate =
+    endDates.length > 0
+      ? new Date(endDates[endDates.length - 1] as string)
+      : undefined;
 
   const disabledDates = [];
   if (minDate) disabledDates.push({ before: minDate });
@@ -65,8 +74,8 @@ export function ReservationPlanner({
     minDate && new Date() < minDate
       ? minDate
       : maxDate && new Date() > maxDate
-      ? maxDate
-      : new Date()
+        ? maxDate
+        : new Date()
   );
 
   const [isPending, startTransition] = useTransition();
@@ -78,7 +87,7 @@ export function ReservationPlanner({
   } | null>(null);
   const [reason, setReason] = useState('');
 
-  const { slotTimeLabels, numSlots } = useScheduleGrid(organization, 'global');
+  const { slotTimeLabels, numSlots } = useScheduleGrid(academicYear, 'global');
 
   const getMonday = (d: Date) => {
     const day = d.getDay();
@@ -98,6 +107,93 @@ export function ReservationPlanner({
       date,
     };
   });
+
+  const [occupiedSlots, setOccupiedSlots] = useState<
+    { day: number; slotIndex: number; reason: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (!selectedClassroom) {
+      setOccupiedSlots([]);
+      return;
+    }
+
+    const fetchOccupied = async () => {
+      const datesToFetch = daysOfWeek.map((d) => format(d.date, 'yyyy-MM-dd'));
+      const result = await getOccupiedSlotsAction(
+        organization.id,
+        selectedClassroom,
+        academicYear.id,
+        datesToFetch
+      );
+
+      if (result.success && result.data) {
+        const { scheduleSlots, reservations } = result.data;
+        const newOccupied: {
+          day: number;
+          slotIndex: number;
+          reason: string;
+        }[] = [];
+
+        daysOfWeek.forEach((day) => {
+          const formattedDate = format(day.date, 'yyyy-MM-dd');
+          const d = new Date(day.date);
+          d.setHours(0, 0, 0, 0);
+
+          let dayPeriod: number | undefined;
+          if (
+            academicYear.period0Start &&
+            academicYear.period0End &&
+            d >= new Date(academicYear.period0Start) &&
+            d <= new Date(academicYear.period0End)
+          ) {
+            dayPeriod = 1;
+          } else if (
+            academicYear.period1Start &&
+            academicYear.period1End &&
+            d >= new Date(academicYear.period1Start) &&
+            d <= new Date(academicYear.period1End)
+          ) {
+            dayPeriod = 2;
+          } else if (
+            academicYear.period2Start &&
+            academicYear.period2End &&
+            d >= new Date(academicYear.period2Start) &&
+            d <= new Date(academicYear.period2End)
+          ) {
+            dayPeriod = 3;
+          }
+
+          scheduleSlots.forEach((slot) => {
+            if (slot.dayOfWeek === day.value + 1) {
+              if (slot.period === dayPeriod || slot.period === 1) {
+                newOccupied.push({
+                  day: day.value,
+                  slotIndex: slot.slotIndex ?? -1,
+                  reason: 'Ocupado por clase',
+                });
+              }
+            }
+          });
+
+          reservations.forEach((res) => {
+            if (res.date === formattedDate && res.slotIndex !== null) {
+              newOccupied.push({
+                day: day.value,
+                slotIndex: res.slotIndex,
+                reason:
+                  res.status === 'ACCEPTED' ? 'Reservado' : 'Reserva pendiente',
+              });
+            }
+          });
+        });
+
+        setOccupiedSlots(newOccupied);
+      }
+    };
+
+    fetchOccupied();
+  }, [selectedClassroom, weekStart, academicYear, organization.id]);
 
   const handleCellClick = (dayValue: number, slotIndex: number) => {
     if (!selectedClassroom) {
@@ -128,7 +224,7 @@ export function ReservationPlanner({
 
       if (result.success) {
         toast.success(
-          result.data.status === 'ACCEPTED'
+          result.data!.status === 'ACCEPTED'
             ? 'Reserva confirmada correctamente'
             : 'Solicitud enviada correctamente'
         );
@@ -197,6 +293,20 @@ export function ReservationPlanner({
           numSlots={numSlots}
           slotTimeLabels={slotTimeLabels}
           renderCell={(day, slotIndex) => {
+            const occupied = occupiedSlots.find(
+              (o) => o.day === day && o.slotIndex === slotIndex
+            );
+
+            if (occupied) {
+              return (
+                <div className="w-full h-full min-h-[60px] rounded-md border border-dashed border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 cursor-not-allowed flex flex-col items-center justify-center p-2">
+                  <span className="text-[10px] font-medium text-red-600 dark:text-red-400 text-center uppercase tracking-wider">
+                    {occupied.reason}
+                  </span>
+                </div>
+              );
+            }
+
             return (
               <div
                 className="w-full h-full min-h-[60px] rounded-md border border-dashed border-border hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors flex items-center justify-center group"

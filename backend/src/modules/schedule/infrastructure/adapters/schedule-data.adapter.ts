@@ -6,7 +6,7 @@ import type {
 import type { IDegreeRepository } from '@/modules/degree/domain/degree.repository';
 import type { IClassroomRepository } from '@/modules/classroom/domain/classroom.repository';
 import type { ISubjectGroupRepository } from '@/modules/subject-group/domain/subject-group.repository';
-import type { IOrganizationRepository } from '@/modules/organization/domain/organization.repository';
+import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import type { ScheduleEngineGroupData } from '../../domain/schedule-engine.provider';
 
 export class ScheduleDataAdapter implements IScheduleDataProvider {
@@ -14,7 +14,7 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
     private readonly degreeRepository: IDegreeRepository,
     private readonly classroomRepository: IClassroomRepository,
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly organizationRepository: IOrganizationRepository
+    private readonly academicYearRepository: IAcademicYearRepository
   ) {}
 
   async getTargetDegreeIds(organizationId: string): Promise<string[]> {
@@ -64,17 +64,18 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
     }));
   }
 
-  async getOrganizationConstraints(
-    organizationId: string
+  async getAcademicYearConstraints(
+    academicYearId: string
   ): Promise<ScheduleOrganizationConstraints | null> {
-    const org = await this.organizationRepository.findById(organizationId);
-    if (!org) return null;
+    const academicYear =
+      await this.academicYearRepository.findById(academicYearId);
+    if (!academicYear) return null;
     return {
-      morningStart: org.morningStart,
-      morningEnd: org.morningEnd,
-      afternoonStart: org.afternoonStart,
-      afternoonEnd: org.afternoonEnd,
-      slotDurationMinutes: org.slotDurationMinutes,
+      morningStart: academicYear.morningStart,
+      morningEnd: academicYear.morningEnd,
+      afternoonStart: academicYear.afternoonStart,
+      afternoonEnd: academicYear.afternoonEnd,
+      slotDurationMinutes: academicYear.slotDurationMinutes,
     };
   }
 }

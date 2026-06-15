@@ -108,10 +108,13 @@ export default async function OrganizationClassroomSchedulesPage({
     shift_afternoon: t('shiftOptions.afternoon'),
   };
 
+  const currentAcademicYear = academicYears.find(
+    (ay) => ay.id === academicYearId
+  );
   const numPeriods =
-    organization.periodType === 'annual'
+    currentAcademicYear?.periodType === 'annual'
       ? 1
-      : organization.periodType === 'trimester'
+      : currentAcademicYear?.periodType === 'trimester'
         ? 3
         : 2;
   const periodOptions = Array.from({ length: numPeriods }, (_, i) => {

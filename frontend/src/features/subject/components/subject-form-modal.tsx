@@ -16,11 +16,13 @@ import type {
   DegreeDTO,
   ItineraryDTO,
   OrganizationDTO,
+  AcademicYearDTO,
 } from '@tfg-horarios/shared';
 import { toast } from 'sonner';
 
 interface SubjectFormModalProps {
   organization: OrganizationDTO;
+  academicYear: AcademicYearDTO;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
   subject?: SubjectDTO;
@@ -31,6 +33,7 @@ interface SubjectFormModalProps {
 
 export function SubjectFormModal({
   organization,
+  academicYear,
   degrees,
   itineraries,
   subject,
@@ -86,7 +89,7 @@ export function SubjectFormModal({
         </DialogHeader>
         <div className="py-4">
           <SubjectForm
-            organization={organization}
+            periodType={academicYear.periodType}
             action={handleAction}
             degrees={degrees}
             itineraries={itineraries}

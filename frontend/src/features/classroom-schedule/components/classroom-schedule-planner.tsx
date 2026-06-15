@@ -14,18 +14,17 @@ import {
   type ClassroomDTO,
   type SubjectDTO,
   type SubjectGroupDTO,
-  type OrganizationDTO,
   type DegreeDTO,
+  type AcademicYearDTO,
 } from '@tfg-horarios/shared';
 
 type ClassroomSchedulePlannerProps = {
-  organization: OrganizationDTO;
   slots: ScheduleSlotDTO[];
   classroom: ClassroomDTO;
   subjects: SubjectDTO[];
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
-  academicYear: string;
+  academicYear: AcademicYearDTO;
   shift: 'morning' | 'afternoon';
   period: number;
 };
@@ -71,7 +70,6 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
 });
 
 export function ClassroomSchedulePlanner({
-  organization,
   slots,
   classroom,
   subjects,
@@ -84,7 +82,7 @@ export function ClassroomSchedulePlanner({
   const t = useTranslations('Organizations.classroomSchedules.planner');
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
-  const { slotTimeLabels, numSlots } = useScheduleGrid(organization, shift);
+  const { slotTimeLabels, numSlots } = useScheduleGrid(academicYear, shift);
 
   const daysOfWeek = [
     { value: 1, label: t('days.1') },
@@ -150,14 +148,16 @@ export function ClassroomSchedulePlanner({
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-2">
             <Calendar className="size-4" />
-            {academicYear} • {t('semester', { period })}
+            {academicYear.name} • {t('semester', { period })}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Button
             onClick={() =>
-              exportPDF(`horario-${classroom.name}-${academicYear}-P${period}`)
+              exportPDF(
+                `horario-${classroom.name}-${academicYear.name}-P${period}`
+              )
             }
             disabled={isExportingPDF}
             variant="outline"

@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';

@@ -21,12 +21,6 @@ describe('DrizzleOrganizationRepository Integration', () => {
   const createValidOrg = () =>
     Organization.create({
       name: 'Test Org',
-      periodType: 'semester',
-      morningStart: '08:00',
-      afternoonStart: '15:00',
-      morningEnd: '14:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     });
 
   test('should create and retrieve an organization by ID', async () => {
@@ -69,12 +63,6 @@ describe('DrizzleOrganizationRepository Integration', () => {
     await repository.create(org, testUserId);
     org.update({
       name: 'Updated Org',
-      periodType: 'semester',
-      morningStart: '08:00',
-      afternoonStart: '15:00',
-      morningEnd: '14:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
     });
     await repository.update(org);
     const updatedOrg = await repository.findById(org.id);

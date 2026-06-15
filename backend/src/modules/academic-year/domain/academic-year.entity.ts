@@ -8,6 +8,12 @@ export interface AcademicYearProps {
   period1End: string | null;
   period2Start: string | null;
   period2End: string | null;
+  periodType: 'semester' | 'trimester' | 'annual';
+  morningStart: string;
+  morningEnd: string;
+  afternoonStart: string;
+  afternoonEnd: string;
+  slotDurationMinutes: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -92,6 +98,30 @@ export class AcademicYear {
     return this.props.period2End;
   }
 
+  public get periodType(): 'semester' | 'trimester' | 'annual' {
+    return this.props.periodType;
+  }
+
+  public get morningStart(): string {
+    return this.props.morningStart;
+  }
+
+  public get morningEnd(): string {
+    return this.props.morningEnd;
+  }
+
+  public get afternoonStart(): string {
+    return this.props.afternoonStart;
+  }
+
+  public get afternoonEnd(): string {
+    return this.props.afternoonEnd;
+  }
+
+  public get slotDurationMinutes(): number {
+    return this.props.slotDurationMinutes;
+  }
+
   public get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -121,6 +151,18 @@ export class AcademicYear {
       this.props.period2Start = props.period2Start;
     if (props.period2End !== undefined)
       this.props.period2End = props.period2End;
+    if (props.periodType !== undefined)
+      this.props.periodType = props.periodType;
+    if (props.morningStart !== undefined)
+      this.props.morningStart = props.morningStart;
+    if (props.morningEnd !== undefined)
+      this.props.morningEnd = props.morningEnd;
+    if (props.afternoonStart !== undefined)
+      this.props.afternoonStart = props.afternoonStart;
+    if (props.afternoonEnd !== undefined)
+      this.props.afternoonEnd = props.afternoonEnd;
+    if (props.slotDurationMinutes !== undefined)
+      this.props.slotDurationMinutes = props.slotDurationMinutes;
     this.props.updatedAt = new Date();
   }
 

@@ -8,26 +8,6 @@ export const OrganizationSchema = z
       .min(3)
       .max(100)
       .openapi({ example: 'Mathematics faculty' }),
-    periodType: z
-      .enum(['semester', 'trimester', 'annual'])
-      .openapi({ example: 'semester' }),
-    morningStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '08:00' }),
-    morningEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '20:00' }),
-    slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
   })
@@ -44,38 +24,6 @@ export const SaveOrganizationBodySchema = z
       .min(3)
       .max(100)
       .openapi({ example: 'Mathematics faculty' }),
-    periodType: z
-      .enum(['semester', 'trimester', 'annual'])
-      .openapi({ example: 'semester' }),
-    morningStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '08:00' }),
-    morningEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '20:00' }),
-    slotDurationMinutes: z.coerce
-      .number()
-      .int()
-      .positive()
-      .openapi({ example: 60 }),
-  })
-  .refine((data) => data.afternoonEnd > data.afternoonStart, {
-    message: 'The end time must be later than the start time',
-    path: ['afternoonEnd'],
-  })
-  .refine((data) => data.morningEnd > data.morningStart, {
-    message: 'The end time must be later than the start time',
-    path: ['morningEnd'],
   })
   .openapi('SaveOrganization');
 

@@ -10,6 +10,7 @@ import type { SubjectCardProps } from './subject-card';
 
 export const SubjectRow = memo(function SubjectRow({
   organization,
+  academicYear,
   item: subject,
   degreeMap,
   itineraryMap,
@@ -69,6 +70,7 @@ export const SubjectRow = memo(function SubjectRow({
       </TableRow>
       <SubjectFormModal
         organization={organization}
+        academicYear={academicYear}
         degrees={Array.from(degreeMap.values())}
         itineraries={Array.from(itineraryMap.values())}
         subject={subject}

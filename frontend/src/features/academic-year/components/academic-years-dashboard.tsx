@@ -2,27 +2,31 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Plus, CalendarDays } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AcademicYearFormModal } from './academic-year-form-modal';
-import { type AcademicYearDTO } from '@tfg-horarios/shared';
+import {
+  type AcademicYearDTO,
+  type OrganizationDTO,
+} from '@tfg-horarios/shared';
 import { AcademicYearCard } from './academic-year-card';
 import { DashboardGrid } from '@/components/layout/dashboard-grid';
+import { useState } from 'react';
 
 type AcademicYearsDashboardProps = {
-  organizationId: string;
   initialAcademicYears: AcademicYearDTO[];
   isAdmin: boolean;
+  organization: OrganizationDTO;
 };
 
 export function AcademicYearsDashboard({
-  organizationId,
   initialAcademicYears,
   isAdmin,
+  organization,
 }: AcademicYearsDashboardProps) {
   const searchParams = useSearchParams();
-  const t = useTranslations('Organizations.academicYearsDashboard');
+  const [editingAcademicYear, setEditingAcademicYear] =
+    useState<AcademicYearDTO | null>(null);
 
   const academicYears = initialAcademicYears;
   const searchQuery = searchParams.get('q') ?? '';
@@ -50,7 +54,7 @@ export function AcademicYearsDashboard({
       actionButton={
         isAdmin ? (
           <AcademicYearFormModal
-            organizationId={organizationId}
+            organization={organization}
             trigger={
               <Button className="h-11 shrink-0 cursor-pointer bg-purple-600/90 px-5 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600/80 dark:bg-purple-500/80 dark:hover:bg-purple-500/70">
                 Crear curso
@@ -63,14 +67,16 @@ export function AcademicYearsDashboard({
       {filteredAcademicYears.map((ay) => (
         <AcademicYearCard
           key={ay.id}
-          organizationId={organizationId}
+          organizationId={organization.id}
           academicYear={ay}
+          isAdmin={isAdmin}
+          onEdit={() => setEditingAcademicYear(ay)}
         />
       ))}
 
       {isAdmin && (
         <AcademicYearFormModal
-          organizationId={organizationId}
+          organization={organization}
           trigger={
             <Card
               role="button"
@@ -87,6 +93,18 @@ export function AcademicYearsDashboard({
               </div>
             </Card>
           }
+        />
+      )}
+
+      {editingAcademicYear && (
+        <AcademicYearFormModal
+          organization={organization}
+          academicYear={editingAcademicYear}
+          trigger={<div style={{ display: 'none' }} />}
+          defaultOpen={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingAcademicYear(null);
+          }}
         />
       )}
     </DashboardGrid>

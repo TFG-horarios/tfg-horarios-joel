@@ -66,10 +66,12 @@ export class GenerateScheduleUseCase {
 
       if (groupsData.length === 0) return [];
 
-      const organization =
-        await this.dataProvider.getOrganizationConstraints(organizationId);
-      if (!organization) {
-        throw new Error('Organization not found');
+      const academicYearConstraints =
+        await this.dataProvider.getAcademicYearConstraints(
+          scope.academicYearId
+        );
+      if (!academicYearConstraints) {
+        throw new Error('Academic Year not found');
       }
 
       const parseTime = (timeStr: string) => {
@@ -77,12 +79,12 @@ export class GenerateScheduleUseCase {
         return (hours || 0) * 60 + (minutes || 0);
       };
 
-      const morningStart = parseTime(organization.morningStart);
-      const morningEnd = parseTime(organization.morningEnd);
-      const afternoonStart = parseTime(organization.afternoonStart);
-      const afternoonEnd = parseTime(organization.afternoonEnd);
+      const morningStart = parseTime(academicYearConstraints.morningStart);
+      const morningEnd = parseTime(academicYearConstraints.morningEnd);
+      const afternoonStart = parseTime(academicYearConstraints.afternoonStart);
+      const afternoonEnd = parseTime(academicYearConstraints.afternoonEnd);
 
-      const slotDuration = organization.slotDurationMinutes;
+      const slotDuration = academicYearConstraints.slotDurationMinutes;
       const maxMorningSlots = Math.floor(
         (morningEnd - morningStart) / slotDuration
       );

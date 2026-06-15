@@ -227,7 +227,12 @@ describe('HonoClassroomController Integration', () => {
   test('GET /organizations/:organizationId/classrooms/active-configurations should return paginated configurations', async () => {
     const mockResponse = {
       data: [
-        { classroomId, academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88', shift: 'morning', period: 1 },
+        {
+          classroomId,
+          academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+          shift: 'morning',
+          period: 1,
+        },
       ],
       meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
     };

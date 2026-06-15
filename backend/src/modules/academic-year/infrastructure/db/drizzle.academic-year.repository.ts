@@ -21,6 +21,12 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period1End: row.period1End,
       period2Start: row.period2Start,
       period2End: row.period2End,
+      periodType: row.periodType,
+      morningStart: row.morningStart,
+      morningEnd: row.morningEnd,
+      afternoonStart: row.afternoonStart,
+      afternoonEnd: row.afternoonEnd,
+      slotDurationMinutes: row.slotDurationMinutes,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -38,6 +44,12 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period1End: academicYear.period1End,
       period2Start: academicYear.period2Start,
       period2End: academicYear.period2End,
+      periodType: academicYear.periodType,
+      morningStart: academicYear.morningStart,
+      morningEnd: academicYear.morningEnd,
+      afternoonStart: academicYear.afternoonStart,
+      afternoonEnd: academicYear.afternoonEnd,
+      slotDurationMinutes: academicYear.slotDurationMinutes,
       createdAt: academicYear.createdAt,
       updatedAt: academicYear.updatedAt,
     });
@@ -55,6 +67,12 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
         period1End: academicYear.period1End,
         period2Start: academicYear.period2Start,
         period2End: academicYear.period2End,
+        periodType: academicYear.periodType,
+        morningStart: academicYear.morningStart,
+        morningEnd: academicYear.morningEnd,
+        afternoonStart: academicYear.afternoonStart,
+        afternoonEnd: academicYear.afternoonEnd,
+        slotDurationMinutes: academicYear.slotDurationMinutes,
         updatedAt: academicYear.updatedAt,
       })
       .where(eq(academicYearsTable.id, academicYear.id));

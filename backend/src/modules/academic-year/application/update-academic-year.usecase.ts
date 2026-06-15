@@ -44,6 +44,12 @@ export class UpdateAcademicYearUseCase {
       period1End: data.period1End ?? null,
       period2Start: data.period2Start ?? null,
       period2End: data.period2End ?? null,
+      periodType: data.periodType,
+      morningStart: data.morningStart,
+      morningEnd: data.morningEnd,
+      afternoonStart: data.afternoonStart,
+      afternoonEnd: data.afternoonEnd,
+      slotDurationMinutes: data.slotDurationMinutes,
     });
 
     await this.academicYearRepository.update(academicYear);

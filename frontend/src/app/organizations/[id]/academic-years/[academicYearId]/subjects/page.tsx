@@ -10,6 +10,7 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchSubjects } from '@/features/subject/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
+import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';
 import { SubjectActions } from '@/features/subject/components/subject-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
@@ -21,7 +22,7 @@ import { fetchSubjectsAction } from '@/features/subject/actions';
 import type { SubjectListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSubjectsPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; academicYearId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
@@ -29,7 +30,7 @@ export default async function OrganizationSubjectsPage({
   params,
   searchParams,
 }: OrganizationSubjectsPageProps) {
-  const { id } = await params;
+  const { id, academicYearId } = await params;
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-subjects')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
@@ -84,15 +85,27 @@ export default async function OrganizationSubjectsPage({
   const t = await getTranslations('Organizations.subjects');
   const tSubjectGroups = await getTranslations('Organizations.subjectGroups');
 
-  const [organization, { data: subjects, meta }, degrees, itineraries] =
-    await Promise.all([
-      fetchOrganizationById(id),
-      fetchSubjects(id, query),
-      fetchAllDegrees(id),
-      fetchAllItineraries(id),
-    ]);
+  const [
+    organization,
+    { data: subjects, meta },
+    degrees,
+    itineraries,
+    academicYears,
+  ] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchSubjects(id, query),
+    fetchAllDegrees(id),
+    fetchAllItineraries(id),
+    fetchAcademicYears(id),
+  ]);
 
   if (!organization) {
+    notFound();
+  }
+  const currentAcademicYear = academicYears.find(
+    (ay) => ay.id === academicYearId
+  );
+  if (!currentAcademicYear) {
     notFound();
   }
   const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
@@ -186,6 +199,7 @@ export default async function OrganizationSubjectsPage({
         />
         <SubjectActions
           organization={organization}
+          academicYear={currentAcademicYear}
           degrees={degrees}
           itineraries={itineraries}
         />
@@ -201,6 +215,7 @@ export default async function OrganizationSubjectsPage({
           GridItemComponent={SubjectCard}
           gridItemProps={{
             organization,
+            academicYear: currentAcademicYear,
             degreeMap,
             itineraryMap,
             translations,
@@ -220,6 +235,7 @@ export default async function OrganizationSubjectsPage({
           TableRowComponent={SubjectRow}
           tableRowProps={{
             organization,
+            academicYear: currentAcademicYear,
             degreeMap,
             itineraryMap,
             translations,

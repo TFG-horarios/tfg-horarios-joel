@@ -4,11 +4,13 @@ import { CreateAcademicYearUseCase } from '../../application/create-academic-yea
 import { ListAcademicYearsUseCase } from '../../application/list-academic-years.usecase';
 import { GetActiveAcademicYearUseCase } from '../../application/get-active-academic-year.usecase';
 import { UpdateAcademicYearUseCase } from '../../application/update-academic-year.usecase';
+import { DeleteAcademicYearUseCase } from '../../application/delete-academic-year.usecase';
 import {
   createAcademicYearRoute,
   listAcademicYearsRoute,
   getActiveAcademicYearRoute,
   updateAcademicYearRoute,
+  deleteAcademicYearRoute,
 } from './hono.academic-year.routes';
 
 export class HonoAcademicYearController {
@@ -16,7 +18,8 @@ export class HonoAcademicYearController {
     private readonly createAcademicYearUseCase: CreateAcademicYearUseCase,
     private readonly listAcademicYearsUseCase: ListAcademicYearsUseCase,
     private readonly getActiveAcademicYearUseCase: GetActiveAcademicYearUseCase,
-    private readonly updateAcademicYearUseCase: UpdateAcademicYearUseCase
+    private readonly updateAcademicYearUseCase: UpdateAcademicYearUseCase,
+    private readonly deleteAcademicYearUseCase: DeleteAcademicYearUseCase
   ) {}
 
   create: RouteHandler<typeof createAcademicYearRoute, AppEnv> = async (c) => {
@@ -64,5 +67,16 @@ export class HonoAcademicYearController {
       data
     );
     return c.json(result, 200);
+  };
+
+  delete: RouteHandler<typeof deleteAcademicYearRoute, AppEnv> = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const requesterUserId = c.get('userId');
+    await this.deleteAcademicYearUseCase.execute(
+      organizationId,
+      id,
+      requesterUserId
+    );
+    return c.body(null, 204);
   };
 }

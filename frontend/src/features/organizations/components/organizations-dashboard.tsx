@@ -13,17 +13,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { CreateOrganizationForm } from './create-organization-form';
+import { OrganizationForm } from './organization-form';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { DashboardGrid } from '@/components/layout/dashboard-grid';
+import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
+import { removeOrganizationAction } from '../actions';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 type OrganizationsDashboardProps = {
   initialOrganizations: OrganizationDTO[];
+  userRolesMap: Record<string, string | null>;
   initialError?: string | null;
 };
 
 export function OrganizationsDashboard({
   initialOrganizations,
+  userRolesMap,
   initialError = null,
 }: OrganizationsDashboardProps) {
   const router = useRouter();
@@ -31,6 +37,8 @@ export function OrganizationsDashboard({
   const searchParams = useSearchParams();
   const t = useTranslations('Organizations');
   const isModalOpen = searchParams.get('new') === 'true';
+  const [editingOrganization, setEditingOrganization] =
+    useState<OrganizationDTO | null>(null);
 
   const handleModalChange = (open: boolean) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -57,12 +65,6 @@ export function OrganizationsDashboard({
       ? t('page.count.one')
       : t('page.count.other', { count: organizations.length });
 
-  const periodTypeLabels = {
-    semester: t('form.periodType.options.semester'),
-    trimester: t('form.periodType.options.trimester'),
-    annual: t('form.periodType.options.annual'),
-  } as const;
-
   const handleSelectOrganization = (orgId: string) => {
     router.push(`/organizations/${orgId}`);
   };
@@ -85,54 +87,44 @@ export function OrganizationsDashboard({
         </Button>
       }
     >
-      {filteredOrganizations.map((org) => (
-        <Card
-          key={org.id}
-          className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
-          onClick={() => handleSelectOrganization(org.id)}
-        >
-          <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
-            <ArrowRight className="w-5 h-5" />
-          </div>
-          <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
-            {org.name}
-          </h3>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>
-              <span className="font-medium text-muted-foreground">
-                {t('detail.periodType')}:
-              </span>{' '}
-              <span className="font-medium text-foreground">
-                {periodTypeLabels[org.periodType]}
-              </span>
-            </p>
-            <p>
-              <span className="font-medium text-muted-foreground">
-                {t('detail.morning')}:
-              </span>{' '}
-              <span className="font-medium text-foreground">
-                {org.morningStart} - {org.morningEnd}
-              </span>
-            </p>
-            <p>
-              <span className="font-medium text-muted-foreground">
-                {t('detail.afternoon')}:
-              </span>{' '}
-              <span className="font-medium text-foreground">
-                {org.afternoonStart} - {org.afternoonEnd}
-              </span>
-            </p>
-            <p>
-              <span className="font-medium text-muted-foreground">
-                {t('detail.slotDuration')}:
-              </span>{' '}
-              <span className="font-medium text-foreground">
-                {org.slotDurationMinutes} min
-              </span>
-            </p>
-          </div>
-        </Card>
-      ))}
+      {filteredOrganizations.map((org) => {
+        const isAdmin = userRolesMap[org.id] === 'admin';
+        return (
+          <Card
+            key={org.id}
+            className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
+            onClick={() => handleSelectOrganization(org.id)}
+          >
+            {isAdmin && (
+              <div
+                className="absolute top-2 right-2 z-20"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ResourceCardActions
+                  itemName={org.name}
+                  onEdit={() => setEditingOrganization(org)}
+                  onDelete={async () => {
+                    const res = await removeOrganizationAction(org.id);
+                    if (res.success) {
+                      toast.success(
+                        t('actions.deleteSuccess') || 'Organización eliminada'
+                      );
+                    } else {
+                      toast.error(res.message);
+                    }
+                  }}
+                />
+              </div>
+            )}
+            <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
+              <ArrowRight className="w-5 h-5" />
+            </div>
+            <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
+              {org.name}
+            </h3>
+          </Card>
+        );
+      })}
 
       <Card
         role="button"
@@ -163,11 +155,39 @@ export function OrganizationsDashboard({
             <DialogDescription>{t('dialog.description')}</DialogDescription>
           </DialogHeader>
 
-          <CreateOrganizationForm
+          <OrganizationForm
             onSuccess={() => {
               handleModalChange(false);
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!editingOrganization}
+        onOpenChange={(open) => {
+          if (!open) setEditingOrganization(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md lg:max-w-lg lg:p-8">
+          <DialogHeader>
+            <DialogTitle>
+              {t('dialog.editTitle') || 'Editar Organización'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('dialog.editDescription') ||
+                'Modifica los detalles de la organización'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingOrganization && (
+            <OrganizationForm
+              organization={editingOrganization}
+              onSuccess={() => {
+                setEditingOrganization(null);
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </DashboardGrid>

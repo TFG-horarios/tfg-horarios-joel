@@ -10,13 +10,20 @@ import type { AcademicYearDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
 import { Calendar, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
+import { deleteAcademicYearAction } from '../actions';
+import { toast } from 'sonner';
 
 export function AcademicYearCard({
   organizationId,
   academicYear,
+  isAdmin,
+  onEdit,
 }: {
   organizationId: string;
   academicYear: AcademicYearDTO;
+  isAdmin?: boolean;
+  onEdit?: () => void;
 }) {
   const t = useTranslations('Common.status');
 
@@ -29,6 +36,28 @@ export function AcademicYearCard({
           <ChevronRight className="h-5 w-5 text-muted-foreground" />
         </div>
         <CardHeader className="p-5">
+          {isAdmin && (
+            <div
+              className="absolute top-2 right-2 z-20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ResourceCardActions
+                itemName={academicYear.name}
+                onEdit={onEdit}
+                onDelete={async () => {
+                  const res = await deleteAcademicYearAction(
+                    organizationId,
+                    academicYear.id
+                  );
+                  if (res.success) {
+                    toast.success(res.message);
+                  } else {
+                    toast.error(res.message);
+                  }
+                }}
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between mb-2">
             <Badge variant={academicYear.isActive ? 'default' : 'secondary'}>
               {academicYear.isActive ? t('active') : t('inactive')}

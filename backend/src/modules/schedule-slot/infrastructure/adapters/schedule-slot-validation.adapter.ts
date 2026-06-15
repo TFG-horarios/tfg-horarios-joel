@@ -13,7 +13,6 @@ import type {
   Assignment,
   ClassroomMap,
 } from '@/modules/scheduler/domain/types';
-
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
@@ -49,10 +48,14 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       [schedule.courseYear]
     );
 
-    const orgConstraints =
-      await this.dataProvider.getOrganizationConstraints(organizationId);
+    const orgConstraints = await this.dataProvider.getAcademicYearConstraints(
+      schedule.academicYearId
+    );
     if (!orgConstraints)
-      throw new NotFoundError('OrganizationConstraints', organizationId);
+      throw new NotFoundError(
+        'AcademicYearConstraints',
+        schedule.academicYearId
+      );
 
     const parseTime = (timeStr: string) => {
       const [hours, minutes] = timeStr.split(':').map(Number);

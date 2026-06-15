@@ -16,6 +16,7 @@ import type {
   ItineraryDTO,
   SubjectDTO,
   OrganizationDTO,
+  AcademicYearDTO,
 } from '@tfg-horarios/shared';
 import {
   BookOpen,
@@ -28,6 +29,7 @@ import {
 
 export interface SubjectCardProps {
   organization: OrganizationDTO;
+  academicYear: AcademicYearDTO;
   item: SubjectDTO;
   degreeMap: Map<string, DegreeDTO>;
   itineraryMap: Map<string, ItineraryDTO>;
@@ -36,6 +38,7 @@ export interface SubjectCardProps {
 
 export const SubjectCard = memo(function SubjectCard({
   organization,
+  academicYear,
   item: subject,
   degreeMap,
   itineraryMap,
@@ -171,6 +174,7 @@ export const SubjectCard = memo(function SubjectCard({
       </Card>
       <SubjectFormModal
         organization={organization}
+        academicYear={academicYear}
         degrees={Array.from(degreeMap.values())}
         itineraries={Array.from(itineraryMap.values())}
         subject={subject}

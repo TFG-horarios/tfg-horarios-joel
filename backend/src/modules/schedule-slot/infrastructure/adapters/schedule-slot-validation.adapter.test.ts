@@ -1,7 +1,6 @@
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ScheduleSlotValidationAdapter } from './schedule-slot-validation.adapter';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
-import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import { NotFoundError, ConflictError } from '@/core/errors/app.error';
 
 describe('ScheduleSlotValidationAdapter', () => {
@@ -32,12 +31,16 @@ describe('ScheduleSlotValidationAdapter', () => {
     getTargetDegreeIds: mock(),
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
-    getOrganizationConstraints: mock(),
+    getAcademicYearConstraints: mock(),
   };
 
   const reservationRepositoryMock = {
     hasAcceptedFutureReservation: mock(),
-  } as unknown as IClassroomReservationRepository;
+    findById: mock(),
+    save: mock(),
+    update: mock(),
+    findPaginated: mock(),
+  };
 
   const adapter = new ScheduleSlotValidationAdapter(
     scheduleSlotRepositoryMock,
@@ -50,9 +53,9 @@ describe('ScheduleSlotValidationAdapter', () => {
     scheduleSlotRepositoryMock.findByScheduleId.mockReset();
     scheduleRepositoryMock.findById.mockReset();
     dataProviderMock.getGroupsInScope.mockReset();
-    dataProviderMock.getOrganizationConstraints.mockReset();
+    dataProviderMock.getAcademicYearConstraints.mockReset();
     dataProviderMock.getAvailableClassrooms.mockReset();
-    (reservationRepositoryMock.hasAcceptedFutureReservation as any).mockReset();
+    reservationRepositoryMock.hasAcceptedFutureReservation.mockReset();
   });
 
   const slot = ScheduleSlot.create({
@@ -84,13 +87,7 @@ describe('ScheduleSlotValidationAdapter', () => {
         numberOfStudents: 50,
       },
     ]);
-    dataProviderMock.getOrganizationConstraints.mockResolvedValue({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
-    });
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValue({});
     dataProviderMock.getAvailableClassrooms.mockResolvedValue([
       { id: 'c-1', capacity: 100, type: 'theory' },
       { id: 'c-2', capacity: 100, type: 'theory' },
@@ -150,7 +147,7 @@ describe('ScheduleSlotValidationAdapter', () => {
 
   test('should throw NotFoundError if constraints are not found', async () => {
     setupMocks();
-    dataProviderMock.getOrganizationConstraints.mockResolvedValue(null);
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValue(null);
     await expect(
       adapter.validateMove('org-1', slot, 'c-2', 1, 0)
     ).rejects.toThrow(NotFoundError);

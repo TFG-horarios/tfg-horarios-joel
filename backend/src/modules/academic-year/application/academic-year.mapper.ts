@@ -14,6 +14,12 @@ export class AcademicYearMapper {
       period1End: academicYear.period1End,
       period2Start: academicYear.period2Start,
       period2End: academicYear.period2End,
+      periodType: academicYear.periodType,
+      morningStart: academicYear.morningStart.slice(0, 5),
+      morningEnd: academicYear.morningEnd.slice(0, 5),
+      afternoonStart: academicYear.afternoonStart.slice(0, 5),
+      afternoonEnd: academicYear.afternoonEnd.slice(0, 5),
+      slotDurationMinutes: academicYear.slotDurationMinutes,
       createdAt: academicYear.createdAt.toISOString(),
       updatedAt: academicYear.updatedAt.toISOString(),
     };

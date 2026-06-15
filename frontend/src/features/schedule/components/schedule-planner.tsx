@@ -20,6 +20,7 @@ import {
   type OrganizationDTO,
   type DegreeDTO,
   type ItineraryDTO,
+  type AcademicYearDTO,
 } from '@tfg-horarios/shared';
 import {
   publishScheduleAction,
@@ -37,7 +38,7 @@ type SchedulePlannerProps = {
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
-  academicYearName: string;
+  academicYear: AcademicYearDTO;
 };
 
 type MemoizedScheduleCellProps = {
@@ -100,7 +101,7 @@ export function SchedulePlanner({
   subjectGroups,
   degrees,
   itineraries,
-  academicYearName,
+  academicYear,
 }: SchedulePlannerProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
@@ -112,7 +113,7 @@ export function SchedulePlanner({
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
   const { slotTimeLabels, numSlots } = useScheduleGrid(
-    organization,
+    academicYear,
     localSchedule.shift || 'global'
   );
 
@@ -274,7 +275,7 @@ export function SchedulePlanner({
             </div>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
               <Calendar className="size-4" />
-              {academicYearName} • Semester {localSchedule.period}
+              {academicYear.name} • Semester {localSchedule.period}
             </p>
           </div>
 
@@ -293,7 +294,7 @@ export function SchedulePlanner({
               <Button
                 onClick={() =>
                   exportPDF(
-                    `horario-${academicYearName}-P${localSchedule.period}`
+                    `horario-${academicYear.name}-P${localSchedule.period}`
                   )
                 }
                 disabled={isExportingPDF}

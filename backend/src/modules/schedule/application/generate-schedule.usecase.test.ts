@@ -18,7 +18,7 @@ describe('GenerateScheduleUseCase', () => {
     getTargetDegreeIds: mock(),
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
-    getOrganizationConstraints: mock(),
+    getAcademicYearConstraints: mock(),
   };
 
   const memberProviderMock = {
@@ -51,13 +51,7 @@ describe('GenerateScheduleUseCase', () => {
         isCommon: true,
       },
     ]);
-    dataProviderMock.getOrganizationConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
-    });
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({});
     engineProviderMock.runGeneration.mockResolvedValueOnce({
       assignments: [
         {

@@ -7,7 +7,7 @@ import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/driz
 import { DrizzleDegreeRepository } from '@/modules/degree/infrastructure/db/drizzle.degree.repository';
 import { DrizzleClassroomRepository } from '@/modules/classroom/infrastructure/db/drizzle.classroom.repository';
 import { DrizzleSubjectGroupRepository } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.repository';
-import { DrizzleOrganizationRepository } from '@/modules/organization/infrastructure/db/drizzle.organization.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
 import { DrizzleClassroomReservationRepository } from '@/modules/classroom-reservation/infrastructure/db/drizzle.classroom-reservation.repository';
 import { ListSchedulesUseCase } from './application/list-schedules.usecase';
 import { ListAllSchedulesUseCase } from './application/list-all-schedules.usecase';
@@ -42,7 +42,7 @@ export const createScheduleModule = (db: DbConnection) => {
   const degreeRepository = new DrizzleDegreeRepository(db);
   const classroomRepository = new DrizzleClassroomRepository(db);
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
-  const organizationRepository = new DrizzleOrganizationRepository(db);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
 
   const memberProvider = new ScheduleMemberAdapter(memberRepository);
   const slotMemberProvider = new ScheduleSlotMemberAdapter(memberRepository);
@@ -50,7 +50,7 @@ export const createScheduleModule = (db: DbConnection) => {
     degreeRepository,
     classroomRepository,
     subjectGroupRepository,
-    organizationRepository
+    academicYearRepository
   );
 
   const engineProvider = new SchedulerEngineAdapter();

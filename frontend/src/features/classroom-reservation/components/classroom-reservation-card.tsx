@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { updateReservationStatusAction } from '../actions';
 import { toast } from 'sonner';
-import { hasPermission } from '@/core/permissions/authorization';
 import type { ClassroomReservationRowProps } from './classroom-reservation-row';
 
 export const ClassroomReservationCard = memo(function ClassroomReservationCard({

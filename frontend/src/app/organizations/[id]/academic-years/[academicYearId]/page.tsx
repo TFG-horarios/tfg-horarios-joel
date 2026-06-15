@@ -61,7 +61,7 @@ export default async function AcademicYearSummaryPage({
       <div className="space-y-12">
         <div>
           <h3 className="text-lg font-semibold mb-4">
-            Configuración de la Organización
+            Configuración del Curso
           </h3>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <Card className={organizationHoverCardClassName}>
@@ -71,7 +71,7 @@ export default async function AcademicYearSummaryPage({
                   className={`text-lg ${organizationHoverCardTitleClassName}`}
                 >
                   {tForms(
-                    organization.periodType as
+                    academicYear.periodType as
                       | 'semester'
                       | 'trimester'
                       | 'annual'
@@ -86,7 +86,7 @@ export default async function AcademicYearSummaryPage({
                 <CardTitle
                   className={`text-lg ${organizationHoverCardTitleClassName}`}
                 >
-                  {organization.morningStart} - {organization.morningEnd}
+                  {academicYear.morningStart} - {academicYear.morningEnd}
                 </CardTitle>
               </CardHeader>
             </Card>
@@ -97,7 +97,7 @@ export default async function AcademicYearSummaryPage({
                 <CardTitle
                   className={`text-lg ${organizationHoverCardTitleClassName}`}
                 >
-                  {organization.afternoonStart} - {organization.afternoonEnd}
+                  {academicYear.afternoonStart} - {academicYear.afternoonEnd}
                 </CardTitle>
               </CardHeader>
             </Card>
@@ -108,7 +108,7 @@ export default async function AcademicYearSummaryPage({
                 <CardTitle
                   className={`text-lg ${organizationHoverCardTitleClassName}`}
                 >
-                  {organization.slotDurationMinutes} min
+                  {academicYear.slotDurationMinutes} min
                 </CardTitle>
               </CardHeader>
             </Card>

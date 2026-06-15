@@ -7,12 +7,14 @@ import { CreateAcademicYearUseCase } from './application/create-academic-year.us
 import { UpdateAcademicYearUseCase } from './application/update-academic-year.usecase';
 import { ListAcademicYearsUseCase } from './application/list-academic-years.usecase';
 import { GetActiveAcademicYearUseCase } from './application/get-active-academic-year.usecase';
+import { DeleteAcademicYearUseCase } from './application/delete-academic-year.usecase';
 import { HonoAcademicYearController } from './infrastructure/http/hono.academic-year.controller';
 import {
   createAcademicYearRoute,
   listAcademicYearsRoute,
   getActiveAcademicYearRoute,
   updateAcademicYearRoute,
+  deleteAcademicYearRoute,
 } from './infrastructure/http/hono.academic-year.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { AcademicYearMemberAdapter } from './infrastructure/adapters/academic-year-member.adapter';
@@ -46,12 +48,17 @@ export function createAcademicYearModule(
     academicYearRepository,
     memberProvider
   );
+  const deleteUseCase = new DeleteAcademicYearUseCase(
+    academicYearRepository,
+    memberProvider
+  );
 
   const controller = new HonoAcademicYearController(
     createUseCase,
     listUseCase,
     getActiveUseCase,
-    updateUseCase
+    updateUseCase,
+    deleteUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -59,7 +66,8 @@ export function createAcademicYearModule(
     .openapi(createAcademicYearRoute, controller.create)
     .openapi(listAcademicYearsRoute, controller.list)
     .openapi(getActiveAcademicYearRoute, controller.getActive)
-    .openapi(updateAcademicYearRoute, controller.update);
+    .openapi(updateAcademicYearRoute, controller.update)
+    .openapi(deleteAcademicYearRoute, controller.delete);
 
   return routes;
 }

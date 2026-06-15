@@ -9,7 +9,6 @@ import {
   GenerationScopeSchema,
   ScheduleListQuerySchema,
   createPaginatedSchema,
-  AcademicYearSchema,
 } from '@tfg-horarios/shared';
 
 export const listSchedulesRoute = createRoute({

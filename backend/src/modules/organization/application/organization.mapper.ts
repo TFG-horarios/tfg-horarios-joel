@@ -6,12 +6,6 @@ export class OrganizationMapper {
     return {
       id: org.id,
       name: org.name,
-      periodType: org.periodType,
-      morningStart: org.morningStart.slice(0, 5),
-      morningEnd: org.morningEnd.slice(0, 5),
-      afternoonStart: org.afternoonStart.slice(0, 5),
-      afternoonEnd: org.afternoonEnd.slice(0, 5),
-      slotDurationMinutes: org.slotDurationMinutes,
       createdAt: org.createdAt.toISOString(),
       updatedAt: org.updatedAt.toISOString(),
     };

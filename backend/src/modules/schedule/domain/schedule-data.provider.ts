@@ -26,7 +26,7 @@ export interface IScheduleDataProvider {
     itineraryIds?: string[],
     courseYears?: number[]
   ): Promise<ScheduleEngineGroupData[]>;
-  getOrganizationConstraints(
-    organizationId: string
+  getAcademicYearConstraints(
+    academicYearId: string
   ): Promise<ScheduleOrganizationConstraints | null>;
 }

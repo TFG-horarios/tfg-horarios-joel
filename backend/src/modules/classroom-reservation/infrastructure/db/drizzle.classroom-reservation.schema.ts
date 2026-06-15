@@ -31,3 +31,8 @@ export const classroomReservations = pgTable('classroom_reservations', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export type DrizzleClassroomReservation =
+  typeof classroomReservations.$inferSelect;
+export type DrizzleNewClassroomReservation =
+  typeof classroomReservations.$inferInsert;

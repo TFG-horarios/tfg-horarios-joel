@@ -258,7 +258,9 @@
     },
     "dialog": {
       "title": "Nueva organización",
-      "description": "Configura los parámetros básicos de tu organización."
+      "description": "Configura los parámetros básicos de tu organización.",
+      "editTitle": "Editar organización",
+      "editDescription": "Modifica los detalles de la organización."
     },
     "detail": {
       "label": "Detalles de la organización",
@@ -769,6 +771,9 @@
       "afternoon": "Tarde",
       "slotDuration": "Duración del slot",
       "actions": "Acciones"
+    },
+    "warnings": {
+      "editGrid": "Los cambios en las horas de inicio/fin y en la duración solo tendrán efecto para los cursos académicos creados en adelante. Para modificar horarios ya generados, edita el curso académico en cuestión."
     },
     "empty": {
       "title": "No hay organizaciones todavía",

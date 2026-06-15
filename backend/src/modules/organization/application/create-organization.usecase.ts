@@ -17,12 +17,6 @@ export class CreateOrganizationUseCase {
   ): Promise<OrganizationDTO> {
     const organization = Organization.create({
       name: dto.name,
-      periodType: dto.periodType,
-      morningStart: dto.morningStart,
-      morningEnd: dto.morningEnd,
-      afternoonStart: dto.afternoonStart,
-      afternoonEnd: dto.afternoonEnd,
-      slotDurationMinutes: dto.slotDurationMinutes,
     });
 
     await this.organizationRepository.create(organization, userId);

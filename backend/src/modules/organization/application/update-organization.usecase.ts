@@ -34,15 +34,7 @@ export class UpdateOrganizationUseCase {
       );
     }
 
-    org.update({
-      name: dto.name,
-      periodType: dto.periodType,
-      morningStart: dto.morningStart,
-      morningEnd: dto.morningEnd,
-      afternoonStart: dto.afternoonStart,
-      afternoonEnd: dto.afternoonEnd,
-      slotDurationMinutes: dto.slotDurationMinutes,
-    });
+    org.update({ name: dto.name });
 
     await this.organizationRepository.update(org);
     return OrganizationMapper.toDTO(org);
