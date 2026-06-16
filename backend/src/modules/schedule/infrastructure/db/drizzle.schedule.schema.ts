@@ -37,6 +37,7 @@ export const schedulesTable = pgTable(
     shift: shiftEnum('shift').notNull(),
     courseYear: integer('course_year').notNull(),
     period: integer('period').notNull(),
+    conflicts: integer('conflicts').notNull().default(0),
     status: scheduleStatusEnum('status').notNull().default('draft'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')

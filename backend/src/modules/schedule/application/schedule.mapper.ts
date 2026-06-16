@@ -12,6 +12,7 @@ export class ScheduleMapper {
       shift: schedule.shift,
       courseYear: schedule.courseYear,
       period: schedule.period,
+      conflicts: schedule.conflicts,
       status: schedule.status,
       createdAt: schedule.createdAt.toISOString(),
       updatedAt: schedule.updatedAt.toISOString(),

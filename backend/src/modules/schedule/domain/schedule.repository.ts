@@ -3,6 +3,7 @@ import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
+import type { ScheduleEngineAssignment } from './schedule-engine.provider';
 
 export interface CreateScheduleSlotInput {
   scheduleId: string;
@@ -35,4 +36,10 @@ export interface IScheduleRepository {
   createSchedulesWithSlots(
     items: { schedule: Schedule; slots: CreateScheduleSlotInput[] }[]
   ): Promise<void>;
+  findLockedAssignments(
+    organizationId: string,
+    academicYearId: string,
+    period: number,
+    excludeScheduleIds: string[]
+  ): Promise<ScheduleEngineAssignment[]>;
 }

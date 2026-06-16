@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -71,6 +71,17 @@ export const ScheduleCard = memo(function ScheduleCard({
             >
               {getStatusLabel(schedule.status).toUpperCase()}
             </Badge>
+
+            {schedule.conflicts > 0 && (
+              <Badge
+                variant="outline"
+                className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20 flex items-center gap-1"
+                title={t('conflictsTooltip')}
+              >
+                <AlertTriangle className="size-3" />
+                <span>{schedule.conflicts}</span>
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-3 pr-8">

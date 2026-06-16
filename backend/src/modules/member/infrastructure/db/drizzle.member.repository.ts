@@ -14,6 +14,7 @@ import {
 import { Member } from '../../domain/member.entity';
 import { type AppRole } from '@/core/permissions/roles';
 import { usersTable } from '@/modules/user/infrastructure/db/drizzle.user.schema';
+import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
 import type {
   MemberListQueryDTO,
   PaginatedResponse,
@@ -208,5 +209,33 @@ export class DrizzleMemberRepository implements IMemberRepository {
         )
       );
     return result[0]?.value ?? 0;
+  }
+
+  async getOrganizationsWhereUserIsSoleAdmin(
+    userId: string
+  ): Promise<string[]> {
+    const userAdminOrgs = await this.database
+      .select({
+        organizationId: membersTable.organizationId,
+        organizationName: organizationsTable.name,
+      })
+      .from(membersTable)
+      .innerJoin(
+        organizationsTable,
+        eq(membersTable.organizationId, organizationsTable.id)
+      )
+      .where(
+        and(eq(membersTable.userId, userId), eq(membersTable.role, 'admin'))
+      );
+
+    const soleAdminOrgNames: string[] = [];
+
+    for (const org of userAdminOrgs) {
+      const adminCount = await this.countAdmins(org.organizationId);
+      if (adminCount <= 1) {
+        soleAdminOrgNames.push(org.organizationName);
+      }
+    }
+    return soleAdminOrgNames;
   }
 }

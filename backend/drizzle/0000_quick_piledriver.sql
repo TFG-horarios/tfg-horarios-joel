@@ -85,6 +85,7 @@ CREATE TABLE "schedule" (
 	"shift" "shift" NOT NULL,
 	"course_year" integer NOT NULL,
 	"period" integer NOT NULL,
+	"conflicts" integer DEFAULT 0 NOT NULL,
 	"status" "schedule_status" DEFAULT 'draft' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL

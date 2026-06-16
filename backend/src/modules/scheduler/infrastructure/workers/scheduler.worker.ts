@@ -10,7 +10,8 @@ import { InitialSolution } from '../../domain/initial-solution';
 import type {
   ScheduleEngineGroupData,
   ScheduleEngineClassroomMap,
-} from '../../../schedule/domain/schedule-engine.provider';
+  ScheduleEngineAssignment,
+} from '@/modules/schedule/domain/schedule-engine.provider';
 
 export interface SchedulerWorkerMessage {
   groupsData: ScheduleEngineGroupData[];
@@ -19,6 +20,7 @@ export interface SchedulerWorkerMessage {
   maxMorningSlots: number;
   maxAfternoonSlots: number;
   slotDuration: number;
+  lockedAssignments?: ScheduleEngineAssignment[];
 }
 
 declare const self: Worker;
@@ -31,12 +33,13 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
     maxMorningSlots,
     maxAfternoonSlots,
     slotDuration,
+    lockedAssignments = [],
   } = event.data;
 
   try {
     const maxSlotsPerDay = maxMorningSlots + maxAfternoonSlots;
 
-    const constraints = [
+    const hardConstraints = [
       new RoomOverlapConstraint(),
       new ShiftConstraint(),
       new RoomCapacityConstraint(),
@@ -45,7 +48,8 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
     ];
 
     const penaltyCalculator = new PenaltyCalculator(
-      constraints,
+      hardConstraints,
+      [],
       classroomsCache,
       maxMorningSlots,
       maxSlotsPerDay
@@ -71,7 +75,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       randomGenerator
     );
 
-    const solution = tabuEngine.run(groupsData);
+    const solution = tabuEngine.run(groupsData, lockedAssignments);
     self.postMessage({ type: 'SUCCESS', payload: solution });
   } catch (error) {
     self.postMessage({

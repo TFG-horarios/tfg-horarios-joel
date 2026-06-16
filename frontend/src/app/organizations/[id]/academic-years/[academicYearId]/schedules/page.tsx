@@ -5,6 +5,7 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
+import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchSchedules } from '@/features/schedule/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
@@ -89,12 +90,14 @@ export default async function OrganizationSchedulesPage({
     organization,
     degrees,
     itineraries,
+    subjects,
     academicYears,
     { data: schedules, meta },
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
+    fetchAllSubjects(id),
     fetchAcademicYears(id),
     fetchSchedules(id, query),
   ]);
@@ -227,7 +230,7 @@ export default async function OrganizationSchedulesPage({
             periodType={currentAcademicYear?.periodType || 'semester'}
             academicYearId={academicYearId}
             degrees={degrees}
-            itineraries={itineraries}
+            subjects={subjects}
           />
         </ResourceActions>
       </div>

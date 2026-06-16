@@ -100,7 +100,9 @@ export default function ProfilePage() {
                     setShowDeleteSuccessDialog(true);
                     return { success: true };
                   } else {
-                    toast.error(res.message);
+                    toast.error(res.message, {
+                      duration: 8000,
+                    });
                     return { success: false, message: res.message };
                   }
                 }}

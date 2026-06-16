@@ -25,6 +25,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
+    findLockedAssignments: mock(),
   };
 
   const dataProviderMock = {
@@ -98,6 +99,9 @@ describe('ScheduleSlotValidationAdapter', () => {
       { id: 'c-1', capacity: 100, type: 'theory' },
       { id: 'c-2', capacity: 100, type: 'theory' },
     ]);
+    scheduleSlotRepositoryMock.findSlotsByClassroomIdAndFilters.mockResolvedValue(
+      []
+    );
   };
 
   test('should pass validation if the move does not increase penalty', async () => {

@@ -11,6 +11,7 @@ describe('PenaltyCalculator', () => {
     };
     const calculator = new PenaltyCalculator(
       [constraint1, constraint2],
+      [],
       {},
       6,
       12

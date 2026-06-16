@@ -3,6 +3,7 @@ import type {
   ScheduleEngineGroupData,
   ScheduleEngineClassroomMap,
   ScheduleEngineSolution,
+  ScheduleEngineAssignment,
 } from '../../domain/schedule-engine.provider';
 
 export class SchedulerEngineAdapter implements IScheduleEngineProvider {
@@ -12,7 +13,8 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
     availableClassrooms: string[],
     maxMorningSlots: number,
     maxAfternoonSlots: number,
-    slotDuration: number
+    slotDuration: number,
+    lockedAssignments?: ScheduleEngineAssignment[]
   ): Promise<ScheduleEngineSolution> {
     return new Promise((resolve, reject) => {
       const workerUrl = new URL(
@@ -44,6 +46,7 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
         maxMorningSlots,
         maxAfternoonSlots,
         slotDuration,
+        lockedAssignments: lockedAssignments || [],
       });
     });
   }

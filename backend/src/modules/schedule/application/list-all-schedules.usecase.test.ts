@@ -13,6 +13,7 @@ describe('ListAllSchedulesUseCase', () => {
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
+    findLockedAssignments: mock(),
   };
 
   const memberProviderMock = {
@@ -41,6 +42,7 @@ describe('ListAllSchedulesUseCase', () => {
       shift: 'morning',
       period: 1,
       status: 'draft',
+      conflicts: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

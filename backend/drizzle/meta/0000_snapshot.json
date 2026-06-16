@@ -1,5 +1,5 @@
 {
-  "id": "fdf3f89a-af97-4e27-9226-167be5f9371d",
+  "id": "91fbd0e4-6a34-4099-bfbb-794cdd3c560c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -699,6 +699,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "conflicts": {
+          "name": "conflicts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "status": {
           "name": "status",

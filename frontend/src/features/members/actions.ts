@@ -46,7 +46,14 @@ export async function addMemberAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      let responseMessage = tErrors('server');
+      try {
+        const errorBody = (await response.json()) as { message?: string };
+        responseMessage = errorBody.message ?? responseMessage;
+      } catch (e) {
+        void e;
+      }
+      throw new Error(responseMessage);
     }
 
     const payload = await response.json();
@@ -85,7 +92,14 @@ export async function updateMemberRoleAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      let responseMessage = tErrors('server');
+      try {
+        const errorBody = (await response.json()) as { message?: string };
+        responseMessage = errorBody.message ?? responseMessage;
+      } catch (e) {
+        void e;
+      }
+      throw new Error(responseMessage);
     }
 
     revalidatePath(`/organizations/${organizationId}/members`);
@@ -114,7 +128,14 @@ export async function removeMemberAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      let responseMessage = tErrors('server');
+      try {
+        const errorBody = (await response.json()) as { message?: string };
+        responseMessage = errorBody.message ?? responseMessage;
+      } catch (e) {
+        void e;
+      }
+      throw new Error(responseMessage);
     }
 
     revalidatePath(`/organizations/${organizationId}/members`);

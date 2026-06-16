@@ -25,7 +25,10 @@ export class InitialSolution {
     private readonly days: number[] = [1, 2, 3, 4, 5]
   ) {}
 
-  public generate(groups: GroupInitialData[]): Solution {
+  public generate(
+    groups: GroupInitialData[],
+    lockedAssignments: Assignment[] = []
+  ): Solution {
     const sortedGroups = [...groups].sort((a, b) => {
       const isAPractices = a.groupType === 'practices' ? 1 : 0;
       const isBPractices = b.groupType === 'practices' ? 1 : 0;
@@ -36,6 +39,21 @@ export class InitialSolution {
     const assignments: Assignment[] = [];
 
     const occupiedClassrooms = new Set<string>();
+
+    for (const locked of lockedAssignments) {
+      if (
+        locked.classroomId &&
+        locked.dayOfWeek !== null &&
+        locked.slotIndex !== null
+      ) {
+        const spannedSlots = Math.ceil(locked.duration);
+        for (let d = 0; d < spannedSlots; d++) {
+          occupiedClassrooms.add(
+            `${locked.classroomId}_${locked.dayOfWeek}_${locked.slotIndex + d}`
+          );
+        }
+      }
+    }
 
     for (const group of sortedGroups) {
       const totalMinutes = group.weeklyHours * 60;
@@ -122,8 +140,10 @@ export class InitialSolution {
               };
 
               assignments.push(tempAssignment);
-              const currentPenalty =
-                this.penaltyCalculator.calculatePenalty(assignments);
+              const currentPenalty = this.penaltyCalculator.calculatePenalty(
+                assignments,
+                lockedAssignments
+              );
               assignments.pop();
 
               if (currentPenalty < minPenalty) {
@@ -186,9 +206,14 @@ export class InitialSolution {
       }
     }
 
+    const penalties = this.penaltyCalculator.evaluate(
+      assignments,
+      lockedAssignments
+    );
     return {
       assignments,
-      penalty: this.penaltyCalculator.calculatePenalty(assignments),
+      penalty: penalties.totalPenalty,
+      hardPenalty: penalties.hardPenalty,
     };
   }
 }

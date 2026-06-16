@@ -28,11 +28,7 @@ import {
   generateSchedulesAction,
   checkScheduleOverwriteAction,
 } from '@/features/schedule/actions';
-import type {
-  DegreeDTO,
-  ItineraryDTO,
-  ScheduleDTO,
-} from '@tfg-horarios/shared';
+import type { DegreeDTO, SubjectDTO, ScheduleDTO } from '@tfg-horarios/shared';
 import { Loader2, Sparkles } from 'lucide-react';
 import {
   Tooltip,
@@ -44,7 +40,7 @@ import {
 type ScheduleGeneratorProps = {
   organizationId: string;
   degrees: DegreeDTO[];
-  itineraries: ItineraryDTO[];
+  subjects: SubjectDTO[];
   periodType?: 'semester' | 'trimester' | 'annual';
   academicYearId: string;
 };
@@ -52,7 +48,7 @@ type ScheduleGeneratorProps = {
 export function ScheduleGenerator({
   organizationId,
   degrees,
-  itineraries,
+  subjects,
   periodType = 'semester',
   academicYearId,
 }: ScheduleGeneratorProps) {
@@ -68,7 +64,6 @@ export function ScheduleGenerator({
   const [isOpen, setIsOpen] = useState(false);
   const [periods, setPeriods] = useState<string[]>([]);
   const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
-  const [selectedItineraries, setSelectedItineraries] = useState<string[]>([]);
   const [selectedCourseYears, setSelectedCourseYears] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusStep, setStatusStep] = useState(0);
@@ -100,8 +95,6 @@ export function ScheduleGenerator({
         periods:
           periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
         degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
-        itineraryIds:
-          selectedItineraries.length > 0 ? selectedItineraries : undefined,
         courseYears:
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
@@ -132,8 +125,6 @@ export function ScheduleGenerator({
         periods:
           periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
         degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
-        itineraryIds:
-          selectedItineraries.length > 0 ? selectedItineraries : undefined,
         courseYears:
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
@@ -157,24 +148,25 @@ export function ScheduleGenerator({
     value: d.id,
   }));
 
-  const itineraryOptions = itineraries
-    .filter(
-      (i) =>
-        selectedDegrees.length === 0 || selectedDegrees.includes(i.degreeId)
-    )
-    .map((i) => ({
-      label: i.name,
-      value: i.id,
-    }));
-
   const periodOptions = Array.from({ length: numPeriods }, (_, i) => {
     const p = String(i + 1);
     return { label: t(`periodOptions.${p}`), value: p };
   });
 
-  const courseYearOptions = ['1', '2', '3', '4', '5'].map((y) => ({
+  const availableCourseYears = Array.from(
+    new Set(
+      subjects
+        .filter(
+          (s) =>
+            selectedDegrees.length === 0 || selectedDegrees.includes(s.degreeId)
+        )
+        .map((s) => s.courseYear)
+    )
+  ).sort((a, b) => a - b);
+
+  const courseYearOptions = availableCourseYears.map((y) => ({
     label: `${t('courseYear')} ${y}`,
-    value: y,
+    value: String(y),
   }));
 
   return (
@@ -246,16 +238,6 @@ export function ScheduleGenerator({
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="itineraries">{t('form.itineraries')}</Label>
-                  <MultiSelect
-                    options={itineraryOptions}
-                    selected={selectedItineraries}
-                    onChange={setSelectedItineraries}
-                    placeholder={t('form.itinerariesPlaceholder')}
-                  />
-                </div>
-
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="courseYears">{t('form.courseYears')}</Label>
                   <MultiSelect
@@ -295,19 +277,12 @@ export function ScheduleGenerator({
                           const degree = degrees.find(
                             (d) => d.id === s.degreeId
                           );
-                          const itinerary = itineraries.find(
-                            (i) => i.id === s.itineraryId
-                          );
                           const degreeName = degree
                             ? degree.code
                             : 'Desconocido';
-                          const itineraryName = itinerary
-                            ? ` - ${itinerary.name}`
-                            : ' - Común';
                           return (
                             <li key={s.id}>
-                              {degreeName}
-                              {itineraryName} (Año {s.courseYear}, Período{' '}
+                              {degreeName} (Año {s.courseYear}, Período{' '}
                               {s.period})
                             </li>
                           );

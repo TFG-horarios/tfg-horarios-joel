@@ -19,7 +19,7 @@ export interface ScheduleEngineClassroomMap {
   };
 }
 
-interface ScheduleEngineAssignment {
+export interface ScheduleEngineAssignment {
   id: string;
   subjectGroupId: string;
   subjectId: string;
@@ -34,11 +34,13 @@ interface ScheduleEngineAssignment {
   dayOfWeek: number | null;
   slotIndex: number | null;
   duration: number;
+  isLocked?: boolean;
 }
 
 export interface ScheduleEngineSolution {
   assignments: ScheduleEngineAssignment[];
   penalty: number;
+  hardPenalty: number;
 }
 
 export interface IScheduleEngineProvider {
@@ -48,6 +50,7 @@ export interface IScheduleEngineProvider {
     availableClassrooms: string[],
     maxMorningSlots: number,
     maxAfternoonSlots: number,
-    slotDuration: number
+    slotDuration: number,
+    lockedAssignments?: ScheduleEngineAssignment[]
   ): Promise<ScheduleEngineSolution>;
 }

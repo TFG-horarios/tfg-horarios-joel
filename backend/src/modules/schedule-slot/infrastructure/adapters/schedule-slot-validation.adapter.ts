@@ -3,25 +3,39 @@ import type { ScheduleSlot } from '../../domain/schedule-slot.entity';
 import type { IScheduleSlotRepository } from '../../domain/schedule-slot.repository';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IScheduleDataProvider } from '@/modules/schedule/domain/schedule-data.provider';
-import { NotFoundError, ConflictError } from '@/core/errors/app.error';
-import { PenaltyCalculator } from '@/modules/scheduler/domain/penalty-calculator';
-import { CourseOverlapConstraint } from '@/modules/scheduler/domain/constraints/course-overlap.constraint';
-import { RoomOverlapConstraint } from '@/modules/scheduler/domain/constraints/room-overlap.constraint';
-import { RoomCapacityConstraint } from '@/modules/scheduler/domain/constraints/room-capacity.constraint';
-import { ShiftConstraint } from '@/modules/scheduler/domain/constraints/shift.constraint';
+import { ConflictError, NotFoundError } from '@/core/errors/app.error';
 import type {
   Assignment,
   ClassroomMap,
 } from '@/modules/scheduler/domain/types';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
+import type {
+  IMoveValidationRule,
+  MoveValidationContext,
+} from '../../domain/rules/move-validation';
+import { RoomCapacityRule } from '../../domain/rules/room-capacity.rule';
+import { ShiftRule } from '../../domain/rules/shift.rule';
+import { CourseGroupOverlapRule } from '../../domain/rules/course-group-overlap.rule';
+import { RoomOverlapRule } from '../../domain/rules/room-overlap.rule';
+import { ClassroomReservationRule } from '../../domain/rules/classroom-reservation.rule';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
+  private readonly rules: IMoveValidationRule[];
+
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly scheduleRepository: IScheduleRepository,
     private readonly dataProvider: IScheduleDataProvider,
     private readonly reservationRepository: IClassroomReservationRepository
-  ) {}
+  ) {
+    this.rules = [
+      new RoomCapacityRule(),
+      new ShiftRule(),
+      new CourseGroupOverlapRule(),
+      new ClassroomReservationRule(this.reservationRepository),
+      new RoomOverlapRule(this.scheduleSlotRepository),
+    ];
+  }
 
   async validateMove(
     organizationId: string,
@@ -122,57 +136,37 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
 
     if (!movingAssignment) return;
 
-    const constraints = [
-      new RoomOverlapConstraint(),
-      new ShiftConstraint(),
-      new RoomCapacityConstraint(),
-      new CourseOverlapConstraint(),
-    ];
-
-    const penaltyCalculator = new PenaltyCalculator(
-      constraints,
+    const context: MoveValidationContext = {
+      organizationId,
+      movingAssignment,
+      newClassroomId,
+      newDayOfWeek,
+      newSlotIndex,
+      assignments,
       classroomsCache,
       maxMorningSlots,
-      maxSlotsPerDay
-    );
+      maxSlotsPerDay,
+      academicYearId: schedule.academicYearId,
+      period: schedule.period,
+      shift: schedule.shift,
+    };
 
-    const oldPenalty = penaltyCalculator.calculatePenalty(assignments);
+    const errors: string[] = [];
 
-    movingAssignment.classroomId = newClassroomId;
-    movingAssignment.dayOfWeek = newDayOfWeek;
-    movingAssignment.slotIndex =
-      newSlotIndex !== null
-        ? schedule.shift === 'afternoon'
-          ? newSlotIndex + maxMorningSlots
-          : newSlotIndex
-        : null;
-
-    const newPenalty = penaltyCalculator.calculatePenalty(assignments);
-
-    if (newPenalty > oldPenalty) {
-      throw new ConflictError(
-        'The move violates strong constraints (overlap or capacity).'
-      );
+    for (const rule of this.rules) {
+      try {
+        await rule.validate(context);
+      } catch (err) {
+        if (err instanceof Error && err.name === 'ConflictError') {
+          errors.push(err.message);
+        } else {
+          throw err;
+        }
+      }
     }
 
-    if (
-      newClassroomId !== null &&
-      newDayOfWeek !== null &&
-      newSlotIndex !== null
-    ) {
-      const hasReservation =
-        await this.reservationRepository.hasAcceptedFutureReservation(
-          organizationId,
-          newClassroomId,
-          newDayOfWeek,
-          newSlotIndex
-        );
-
-      if (hasReservation) {
-        throw new ConflictError(
-          'El aula tiene una reserva aceptada para ese horario en el futuro.'
-        );
-      }
+    if (errors.length > 0) {
+      throw new ConflictError(errors.join('\n'));
     }
   }
 }

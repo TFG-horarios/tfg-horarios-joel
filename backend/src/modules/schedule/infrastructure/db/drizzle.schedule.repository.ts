@@ -1,4 +1,12 @@
-import { eq, and, desc, isNull, count, type SQL } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  desc,
+  isNull,
+  count,
+  type SQL,
+  notInArray,
+} from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -17,6 +25,7 @@ import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
+import type { ScheduleEngineAssignment } from '../../domain/schedule-engine.provider';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -31,6 +40,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       shift: row.shift,
       courseYear: row.courseYear,
       period: row.period,
+      conflicts: row.conflicts,
       status: row.status,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -47,6 +57,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       shift: domain.shift,
       courseYear: domain.courseYear,
       period: domain.period,
+      conflicts: domain.conflicts,
       status: domain.status,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
@@ -275,5 +286,59 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       }
       throw error;
     }
+  }
+
+  async findLockedAssignments(
+    organizationId: string,
+    academicYearId: string,
+    period: number,
+    excludeScheduleIds: string[]
+  ): Promise<ScheduleEngineAssignment[]> {
+    const conditions = [
+      eq(schedulesTable.organizationId, organizationId),
+      eq(schedulesTable.academicYearId, academicYearId),
+      eq(schedulesTable.period, period),
+    ];
+
+    if (excludeScheduleIds.length > 0) {
+      conditions.push(notInArray(schedulesTable.id, excludeScheduleIds));
+    }
+
+    const rows = await this.database
+      .select({
+        id: scheduleSlotsTable.id,
+        subjectGroupId: scheduleSlotsTable.subjectGroupId,
+        shift: schedulesTable.shift,
+        degreeId: schedulesTable.degreeId,
+        courseYear: schedulesTable.courseYear,
+        classroomId: scheduleSlotsTable.classroomId,
+        dayOfWeek: scheduleSlotsTable.dayOfWeek,
+        slotIndex: scheduleSlotsTable.slotIndex,
+        duration: scheduleSlotsTable.duration,
+      })
+      .from(schedulesTable)
+      .innerJoin(
+        scheduleSlotsTable,
+        eq(schedulesTable.id, scheduleSlotsTable.scheduleId)
+      )
+      .where(and(...conditions));
+
+    return rows.map((r) => ({
+      id: r.id,
+      subjectGroupId: r.subjectGroupId,
+      subjectId: 'locked',
+      shift: r.shift as 'morning' | 'afternoon',
+      groupType: 'theory',
+      isCommon: false,
+      itineraryName: null,
+      numberOfStudents: 0,
+      degreeId: r.degreeId,
+      courseYear: r.courseYear,
+      classroomId: r.classroomId,
+      dayOfWeek: r.dayOfWeek,
+      slotIndex: r.slotIndex,
+      duration: r.duration,
+      isLocked: true,
+    }));
   }
 }

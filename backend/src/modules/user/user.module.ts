@@ -1,6 +1,8 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { HonoUserController } from './infrastructure/http/hono.user.controller';
 import { DrizzleUserRepository } from './infrastructure/db/drizzle.user.repository';
+import { DrizzleMemberRepository } from '@/modules/member/infrastructure/db/drizzle.member.repository';
+import { UserMemberAdapter } from './infrastructure/adapters/user-member.adapter';
 import type { DbConnection } from '@/core/db/connection';
 import { UpdateUserUseCase } from './application/update-user.usecase';
 import { GetUserByEmailUseCase } from './application/get-by-email.usecase';
@@ -19,6 +21,8 @@ import {
 
 export const createUserModule = (db: DbConnection) => {
   const userRepository = new DrizzleUserRepository(db);
+  const memberRepository = new DrizzleMemberRepository(db);
+  const userMemberAdapter = new UserMemberAdapter(memberRepository);
   const passwordHasherService = new PasswordHasherService();
 
   const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
@@ -28,7 +32,10 @@ export const createUserModule = (db: DbConnection) => {
     userRepository,
     passwordHasherService
   );
-  const deleteUserUseCase = new DeleteUserUseCase(userRepository);
+  const deleteUserUseCase = new DeleteUserUseCase(
+    userRepository,
+    userMemberAdapter
+  );
 
   const controller = new HonoUserController(
     getUserByEmailUseCase,

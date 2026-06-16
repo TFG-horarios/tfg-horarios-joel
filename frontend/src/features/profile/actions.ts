@@ -58,7 +58,16 @@ export async function deleteAccountAction(): Promise<ActionResponse> {
   try {
     const client = await getServerClient();
     const res = await client.api.users.me.$delete();
-    if (!res.ok) throw new Error(tErrors('server'));
+    if (!res.ok) {
+      let responseMessage = tErrors('server');
+      try {
+        const errorBody = (await res.json()) as { message?: string };
+        responseMessage = errorBody.message ?? responseMessage;
+      } catch (e) {
+        void e;
+      }
+      throw new Error(responseMessage);
+    }
   } catch (error) {
     return {
       success: false,

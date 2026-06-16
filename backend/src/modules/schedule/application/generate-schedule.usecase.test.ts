@@ -12,6 +12,7 @@ describe('GenerateScheduleUseCase', () => {
     create: mock(),
     update: mock(),
     createSchedulesWithSlots: mock(),
+    findLockedAssignments: mock(),
   };
 
   const dataProviderMock = {

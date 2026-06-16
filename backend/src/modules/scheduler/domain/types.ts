@@ -13,11 +13,13 @@ export interface Assignment {
   dayOfWeek: number | null;
   slotIndex: number | null;
   duration: number;
+  isLocked?: boolean;
 }
 
 export interface Solution {
   assignments: Assignment[];
   penalty: number;
+  hardPenalty: number;
 }
 
 export interface ClassroomMap {

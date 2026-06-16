@@ -229,9 +229,32 @@ export function SchedulePlanner({
       if (!result.success) {
         throw new Error(result.message);
       }
-    } catch {
+    } catch (err) {
       setSlots(oldSlots);
-      toast.error(t('planner.failedAssign'));
+      const errorMsg =
+        err instanceof Error ? err.message : t('planner.failedAssign');
+
+      if (errorMsg.includes('\n')) {
+        const errors = errorMsg.split('\n');
+        toast.error(t('planner.failedAssign'), {
+          description: (
+            <ul className="list-disc pl-4 space-y-1 mt-1">
+              {errors.map((e, i) => {
+                const translated = e.startsWith('ERR_')
+                  ? t(`planner.errors.${e}` as any)
+                  : e;
+                return <li key={i}>{translated}</li>;
+              })}
+            </ul>
+          ),
+          duration: 5000,
+        });
+      } else {
+        const translated = errorMsg.startsWith('ERR_')
+          ? t(`planner.errors.${errorMsg}` as any)
+          : errorMsg;
+        toast.error(translated);
+      }
     }
   };
 

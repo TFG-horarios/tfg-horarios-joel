@@ -1,4 +1,8 @@
-import { type Solution, type ClassroomMap } from '../domain/types';
+import {
+  type Solution,
+  type ClassroomMap,
+  type Assignment,
+} from '../domain/types';
 import { PenaltyCalculator } from '../domain/penalty-calculator';
 import {
   InitialSolution,
@@ -27,8 +31,14 @@ export class TabuSearchEngine {
     private readonly random: IRandomGenerator
   ) {}
 
-  public run(groups: GroupInitialData[]): Solution {
-    let currentSolution = this.initialSolutionGen.generate(groups);
+  public run(
+    groups: GroupInitialData[],
+    lockedAssignments: Assignment[] = []
+  ): Solution {
+    let currentSolution = this.initialSolutionGen.generate(
+      groups,
+      lockedAssignments
+    );
     let bestGlobalSolution = currentSolution;
 
     const tabuList: TabuMove[] = [];
@@ -80,13 +90,15 @@ export class TabuSearchEngine {
 
         currentSolution.assignments[targetIndex] = mutated;
 
-        const neighborPenalty = this.penaltyCalculator.calculatePenalty(
-          currentSolution.assignments
+        const penalties = this.penaltyCalculator.evaluate(
+          currentSolution.assignments,
+          lockedAssignments
         );
 
         const neighbor: Solution = {
           assignments: currentSolution.assignments,
-          penalty: neighborPenalty,
+          penalty: penalties.totalPenalty,
+          hardPenalty: penalties.hardPenalty,
         };
 
         const isTabu = tabuList.some(
@@ -106,6 +118,7 @@ export class TabuSearchEngine {
             bestNeighbor = {
               assignments: [...currentSolution.assignments],
               penalty: neighbor.penalty,
+              hardPenalty: neighbor.hardPenalty,
             };
             bestMoveData = {
               assignmentId: mutated.id,

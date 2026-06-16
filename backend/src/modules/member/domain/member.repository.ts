@@ -27,4 +27,5 @@ export interface IMemberRepository {
   update(member: Member): Promise<void>;
   delete(id: string, organizationId: string): Promise<void>;
   countAdmins(organizationId: string): Promise<number>;
+  getOrganizationsWhereUserIsSoleAdmin(userId: string): Promise<string[]>;
 }

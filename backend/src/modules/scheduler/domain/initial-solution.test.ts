@@ -3,7 +3,7 @@ import { InitialSolution, type GroupInitialData } from './initial-solution';
 import { PenaltyCalculator } from './penalty-calculator';
 
 describe('InitialSolution', () => {
-  const penaltyCalculator = new PenaltyCalculator([], {}, 12, 12);
+  const penaltyCalculator = new PenaltyCalculator([], [], {}, 6, 12);
   penaltyCalculator.calculatePenalty = mock(() => 0);
   const classroomsCache = {
     'c-1': {

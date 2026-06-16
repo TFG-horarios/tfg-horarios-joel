@@ -6,17 +6,19 @@ import type { IRandomGenerator } from '../domain/random-generator';
 import type { Solution } from '../domain/types';
 
 describe('TabuSearchEngine', () => {
-  const penaltyCalculator = new PenaltyCalculator([], {}, 12, 12);
-  const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12);
+  const penaltyCalculator = new PenaltyCalculator([], [], {}, 12, 12);
+  const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12, 1);
 
-  const calculatePenaltySpy = spyOn(
-    penaltyCalculator,
-    'calculatePenalty'
-  ).mockReturnValue(0);
+  const evaluateSpy = spyOn(penaltyCalculator, 'evaluate').mockReturnValue({
+    hardPenalty: 0,
+    softPenalty: 0,
+    totalPenalty: 0,
+  });
 
   const generateSpy = spyOn(initialGen, 'generate').mockImplementation(() => ({
     assignments: [],
     penalty: 0,
+    hardPenalty: 0,
   }));
 
   const randomGen: IRandomGenerator = {
@@ -34,7 +36,7 @@ describe('TabuSearchEngine', () => {
   );
 
   test('returns initial solution if penalty is 0', () => {
-    const sol: Solution = { assignments: [], penalty: 0 };
+    const sol: Solution = { assignments: [], penalty: 0, hardPenalty: 0 };
     generateSpy.mockReturnValueOnce(sol);
     const result = engine.run([]);
     expect(result).toBe(sol);
@@ -61,9 +63,14 @@ describe('TabuSearchEngine', () => {
         },
       ],
       penalty: 100,
+      hardPenalty: 100,
     };
     generateSpy.mockReturnValueOnce(initialSol);
-    calculatePenaltySpy.mockReturnValue(50);
+    evaluateSpy.mockReturnValue({
+      hardPenalty: 50,
+      softPenalty: 0,
+      totalPenalty: 50,
+    });
     const result = engine.run([]);
     expect(result.penalty).toBe(50);
   });

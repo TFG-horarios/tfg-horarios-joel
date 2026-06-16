@@ -91,14 +91,6 @@ export class GenerateScheduleUseCase {
       const maxAfternoonSlots = Math.floor(
         (afternoonEnd - afternoonStart) / slotDuration
       );
-      const solution = await this.engineProvider.runGeneration(
-        groupsData,
-        classroomsCache,
-        availableClassrooms,
-        maxMorningSlots,
-        maxAfternoonSlots,
-        slotDuration
-      );
 
       const itinerariesPerDegreeYearShift = new Map<string, Set<string>>();
 
@@ -110,6 +102,87 @@ export class GenerateScheduleUseCase {
           }
           itinerariesPerDegreeYearShift.get(key)!.add(group.itineraryId);
         }
+      }
+
+      const scopeKeysToGenerate = new Set<string>();
+      for (const group of groupsData) {
+        const baseKey = `${group.degreeId}_${group.courseYear}_${group.shift}`;
+        const itineraries = itinerariesPerDegreeYearShift.get(baseKey);
+
+        if (!itineraries || itineraries.size === 0) {
+          scopeKeysToGenerate.add(`${baseKey}_common`);
+        } else {
+          if (group.isCommon) {
+            for (const itinId of itineraries) {
+              scopeKeysToGenerate.add(`${baseKey}_${itinId}`);
+            }
+          } else if (group.itineraryId) {
+            scopeKeysToGenerate.add(`${baseKey}_${group.itineraryId}`);
+          }
+        }
+      }
+
+      const existingScheduleIdsToOverwrite: string[] = [];
+      for (const scopeKey of scopeKeysToGenerate) {
+        const parts = scopeKey.split('_');
+        const degreeId = parts[0] || '';
+        const courseYear = parseInt(parts[1] || '0', 10);
+        const shift = (parts[2] || 'morning') as 'morning' | 'afternoon';
+        const itineraryId =
+          parts[3] === 'common' ? null : parts.slice(3).join('_');
+
+        const existing = await this.scheduleRepository.findByScope(
+          organizationId,
+          degreeId,
+          itineraryId,
+          scope.academicYearId,
+          courseYear,
+          period,
+          shift
+        );
+        if (existing) {
+          existingScheduleIdsToOverwrite.push(existing.id);
+        }
+      }
+
+      const lockedAssignments =
+        await this.scheduleRepository.findLockedAssignments(
+          organizationId,
+          scope.academicYearId,
+          period,
+          existingScheduleIdsToOverwrite
+        );
+
+      for (const locked of lockedAssignments) {
+        if (locked.shift === 'afternoon' && locked.slotIndex !== null) {
+          locked.slotIndex += maxMorningSlots;
+        }
+      }
+
+      const alreadyLockedGroupIds = new Set(
+        lockedAssignments.map((l) => l.subjectGroupId)
+      );
+
+      const groupsToGenerate = groupsData.filter(
+        (g) => !alreadyLockedGroupIds.has(g.subjectGroupId)
+      );
+
+      const solution = await this.engineProvider.runGeneration(
+        groupsToGenerate,
+        classroomsCache,
+        availableClassrooms,
+        maxMorningSlots,
+        maxAfternoonSlots,
+        slotDuration,
+        lockedAssignments
+      );
+
+      const inheritedAssignments = lockedAssignments.filter((l) =>
+        groupsData.some((g) => g.subjectGroupId === l.subjectGroupId)
+      );
+
+      for (const inh of inheritedAssignments) {
+        solution.assignments.push(inh);
       }
 
       type ScopeKey = string;

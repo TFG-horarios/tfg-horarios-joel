@@ -639,13 +639,25 @@
         "unknownDegree": "Unknown degree",
         "unknownItinerary": "Unknown itinerary",
         "year": "Year {year}",
-        "semester": "Semester {period}"
+        "semester": "Semester {period}",
+        "conflictsTooltip": "Conflicts detected"
       },
       "planner": {
         "publishSchedule": "Publish Schedule",
         "publishing": "Publishing...",
         "failedPublish": "Failed to publish schedule.",
         "failedAssign": "Failed to assign slot.",
+        "errors": {
+          "ERR_ROOM_CAPACITY": "The selected classroom does not have enough capacity for this group.",
+          "ERR_SHIFT_MORNING": "This subject must be taught within the morning shift.",
+          "ERR_SHIFT_AFTERNOON": "This subject must be taught within the afternoon shift.",
+          "ERR_SHIFT_EXCEEDS_DAY": "The duration exceeds the maximum allowed hours in the day.",
+          "ERR_OVERLAP_THEORY": "Student overlap: Theory classes cannot coincide at the same time.",
+          "ERR_OVERLAP_PRACTICES": "Student overlap: Practical/problem classes cannot coincide at the same time.",
+          "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
+          "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
+          "ERR_RESERVATION_OVERLAP": "The physical classroom has an accepted manual reservation for this time."
+        },
         "globalItinerary": "Global Itinerary",
         "weeklyView": "Weekly Schedule View",
         "time": "Time",

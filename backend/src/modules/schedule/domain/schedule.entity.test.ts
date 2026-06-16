@@ -9,6 +9,7 @@ describe('Schedule', () => {
     shift: 'morning' as const,
     courseYear: 1,
     period: 1,
+    conflicts: 0,
   };
 
   test('creates a schedule with defaults', () => {
