@@ -22,6 +22,14 @@ export const SearchUserQuerySchema = z
   })
   .openapi('SearchUserQuery');
 
+export const UpdatePasswordBodySchema = z
+  .object({
+    currentPassword: z.string().openapi({ example: 'OldPassword123!' }),
+    newPassword: z.string().min(8).openapi({ example: 'NewPassword123!' }),
+  })
+  .openapi('UpdatePassword');
+
 export type UserDTO = z.infer<typeof UserSchema>;
 export type SaveUserDTO = z.infer<typeof SaveUserBodySchema>;
 export type SearchUserQueryDTO = z.infer<typeof SearchUserQuerySchema>;
+export type UpdatePasswordDTO = z.infer<typeof UpdatePasswordBodySchema>;

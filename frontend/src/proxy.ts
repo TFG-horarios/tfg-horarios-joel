@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
 
 const publicRoutes = ['/', '/login', '/register'];
-const protectedPrefixes = ['/organizations'];
+const protectedPrefixes = ['/organizations', '/profile'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

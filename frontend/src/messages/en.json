@@ -229,6 +229,33 @@
       }
     }
   },
+  "Profile": {
+    "title": "User Profile",
+    "description": "Manage your personal data and application preferences.",
+    "general": "General",
+    "security": "Security",
+    "theme": "Theme",
+    "language": "Language",
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email address",
+    "emailDescription": "The email address cannot be changed.",
+    "password": "Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "updatePassword": "Update password",
+    "updatingPassword": "Updating...",
+    "deleteAccount": "Delete account",
+    "deleteAccountWarning": "Once you delete your account, there is no going back. Please be certain.",
+    "deleteAccountConfirm": "Are you absolutely sure?",
+    "deleteAccountDescription": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+    "deleteAccountButton": "Yes, delete my account",
+    "successName": "Name updated successfully.",
+    "successPassword": "Password updated successfully.",
+    "errorPassword": "Could not update the password. Check your current password.",
+    "passwordsMismatch": "Passwords do not match."
+  },
   "Organizations": {
     "page": {
       "title": "Your organizations",

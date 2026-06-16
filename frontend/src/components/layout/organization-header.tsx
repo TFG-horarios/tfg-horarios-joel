@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Fragment } from 'react';
-import { LogOut, Search, Building2 } from 'lucide-react';
+import { LogOut, Search, Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
 import { LanguageToggle } from '@/components/i18n/language-toggle';
@@ -34,6 +34,7 @@ export function OrganizationHeader() {
   const t = useTranslations('Common.actions');
   const tBrand = useTranslations('Common');
   const tNav = useTranslations('Organizations.navigation');
+  const tProfile = useTranslations('Profile');
 
   const isOrganizations = pathname?.startsWith('/organizations');
   const pathSegments = pathname?.split('/').filter(Boolean) || [];
@@ -242,6 +243,13 @@ export function OrganizationHeader() {
                 </div>
 
                 <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="w-full cursor-pointer">
+                    <User className="mr-2 size-4" />
+                    {tProfile('title')}
+                  </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuItem
                   className="text-destructive"

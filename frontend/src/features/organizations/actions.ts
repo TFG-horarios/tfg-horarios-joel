@@ -8,7 +8,6 @@ import {
   type OrganizationDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-
 import { type ActionResponse } from '@/types/actions';
 
 export async function createOrganizationAction(

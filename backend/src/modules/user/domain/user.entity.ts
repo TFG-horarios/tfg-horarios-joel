@@ -45,6 +45,11 @@ export class User {
     this.props.updatedAt = new Date();
   }
 
+  public updatePassword(newPasswordHash: string): void {
+    this.props.passwordHash = newPasswordHash;
+    this.props.updatedAt = new Date();
+  }
+
   get id(): string {
     return this.props.id;
   }

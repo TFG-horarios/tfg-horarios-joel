@@ -67,6 +67,8 @@ export class DrizzleUserRepository implements IUserRepository {
         .update(usersTable)
         .set({
           name: user.name,
+          password: user.passwordHash,
+          updatedAt: user.updatedAt,
         })
         .where(eq(usersTable.id, user.id));
     } catch (error: unknown) {

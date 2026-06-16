@@ -46,8 +46,8 @@ export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
       try {
         const errorBody = (await response.json()) as { message?: string };
         responseMessage = errorBody.message ?? responseMessage;
-      } catch {
-        // ignore JSON parsing errors and use generic message
+      } catch (error) {
+        void error;
       }
 
       return { success: false, message: responseMessage };
@@ -93,8 +93,8 @@ export async function registerAction(
   redirect('/organizations');
 }
 
-export async function logoutAction() {
+export async function logoutAction(redirectTo: string = '/login') {
   const cookieStore = await cookies();
   cookieStore.delete('auth-token');
-  redirect('/login');
+  redirect(redirectTo);
 }

@@ -14,12 +14,16 @@ describe('HonoUserController Integration', () => {
   const getByIdMock = { execute: mock() };
   const getByEmailMock = { execute: mock() };
   const updateMock = { execute: mock() };
+  const updatePasswordMock = { execute: mock() };
+  const deleteMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoUserController>;
   const controller = new HonoUserController(
     getByEmailMock as unknown as Params[0],
     getByIdMock as unknown as Params[1],
-    updateMock as unknown as Params[2]
+    updateMock as unknown as Params[2],
+    updatePasswordMock as unknown as Params[3],
+    deleteMock as unknown as Params[4]
   );
 
   const router = new OpenAPIHono<AppEnv>();

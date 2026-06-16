@@ -1,11 +1,19 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 import type { UserDTO } from '@tfg-horarios/shared';
 
 type SessionContextType = {
   user: UserDTO | null;
   isAuthenticated: boolean;
+  updateSessionData: (data: Partial<UserDTO>) => void;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -19,12 +27,23 @@ export function SessionProvider({
   children,
   initialUser,
 }: SessionProviderProps) {
+  const [user, setUser] = useState<UserDTO | null>(initialUser);
+
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
+
+  const updateSessionData = (data: Partial<UserDTO>) => {
+    setUser((prev) => (prev ? { ...prev, ...data } : null));
+  };
+
   const value = useMemo(
     () => ({
-      user: initialUser,
-      isAuthenticated: !!initialUser,
+      user,
+      isAuthenticated: !!user,
+      updateSessionData,
     }),
-    [initialUser]
+    [user]
   );
 
   return (

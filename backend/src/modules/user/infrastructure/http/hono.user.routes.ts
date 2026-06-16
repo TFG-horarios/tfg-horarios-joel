@@ -3,6 +3,7 @@ import {
   SearchUserQuerySchema,
   SaveUserBodySchema,
   UserSchema,
+  UpdatePasswordBodySchema,
 } from '@tfg-horarios/shared';
 
 export const getMeRoute = createRoute({
@@ -33,6 +34,38 @@ export const updateMeRoute = createRoute({
       content: { 'application/json': { schema: UserSchema } },
     },
     400: { description: 'Invalid update data' },
+    401: { description: 'Unauthorized' },
+    404: { description: 'User not found' },
+  },
+});
+
+export const updatePasswordRoute = createRoute({
+  method: 'patch',
+  path: '/users/me/password',
+  request: {
+    body: {
+      content: {
+        'application/json': { schema: UpdatePasswordBodySchema },
+      },
+    },
+  },
+  responses: {
+    204: {
+      description: 'Password updated successfully',
+    },
+    400: { description: 'Invalid update data' },
+    401: { description: 'Unauthorized' },
+    404: { description: 'User not found' },
+  },
+});
+
+export const deleteMeRoute = createRoute({
+  method: 'delete',
+  path: '/users/me',
+  responses: {
+    204: {
+      description: 'User deleted successfully',
+    },
     401: { description: 'Unauthorized' },
     404: { description: 'User not found' },
   },

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LogOut, Search } from 'lucide-react';
+import { LogOut, Search, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,6 +15,12 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { LanguageToggle } from '@/components/i18n/language-toggle';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from '@/components/ui/breadcrumb';
 import { cn } from '@/lib/utils';
 import { logoutAction } from '@/features/auth/actions';
 import { useSession } from '../providers/session-provider';
@@ -29,6 +35,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const t = useTranslations('Common.actions');
   const tBrand = useTranslations('Common');
+  const tProfile = useTranslations('Profile');
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -106,6 +113,27 @@ export function Header({ variant = 'inline' }: HeaderProps) {
           </div>
         )}
 
+        {pathname === '/profile' && variant === 'inline' && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4 pointer-events-none">
+            <div className="pointer-events-auto flex justify-center">
+              <div className="flex h-9 items-center rounded-full border border-black/5 bg-black/5 px-4 shadow-inner dark:border-white/10 dark:bg-white/5">
+                <Breadcrumb>
+                  <BreadcrumbList className="flex-nowrap">
+                    <BreadcrumbItem>
+                      <BreadcrumbPage className="font-medium text-purple-700 dark:text-purple-300">
+                        <div className="flex items-center gap-1.5">
+                          <User className="size-4" />
+                          <span>{tProfile('title')}</span>
+                        </div>
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
           {!isLoggingOut && (
             <>
@@ -134,6 +162,13 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     </div>
 
                     <DropdownMenuSeparator />
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="w-full cursor-pointer">
+                        <User className="mr-2 size-4" />
+                        {tProfile('title')}
+                      </Link>
+                    </DropdownMenuItem>
 
                     <DropdownMenuItem
                       className="text-destructive"

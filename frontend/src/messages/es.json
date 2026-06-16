@@ -229,6 +229,33 @@
       }
     }
   },
+  "Profile": {
+    "title": "Perfil de usuario",
+    "description": "Gestiona tus datos personales y preferencias de la aplicación.",
+    "general": "General",
+    "security": "Seguridad",
+    "theme": "Tema",
+    "language": "Idioma",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre completo",
+    "email": "Correo electrónico",
+    "emailDescription": "El correo electrónico no se puede cambiar.",
+    "password": "Contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar nueva contraseña",
+    "updatePassword": "Actualizar contraseña",
+    "updatingPassword": "Actualizando...",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountWarning": "Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de estar seguro.",
+    "deleteAccountConfirm": "¿Estás completamente seguro?",
+    "deleteAccountDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y eliminará tus datos de nuestros servidores.",
+    "deleteAccountButton": "Sí, eliminar mi cuenta",
+    "successName": "Nombre actualizado correctamente.",
+    "successPassword": "Contraseña actualizada correctamente.",
+    "errorPassword": "No se pudo actualizar la contraseña. Comprueba tu contraseña actual.",
+    "passwordsMismatch": "Las contraseñas no coinciden."
+  },
   "Organizations": {
     "page": {
       "title": "Tus organizaciones",
