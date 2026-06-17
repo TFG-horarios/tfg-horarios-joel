@@ -6,7 +6,13 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
-import { seedTestDb, testOrgId, testDegreeId, testItineraryId, seedTestSubject } from '@/tests/seed-db';
+import {
+  seedTestDb,
+  testOrgId,
+  testDegreeId,
+  testItineraryId,
+  seedTestSubject,
+} from '@/tests/seed-db';
 import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 
 describe('DrizzleItineraryRepository Integration', () => {
@@ -179,7 +185,13 @@ describe('DrizzleItineraryRepository Integration', () => {
 
   test('should soft delete an itinerary successfully', async () => {
     const subjectId = 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a00';
-    await seedTestSubject(testDb, subjectId, 'SUBJ_ITIN', testItineraryId, 'Itinerary Subject');
+    await seedTestSubject(
+      testDb,
+      subjectId,
+      'SUBJ_ITIN',
+      testItineraryId,
+      'Itinerary Subject'
+    );
 
     const groupId = 'e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a00';
     const now = new Date();
@@ -197,16 +209,16 @@ describe('DrizzleItineraryRepository Integration', () => {
       updatedAt: now,
     });
     await repository.delete(testItineraryId, testOrgId);
-    const foundItinerary = await repository.findById(testItineraryId, testOrgId);
+    const foundItinerary = await repository.findById(
+      testItineraryId,
+      testOrgId
+    );
     expect(foundItinerary).toBeNull();
     const subjects = await testDb
       .select()
       .from(subjectsTable)
       .where(
-        and(
-          eq(subjectsTable.id, subjectId),
-          isNull(subjectsTable.deletedAt)
-        )
+        and(eq(subjectsTable.id, subjectId), isNull(subjectsTable.deletedAt))
       );
     expect(subjects.length).toBe(0);
     const groups = await testDb

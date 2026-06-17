@@ -1,7 +1,7 @@
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { PublishScheduleUseCase } from './publish-schedule.usecase';
 import { Schedule } from '../domain/schedule.entity';
-import { ForbiddenError, NotFoundError, ValidationError } from '@/core/errors/app.error';
+import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 
 describe('PublishScheduleUseCase', () => {
   beforeEach(() => {

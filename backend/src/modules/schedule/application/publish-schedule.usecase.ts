@@ -1,7 +1,11 @@
 import type { ScheduleDTO } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
-import { ForbiddenError, NotFoundError, ValidationError } from '@/core/errors/app.error';
+import {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
 
@@ -40,9 +44,7 @@ export class PublishScheduleUseCase {
     }
 
     if (schedule.conflicts > 0) {
-      throw new ValidationError(
-        'ERR_SCHEDULE_HAS_CONFLICTS'
-      );
+      throw new ValidationError('ERR_SCHEDULE_HAS_CONFLICTS');
     }
 
     schedule.publish();

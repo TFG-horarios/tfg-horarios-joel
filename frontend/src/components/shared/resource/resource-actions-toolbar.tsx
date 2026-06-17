@@ -89,12 +89,15 @@ export function ResourceActionsToolbar({
   return (
     <TooltipProvider delayDuration={0}>
       <ResourceActions>
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => {
-          setIsDeleteDialogOpen(open);
-          if (!open) {
-            setError(null);
-          }
-        }}>
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={(open) => {
+            setIsDeleteDialogOpen(open);
+            if (!open) {
+              setError(null);
+            }
+          }}
+        >
           <Tooltip>
             <TooltipTrigger asChild>
               <AlertDialogTrigger asChild>

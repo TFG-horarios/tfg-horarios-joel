@@ -64,7 +64,7 @@ export const ScheduleRow = memo(function ScheduleRow({
       }
       toast.success(result.message);
     } catch (err) {
-      toast.error('Error publishing');
+      toast.error(err instanceof Error ? err.message : 'Error publishing');
     }
   };
 

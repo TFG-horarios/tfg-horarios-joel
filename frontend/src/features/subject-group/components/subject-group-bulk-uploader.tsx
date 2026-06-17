@@ -316,14 +316,14 @@ export function SubjectGroupBulkUploader({
           const subjectId = key.split('|')[0];
           const groupType = key.split('|')[1] as GroupType;
           const subject = subjects.find((s) => s.id === subjectId)!;
-          
+
           if (data.totalStudents !== subject.numberOfStudents) {
             const groupTypeLabels: Record<string, string> = {
               theory: 'teoría',
               practices: 'prácticas',
               problems: 'problemas',
               reduced_practices: 'prácticas reducidas',
-              tutoring: 'tutoría'
+              tutoring: 'tutoría',
             };
             const label = groupTypeLabels[groupType] || groupType;
             data.rows.forEach((rowNumber) => {

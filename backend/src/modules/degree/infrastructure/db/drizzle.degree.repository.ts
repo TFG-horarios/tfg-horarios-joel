@@ -1,4 +1,4 @@
-import { eq, and, isNull, isNotNull, inArray, ilike, count, type SQL } from 'drizzle-orm';
+import { eq, and, isNull, inArray, ilike, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
