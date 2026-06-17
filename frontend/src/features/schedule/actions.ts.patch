@@ -1,0 +1,140 @@
+--- frontend/src/features/schedule/actions.ts
++++ frontend/src/features/schedule/actions.ts
+@@ -13,4 +13,10 @@
+ } from '@tfg-horarios/shared';
+ import { getServerClient } from '@/lib/api/server';
+-import { fetchSchedules } from './queries';
++import { fetchSchedules, fetchSchedule, fetchScheduleSlots } from './queries';
++import { fetchAllClassrooms } from '@/features/classroom/queries';
++import { fetchAllSubjects } from '@/features/subject/queries';
++import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
++import { fetchAllDegrees } from '@/features/degree/queries';
++import { fetchAcademicYears } from '@/features/academic-year/queries';
++import Papa from 'papaparse';
+ 
+@@ -252,2 +258,91 @@
+ }
++
++export async function exportScheduleCsvAction(
++  organizationId: string,
++  scheduleId: string
++): Promise<ActionResponse<{ csv: string; filename: string }>> {
++  const tErrors = await getTranslations('Common.errors');
++  
++  try {
++    const [
++      schedule,
++      slots,
++      classrooms,
++      subjects,
++      subjectGroups,
++      degrees,
++      academicYears,
++    ] = await Promise.all([
++      fetchSchedule(organizationId, scheduleId),
++      fetchScheduleSlots(organizationId, scheduleId),
++      fetchAllClassrooms(organizationId),
++      fetchAllSubjects(organizationId),
++      fetchAllSubjectGroups(organizationId),
++      fetchAllDegrees(organizationId),
++      fetchAcademicYears(organizationId),
++    ]);
++
++    if (!schedule || !slots) {
++      return { success: false, message: tErrors('server') };
++    }
++
++    const academicYear = academicYears.find((ay) => ay.id === schedule.academicYearId);
++    if (!academicYear) return { success: false, message: tErrors('server') };
++
++    const parseTime = (timeStr: string) => {
++      const [hours, minutes] = timeStr.split(':').map(Number);
++      return (hours || 0) * 60 + (minutes || 0);
++    };
++    const formatTime = (minutesTotal: number) => {
++      const h = Math.floor(minutesTotal / 60).toString().padStart(2, '0');
++      const m = Math.floor(minutesTotal % 60).toString().padStart(2, '0');
++      return `${h}:${m}`;
++    };
++
++    const shift = schedule.shift || 'global';
++    let startMins, endMins;
++    if (shift === 'morning') {
++      startMins = parseTime(academicYear.morningStart);
++      endMins = parseTime(academicYear.morningEnd);
++    } else if (shift === 'afternoon') {
++      startMins = parseTime(academicYear.afternoonStart);
++      endMins = parseTime(academicYear.afternoonEnd);
++    } else {
++      startMins = parseTime(academicYear.morningStart);
++      endMins = parseTime(academicYear.afternoonEnd);
++    }
++
++    const count = Math.floor((endMins - startMins) / academicYear.slotDurationMinutes);
++    const slotTimeLabels: Record<number, string> = {};
++    for (let i = 0; i < count; i++) {
++      const slotStart = startMins + i * academicYear.slotDurationMinutes;
++      const slotEnd = slotStart + academicYear.slotDurationMinutes;
++      slotTimeLabels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
++    }
++
++    const tCsv = await getTranslations('Organizations.schedules.csv');
++    const tPlanner = await getTranslations('Organizations.schedules.planner');
++
++    const daysOfWeek = [
++      { value: 1, label: tPlanner('days.1') },
++      { value: 2, label: tPlanner('days.2') },
++      { value: 3, label: tPlanner('days.3') },
++      { value: 4, label: tPlanner('days.4') },
++      { value: 5, label: tPlanner('days.5') },
++    ];
++
++    const classroomMap = new Map(classrooms.map((c) => [c.id, c]));
++    const slotMetaMap = new Map();
++    subjectGroups.forEach((group) => {
++      const subject = subjects.find((sub) => sub.id === group.subjectId);
++      slotMetaMap.set(group.id, { group, subject });
++    });
++
++    const csvData = slots.map((slot) => {
++      const meta = slotMetaMap.get(slot.subjectGroupId);
++      if (!meta || !meta.subject || !meta.group) return null;
++      const subject = meta.subject;
++      const group = meta.group;
++      const classroom = slot.classroomId ? classroomMap.get(slot.classroomId) : null;
++      const degreeName = degrees.find((d) => d.id === subject.degreeId)?.name ?? tCsv('values.common');
++      const timeLabel = slot.slotIndex !== null ? slotTimeLabels[slot.slotIndex] : '';
++      const [startTime, endTime] = timeLabel ? timeLabel.split(' - ') : ['', ''];
++      const dayLabel = daysOfWeek.find((d) => d.value === slot.dayOfWeek)?.label ?? slot.dayOfWeek;
++      const groupTypeFormatted = `${tCsv(`groupTypes.${group.groupType}`)} ${group.groupNumber}`;
++
++      return {
++        [tCsv('headers.degreeName')]: degreeName,
++        [tCsv('headers.subjectCode')]: subject.code,
++        [tCsv('headers.subjectName')]: subject.name,
++        [tCsv('headers.courseYear')]: subject.courseYear,
++        [tCsv('headers.period')]: academicYear.periodType === 'annual' ? tCsv('values.annual') : tCsv('values.semester', { period: subject.period }),
++        [tCsv('headers.shift')]: tCsv(`shifts.${group.shift}`),
++        [tCsv('headers.groupType')]: groupTypeFormatted,
++        [tCsv('headers.day')]: dayLabel,
++        [tCsv('headers.startTime')]: startTime,
++        [tCsv('headers.endTime')]: endTime,
++        [tCsv('headers.classroom')]: classroom ? classroom.name : tCsv('values.unassigned'),
++      };
++    }).filter(Boolean);
++
++    if (csvData.length === 0) {
++      return { success: false, message: tCsv('empty') };
++    }
++
++    const csv = Papa.unparse(csvData);
++    const filename = `horario-${academicYear.name}-P${schedule.period}.csv`;
++
++    return { success: true, data: { csv, filename } };
++  } catch (error) {
++    return {
++      success: false,
++      message: error instanceof Error ? error.message : tErrors('generic'),
++    };
++  }
++}

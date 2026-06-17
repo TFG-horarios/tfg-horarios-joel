@@ -649,7 +649,7 @@
       },
       "planner": {
         "publishSchedule": "Publicar horario",
-        "unpublishSchedule": "Ocultar / Borrador",
+        "unpublishSchedule": "Borrador",
         "publishing": "Publicando...",
         "failedPublish": "Error al publicar el horario.",
         "failedAssign": "Error al asignar la franja horaria.",
@@ -716,6 +716,42 @@
         "emptyUnassigned": "No hay asignaciones en reserva.",
         "classroom": "Aula",
         "capacity": "Capacidad"
+      },
+      "csv": {
+        "headers": {
+          "degreeName": "nombre grado",
+          "subjectCode": "codigo asignatura",
+          "subjectName": "nombre asignatura",
+          "courseYear": "curso",
+          "period": "periodo",
+          "shift": "turno",
+          "groupType": "group type",
+          "day": "dia",
+          "startTime": "hora inicio",
+          "endTime": "hora fin",
+          "classroom": "aula"
+        },
+        "values": {
+          "common": "Comunes",
+          "unassigned": "No asignada",
+          "annual": "Anual",
+          "semester": "Semestre {period}"
+        },
+        "shifts": {
+          "morning": "Mañana",
+          "afternoon": "Tarde"
+        },
+        "groupTypes": {
+          "theory": "Teoria",
+          "problems": "PA",
+          "practices": "PE",
+          "reduced_practices": "PX",
+          "tutoring": "TU"
+        },
+        "empty": "No hay clases asignadas para exportar",
+        "export": "Exportar CSV",
+        "exporting": "Exportando CSV...",
+        "exportSuccess": "Horario exportado a CSV"
       }
     },
     "membersManagement": {

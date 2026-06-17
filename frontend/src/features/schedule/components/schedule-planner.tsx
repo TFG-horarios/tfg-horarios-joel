@@ -169,7 +169,7 @@ export function SchedulePlanner({
       console.error(err);
       toast.error(
         t('planner.failedUnpublish', {
-          fallback: 'Error al ocultar el horario',
+          fallback: 'Error al establecer como borrador',
         })
       );
     } finally {
@@ -357,7 +357,7 @@ export function SchedulePlanner({
                   ) : (
                     <Archive className="size-4" />
                   )}
-                  {t('planner.unpublishSchedule', { fallback: 'Ocultar' })}
+                  {t('planner.unpublishSchedule', { fallback: 'Borrador' })}
                 </Button>
                 <Button
                   onClick={() =>

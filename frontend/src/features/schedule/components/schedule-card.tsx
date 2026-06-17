@@ -11,6 +11,7 @@ import {
   UploadCloud,
   Trash,
   Archive,
+  FileDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -19,6 +20,7 @@ import {
   publishScheduleAction,
   unpublishScheduleAction,
   deleteScheduleAction,
+  exportScheduleCsvAction,
 } from '../actions';
 import {
   DropdownMenu,
@@ -100,6 +102,39 @@ export const ScheduleCard = memo(function ScheduleCard({
     }
   };
 
+  const handleExportCSV = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      toast.loading(
+        tStatus('csv.exporting', { fallback: 'Exportando CSV...' }),
+        { id: `csv-${schedule.id}` }
+      );
+      const result = await exportScheduleCsvAction(organizationId, schedule.id);
+      if (!result.success || !result.data) {
+        throw new Error(result.message);
+      }
+      const blob = new Blob([result.data.csv], {
+        type: 'text/csv;charset=utf-8;',
+      });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.setAttribute('download', result.data.filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(
+        tStatus('csv.exportSuccess', { fallback: 'CSV exportado' }),
+        { id: `csv-${schedule.id}` }
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error exporting CSV', {
+        id: `csv-${schedule.id}`,
+      });
+    }
+  };
+
   const handleDelete = async () => {
     try {
       const result = await deleteScheduleAction(organizationId, schedule.id);
@@ -169,11 +204,21 @@ export const ScheduleCard = memo(function ScheduleCard({
                   <Archive className="mr-2 h-4 w-4" />
                   <span>
                     {tStatus('planner.unpublishSchedule', {
-                      fallback: 'Ocultar / Borrador',
+                      fallback: 'Borrador',
                     })}
                   </span>
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleExportCSV}
+                className="text-muted-foreground focus:text-foreground focus:bg-muted"
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                <span>
+                  {tStatus('csv.export', { fallback: 'Exportar CSV' })}
+                </span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <ResourceDeleteAction
                 onDelete={handleDelete}

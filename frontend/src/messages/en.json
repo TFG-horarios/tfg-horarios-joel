@@ -648,7 +648,7 @@
       },
       "planner": {
         "publishSchedule": "Publish Schedule",
-        "unpublishSchedule": "Unpublish / Draft",
+        "unpublishSchedule": "Draft",
         "publishing": "Publishing...",
         "failedPublish": "Failed to publish schedule.",
         "failedAssign": "Failed to assign slot.",
@@ -715,6 +715,42 @@
         "emptyUnassigned": "No unassigned slots in reserve.",
         "classroom": "Classroom",
         "capacity": "Capacity"
+      },
+      "csv": {
+        "headers": {
+          "degreeName": "degree name",
+          "subjectCode": "subject code",
+          "subjectName": "subject name",
+          "courseYear": "course year",
+          "period": "period",
+          "shift": "shift",
+          "groupType": "group type",
+          "day": "day",
+          "startTime": "start time",
+          "endTime": "end time",
+          "classroom": "classroom"
+        },
+        "values": {
+          "common": "Common",
+          "unassigned": "Unassigned",
+          "annual": "Annual",
+          "semester": "Semester {period}"
+        },
+        "shifts": {
+          "morning": "Morning",
+          "afternoon": "Afternoon"
+        },
+        "groupTypes": {
+          "theory": "Theory",
+          "problems": "PA",
+          "practices": "PE",
+          "reduced_practices": "PX",
+          "tutoring": "TU"
+        },
+        "empty": "No assigned classes to export",
+        "export": "Export CSV",
+        "exporting": "Exporting CSV...",
+        "exportSuccess": "Schedule exported to CSV"
       }
     },
     "membersManagement": {

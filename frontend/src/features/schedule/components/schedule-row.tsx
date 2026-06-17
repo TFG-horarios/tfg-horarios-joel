@@ -13,9 +13,10 @@ import {
   publishScheduleAction,
   unpublishScheduleAction,
   deleteScheduleAction,
+  exportScheduleCsvAction,
 } from '../actions';
 import { toast } from 'sonner';
-import { UploadCloud, Archive } from 'lucide-react';
+import { UploadCloud, Archive, FileDown } from 'lucide-react';
 
 export const ScheduleRow = memo(function ScheduleRow({
   item: schedule,
@@ -66,6 +67,37 @@ export const ScheduleRow = memo(function ScheduleRow({
       toast.success(result.message);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Error unpublishing');
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      toast.loading(
+        tStatus('csv.exporting', { fallback: 'Exportando CSV...' }),
+        { id: `csv-${schedule.id}` }
+      );
+      const result = await exportScheduleCsvAction(organizationId, schedule.id);
+      if (!result.success || !result.data) {
+        throw new Error(result.message);
+      }
+      const blob = new Blob([result.data.csv], {
+        type: 'text/csv;charset=utf-8;',
+      });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.setAttribute('download', result.data.filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(
+        tStatus('csv.exportSuccess', { fallback: 'CSV exportado' }),
+        { id: `csv-${schedule.id}` }
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error exporting CSV', {
+        id: `csv-${schedule.id}`,
+      });
     }
   };
 
@@ -128,12 +160,21 @@ export const ScheduleRow = memo(function ScheduleRow({
             onClick={handleUnpublish}
             className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
             title={tStatus('planner.unpublishSchedule', {
-              fallback: 'Ocultar / Borrador',
+              fallback: 'Borrador',
             })}
           >
             <Archive className="size-4" />
           </Button>
         )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleExportCSV}
+          className="text-muted-foreground hover:text-foreground hover:bg-muted"
+          title={tStatus('csv.export', { fallback: 'Exportar CSV' })}
+        >
+          <FileDown className="size-4" />
+        </Button>
         <Button asChild size="icon" variant="ghost">
           <Link
             href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
