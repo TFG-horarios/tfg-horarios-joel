@@ -621,6 +621,9 @@
       "statusLabel": "Status",
       "published": "Published",
       "draft": "Draft",
+      "conflictsLabel": "Conflicts",
+      "withConflicts": "With conflict",
+      "withoutConflicts": "Without conflict",
       "degreePlaceholder": "Degree",
       "itineraryPlaceholder": "Itinerary",
       "itineraryOptions": {
@@ -661,7 +664,8 @@
           "ERR_OVERLAP_PRACTICES": "Student overlap: Practical/problem classes cannot coincide at the same time.",
           "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
-          "ERR_RESERVATION_OVERLAP": "The physical classroom has an accepted manual reservation for this time."
+          "ERR_RESERVATION_OVERLAP": "The physical classroom has an accepted manual reservation for this time.",
+          "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts."
         },
         "globalItinerary": "Global Itinerary",
         "weeklyView": "Weekly Schedule View",
@@ -691,6 +695,7 @@
         "publish": "Publish",
         "generating": "Generating schedules...",
         "publishSuccess": "Schedule published successfully.",
+        "unpublishSuccess": "Schedule reverted to draft successfully.",
         "generateSuccess": "Schedules generated successfully."
       },
       "form": {

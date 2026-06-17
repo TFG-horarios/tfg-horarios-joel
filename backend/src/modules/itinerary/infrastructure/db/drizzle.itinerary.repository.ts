@@ -1,4 +1,4 @@
-import { eq, and, isNull, ilike, count, type SQL } from 'drizzle-orm';
+import { eq, and, isNull, isNotNull, inArray, ilike, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
@@ -7,6 +7,8 @@ import {
   type DrizzleItinerary,
   type NewDrizzleItinerary,
 } from './drizzle.itinerary.schema';
+import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import type { IItineraryRepository } from '../../domain/itinerary.repository';
 import { Itinerary } from '../../domain/itinerary.entity';
 import {
@@ -197,27 +199,103 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
   }
 
   async delete(id: string, organizationId: string): Promise<void> {
-    await this.database
-      .update(itinerariesTable)
-      .set({ deletedAt: new Date() })
-      .where(
-        and(
-          eq(itinerariesTable.id, id),
-          eq(itinerariesTable.organizationId, organizationId)
-        )
-      );
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(itinerariesTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(itinerariesTable.id, id),
+            eq(itinerariesTable.organizationId, organizationId)
+          )
+        );
+
+      const relatedSubjects = await tx
+        .select({ id: subjectsTable.id })
+        .from(subjectsTable)
+        .where(
+          and(
+            eq(subjectsTable.itineraryId, id),
+            eq(subjectsTable.organizationId, organizationId),
+            isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      if (relatedSubjects.length > 0) {
+        const subjectIds = relatedSubjects.map((s) => s.id);
+
+        await tx
+          .update(subjectsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectsTable.id, subjectIds),
+              eq(subjectsTable.organizationId, organizationId)
+            )
+          );
+
+        await tx
+          .update(subjectGroupsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectGroupsTable.subjectId, subjectIds),
+              eq(subjectGroupsTable.organizationId, organizationId),
+              isNull(subjectGroupsTable.deletedAt)
+            )
+          );
+      }
+    });
   }
 
   async deleteAll(organizationId: string): Promise<void> {
-    await this.database
-      .update(itinerariesTable)
-      .set({ deletedAt: new Date() })
-      .where(
-        and(
-          eq(itinerariesTable.organizationId, organizationId),
-          isNull(itinerariesTable.deletedAt)
-        )
-      );
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(itinerariesTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(itinerariesTable.organizationId, organizationId),
+            isNull(itinerariesTable.deletedAt)
+          )
+        );
+
+      const relatedSubjects = await tx
+        .select({ id: subjectsTable.id })
+        .from(subjectsTable)
+        .where(
+          and(
+            eq(subjectsTable.organizationId, organizationId),
+            isNotNull(subjectsTable.itineraryId),
+            isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      if (relatedSubjects.length > 0) {
+        const subjectIds = relatedSubjects.map((s) => s.id);
+
+        await tx
+          .update(subjectsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectsTable.id, subjectIds),
+              eq(subjectsTable.organizationId, organizationId)
+            )
+          );
+
+        await tx
+          .update(subjectGroupsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectGroupsTable.subjectId, subjectIds),
+              eq(subjectGroupsTable.organizationId, organizationId),
+              isNull(subjectGroupsTable.deletedAt)
+            )
+          );
+      }
+    });
   }
 
   async replace(
@@ -234,6 +312,42 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
             isNull(itinerariesTable.deletedAt)
           )
         );
+
+      const relatedSubjects = await tx
+        .select({ id: subjectsTable.id })
+        .from(subjectsTable)
+        .where(
+          and(
+            eq(subjectsTable.organizationId, organizationId),
+            isNotNull(subjectsTable.itineraryId),
+            isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      if (relatedSubjects.length > 0) {
+        const subjectIds = relatedSubjects.map((s) => s.id);
+
+        await tx
+          .update(subjectsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectsTable.id, subjectIds),
+              eq(subjectsTable.organizationId, organizationId)
+            )
+          );
+
+        await tx
+          .update(subjectGroupsTable)
+          .set({ deletedAt: new Date() })
+          .where(
+            and(
+              inArray(subjectGroupsTable.subjectId, subjectIds),
+              eq(subjectGroupsTable.organizationId, organizationId),
+              isNull(subjectGroupsTable.deletedAt)
+            )
+          );
+      }
 
       if (itineraries.length > 0) {
         const valuesToInsert = itineraries.map((i) => this.mapToPersistence(i));

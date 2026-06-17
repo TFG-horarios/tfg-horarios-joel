@@ -17,6 +17,7 @@ import {
 } from './drizzle.subject.schema';
 import type { ISubjectRepository } from '../../domain/subject.repository';
 import { Subject } from '../../domain/subject.entity';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import type {
   Shift,
   SubjectIdentifierDTO,
@@ -241,27 +242,52 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
   }
 
   async delete(id: string, organizationId: string): Promise<void> {
-    await this.database
-      .update(subjectsTable)
-      .set({ deletedAt: new Date() })
-      .where(
-        and(
-          eq(subjectsTable.id, id),
-          eq(subjectsTable.organizationId, organizationId)
-        )
-      );
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(subjectsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectsTable.id, id),
+            eq(subjectsTable.organizationId, organizationId)
+          )
+        );
+
+      await tx
+        .update(subjectGroupsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectGroupsTable.subjectId, id),
+            eq(subjectGroupsTable.organizationId, organizationId),
+            isNull(subjectGroupsTable.deletedAt)
+          )
+        );
+    });
   }
 
   async deleteAll(organizationId: string): Promise<void> {
-    await this.database
-      .update(subjectsTable)
-      .set({ deletedAt: new Date() })
-      .where(
-        and(
-          eq(subjectsTable.organizationId, organizationId),
-          isNull(subjectsTable.deletedAt)
-        )
-      );
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(subjectsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectsTable.organizationId, organizationId),
+            isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      await tx
+        .update(subjectGroupsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectGroupsTable.organizationId, organizationId),
+            isNull(subjectGroupsTable.deletedAt)
+          )
+        );
+    });
   }
 
   async replace(subjects: Subject[], organizationId: string): Promise<void> {
@@ -273,6 +299,16 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
           and(
             eq(subjectsTable.organizationId, organizationId),
             isNull(subjectsTable.deletedAt)
+          )
+        );
+
+      await tx
+        .update(subjectGroupsTable)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(subjectGroupsTable.organizationId, organizationId),
+            isNull(subjectGroupsTable.deletedAt)
           )
         );
 

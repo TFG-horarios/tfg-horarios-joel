@@ -168,7 +168,12 @@ export function SchedulePlanner({
         localSchedule.id
       );
       if (!result.success) {
-        throw new Error(result.message);
+        const errorMsg = result.message || '';
+        const translated = errorMsg.startsWith('ERR_')
+          ? t(`planner.errors.${errorMsg}` as any)
+          : errorMsg || t('planner.failedPublish');
+        toast.error(translated);
+        return;
       }
       setLocalSchedule(result.data!);
       router.refresh();

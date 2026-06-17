@@ -80,11 +80,16 @@ export const ScheduleCard = memo(function ScheduleCard({
     try {
       const result = await publishScheduleAction(organizationId, schedule.id);
       if (!result.success) {
-        throw new Error(result.message);
+        const errorMsg = result.message || '';
+        const translated = errorMsg.startsWith('ERR_')
+          ? tStatus(`planner.errors.${errorMsg}` as any)
+          : errorMsg || 'Error publishing';
+        toast.error(translated);
+        return;
       }
       toast.success(result.message);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error publishing');
+      toast.error('Error publishing');
     }
   };
 

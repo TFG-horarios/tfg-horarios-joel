@@ -1,7 +1,7 @@
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { PublishScheduleUseCase } from './publish-schedule.usecase';
 import { Schedule } from '../domain/schedule.entity';
-import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
+import { ForbiddenError, NotFoundError, ValidationError } from '@/core/errors/app.error';
 
 describe('PublishScheduleUseCase', () => {
   beforeEach(() => {
@@ -76,6 +76,23 @@ describe('PublishScheduleUseCase', () => {
     repositoryMock.findById.mockResolvedValueOnce(null);
     expect(useCase.execute('org-1', 'user-1', 'sch-1')).rejects.toThrow(
       NotFoundError
+    );
+  });
+
+  test('should throw ValidationError if schedule has active conflicts', async () => {
+    const schedule = Schedule.create({
+      organizationId: 'org-1',
+      degreeId: 'deg-1',
+      academicYearId: 'ay-1',
+      shift: 'morning',
+      courseYear: 1,
+      period: 1,
+      conflicts: 2,
+    });
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(schedule);
+    expect(useCase.execute('org-1', 'user-1', schedule.id)).rejects.toThrow(
+      'ERR_SCHEDULE_HAS_CONFLICTS'
     );
   });
 });

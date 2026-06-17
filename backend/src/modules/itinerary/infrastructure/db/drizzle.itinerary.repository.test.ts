@@ -2,8 +2,11 @@ import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleItineraryRepository } from './drizzle.itinerary.repository';
 import { Itinerary } from '../../domain/itinerary.entity';
 import { ConflictError } from '@/core/errors/app.error';
+import { eq, and, isNull } from 'drizzle-orm';
+import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
-import { seedTestDb, testOrgId, testDegreeId } from '@/tests/seed-db';
+import { seedTestDb, testOrgId, testDegreeId, testItineraryId, seedTestSubject } from '@/tests/seed-db';
 import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 
 describe('DrizzleItineraryRepository Integration', () => {
@@ -175,13 +178,47 @@ describe('DrizzleItineraryRepository Integration', () => {
   });
 
   test('should soft delete an itinerary successfully', async () => {
-    const itinerary = createValidItinerary();
-    await repository.create(itinerary);
-    await repository.delete(itinerary.id, testOrgId);
-    const foundItinerary = await repository.findById(itinerary.id, testOrgId);
+    const subjectId = 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a00';
+    await seedTestSubject(testDb, subjectId, 'SUBJ_ITIN', testItineraryId, 'Itinerary Subject');
+
+    const groupId = 'e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a00';
+    const now = new Date();
+    await testDb.insert(subjectGroupsTable).values({
+      id: groupId,
+      organizationId: testOrgId,
+      subjectId: subjectId,
+      name: 'Group ITIN',
+      groupType: 'practices',
+      shift: 'morning',
+      groupNumber: 1,
+      weeklyHours: '2',
+      numberOfStudents: 30,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await repository.delete(testItineraryId, testOrgId);
+    const foundItinerary = await repository.findById(testItineraryId, testOrgId);
     expect(foundItinerary).toBeNull();
-    const allItineraries = await repository.findAll(testOrgId);
-    expect(allItineraries.length).toBe(1);
+    const subjects = await testDb
+      .select()
+      .from(subjectsTable)
+      .where(
+        and(
+          eq(subjectsTable.id, subjectId),
+          isNull(subjectsTable.deletedAt)
+        )
+      );
+    expect(subjects.length).toBe(0);
+    const groups = await testDb
+      .select()
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.id, groupId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+    expect(groups.length).toBe(0);
   });
 
   test('should soft delete all itineraries successfully', async () => {

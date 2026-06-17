@@ -622,6 +622,9 @@
       "statusLabel": "Estado",
       "published": "Publicado",
       "draft": "Borrador",
+      "conflictsLabel": "Conflictos",
+      "withConflicts": "Con conflicto",
+      "withoutConflicts": "Sin conflicto",
       "degreePlaceholder": "Grado",
       "itineraryPlaceholder": "Itinerario",
       "itineraryOptions": {
@@ -662,7 +665,8 @@
           "ERR_OVERLAP_PRACTICES": "Solapamiento de alumnos: Las clases prácticas/problemas no pueden coincidir a la misma hora.",
           "ERR_OVERLAP_SAME_SUBJECT": "No se pueden impartir dos grupos de la misma asignatura a la vez.",
           "ERR_ROOM_OVERLAP": "El aula ya está ocupada por otra asignatura en este horario.",
-          "ERR_RESERVATION_OVERLAP": "El aula física tiene una reserva manual aceptada para este horario."
+          "ERR_RESERVATION_OVERLAP": "El aula física tiene una reserva manual aceptada para este horario.",
+          "ERR_SCHEDULE_HAS_CONFLICTS": "No se puede publicar un horario con conflictos activos."
         },
         "globalItinerary": "Itinerario Global",
         "weeklyView": "Vista Semanal",
@@ -692,6 +696,7 @@
         "publish": "Publicar",
         "generating": "Generando horarios...",
         "publishSuccess": "Horario publicado correctamente.",
+        "unpublishSuccess": "Horario despublicado correctamente.",
         "generateSuccess": "Horarios generados correctamente."
       },
       "form": {

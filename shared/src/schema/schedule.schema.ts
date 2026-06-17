@@ -57,6 +57,7 @@ export const ScheduleListQuerySchema = PaginationQuerySchema.extend({
   courseYear: z.coerce.number().int().positive().optional(),
   period: z.coerce.number().int().positive().optional(),
   status: z.enum(['draft', 'published']).optional(),
+  hasConflicts: z.enum(['true', 'false']).optional(),
 });
 
 export type ScheduleDTO = z.infer<typeof ScheduleSchema>;

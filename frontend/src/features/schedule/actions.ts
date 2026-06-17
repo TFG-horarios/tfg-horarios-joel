@@ -125,7 +125,18 @@ export async function publishScheduleAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      try {
+        const errData = (await response.json()) as Record<string, unknown>;
+        const message =
+          typeof errData.message === 'string'
+            ? errData.message
+            : tErrors('server');
+        throw new Error(message);
+      } catch (e) {
+        throw new Error(e instanceof Error ? e.message : tErrors('server'), {
+          cause: e,
+        });
+      }
     }
 
     const payload = await response.json();

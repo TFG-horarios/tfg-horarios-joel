@@ -3,11 +3,15 @@ import { DrizzleSubjectRepository } from './drizzle.subject.repository';
 import { Subject } from '../../domain/subject.entity';
 import { ConflictError } from '@/core/errors/app.error';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
+import { eq, and, isNull } from 'drizzle-orm';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import {
   seedTestDb,
   testOrgId,
   testDegreeId,
   testItineraryId,
+  testSubjectId,
+  testSubjectGroupId,
 } from '@/tests/seed-db';
 
 describe('DrizzleSubjectRepository Integration', () => {
@@ -224,13 +228,31 @@ describe('DrizzleSubjectRepository Integration', () => {
   });
 
   test('should soft delete a subject successfully', async () => {
-    const subject = createValidSubject();
-    await repository.create(subject);
-    await repository.delete(subject.id, testOrgId);
-    const foundSubject = await repository.findById(subject.id, testOrgId);
+    const beforeGroup = await testDb
+      .select()
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.id, testSubjectGroupId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+    expect(beforeGroup.length).toBe(1);
+
+    await repository.delete(testSubjectId, testOrgId);
+
+    const foundSubject = await repository.findById(testSubjectId, testOrgId);
     expect(foundSubject).toBeNull();
-    const allSubjects = await repository.findAll(testOrgId);
-    expect(allSubjects.length).toBe(1);
+    const afterGroup = await testDb
+      .select()
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.id, testSubjectGroupId),
+          isNull(subjectGroupsTable.deletedAt)
+        )
+      );
+    expect(afterGroup.length).toBe(0);
   });
 
   test('should soft delete all subjects successfully', async () => {

@@ -2,8 +2,12 @@ import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleDegreeRepository } from './drizzle.degree.repository';
 import { Degree } from '../../domain/degree.entity';
 import { ConflictError } from '@/core/errors/app.error';
+import { eq, and, isNull } from 'drizzle-orm';
+import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
+import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
-import { seedTestDb, testOrgId } from '@/tests/seed-db';
+import { seedTestDb, testOrgId, testDegreeId, seedTestSubject } from '@/tests/seed-db';
 
 describe('DrizzleDegreeRepository Integration', () => {
   let repository: DrizzleDegreeRepository;
@@ -142,13 +146,29 @@ describe('DrizzleDegreeRepository Integration', () => {
   });
 
   test('should soft delete a degree successfully', async () => {
-    const degree = createValidDegree();
-    await repository.create(degree);
-    await repository.delete(degree.id, testOrgId);
-    const foundDegree = await repository.findById(degree.id, testOrgId);
+    const beforeItinerary = await testDb
+      .select()
+      .from(itinerariesTable)
+      .where(and(eq(itinerariesTable.degreeId, testDegreeId), isNull(itinerariesTable.deletedAt)));
+    expect(beforeItinerary.length).toBeGreaterThan(0);
+    await repository.delete(testDegreeId, testOrgId);
+    const foundDegree = await repository.findById(testDegreeId, testOrgId);
     expect(foundDegree).toBeNull();
-    const allDegrees = await repository.findAll(testOrgId);
-    expect(allDegrees.length).toBe(1);
+    const afterItineraries = await testDb
+      .select()
+      .from(itinerariesTable)
+      .where(and(eq(itinerariesTable.degreeId, testDegreeId), isNull(itinerariesTable.deletedAt)));
+    expect(afterItineraries.length).toBe(0);
+    const afterSubjects = await testDb
+      .select()
+      .from(subjectsTable)
+      .where(and(eq(subjectsTable.degreeId, testDegreeId), isNull(subjectsTable.deletedAt)));
+    expect(afterSubjects.length).toBe(0);
+    const afterGroups = await testDb
+      .select()
+      .from(subjectGroupsTable)
+      .where(and(eq(subjectGroupsTable.organizationId, testOrgId), isNull(subjectGroupsTable.deletedAt)));
+    expect(afterGroups.length).toBe(0);
   });
 
   test('should soft delete all degrees successfully', async () => {

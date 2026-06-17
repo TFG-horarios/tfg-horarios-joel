@@ -6,6 +6,7 @@ import {
   count,
   type SQL,
   notInArray,
+  gt,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
@@ -160,6 +161,13 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     }
     if (filters?.status) {
       conditions.push(eq(schedulesTable.status, filters.status));
+    }
+    if (filters?.hasConflicts) {
+      if (filters.hasConflicts === 'true') {
+        conditions.push(gt(schedulesTable.conflicts, 0));
+      } else {
+        conditions.push(eq(schedulesTable.conflicts, 0));
+      }
     }
 
     const countResult = await this.database

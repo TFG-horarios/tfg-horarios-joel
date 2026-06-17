@@ -81,6 +81,12 @@ export default async function OrganizationSchedulesPage({
         rawSearchParams.status === 'published')
         ? rawSearchParams.status
         : undefined,
+    hasConflicts:
+      typeof rawSearchParams.hasConflicts === 'string' &&
+      (rawSearchParams.hasConflicts === 'true' ||
+        rawSearchParams.hasConflicts === 'false')
+        ? (rawSearchParams.hasConflicts as 'true' | 'false')
+        : undefined,
   };
 
   const t = await getTranslations('Organizations.schedules');
@@ -218,6 +224,14 @@ export default async function OrganizationSchedulesPage({
                 options={[
                   { label: t('draft'), value: 'draft' },
                   { label: t('published'), value: 'published' },
+                ]}
+              />
+              <ResourceFilterSelect
+                paramKey="hasConflicts"
+                placeholder={t('conflictsLabel')}
+                options={[
+                  { label: t('withConflicts'), value: 'true' },
+                  { label: t('withoutConflicts'), value: 'false' },
                 ]}
               />
               <ResourceFilterClear />

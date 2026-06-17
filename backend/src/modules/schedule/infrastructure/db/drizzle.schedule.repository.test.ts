@@ -98,6 +98,43 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(combinedFilters.data.length).toBe(1);
   });
 
+  test('should find schedules filtered by conflicts status', async () => {
+    const s1 = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 2,
+      period: 1,
+      itineraryId: null,
+      conflicts: 3,
+    });
+    const s2 = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'afternoon',
+      courseYear: 2,
+      period: 1,
+      itineraryId: null,
+      conflicts: 0,
+    });
+    await repository.create(s1);
+    await repository.create(s2);
+
+    const withConflicts = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'true',
+    });
+    expect(withConflicts.data.some((s) => s.id === s1.id)).toBe(true);
+    expect(withConflicts.data.some((s) => s.id === s2.id)).toBe(false);
+
+    const withoutConflicts = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'false',
+    });
+    expect(withoutConflicts.data.some((s) => s.id === s1.id)).toBe(false);
+    expect(withoutConflicts.data.some((s) => s.id === s2.id)).toBe(true);
+  });
+
   test('should update a schedule successfully', async () => {
     const schedule = createValidSchedule();
     await repository.create(schedule);

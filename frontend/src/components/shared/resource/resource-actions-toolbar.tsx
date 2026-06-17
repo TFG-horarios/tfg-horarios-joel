@@ -66,6 +66,7 @@ export function ResourceActionsToolbar({
 }: ResourceActionsToolbarProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDeleteAll = async () => {
     try {
@@ -74,6 +75,8 @@ export function ResourceActionsToolbar({
       const result = await onDeleteAll();
       if (!result.success && result.message) {
         setError(result.message);
+      } else {
+        setIsDeleteDialogOpen(false);
       }
     } catch (err) {
       console.error(err);
@@ -86,7 +89,12 @@ export function ResourceActionsToolbar({
   return (
     <TooltipProvider delayDuration={0}>
       <ResourceActions>
-        <AlertDialog>
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => {
+          setIsDeleteDialogOpen(open);
+          if (!open) {
+            setError(null);
+          }
+        }}>
           <Tooltip>
             <TooltipTrigger asChild>
               <AlertDialogTrigger asChild>
