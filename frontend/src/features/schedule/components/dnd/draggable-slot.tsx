@@ -28,6 +28,7 @@ type DraggableSlotProps = {
   classroom?: ClassroomDTO;
   degree?: DegreeDTO;
   isOverlay?: boolean;
+  subjectIdsPool?: string[];
 };
 
 export const DraggableSlot = memo(function DraggableSlot({
@@ -37,6 +38,7 @@ export const DraggableSlot = memo(function DraggableSlot({
   classroom,
   degree,
   isOverlay = false,
+  subjectIdsPool,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
@@ -80,7 +82,7 @@ export const DraggableSlot = memo(function DraggableSlot({
         cursor: isDragging ? 'grabbing' : 'grab',
       }}
       className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative
-        ${getSubjectColorClasses(subject.id)}
+        ${getSubjectColorClasses(subject.id, subjectIdsPool)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
         ${hasConflicts ? 'border-destructive border-2' : ''}
       `}
@@ -115,23 +117,23 @@ export const DraggableSlot = memo(function DraggableSlot({
       >
         <Badge
           variant="outline"
-          className="text-[9px] uppercase px-1.5 py-0 shrink-0 opacity-80 border-current/30 text-center justify-center"
+          className="text-[9px] uppercase px-1.5 py-0 shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white"
         >
           {group.groupType} {group.groupNumber}
         </Badge>
 
-        <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full">
+        <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full text-black dark:text-white">
           {subject.name}
         </span>
 
         {degree ? (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full">
+          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
             <span className="font-semibold break-words whitespace-normal leading-tight">
               {degree.name}
             </span>
           </div>
         ) : classroom ? (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full">
+          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal leading-tight">
               {classroom.name}
@@ -145,7 +147,7 @@ export const DraggableSlot = memo(function DraggableSlot({
             </span>
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-70 w-full">
+          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-70 w-full text-black dark:text-white">
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal leading-tight">
               Sin aula asignada

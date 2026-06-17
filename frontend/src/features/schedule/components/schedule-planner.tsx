@@ -51,6 +51,7 @@ type MemoizedScheduleCellProps = {
   >;
   classroomMap: Map<string, ClassroomDTO>;
   dropHereText: string;
+  subjectIdsPool: string[];
 };
 
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
@@ -59,6 +60,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   slotMetaMap,
   classroomMap,
   dropHereText,
+  subjectIdsPool,
 }: MemoizedScheduleCellProps) {
   return (
     <DroppableCell
@@ -79,6 +81,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
               subject={meta.subject}
               group={meta.group}
               classroom={classroom}
+              subjectIdsPool={subjectIdsPool}
             />
           );
         })
@@ -238,6 +241,17 @@ export function SchedulePlanner({
     });
     return map;
   }, [subjectGroups, subjects]);
+
+  const subjectIdsPool = React.useMemo(() => {
+    const presentSubjectIds = new Set<string>();
+    slots.forEach((slot) => {
+      const meta = slotMetaMap.get(slot.subjectGroupId);
+      if (meta && meta.subject) {
+        presentSubjectIds.add(meta.subject.id);
+      }
+    });
+    return Array.from(presentSubjectIds);
+  }, [slots, slotMetaMap]);
 
   const classroomMap = React.useMemo(() => {
     return new Map(classrooms.map((c) => [c.id, c]));
@@ -436,6 +450,7 @@ export function SchedulePlanner({
                 slotMetaMap={slotMetaMap}
                 classroomMap={classroomMap}
                 dropHereText={t('planner.dropHere')}
+                subjectIdsPool={subjectIdsPool}
               />
             );
           }}
@@ -457,6 +472,7 @@ export function SchedulePlanner({
                     : undefined
                 }
                 isOverlay
+                subjectIdsPool={subjectIdsPool}
               />
             </div>
           ) : null}

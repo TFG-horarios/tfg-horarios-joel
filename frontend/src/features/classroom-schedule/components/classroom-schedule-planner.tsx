@@ -41,11 +41,13 @@ type MemoizedScheduleCellProps = {
     }
   >;
   classroom: ClassroomDTO;
+  subjectIdsPool: string[];
 };
 
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   cellSlots,
   slotMetaMap,
+  subjectIdsPool,
 }: MemoizedScheduleCellProps) {
   return (
     <div className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border/50 bg-background/30 h-full min-h-22.5">
@@ -61,6 +63,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
                   subject={meta.subject}
                   group={meta.group}
                   degree={meta.degree}
+                  subjectIdsPool={subjectIdsPool}
                 />
               </div>
             </div>
@@ -131,6 +134,17 @@ export function ClassroomSchedulePlanner({
     return map;
   }, [subjectGroups, subjects, degrees]);
 
+  const subjectIdsPool = React.useMemo(() => {
+    const presentSubjectIds = new Set<string>();
+    slots.forEach((slot) => {
+      const meta = slotMetaMap.get(slot.subjectGroupId);
+      if (meta && meta.subject) {
+        presentSubjectIds.add(meta.subject.id);
+      }
+    });
+    return Array.from(presentSubjectIds);
+  }, [slots, slotMetaMap]);
+
   return (
     <div className="flex flex-col h-full space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
@@ -186,6 +200,7 @@ export function ClassroomSchedulePlanner({
               cellSlots={cellSlots}
               slotMetaMap={slotMetaMap}
               classroom={classroom}
+              subjectIdsPool={subjectIdsPool}
             />
           );
         }}
