@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { OrganizationsDashboard } from '@/features/organizations/components/organizations-dashboard';
 import { fetchOrganizations } from '@/features/organizations/queries';
 import { getSessionUser } from '@/features/auth/queries';
@@ -20,9 +21,11 @@ export default async function OrganizationsPage() {
   }
 
   return (
-    <OrganizationsDashboard
-      initialOrganizations={organizations}
-      userRolesMap={userRolesMap}
-    />
+    <Suspense>
+      <OrganizationsDashboard
+        initialOrganizations={organizations}
+        userRolesMap={userRolesMap}
+      />
+    </Suspense>
   );
 }

@@ -39,6 +39,7 @@ export const SubjectGroupIdentifierSchema = z
     groupType: z.enum(GROUP_TYPES),
     weeklyHours: z.number(),
     groupNumber: z.number(),
+    numberOfStudents: z.number(),
   })
   .openapi('SubjectGroupIdentifier');
 

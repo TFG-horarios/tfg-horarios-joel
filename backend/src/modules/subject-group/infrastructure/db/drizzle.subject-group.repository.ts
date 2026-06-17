@@ -198,6 +198,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
         groupType: subjectGroupsTable.groupType,
         weeklyHours: subjectGroupsTable.weeklyHours,
         groupNumber: subjectGroupsTable.groupNumber,
+        numberOfStudents: subjectGroupsTable.numberOfStudents,
       })
       .from(subjectGroupsTable)
       .where(
@@ -213,6 +214,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       groupType: r.groupType as GroupType,
       weeklyHours: Number(r.weeklyHours),
       groupNumber: r.groupNumber,
+      numberOfStudents: r.numberOfStudents,
     }));
   }
 

@@ -103,6 +103,7 @@ export function SubjectGroupBulkUploader({
           groupType: string;
           weeklyHours: number;
           groupNumber: number;
+          numberOfStudents: number;
         }[];
         try {
           currentIdentifiers =
@@ -271,6 +272,68 @@ export function SubjectGroupBulkUploader({
                 column: 'weeklyHours',
                 providedValue: totalCalculated.toString(),
                 message: `Las horas de los grupos (${totalCalculated}) no coinciden con la asignatura (${subject.weeklyHours})`,
+              });
+            });
+            finalValidData = finalValidData.filter((r) => {
+              const origIdx = validData.indexOf(r) + 2;
+              return !data.rows.includes(origIdx);
+            });
+          }
+        }
+
+        const studentsBySubjectType = new Map<
+          string,
+          {
+            totalStudents: number;
+            rows: number[];
+          }
+        >();
+
+        if (mode !== 'overwrite') {
+          currentIdentifiers.forEach((g) => {
+            const key = `${g.subjectId}|${g.groupType}`;
+            if (!studentsBySubjectType.has(key)) {
+              studentsBySubjectType.set(key, { totalStudents: 0, rows: [] });
+            }
+            const data = studentsBySubjectType.get(key)!;
+            data.totalStudents += g.numberOfStudents || 0;
+          });
+        }
+
+        finalValidData.forEach((row) => {
+          const subject = subjectMap.get(row.subjectCode.toLowerCase())!;
+          const key = `${subject.id}|${row.groupType}`;
+          if (!studentsBySubjectType.has(key)) {
+            studentsBySubjectType.set(key, { totalStudents: 0, rows: [] });
+          }
+          const data = studentsBySubjectType.get(key)!;
+          data.totalStudents += row.numberOfStudents || 0;
+          const originalIdx = validData.indexOf(row);
+          data.rows.push(originalIdx + 2);
+        });
+
+        for (const [key, data] of studentsBySubjectType.entries()) {
+          const subjectId = key.split('|')[0];
+          const groupType = key.split('|')[1] as GroupType;
+          const subject = subjects.find((s) => s.id === subjectId)!;
+          
+          if (data.totalStudents !== subject.numberOfStudents) {
+            const groupTypeLabels: Record<string, string> = {
+              theory: 'teoría',
+              practices: 'prácticas',
+              problems: 'problemas',
+              reduced_practices: 'prácticas reducidas',
+              tutoring: 'tutoría'
+            };
+            const label = groupTypeLabels[groupType] || groupType;
+            data.rows.forEach((rowNumber) => {
+              issues.push({
+                rowNumber,
+                category: 'validation',
+                severity: 'error',
+                column: 'numberOfStudents',
+                providedValue: data.totalStudents.toString(),
+                message: `El número de estudiantes de los grupos de ${label} (${data.totalStudents}) no coincide con el total de la asignatura (${subject.numberOfStudents})`,
               });
             });
             finalValidData = finalValidData.filter((r) => {

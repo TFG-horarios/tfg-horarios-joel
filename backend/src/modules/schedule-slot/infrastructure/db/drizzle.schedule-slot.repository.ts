@@ -24,7 +24,6 @@ import type {
   ClassroomConfigurationListQueryDTO,
   ClassroomScheduleQueryDTO,
   PaginatedResponse,
-  ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 
 export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {

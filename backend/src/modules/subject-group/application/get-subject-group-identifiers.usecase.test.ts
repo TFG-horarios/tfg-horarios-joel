@@ -39,6 +39,7 @@ describe('GetSubjectGroupIdentifiersUseCase', () => {
         groupType: 'theory' as 'theory' | 'practices',
         weeklyHours: 2,
         groupNumber: 1,
+        numberOfStudents: 50,
       },
     ];
     mockSubjectGroupRepository.findIdentifiers.mockResolvedValueOnce(

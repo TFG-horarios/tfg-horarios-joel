@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { fetchOrganizations } from '@/features/organizations/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
@@ -28,10 +29,12 @@ export default async function OrganizationDetailPage({
   }
 
   return (
-    <AcademicYearsDashboard
-      initialAcademicYears={academicYears}
-      isAdmin={isAdmin}
-      organization={organization}
-    />
+    <Suspense>
+      <AcademicYearsDashboard
+        initialAcademicYears={academicYears}
+        isAdmin={isAdmin}
+        organization={organization}
+      />
+    </Suspense>
   );
 }
