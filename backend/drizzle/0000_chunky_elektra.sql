@@ -1,6 +1,6 @@
 CREATE TYPE "public"."classroom_type" AS ENUM('theory', 'lab');--> statement-breakpoint
 CREATE TYPE "public"."shift" AS ENUM('morning', 'afternoon');--> statement-breakpoint
-CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices');--> statement-breakpoint
+CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices', 'reduced_practices', 'tutoring');--> statement-breakpoint
 CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'editor', 'viewer');--> statement-breakpoint
 CREATE TYPE "public"."period_type" AS ENUM('semester', 'trimester', 'annual');--> statement-breakpoint
@@ -109,6 +109,7 @@ CREATE TABLE "schedule_slot" (
 	"day_of_week" integer,
 	"slot_index" integer,
 	"duration" real DEFAULT 1 NOT NULL,
+	"conflicts" jsonb DEFAULT '[]'::jsonb NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

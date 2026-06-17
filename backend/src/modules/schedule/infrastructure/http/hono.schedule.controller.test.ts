@@ -18,6 +18,8 @@ describe('HonoScheduleController Integration', () => {
   const listAllMock = { execute: mock() };
   const getMock = { execute: mock() };
   const publishMock = { execute: mock() };
+  const unpublishMock = { execute: mock() };
+  const deleteMock = { execute: mock() };
   const generateMock = { execute: mock() };
   const checkOverwriteMock = { execute: mock() };
   const listSlotsMock = { execute: mock() };
@@ -29,10 +31,12 @@ describe('HonoScheduleController Integration', () => {
     listAllMock as unknown as Params[1],
     getMock as unknown as Params[2],
     publishMock as unknown as Params[3],
-    generateMock as unknown as Params[4],
-    checkOverwriteMock as unknown as Params[5],
-    listSlotsMock as unknown as Params[6],
-    updateSlotMock as unknown as Params[7]
+    unpublishMock as unknown as Params[4],
+    deleteMock as unknown as Params[5],
+    generateMock as unknown as Params[6],
+    checkOverwriteMock as unknown as Params[7],
+    listSlotsMock as unknown as Params[8],
+    updateSlotMock as unknown as Params[9]
   );
 
   const router = new OpenAPIHono<AppEnv>();

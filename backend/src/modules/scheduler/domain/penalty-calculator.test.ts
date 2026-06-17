@@ -4,10 +4,10 @@ import { PenaltyCalculator } from './penalty-calculator';
 describe('PenaltyCalculator', () => {
   test('calculates sum of penalties from all constraints', () => {
     const constraint1 = {
-      calculatePenalty: mock(() => 10),
+      calculatePenalty: mock(() => ({ penalty: 10, conflicts: [] })),
     };
     const constraint2 = {
-      calculatePenalty: mock(() => 20),
+      calculatePenalty: mock(() => ({ penalty: 20, conflicts: [] })),
     };
     const calculator = new PenaltyCalculator(
       [constraint1, constraint2],

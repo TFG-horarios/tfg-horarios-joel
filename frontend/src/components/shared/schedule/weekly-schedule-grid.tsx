@@ -7,6 +7,7 @@ export type WeeklyScheduleGridProps = {
   gridRef?: React.RefObject<HTMLDivElement | null>;
   daysOfWeek: { value: number; label: string }[];
   numSlots: number;
+  startSlotIndex?: number;
   slotTimeLabels: Record<number, string>;
   renderCell: (day: number, slotIndex: number) => React.ReactNode;
 };
@@ -15,6 +16,7 @@ export function WeeklyScheduleGrid({
   gridRef,
   daysOfWeek,
   numSlots,
+  startSlotIndex = 0,
   slotTimeLabels,
   renderCell,
 }: WeeklyScheduleGridProps) {
@@ -45,21 +47,24 @@ export function WeeklyScheduleGrid({
             ))}
           </div>
 
-          {Array.from({ length: numSlots }).map((_, idx) => (
-            <div key={idx} className="grid grid-cols-6 gap-3 min-h-22.5">
-              <div className="flex flex-col items-center justify-center p-3 bg-muted/20 border border-dashed border-border rounded-lg text-center">
-                <span className="text-xs font-semibold text-foreground font-mono">
-                  {slotTimeLabels[idx]}
-                </span>
-              </div>
+          {Array.from({ length: numSlots }).map((_, i) => {
+            const idx = startSlotIndex + i;
+            return (
+              <div key={idx} className="grid grid-cols-6 gap-3 min-h-22.5">
+                <div className="flex flex-col items-center justify-center p-3 bg-muted/20 border border-dashed border-border rounded-lg text-center">
+                  <span className="text-xs font-semibold text-foreground font-mono">
+                    {slotTimeLabels[idx]}
+                  </span>
+                </div>
 
-              {daysOfWeek.map((day) => (
-                <React.Fragment key={`${day.value}_${idx}`}>
-                  {renderCell(day.value, idx)}
-                </React.Fragment>
-              ))}
-            </div>
-          ))}
+                {daysOfWeek.map((day) => (
+                  <React.Fragment key={`${day.value}_${idx}`}>
+                    {renderCell(day.value, idx)}
+                  </React.Fragment>
+                ))}
+              </div>
+            );
+          })}
         </div>
       </ScrollArea>
     </div>

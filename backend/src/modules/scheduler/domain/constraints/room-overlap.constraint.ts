@@ -1,24 +1,43 @@
 import type {
   IScheduleConstraint,
   ConstraintContext,
+  PenaltyResult,
+  ConflictDetail,
 } from './constraint.interface';
 
 export class RoomOverlapConstraint implements IScheduleConstraint {
-  calculatePenalty(context: ConstraintContext): number {
+  calculatePenalty(context: ConstraintContext): PenaltyResult {
     let penalty = 0;
+    const conflicts: ConflictDetail[] = [];
 
     for (const classesAtThisTime of context.timeSlots.values()) {
-      const seenClassrooms = new Set<string>();
+      const roomOccupants = new Map<string, (typeof classesAtThisTime)[0]>();
       for (const assignment of classesAtThisTime) {
         if (!assignment.classroomId) continue;
 
-        if (seenClassrooms.has(assignment.classroomId)) {
+        const existingOccupant = roomOccupants.get(assignment.classroomId);
+        if (existingOccupant) {
           penalty += 1000;
+          conflicts.push({
+            type: 'ROOM_OVERLAP',
+            subjectGroupId: assignment.subjectGroupId,
+            assignmentId: assignment.id,
+            relatedSubjectGroupIds: [existingOccupant.subjectGroupId],
+            classroomId: assignment.classroomId,
+          });
+          conflicts.push({
+            type: 'ROOM_OVERLAP',
+            subjectGroupId: existingOccupant.subjectGroupId,
+            assignmentId: existingOccupant.id,
+            relatedSubjectGroupIds: [assignment.subjectGroupId],
+            classroomId: assignment.classroomId,
+          });
+        } else {
+          roomOccupants.set(assignment.classroomId, assignment);
         }
-        seenClassrooms.add(assignment.classroomId);
       }
     }
 
-    return penalty;
+    return { penalty, conflicts };
   }
 }

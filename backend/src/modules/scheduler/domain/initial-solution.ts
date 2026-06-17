@@ -215,6 +215,7 @@ export class InitialSolution {
       assignments,
       penalty: penalties.totalPenalty,
       hardPenalty: penalties.hardPenalty,
+      conflicts: penalties.conflicts,
     };
   }
 }

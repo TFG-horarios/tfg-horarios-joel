@@ -3,7 +3,13 @@
 import { memo } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Eye } from 'lucide-react';
+import {
+  Eye,
+  UploadCloud,
+  Archive,
+  FileDown,
+  AlertTriangle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import Link from 'next/link';
@@ -16,7 +22,6 @@ import {
   exportScheduleCsvAction,
 } from '../actions';
 import { toast } from 'sonner';
-import { UploadCloud, Archive, FileDown } from 'lucide-react';
 
 export const ScheduleRow = memo(function ScheduleRow({
   item: schedule,
@@ -131,6 +136,16 @@ export const ScheduleRow = memo(function ScheduleRow({
           >
             {getStatusLabel(schedule.status)}
           </Badge>
+          {schedule.conflicts > 0 && (
+            <Badge
+              variant="outline"
+              className="bg-orange-500/10 text-orange-600 border-orange-500/20 flex items-center gap-1"
+              title={t('conflictsTooltip')}
+            >
+              <AlertTriangle className="size-3" />
+              <span>{schedule.conflicts}</span>
+            </Badge>
+          )}
         </div>
       </TableCell>
       <TableCell className="font-medium">{degreeName}</TableCell>

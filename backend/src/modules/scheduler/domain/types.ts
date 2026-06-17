@@ -1,4 +1,5 @@
 import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+import type { ConflictDetail } from './constraints/constraint.interface';
 
 export interface Assignment {
   id: string;
@@ -16,12 +17,14 @@ export interface Assignment {
   slotIndex: number | null;
   duration: number;
   isLocked?: boolean;
+  conflicts?: ConflictDetail[];
 }
 
 export interface Solution {
   assignments: Assignment[];
   penalty: number;
   hardPenalty: number;
+  conflicts: ConflictDetail[];
 }
 
 export interface ClassroomMap {

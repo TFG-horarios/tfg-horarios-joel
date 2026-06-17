@@ -1,5 +1,31 @@
 import { z } from '@hono/zod-openapi';
 
+// TODO: Añadir todas las restricciones duras para el manejo de conflictos
+export const ScheduleConflictTypeSchema = z.enum([
+  'ROOM_OVERLAP',
+  'COURSE_OVERLAP',
+  'ROOM_CAPACITY',
+  'SHIFT_MORNING',
+  'SHIFT_AFTERNOON',
+  'SHIFT_EXCEEDS_DAY',
+  'UNASSIGNED',
+]);
+
+export type ScheduleConflictType = z.infer<typeof ScheduleConflictTypeSchema>;
+
+export const ScheduleConflictDetailSchema = z.object({
+  type: ScheduleConflictTypeSchema,
+  message: z.string().optional(),
+  subjectGroupId: z.string().uuid().optional(),
+  assignmentId: z.string().uuid().optional(),
+  classroomId: z.string().uuid().optional(),
+  relatedSubjectGroupIds: z.array(z.string().uuid()).optional(),
+});
+
+export type ScheduleConflictDetailDTO = z.infer<
+  typeof ScheduleConflictDetailSchema
+>;
+
 export const ScheduleSlotSchema = z
   .object({
     id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174005' }),
@@ -22,6 +48,10 @@ export const ScheduleSlotSchema = z
       .openapi({ example: 1 }),
     slotIndex: z.number().int().min(0).nullable().openapi({ example: 0 }),
     duration: z.number().positive().default(1).openapi({ example: 1.5 }),
+    conflicts: z
+      .array(ScheduleConflictDetailSchema)
+      .default([])
+      .openapi({ example: [] }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
   })

@@ -3,6 +3,7 @@ import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
   Shift,
+  ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 import type { ScheduleEngineAssignment } from './schedule-engine.provider';
 
@@ -13,6 +14,7 @@ export interface CreateScheduleSlotInput {
   dayOfWeek: number | null;
   slotIndex: number | null;
   duration: number;
+  conflicts: ScheduleConflictDetailDTO[];
 }
 
 export interface IScheduleRepository {

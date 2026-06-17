@@ -5,11 +5,13 @@ import {
   timestamp,
   uniqueIndex,
   real,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { schedulesTable } from '@/modules/schedule/infrastructure/db/drizzle.schedule.schema';
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { classroomsTable } from '@/modules/classroom/infrastructure/db/drizzle.classroom.schema';
 import { sql } from 'drizzle-orm';
+import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
 
 export const scheduleSlotsTable = pgTable(
   'schedule_slot',
@@ -27,6 +29,10 @@ export const scheduleSlotsTable = pgTable(
     dayOfWeek: integer('day_of_week'),
     slotIndex: integer('slot_index'),
     duration: real('duration').notNull().default(1),
+    conflicts: jsonb('conflicts')
+      .$type<ScheduleConflictDetailDTO[]>()
+      .default([])
+      .notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()

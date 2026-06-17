@@ -13,12 +13,14 @@ describe('TabuSearchEngine', () => {
     hardPenalty: 0,
     softPenalty: 0,
     totalPenalty: 0,
+    conflicts: [],
   });
 
   const generateSpy = spyOn(initialGen, 'generate').mockImplementation(() => ({
     assignments: [],
     penalty: 0,
     hardPenalty: 0,
+    conflicts: [],
   }));
 
   const randomGen: IRandomGenerator = {
@@ -31,12 +33,18 @@ describe('TabuSearchEngine', () => {
     initialGen,
     ['c-1'],
     {},
+    6,
     12,
     randomGen
   );
 
   test('returns initial solution if penalty is 0', () => {
-    const sol: Solution = { assignments: [], penalty: 0, hardPenalty: 0 };
+    const sol: Solution = {
+      assignments: [],
+      penalty: 0,
+      hardPenalty: 0,
+      conflicts: [],
+    };
     generateSpy.mockReturnValueOnce(sol);
     const result = engine.run([]);
     expect(result).toBe(sol);
@@ -64,12 +72,14 @@ describe('TabuSearchEngine', () => {
       ],
       penalty: 100,
       hardPenalty: 100,
+      conflicts: [],
     };
     generateSpy.mockReturnValueOnce(initialSol);
     evaluateSpy.mockReturnValue({
       hardPenalty: 50,
       softPenalty: 0,
       totalPenalty: 50,
+      conflicts: [],
     });
     const result = engine.run([]);
     expect(result.penalty).toBe(50);

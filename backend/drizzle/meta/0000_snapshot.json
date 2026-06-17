@@ -1,5 +1,5 @@
 {
-  "id": "91fbd0e4-6a34-4099-bfbb-794cdd3c560c",
+  "id": "bbeb2011-c382-4cd4-8bae-5a83a2e482f3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1055,6 +1055,13 @@
           "notNull": true,
           "default": 1
         },
+        "conflicts": {
+          "name": "conflicts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1563,7 +1570,9 @@
       "values": [
         "theory",
         "problems",
-        "practices"
+        "practices",
+        "reduced_practices",
+        "tutoring"
       ]
     },
     "public.schedule_status": {

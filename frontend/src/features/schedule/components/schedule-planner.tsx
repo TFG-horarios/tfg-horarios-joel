@@ -114,9 +114,42 @@ export function SchedulePlanner({
   const [localSchedule, setLocalSchedule] = useState<ScheduleDTO>(schedule);
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
-  const { slotTimeLabels, numSlots } = useScheduleGrid(
+
+  const parseTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return (hours || 0) * 60 + (minutes || 0);
+  };
+
+  const maxMorningSlots = Math.floor(
+    (parseTime(academicYear.morningEnd) -
+      parseTime(academicYear.morningStart)) /
+      academicYear.slotDurationMinutes
+  );
+
+  const effectiveShift = React.useMemo(() => {
+    if (!localSchedule.shift) return 'global';
+
+    const assignedSlots = slots
+      .filter((s) => s.slotIndex !== null)
+      .map((s) => s.slotIndex!);
+    if (assignedSlots.length === 0) return localSchedule.shift;
+
+    const maxSlot = Math.max(...assignedSlots);
+    const minSlot = Math.min(...assignedSlots);
+
+    if (localSchedule.shift === 'morning' && maxSlot >= maxMorningSlots) {
+      return 'global';
+    }
+    if (localSchedule.shift === 'afternoon' && minSlot < maxMorningSlots) {
+      return 'global';
+    }
+
+    return localSchedule.shift;
+  }, [localSchedule.shift, slots, maxMorningSlots]);
+
+  const { slotTimeLabels, numSlots, startSlotIndex } = useScheduleGrid(
     academicYear,
-    localSchedule.shift || 'global'
+    effectiveShift
   );
 
   const daysOfWeek = [
@@ -385,6 +418,7 @@ export function SchedulePlanner({
           gridRef={gridRef}
           daysOfWeek={daysOfWeek}
           numSlots={numSlots}
+          startSlotIndex={startSlotIndex}
           slotTimeLabels={slotTimeLabels}
           renderCell={(day, slotIndex) => {
             const cellId = `time_${day}_${slotIndex}`;

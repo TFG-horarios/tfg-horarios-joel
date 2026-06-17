@@ -27,6 +27,7 @@ export class TabuSearchEngine {
     private readonly initialSolutionGen: InitialSolution,
     private readonly availableClassrooms: string[],
     private readonly classroomsCache: ClassroomMap,
+    private readonly maxMorningSlots: number,
     private readonly maxSlotsPerDay: number,
     private readonly random: IRandomGenerator
   ) {}
@@ -66,7 +67,25 @@ export class TabuSearchEngine {
 
         if (isTimeMove) {
           mutated.dayOfWeek = this.random.randomInt(5) + 1;
-          mutated.slotIndex = this.random.randomInt(this.maxSlotsPerDay);
+
+          const spannedSlots = Math.ceil(original.duration) - 1;
+
+          if (original.shift === 'morning') {
+            mutated.slotIndex = this.random.randomInt(
+              this.maxMorningSlots - spannedSlots
+            );
+          } else if (original.shift === 'afternoon') {
+            mutated.slotIndex =
+              this.maxMorningSlots +
+              this.random.randomInt(
+                this.maxSlotsPerDay - this.maxMorningSlots - spannedSlots
+              );
+          } else {
+            mutated.slotIndex = this.random.randomInt(
+              this.maxSlotsPerDay - spannedSlots
+            );
+          }
+
           tabuAttribute = 'time';
           forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}`;
         } else {
@@ -99,6 +118,7 @@ export class TabuSearchEngine {
           assignments: currentSolution.assignments,
           penalty: penalties.totalPenalty,
           hardPenalty: penalties.hardPenalty,
+          conflicts: penalties.conflicts,
         };
 
         const isTabu = tabuList.some(
@@ -119,6 +139,7 @@ export class TabuSearchEngine {
               assignments: [...currentSolution.assignments],
               penalty: neighbor.penalty,
               hardPenalty: neighbor.hardPenalty,
+              conflicts: neighbor.conflicts,
             };
             bestMoveData = {
               assignmentId: mutated.id,

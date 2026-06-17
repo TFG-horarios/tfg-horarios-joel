@@ -11,6 +11,7 @@ export class ScheduleSlotMapper {
       dayOfWeek: slot.dayOfWeek ?? null,
       slotIndex: slot.slotIndex ?? null,
       duration: slot.duration,
+      conflicts: slot.conflicts,
       createdAt: slot.createdAt.toISOString(),
       updatedAt: slot.updatedAt.toISOString(),
     };

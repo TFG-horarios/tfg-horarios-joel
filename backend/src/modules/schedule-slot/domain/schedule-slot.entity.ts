@@ -1,3 +1,5 @@
+import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
+
 export interface ScheduleSlotProps {
   id: string;
   scheduleId: string;
@@ -6,6 +8,7 @@ export interface ScheduleSlotProps {
   dayOfWeek: number | null;
   slotIndex: number | null;
   duration: number;
+  conflicts: ScheduleConflictDetailDTO[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,11 +25,13 @@ export class ScheduleSlot {
       | 'classroomId'
       | 'dayOfWeek'
       | 'slotIndex'
+      | 'conflicts'
     > & {
       id?: string;
       classroomId?: string | null;
       dayOfWeek?: number | null;
       slotIndex?: number | null;
+      conflicts?: ScheduleConflictDetailDTO[];
     }
   ): ScheduleSlot {
     return new ScheduleSlot({
@@ -36,6 +41,7 @@ export class ScheduleSlot {
       dayOfWeek: props.dayOfWeek ?? null,
       slotIndex: props.slotIndex ?? null,
       duration: props.duration ?? 1,
+      conflicts: props.conflicts ?? [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -53,6 +59,7 @@ export class ScheduleSlot {
     this.props.classroomId = classroomId;
     this.props.dayOfWeek = dayOfWeek;
     this.props.slotIndex = slotIndex;
+    this.props.conflicts = [];
     this.props.updatedAt = new Date();
   }
 
@@ -76,6 +83,9 @@ export class ScheduleSlot {
   }
   get duration() {
     return this.props.duration;
+  }
+  get conflicts() {
+    return this.props.conflicts;
   }
   get createdAt() {
     return this.props.createdAt;

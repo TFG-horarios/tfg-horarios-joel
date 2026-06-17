@@ -24,6 +24,7 @@ import type {
   ClassroomConfigurationListQueryDTO,
   ClassroomScheduleQueryDTO,
   PaginatedResponse,
+  ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 
 export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
@@ -38,6 +39,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       dayOfWeek: row.dayOfWeek,
       slotIndex: row.slotIndex,
       duration: row.duration,
+      conflicts: row.conflicts,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -52,6 +54,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       dayOfWeek: domain.dayOfWeek,
       slotIndex: domain.slotIndex,
       duration: domain.duration,
+      conflicts: domain.conflicts,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
     };
@@ -298,6 +301,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
           dayOfWeek: rawData.dayOfWeek,
           slotIndex: rawData.slotIndex,
           duration: rawData.duration,
+          conflicts: rawData.conflicts,
           updatedAt: rawData.updatedAt,
         })
         .where(eq(scheduleSlotsTable.id, slot.id));

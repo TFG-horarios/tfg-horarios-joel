@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin } from 'lucide-react';
+import { MapPin, TriangleAlert } from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -13,6 +13,13 @@ import {
   type DegreeDTO,
 } from '@tfg-horarios/shared';
 import { getSubjectColorClasses } from '@/lib/subject-colors';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 type DraggableSlotProps = {
   slot: ScheduleSlotDTO;
@@ -36,6 +43,30 @@ export const DraggableSlot = memo(function DraggableSlot({
     data: { slot, subject, group },
   });
 
+  const t = useTranslations('Organizations.schedules.planner.errors');
+  const hasConflicts = slot.conflicts && slot.conflicts.length > 0;
+
+  const getConflictMessage = (type: string) => {
+    switch (type) {
+      case 'ROOM_OVERLAP':
+        return t('ERR_ROOM_OVERLAP');
+      case 'COURSE_OVERLAP':
+        return t('ERR_OVERLAP_SAME_SUBJECT');
+      case 'ROOM_CAPACITY':
+        return t('ERR_ROOM_CAPACITY');
+      case 'SHIFT_MORNING':
+        return t('ERR_SHIFT_MORNING');
+      case 'SHIFT_AFTERNOON':
+        return t('ERR_SHIFT_AFTERNOON');
+      case 'SHIFT_EXCEEDS_DAY':
+        return t('ERR_SHIFT_EXCEEDS_DAY');
+      case 'SHIFT':
+        return t('ERR_SHIFT_EXCEEDS_DAY');
+      default:
+        return 'Conflicto detectado';
+    }
+  };
+
   return (
     <Card
       ref={ref}
@@ -48,11 +79,36 @@ export const DraggableSlot = memo(function DraggableSlot({
         zIndex: isOverlay ? 9999 : 20,
         cursor: isDragging ? 'grabbing' : 'grab',
       }}
-      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col
+      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative
         ${getSubjectColorClasses(subject.id)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
+        ${hasConflicts ? 'border-destructive border-2' : ''}
       `}
     >
+      {hasConflicts && (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md z-30 cursor-help">
+                <TriangleAlert className="size-3" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
+              <p className="font-semibold text-[10px] uppercase text-destructive-foreground/80 mb-1 border-b border-destructive-foreground/20 pb-1">
+                Conflictos
+              </p>
+              {slot.conflicts.map((conflict, idx) => (
+                <div key={idx} className="flex gap-1.5 items-start">
+                  <span className="mt-0.5">•</span>
+                  <span className="text-xs leading-tight">
+                    {getConflictMessage(conflict.type)}
+                  </span>
+                </div>
+              ))}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <CardContent
         ref={handleRef}
         className="p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full cursor-grab active:cursor-grabbing outline-none text-center"

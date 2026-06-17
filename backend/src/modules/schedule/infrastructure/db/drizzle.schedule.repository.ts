@@ -234,6 +234,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       dayOfWeek: domain.dayOfWeek,
       slotIndex: domain.slotIndex,
       duration: domain.duration,
+      conflicts: domain.conflicts,
       createdAt: now,
       updatedAt: now,
     };

@@ -1,4 +1,9 @@
-import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+import type {
+  GroupType,
+  ClassroomType,
+  Shift,
+  ScheduleConflictType,
+} from '@tfg-horarios/shared';
 
 export interface ScheduleEngineGroupData {
   subjectGroupId: string;
@@ -21,6 +26,15 @@ export interface ScheduleEngineClassroomMap {
   };
 }
 
+export interface ScheduleEngineConflictDetail {
+  type: ScheduleConflictType;
+  subjectGroupId: string;
+  assignmentId?: string;
+  relatedSubjectGroupIds?: string[];
+  classroomId?: string;
+  message?: string;
+}
+
 export interface ScheduleEngineAssignment {
   id: string;
   subjectGroupId: string;
@@ -37,6 +51,7 @@ export interface ScheduleEngineAssignment {
   slotIndex: number | null;
   duration: number;
   isLocked?: boolean;
+  conflicts?: ScheduleEngineConflictDetail[];
 }
 
 export interface ScheduleEngineSolution {

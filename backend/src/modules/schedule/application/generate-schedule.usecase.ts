@@ -272,6 +272,30 @@ export class GenerateScheduleUseCase {
           sData.shift
         );
 
+        const scopeSubjectGroupIds = new Set(
+          sData.assignments.map((a) => a.subjectGroupId)
+        );
+        const scopeAssignmentsWithFilteredConflicts = sData.assignments.map(
+          (asm) => {
+            const filteredConflicts =
+              asm.conflicts?.filter((c) => {
+                if (c.type === 'COURSE_OVERLAP' && c.relatedSubjectGroupIds) {
+                  return c.relatedSubjectGroupIds.some((id) =>
+                    scopeSubjectGroupIds.has(id)
+                  );
+                }
+                return true;
+              }) || [];
+            return { ...asm, conflicts: filteredConflicts };
+          }
+        );
+
+        const scheduleConflictsCount =
+          scopeAssignmentsWithFilteredConflicts.reduce(
+            (acc, asm) => acc + asm.conflicts.length,
+            0
+          );
+
         const schedule =
           existingSchedule ||
           Schedule.create({
@@ -283,24 +307,22 @@ export class GenerateScheduleUseCase {
             period: period,
             shift: sData.shift,
             status: 'draft',
+            conflicts: scheduleConflictsCount,
           });
 
         if (existingSchedule) {
           schedule.markAsDraft();
+          schedule.updateConflicts(scheduleConflictsCount);
         }
 
-        const slots = sData.assignments.map((asm) => ({
+        const slots = scopeAssignmentsWithFilteredConflicts.map((asm) => ({
           scheduleId: schedule.id,
           subjectGroupId: asm.subjectGroupId,
           classroomId: asm.classroomId,
           dayOfWeek: asm.dayOfWeek,
-          slotIndex:
-            asm.slotIndex !== null
-              ? sData.shift === 'afternoon'
-                ? asm.slotIndex - maxMorningSlots
-                : asm.slotIndex
-              : null,
+          slotIndex: asm.slotIndex,
           duration: asm.duration,
+          conflicts: asm.conflicts,
         }));
 
         schedulesToPersist.push({ schedule, slots });

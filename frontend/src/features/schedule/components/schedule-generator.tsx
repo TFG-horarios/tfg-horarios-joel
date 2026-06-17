@@ -268,29 +268,31 @@ export function ScheduleGenerator({
                     <AlertDialogTitle>
                       {t('form.overwriteTitle')}
                     </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <span className="block mb-2 font-medium text-foreground">
-                        Se van a sobrescribir los siguientes horarios:
-                      </span>
-                      <ul className="list-disc list-inside space-y-1 text-sm max-h-40 overflow-y-auto">
-                        {overwrittenSchedules.map((s) => {
-                          const degree = degrees.find(
-                            (d) => d.id === s.degreeId
-                          );
-                          const degreeName = degree
-                            ? degree.code
-                            : 'Desconocido';
-                          return (
-                            <li key={s.id}>
-                              {degreeName} (Año {s.courseYear}, Período{' '}
-                              {s.period})
-                            </li>
-                          );
-                        })}
-                      </ul>
-                      <span className="block mt-4">
-                        {t('form.overwriteWarning')}
-                      </span>
+                    <AlertDialogDescription asChild>
+                      <div>
+                        <span className="block mb-2 font-medium text-foreground">
+                          Se van a sobrescribir los siguientes horarios:
+                        </span>
+                        <ul className="list-disc list-inside space-y-1 text-sm max-h-40 overflow-y-auto">
+                          {overwrittenSchedules.map((s) => {
+                            const degree = degrees.find(
+                              (d) => d.id === s.degreeId
+                            );
+                            const degreeName = degree
+                              ? degree.code
+                              : 'Desconocido';
+                            return (
+                              <li key={s.id}>
+                                {degreeName} (Año {s.courseYear}, Período{' '}
+                                {s.period})
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        <span className="block mt-4">
+                          {t('form.overwriteWarning')}
+                        </span>
+                      </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

@@ -71,11 +71,32 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       initialSolutionGen,
       availableClassrooms,
       classroomsCache,
+      maxMorningSlots,
       maxSlotsPerDay,
       randomGenerator
     );
 
     const solution = tabuEngine.run(groupsData, lockedAssignments);
+
+    const assignmentsMap = new Map<string, ScheduleEngineAssignment>();
+    for (const assignment of solution.assignments) {
+      assignment.conflicts = [];
+      assignmentsMap.set(assignment.id, assignment);
+    }
+
+    if (solution.conflicts) {
+      for (const conflict of solution.conflicts) {
+        const target = conflict.assignmentId
+          ? assignmentsMap.get(conflict.assignmentId)
+          : solution.assignments.find(
+              (a) => a.subjectGroupId === conflict.subjectGroupId
+            );
+        if (target) {
+          target.conflicts!.push(conflict);
+        }
+      }
+    }
+
     self.postMessage({ type: 'SUCCESS', payload: solution });
   } catch (error) {
     self.postMessage({

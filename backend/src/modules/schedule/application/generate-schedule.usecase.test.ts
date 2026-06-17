@@ -74,6 +74,7 @@ describe('GenerateScheduleUseCase', () => {
       ],
       unassigned: [],
     });
+    repositoryMock.findLockedAssignments.mockResolvedValueOnce([]);
     repositoryMock.findByScope.mockResolvedValueOnce(null);
     const result = await useCase.execute('org-1', 'user-1', {
       academicYearId: 'ay-1',

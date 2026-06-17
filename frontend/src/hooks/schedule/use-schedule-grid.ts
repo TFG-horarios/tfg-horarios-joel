@@ -20,6 +20,21 @@ export function useScheduleGrid(
     return `${h}:${m}`;
   };
 
+  const maxMorningSlots = useMemo(() => {
+    const morningStart = parseTime(academicYear.morningStart);
+    const morningEnd = parseTime(academicYear.morningEnd);
+    return Math.floor(
+      (morningEnd - morningStart) / academicYear.slotDurationMinutes
+    );
+  }, [academicYear]);
+
+  const startSlotIndex = useMemo(() => {
+    if (shift === 'afternoon') {
+      return maxMorningSlots;
+    }
+    return 0;
+  }, [shift, maxMorningSlots]);
+
   const slotTimeLabels = useMemo(() => {
     let startMins;
     let endMins;
@@ -43,14 +58,16 @@ export function useScheduleGrid(
     for (let i = 0; i < count; i++) {
       const slotStart = startMins + i * academicYear.slotDurationMinutes;
       const slotEnd = slotStart + academicYear.slotDurationMinutes;
-      labels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+      labels[startSlotIndex + i] =
+        `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
     }
     return labels;
-  }, [academicYear, shift]);
+  }, [academicYear, shift, startSlotIndex]);
 
   const numSlots = Object.keys(slotTimeLabels).length;
 
   return {
+    startSlotIndex,
     slotTimeLabels,
     numSlots,
   };

@@ -1,3 +1,4 @@
+import type { ScheduleConflictType } from '@tfg-horarios/shared';
 import type { Assignment, ClassroomMap } from '../types';
 
 export class ConstraintContext {
@@ -40,6 +41,20 @@ export class ConstraintContext {
   }
 }
 
+export interface ConflictDetail {
+  type: ScheduleConflictType;
+  message?: string;
+  subjectGroupId?: string;
+  assignmentId?: string;
+  classroomId?: string;
+  relatedSubjectGroupIds?: string[];
+}
+
+export interface PenaltyResult {
+  penalty: number;
+  conflicts: ConflictDetail[];
+}
+
 export interface IScheduleConstraint {
-  calculatePenalty(context: ConstraintContext): number;
+  calculatePenalty(context: ConstraintContext): PenaltyResult;
 }

@@ -14,6 +14,7 @@ describe('ScheduleSlotMapper', () => {
       dayOfWeek: 1,
       slotIndex: 0,
       duration: 2,
+      conflicts: [],
       createdAt: date,
       updatedAt: date,
     });
@@ -26,6 +27,7 @@ describe('ScheduleSlotMapper', () => {
       dayOfWeek: 1,
       slotIndex: 0,
       duration: 2,
+      conflicts: [],
       createdAt: date.toISOString(),
       updatedAt: date.toISOString(),
     });
