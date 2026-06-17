@@ -63,6 +63,18 @@ export const getScheduleRoute = createRoute({
   },
 });
 
+export const deleteScheduleRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/schedules/{id}',
+  request: { params: ScheduleIdParamSchema },
+  responses: {
+    204: { description: 'Schedule deleted successfully' },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Schedule not found' },
+  },
+});
+
 export const publishScheduleRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/schedules/{id}/publish',
@@ -70,6 +82,21 @@ export const publishScheduleRoute = createRoute({
   responses: {
     200: {
       description: 'Schedule published successfully',
+      content: { 'application/json': { schema: ScheduleSchema } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Schedule not found' },
+  },
+});
+
+export const unpublishScheduleRoute = createRoute({
+  method: 'patch',
+  path: '/organizations/{organizationId}/schedules/{id}/unpublish',
+  request: { params: ScheduleIdParamSchema },
+  responses: {
+    200: {
+      description: 'Schedule unpublished successfully',
       content: { 'application/json': { schema: ScheduleSchema } },
     },
     400: { description: 'Bad request' },

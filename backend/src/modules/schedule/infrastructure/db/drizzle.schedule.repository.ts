@@ -341,4 +341,15 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       isLocked: true,
     }));
   }
+
+  async delete(id: string, organizationId: string): Promise<void> {
+    await this.database
+      .delete(schedulesTable)
+      .where(
+        and(
+          eq(schedulesTable.id, id),
+          eq(schedulesTable.organizationId, organizationId)
+        )
+      );
+  }
 }

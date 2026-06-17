@@ -137,6 +137,40 @@ export async function publishScheduleAction(
   }
 }
 
+export async function unpublishScheduleAction(
+  organizationId: string,
+  scheduleId: string
+): Promise<ActionResponse<ScheduleDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.schedules[':id']!.unpublish.$patch({
+      param: { organizationId, id: scheduleId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const schedule = ScheduleSchema.parse(payload);
+
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+    revalidatePath(`/organizations/${organizationId}/schedules/${scheduleId}`);
+
+    return { success: true, message: tSuccess('updated'), data: schedule };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
 export async function updateScheduleSlotAction(
   organizationId: string,
   slotId: string,
@@ -179,6 +213,37 @@ export async function updateScheduleSlotAction(
     revalidatePath(`/organizations/${organizationId}`, 'layout');
 
     return { success: true, data: slot };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function deleteScheduleAction(
+  organizationId: string,
+  scheduleId: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.schedules[':id']!.$delete({
+      param: { organizationId, id: scheduleId },
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+    revalidatePath(`/organizations/${organizationId}/schedules`);
+
+    return { success: true, message: tSuccess('deleted') };
   } catch (error) {
     return {
       success: false,

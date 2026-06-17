@@ -13,6 +13,8 @@ import { ListSchedulesUseCase } from './application/list-schedules.usecase';
 import { ListAllSchedulesUseCase } from './application/list-all-schedules.usecase';
 import { GetScheduleUseCase } from './application/get-schedule.usecase';
 import { PublishScheduleUseCase } from './application/publish-schedule.usecase';
+import { UnpublishScheduleUseCase } from './application/unpublish-schedule.usecase';
+import { DeleteScheduleUseCase } from './application/delete-schedule.usecase';
 import { GenerateScheduleUseCase } from './application/generate-schedule.usecase';
 import { CheckScheduleOverwriteUseCase } from './application/check-schedule-overwrite.usecase';
 import { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
@@ -31,6 +33,8 @@ import {
   generateScheduleRoute,
   checkOverwriteScheduleRoute,
   listAllSchedulesRoute,
+  deleteScheduleRoute,
+  unpublishScheduleRoute,
 } from './infrastructure/http/hono.schedule.routes';
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
@@ -74,6 +78,8 @@ export const createScheduleModule = (db: DbConnection) => {
     new ListAllSchedulesUseCase(scheduleRepository, memberProvider),
     new GetScheduleUseCase(scheduleRepository, memberProvider),
     new PublishScheduleUseCase(scheduleRepository, memberProvider),
+    new UnpublishScheduleUseCase(scheduleRepository, memberProvider),
+    new DeleteScheduleUseCase(scheduleRepository, memberProvider),
     new GenerateScheduleUseCase(
       scheduleRepository,
       dataProvider,
@@ -100,6 +106,8 @@ export const createScheduleModule = (db: DbConnection) => {
     .openapi(listSchedulesRoute, controller.list)
     .openapi(getScheduleRoute, controller.get)
     .openapi(publishScheduleRoute, controller.publish)
+    .openapi(unpublishScheduleRoute, controller.unpublish)
+    .openapi(deleteScheduleRoute, controller.delete)
     .openapi(generateScheduleRoute, controller.generate)
     .openapi(checkOverwriteScheduleRoute, controller.checkOverwrite)
     .openapi(listScheduleSlotsRoute, controller.listSlots)

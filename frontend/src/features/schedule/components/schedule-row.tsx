@@ -9,6 +9,9 @@ import { ResourceRowActions } from '@/components/shared/resource/resource-row-ac
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ScheduleCardProps } from './schedule-card';
+import { publishScheduleAction, unpublishScheduleAction, deleteScheduleAction } from '../actions';
+import { toast } from 'sonner';
+import { UploadCloud, Archive } from 'lucide-react';
 
 export const ScheduleRow = memo(function ScheduleRow({
   item: schedule,
@@ -38,6 +41,46 @@ export const ScheduleRow = memo(function ScheduleRow({
     return translations[status] || status;
   };
 
+  const handlePublish = async () => {
+    try {
+      const result = await publishScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error publishing');
+    }
+  };
+
+  const handleUnpublish = async () => {
+    try {
+      const result = await unpublishScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error unpublishing');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const result = await deleteScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        toast.error(result.message || 'Error deleting');
+        return { success: false, message: result.message };
+      }
+      toast.success(result.message);
+      return { success: true, message: result.message };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error deleting';
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
   return (
     <TableRow>
       <TableCell>
@@ -60,9 +103,30 @@ export const ScheduleRow = memo(function ScheduleRow({
       <TableCell>{schedule.period}</TableCell>
       <TableCell className="capitalize">{schedule.shift || 'Global'}</TableCell>
       <ResourceRowActions
-        onEdit={() => console.log('Edit', schedule.id)}
-        onDelete={() => console.log('Delete', schedule.id)}
+        onDelete={handleDelete}
+        itemName={t('scheduleItemName', { name: degreeName })}
       >
+        {schedule.status === 'draft' ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handlePublish}
+            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+            title={tStatus('planner.publishSchedule')}
+          >
+            <UploadCloud className="size-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleUnpublish}
+            className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+            title={tStatus('planner.unpublishSchedule', { fallback: 'Ocultar / Borrador' })}
+          >
+            <Archive className="size-4" />
+          </Button>
+        )}
         <Button asChild size="icon" variant="ghost">
           <Link
             href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}

@@ -42,4 +42,5 @@ export interface IScheduleRepository {
     period: number,
     excludeScheduleIds: string[]
   ): Promise<ScheduleEngineAssignment[]>;
+  delete(id: string, organizationId: string): Promise<void>;
 }

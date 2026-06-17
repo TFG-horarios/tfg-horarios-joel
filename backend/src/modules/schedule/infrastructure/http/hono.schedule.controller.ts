@@ -9,11 +9,15 @@ import type {
   generateScheduleRoute,
   checkOverwriteScheduleRoute,
   listAllSchedulesRoute,
+  deleteScheduleRoute,
+  unpublishScheduleRoute,
 } from './hono.schedule.routes';
 import type { ListSchedulesUseCase } from '../../application/list-schedules.usecase';
 import type { ListAllSchedulesUseCase } from '../../application/list-all-schedules.usecase';
 import type { GetScheduleUseCase } from '../../application/get-schedule.usecase';
 import type { PublishScheduleUseCase } from '../../application/publish-schedule.usecase';
+import type { UnpublishScheduleUseCase } from '../../application/unpublish-schedule.usecase';
+import type { DeleteScheduleUseCase } from '../../application/delete-schedule.usecase';
 import type { GenerateScheduleUseCase } from '../../application/generate-schedule.usecase';
 import type { CheckScheduleOverwriteUseCase } from '../../application/check-schedule-overwrite.usecase';
 import type { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
@@ -25,6 +29,8 @@ export class HonoScheduleController {
     private readonly listAllUseCase: ListAllSchedulesUseCase,
     private readonly getScheduleUseCase: GetScheduleUseCase,
     private readonly publishScheduleUseCase: PublishScheduleUseCase,
+    private readonly unpublishScheduleUseCase: UnpublishScheduleUseCase,
+    private readonly deleteScheduleUseCase: DeleteScheduleUseCase,
     private readonly generateScheduleUseCase: GenerateScheduleUseCase,
     private readonly checkScheduleOverwriteUseCase: CheckScheduleOverwriteUseCase,
     private readonly listScheduleSlotsUseCase: ListScheduleSlotsUseCase,
@@ -72,6 +78,28 @@ export class HonoScheduleController {
       id
     );
     return c.json(publishedSchedule, 200);
+  };
+
+  unpublish: RouteHandler<typeof unpublishScheduleRoute, AppEnv> = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const requesterUserId = c.get('userId');
+    const unpublishedSchedule = await this.unpublishScheduleUseCase.execute(
+      organizationId,
+      requesterUserId,
+      id
+    );
+    return c.json(unpublishedSchedule, 200);
+  };
+
+  delete: RouteHandler<typeof deleteScheduleRoute, AppEnv> = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const requesterUserId = c.get('userId');
+    await this.deleteScheduleUseCase.execute(
+      organizationId,
+      requesterUserId,
+      id
+    );
+    return c.body(null, 204);
   };
 
   listSlots: RouteHandler<typeof listScheduleSlotsRoute, AppEnv> = async (

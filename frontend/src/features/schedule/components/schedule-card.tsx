@@ -3,9 +3,20 @@
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Calendar, ArrowRight, AlertTriangle, MoreVertical, UploadCloud, Trash, Archive } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
+import { publishScheduleAction, unpublishScheduleAction, deleteScheduleAction } from '../actions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { ResourceDeleteAction } from '@/components/shared/resource/resource-delete-action';
 import {
   organizationHoverCardClassName,
   organizationHoverCardTitleClassName,
@@ -49,6 +60,50 @@ export const ScheduleCard = memo(function ScheduleCard({
     return translations[status] || status;
   };
 
+  const handlePublish = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const result = await publishScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error publishing');
+    }
+  };
+
+  const handleUnpublish = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const result = await unpublishScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error unpublishing');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const result = await deleteScheduleAction(organizationId, schedule.id);
+      if (!result.success) {
+        toast.error(result.message || 'Error deleting');
+        return { success: false, message: result.message };
+      }
+      toast.success(result.message);
+      return { success: true, message: result.message };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error deleting';
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
   return (
     <Link
       href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
@@ -59,6 +114,42 @@ export const ScheduleCard = memo(function ScheduleCard({
       >
         <div className="absolute bottom-5 right-5 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
           <ArrowRight className="w-5 h-5" />
+        </div>
+        <div className="absolute top-3 right-3 z-20">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              {schedule.status === 'draft' ? (
+                <DropdownMenuItem onClick={handlePublish} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50">
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                  <span>{tStatus('planner.publishSchedule', { fallback: 'Publicar' })}</span>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={handleUnpublish} className="text-amber-600 focus:text-amber-700 focus:bg-amber-50">
+                  <Archive className="mr-2 h-4 w-4" />
+                  <span>{tStatus('planner.unpublishSchedule', { fallback: 'Ocultar / Borrador' })}</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <ResourceDeleteAction
+                onDelete={handleDelete}
+                itemName={t('scheduleItemName', { name: degreeName })}
+              >
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  <span>Eliminar</span>
+                </DropdownMenuItem>
+              </ResourceDeleteAction>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
           <div className="flex flex-row items-center justify-center gap-2 flex-wrap w-full">

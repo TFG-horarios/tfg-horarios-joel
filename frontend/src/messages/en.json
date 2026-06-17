@@ -641,10 +641,12 @@
         "unknownItinerary": "Unknown itinerary",
         "year": "Year {year}",
         "semester": "Semester {period}",
-        "conflictsTooltip": "Conflicts detected"
+        "conflictsTooltip": "Conflicts detected",
+        "scheduleItemName": "{name} schedule"
       },
       "planner": {
         "publishSchedule": "Publish Schedule",
+        "unpublishSchedule": "Unpublish / Draft",
         "publishing": "Publishing...",
         "failedPublish": "Failed to publish schedule.",
         "failedAssign": "Failed to assign slot.",

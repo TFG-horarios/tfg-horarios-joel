@@ -24,9 +24,10 @@ import {
 } from '@tfg-horarios/shared';
 import {
   publishScheduleAction,
+  unpublishScheduleAction,
   updateScheduleSlotAction,
 } from '@/features/schedule/actions';
-import { Calendar, Download, Loader2 } from 'lucide-react';
+import { Calendar, Download, Loader2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SchedulePlannerProps = {
@@ -109,6 +110,7 @@ export function SchedulePlanner({
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [localSchedule, setLocalSchedule] = useState<ScheduleDTO>(schedule);
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
@@ -143,6 +145,27 @@ export function SchedulePlanner({
       toast.error(t('planner.failedPublish'));
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const handleUnpublish = async () => {
+    setIsUnpublishing(true);
+    try {
+      const result = await unpublishScheduleAction(
+        organization.id,
+        localSchedule.id
+      );
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      setLocalSchedule(result.data!);
+      router.refresh();
+      toast.success(t('actions.unpublishSuccess', { fallback: 'Horario ocultado correctamente' }));
+    } catch (err) {
+      console.error(err);
+      toast.error(t('planner.failedUnpublish', { fallback: 'Error al ocultar el horario' }));
+    } finally {
+      setIsUnpublishing(false);
     }
   };
 
@@ -314,23 +337,38 @@ export function SchedulePlanner({
                   : t('planner.publishSchedule')}
               </Button>
             ) : (
-              <Button
-                onClick={() =>
-                  exportPDF(
-                    `horario-${academicYear.name}-P${localSchedule.period}`
-                  )
-                }
-                disabled={isExportingPDF}
-                variant="outline"
-                className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
-              >
-                {isExportingPDF ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Download className="size-4" />
-                )}
-                Exportar PDF
-              </Button>
+              <>
+                <Button
+                  onClick={handleUnpublish}
+                  disabled={isUnpublishing || isExportingPDF}
+                  variant="outline"
+                  className="font-medium text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+                >
+                  {isUnpublishing ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Archive className="size-4" />
+                  )}
+                  {t('planner.unpublishSchedule', { fallback: 'Ocultar' })}
+                </Button>
+                <Button
+                  onClick={() =>
+                    exportPDF(
+                      `horario-${academicYear.name}-P${localSchedule.period}`
+                    )
+                  }
+                  disabled={isExportingPDF || isUnpublishing}
+                  variant="outline"
+                  className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+                >
+                  {isExportingPDF ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Download className="size-4" />
+                  )}
+                  Exportar PDF
+                </Button>
+              </>
             )}
           </div>
         </div>

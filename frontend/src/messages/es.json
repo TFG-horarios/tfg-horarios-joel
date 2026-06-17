@@ -642,10 +642,12 @@
         "unknownItinerary": "Itinerario desconocido",
         "year": "Año {year}",
         "semester": "Semestre {period}",
-        "conflictsTooltip": "Conflictos detectados"
+        "conflictsTooltip": "Conflictos detectados",
+        "scheduleItemName": "horario de {name}"
       },
       "planner": {
         "publishSchedule": "Publicar horario",
+        "unpublishSchedule": "Ocultar / Borrador",
         "publishing": "Publicando...",
         "failedPublish": "Error al publicar el horario.",
         "failedAssign": "Error al asignar la franja horaria.",
