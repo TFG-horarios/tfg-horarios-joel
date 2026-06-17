@@ -290,3 +290,26 @@ export async function getSubjectGroupIdentifiersAction(organizationId: string) {
     throw error;
   }
 }
+
+export async function fetchAllSubjectGroupsAction(
+  organizationId: string
+): Promise<SubjectGroupDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'subject-groups'
+    ].all.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch all subject groups');
+    }
+
+    const payload = await response.json();
+    return SubjectGroupSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (All Subject Groups):', error);
+    return [];
+  }
+}

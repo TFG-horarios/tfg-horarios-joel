@@ -253,3 +253,26 @@ export async function getDegreeIdentifiersAction(
     return [];
   }
 }
+
+export async function fetchAllDegreesAction(
+  organizationId: string
+): Promise<DegreeDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.degrees.all.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch all degrees');
+    }
+
+    const payload = await response.json();
+    return DegreeSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (All Degrees):', error);
+    return [];
+  }
+}

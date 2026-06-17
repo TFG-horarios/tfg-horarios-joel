@@ -289,3 +289,26 @@ export async function getSubjectIdentifiersAction(
     return [];
   }
 }
+
+export async function fetchAllSubjectsAction(
+  organizationId: string
+): Promise<SubjectDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.subjects.all.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch all subjects');
+    }
+
+    const payload = await response.json();
+    return SubjectSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (All Subjects):', error);
+    return [];
+  }
+}

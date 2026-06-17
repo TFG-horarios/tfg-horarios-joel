@@ -6,8 +6,12 @@ import { ResourceActionsToolbar } from '@/components/shared/resource/resource-ac
 import { ItineraryBulkUploader } from '@/features/itinerary/components/itinerary-bulk-uploader';
 import type { DegreeDTO } from '@tfg-horarios/shared';
 import { useTranslations } from 'next-intl';
-import { deleteAllItinerariesAction } from '@/features/itinerary/actions';
+import {
+  deleteAllItinerariesAction,
+  fetchAllItinerariesAction,
+} from '@/features/itinerary/actions';
 import { ItineraryFormModal } from './itinerary-form-modal';
+import { downloadCsv } from '@/lib/utils/csv';
 
 interface ItineraryActionsProps {
   organizationId: string;
@@ -19,7 +23,20 @@ export function ItineraryActions({
   degrees,
 }: ItineraryActionsProps) {
   const t = useTranslations('Organizations.itineraries.actions');
+  const tCommon = useTranslations('Common.actions');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const handleExportCsv = async () => {
+    const data = await fetchAllItinerariesAction(organizationId);
+    const degreeMap = new Map(degrees.map((d) => [d.id, d.code]));
+
+    const csvData = data.map((item) => ({
+      degreeCode: item.degreeId ? degreeMap.get(item.degreeId) || '' : '',
+      code: item.code,
+      name: item.name,
+    }));
+    downloadCsv(csvData, 'itinerarios');
+  };
 
   return (
     <>
@@ -37,7 +54,9 @@ export function ItineraryActions({
           replaceAll: t('replaceAll'),
           replaceAllWarning: t('replaceAllWarning'),
           create: t('create'),
+          exportCsv: tCommon('exportCsv'),
         }}
+        onExportCsv={handleExportCsv}
         appendModalContent={
           <ItineraryBulkUploader
             organizationId={organizationId}

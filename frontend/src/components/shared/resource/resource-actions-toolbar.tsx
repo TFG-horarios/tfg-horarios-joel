@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, FileText, Plus } from 'lucide-react';
+import { Trash2, Plus, Upload, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -40,6 +40,7 @@ export interface ResourceActionsToolbarProps {
   appendModalContent: React.ReactNode;
   overwriteModalContent: React.ReactNode;
   onCreateClick?: () => void;
+  onExportCsv?: () => void;
   translations: {
     deleteAllConfirm: string;
     deleteAllTitle: string;
@@ -51,6 +52,7 @@ export interface ResourceActionsToolbarProps {
     replaceAll: string;
     replaceAllWarning: string;
     create: string;
+    exportCsv?: string;
   };
 }
 
@@ -59,6 +61,7 @@ export function ResourceActionsToolbar({
   appendModalContent,
   overwriteModalContent,
   onCreateClick,
+  onExportCsv,
   translations,
 }: ResourceActionsToolbarProps) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -142,7 +145,7 @@ export function ResourceActionsToolbar({
                   className="size-9 cursor-pointer"
                   aria-label={translations.import}
                 >
-                  <FileText className="h-4 w-4" />
+                  <Upload className="h-4 w-4" />
                   <span className="sr-only">{translations.import}</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -182,6 +185,24 @@ export function ResourceActionsToolbar({
             </Dialog>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {onExportCsv && translations.exportCsv && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-9 cursor-pointer"
+                aria-label={translations.exportCsv}
+                onClick={onExportCsv}
+              >
+                <Download className="h-4 w-4" />
+                <span className="sr-only">{translations.exportCsv}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{translations.exportCsv}</TooltipContent>
+          </Tooltip>
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>

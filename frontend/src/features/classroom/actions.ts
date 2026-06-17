@@ -268,3 +268,26 @@ export async function getClassroomIdentifiersAction(
     return [];
   }
 }
+
+export async function fetchAllClassroomsAction(
+  organizationId: string
+): Promise<ClassroomDTO[]> {
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms.all.$get({
+      param: { organizationId },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch all classrooms');
+    }
+
+    const payload = await response.json();
+    return ClassroomSchema.array().parse(payload);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (All Classrooms):', error);
+    return [];
+  }
+}

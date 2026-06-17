@@ -41,7 +41,8 @@
       "toggleTheme": "Toggle theme",
       "toggleLanguage": "Toggle language",
       "publish": "Publish",
-      "downloadPdf": "Download PDF"
+      "downloadPdf": "Download PDF",
+      "exportCsv": "Export CSV"
     },
     "languages": {
       "es": "Spanish",
