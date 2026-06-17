@@ -562,7 +562,9 @@
       "typeOptions": {
         "theory": "Teoría",
         "problems": "Problemas",
-        "practices": "Prácticas"
+        "practices": "Prácticas",
+        "reduced_practices": "Prácticas reducidas",
+        "tutoring": "Tutoría"
       },
       "itineraryOptions": {
         "common": "Comunes (sin itinerario)"

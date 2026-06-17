@@ -22,6 +22,7 @@ import type {
 } from '../../domain/schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
 import type {
+  Shift,
   ScheduleListQueryDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
@@ -85,7 +86,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     academicYearId: string,
     courseYear: number,
     period: number,
-    shift: 'morning' | 'afternoon'
+    shift: Shift
   ): Promise<Schedule | null> {
     const conditions = [
       eq(schedulesTable.organizationId, organizationId),
@@ -327,7 +328,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       id: r.id,
       subjectGroupId: r.subjectGroupId,
       subjectId: 'locked',
-      shift: r.shift as 'morning' | 'afternoon',
+      shift: r.shift as Shift,
       groupType: 'theory',
       isCommon: false,
       itineraryName: null,

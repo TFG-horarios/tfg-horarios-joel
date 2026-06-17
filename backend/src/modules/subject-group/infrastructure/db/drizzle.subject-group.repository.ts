@@ -22,15 +22,13 @@ import type {
   ISubjectGroupRepository,
   GroupWithSubjectAndItinerary,
 } from '../../domain/subject-group.repository';
-import {
-  SubjectGroup,
-  type GroupType,
-  type Shift,
-} from '../../domain/subject-group.entity';
+import { SubjectGroup } from '../../domain/subject-group.entity';
 import type {
   SubjectGroupIdentifierDTO,
   SubjectGroupListQueryDTO,
   PaginatedResponse,
+  GroupType,
+  Shift,
 } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
@@ -211,8 +209,8 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
 
     return rows.map((r) => ({
       subjectId: r.subjectId,
-      shift: r.shift as 'morning' | 'afternoon',
-      groupType: r.groupType as 'theory' | 'problems' | 'practices',
+      shift: r.shift as Shift,
+      groupType: r.groupType as GroupType,
       weeklyHours: Number(r.weeklyHours),
       groupNumber: r.groupNumber,
     }));
@@ -394,8 +392,8 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     return rows.map((r) => ({
       id: r.id,
       subjectId: r.subjectId,
-      groupType: r.groupType as 'theory' | 'problems' | 'practices',
-      shift: r.shift as 'morning' | 'afternoon',
+      groupType: r.groupType as GroupType,
+      shift: r.shift as Shift,
       groupNumber: r.groupNumber,
       weeklyHours: Number(r.weeklyHours),
       numberOfStudents: r.numberOfStudents,

@@ -1,10 +1,12 @@
+import type { Shift } from '@tfg-horarios/shared';
+
 export interface ScheduleProps {
   id: string;
   organizationId: string;
   degreeId: string;
   itineraryId?: string | null;
   academicYearId: string;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
   courseYear: number;
   period: number;
   conflicts: number;

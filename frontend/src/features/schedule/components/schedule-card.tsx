@@ -3,11 +3,23 @@
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ArrowRight, AlertTriangle, MoreVertical, UploadCloud, Trash, Archive } from 'lucide-react';
+import {
+  Calendar,
+  ArrowRight,
+  AlertTriangle,
+  MoreVertical,
+  UploadCloud,
+  Trash,
+  Archive,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { publishScheduleAction, unpublishScheduleAction, deleteScheduleAction } from '../actions';
+import {
+  publishScheduleAction,
+  unpublishScheduleAction,
+  deleteScheduleAction,
+} from '../actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,7 +110,8 @@ export const ScheduleCard = memo(function ScheduleCard({
       toast.success(result.message);
       return { success: true, message: result.message };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error deleting';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error deleting';
       toast.error(errorMessage);
       return { success: false, message: errorMessage };
     }
@@ -117,22 +130,48 @@ export const ScheduleCard = memo(function ScheduleCard({
         </div>
         <div className="absolute top-3 right-3 z-20">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <DropdownMenuTrigger
+              asChild
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <DropdownMenuContent
+              align="end"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               {schedule.status === 'draft' ? (
-                <DropdownMenuItem onClick={handlePublish} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50">
+                <DropdownMenuItem
+                  onClick={handlePublish}
+                  className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50"
+                >
                   <UploadCloud className="mr-2 h-4 w-4" />
-                  <span>{tStatus('planner.publishSchedule', { fallback: 'Publicar' })}</span>
+                  <span>
+                    {tStatus('planner.publishSchedule', {
+                      fallback: 'Publicar',
+                    })}
+                  </span>
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={handleUnpublish} className="text-amber-600 focus:text-amber-700 focus:bg-amber-50">
+                <DropdownMenuItem
+                  onClick={handleUnpublish}
+                  className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
+                >
                   <Archive className="mr-2 h-4 w-4" />
-                  <span>{tStatus('planner.unpublishSchedule', { fallback: 'Ocultar / Borrador' })}</span>
+                  <span>
+                    {tStatus('planner.unpublishSchedule', {
+                      fallback: 'Ocultar / Borrador',
+                    })}
+                  </span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

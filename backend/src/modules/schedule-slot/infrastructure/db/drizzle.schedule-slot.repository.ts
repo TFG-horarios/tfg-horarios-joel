@@ -20,6 +20,7 @@ import { classroomsTable } from '@/modules/classroom/infrastructure/db/drizzle.c
 import type { IScheduleSlotRepository } from '../../domain/schedule-slot.repository';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
 import type {
+  Shift,
   ClassroomConfigurationListQueryDTO,
   ClassroomScheduleQueryDTO,
   PaginatedResponse,
@@ -80,7 +81,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   > {
@@ -167,7 +168,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     const data = rows.map((r) => ({
       classroomId: r.classroomId as string,
       academicYearId: r.academicYearId as string,
-      shift: r.shift as 'morning' | 'afternoon',
+      shift: r.shift as Shift,
       period: r.period,
     }));
 
@@ -221,7 +222,7 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   async findLinkedSlots(
     subjectGroupId: string,
     academicYearId: string,
-    shift: 'morning' | 'afternoon',
+    shift: Shift,
     originalClassroomId: string | null,
     originalDayOfWeek: number | null,
     originalSlotIndex: number | null,

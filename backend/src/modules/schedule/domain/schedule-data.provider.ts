@@ -1,4 +1,5 @@
 import type { ScheduleEngineGroupData } from './schedule-engine.provider';
+import type { ClassroomType } from '@tfg-horarios/shared';
 
 export interface ScheduleOrganizationConstraints {
   morningStart: string;
@@ -11,7 +12,7 @@ export interface ScheduleOrganizationConstraints {
 export interface ScheduleClassroomData {
   id: string;
   capacity: number;
-  type: 'theory' | 'lab';
+  type: ClassroomType;
 }
 
 export interface IScheduleDataProvider {

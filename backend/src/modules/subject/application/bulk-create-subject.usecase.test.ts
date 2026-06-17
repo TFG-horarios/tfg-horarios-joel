@@ -1,3 +1,4 @@
+import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { BulkCreateSubjectUseCase } from './bulk-create-subject.usecase';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
@@ -29,7 +30,7 @@ describe('BulkCreateSubjectUseCase', () => {
       {
         name: 'Math',
         code: 'M1',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 30,
         courseYear: 1,
         period: 1,
@@ -54,7 +55,7 @@ describe('BulkCreateSubjectUseCase', () => {
       {
         name: 'Math',
         code: 'M1',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 30,
         courseYear: 1,
         period: 1,
@@ -65,7 +66,7 @@ describe('BulkCreateSubjectUseCase', () => {
       {
         name: 'Math 2',
         code: 'M1',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 30,
         courseYear: 1,
         period: 1,
@@ -85,7 +86,7 @@ describe('BulkCreateSubjectUseCase', () => {
       {
         name: 'Math',
         code: 'M1',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 30,
         courseYear: 1,
         period: 1,

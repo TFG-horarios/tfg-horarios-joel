@@ -1,9 +1,11 @@
+import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+
 interface ValidationAssignment {
   id: string;
   subjectGroupId: string;
   subjectId: string;
-  shift: 'morning' | 'afternoon';
-  groupType: 'theory' | 'problems' | 'practices';
+  shift: Shift;
+  groupType: GroupType;
   isCommon: boolean;
   itineraryName: string | null;
   numberOfStudents: number;
@@ -14,7 +16,7 @@ interface ValidationAssignment {
 
 interface ValidationClassroom {
   capacity: number;
-  type: 'theory' | 'lab';
+  type: ClassroomType;
 }
 
 type ValidationClassroomMap = Record<string, ValidationClassroom>;
@@ -31,7 +33,7 @@ export interface MoveValidationContext {
   maxSlotsPerDay: number;
   academicYearId: string;
   period: number;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
 }
 
 export interface IMoveValidationRule {

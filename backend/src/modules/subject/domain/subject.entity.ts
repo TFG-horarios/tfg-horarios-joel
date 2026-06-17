@@ -1,6 +1,5 @@
 import { ValidationError } from '@/core/errors/app.error';
-
-export type Shift = 'morning' | 'afternoon';
+import type { Shift } from '@tfg-horarios/shared';
 
 export interface SubjectProps {
   id: string;

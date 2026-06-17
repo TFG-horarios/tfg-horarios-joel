@@ -1,3 +1,4 @@
+import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { ReplaceSubjectGroupsUseCase } from './replace-subject-groups.usecase';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
@@ -38,7 +39,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       {
         name: 'Group 1',
         groupType: 'theory' as 'theory' | 'practices',
-        shift: 'morning' as 'morning' | 'afternoon',
+        shift: 'morning' as Shift,
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
@@ -47,7 +48,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       {
         name: 'Group 2',
         groupType: 'practices' as 'theory' | 'practices',
-        shift: 'morning' as 'morning' | 'afternoon',
+        shift: 'morning' as Shift,
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
@@ -68,7 +69,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         {
           name: 'A',
           groupType: 'theory' as 'theory' | 'practices',
-          shift: 'morning' as 'morning' | 'afternoon',
+          shift: 'morning' as Shift,
           groupNumber: 1,
           weeklyHours: 2,
           numberOfStudents: 10,
@@ -84,7 +85,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       {
         name: 'Group 1',
         groupType: 'theory' as 'theory' | 'practices',
-        shift: 'morning' as 'morning' | 'afternoon',
+        shift: 'morning' as Shift,
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
@@ -93,7 +94,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       {
         name: 'Group 2',
         groupType: 'theory' as 'theory' | 'practices',
-        shift: 'morning' as 'morning' | 'afternoon',
+        shift: 'morning' as Shift,
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
@@ -112,7 +113,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       {
         name: 'Group 1',
         groupType: 'theory' as 'theory' | 'practices',
-        shift: 'afternoon' as 'morning' | 'afternoon',
+        shift: 'afternoon' as Shift,
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,

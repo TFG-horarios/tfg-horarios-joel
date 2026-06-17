@@ -9,13 +9,14 @@ import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
 import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
-import {
-  type ScheduleSlotDTO,
-  type ClassroomDTO,
-  type SubjectDTO,
-  type SubjectGroupDTO,
-  type DegreeDTO,
-  type AcademicYearDTO,
+import type {
+  Shift,
+  ScheduleSlotDTO,
+  ClassroomDTO,
+  SubjectDTO,
+  SubjectGroupDTO,
+  DegreeDTO,
+  AcademicYearDTO,
 } from '@tfg-horarios/shared';
 
 type ClassroomSchedulePlannerProps = {
@@ -25,7 +26,7 @@ type ClassroomSchedulePlannerProps = {
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
   academicYear: AcademicYearDTO;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
   period: number;
 };
 

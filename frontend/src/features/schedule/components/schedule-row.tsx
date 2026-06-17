@@ -9,7 +9,11 @@ import { ResourceRowActions } from '@/components/shared/resource/resource-row-ac
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ScheduleCardProps } from './schedule-card';
-import { publishScheduleAction, unpublishScheduleAction, deleteScheduleAction } from '../actions';
+import {
+  publishScheduleAction,
+  unpublishScheduleAction,
+  deleteScheduleAction,
+} from '../actions';
 import { toast } from 'sonner';
 import { UploadCloud, Archive } from 'lucide-react';
 
@@ -75,7 +79,8 @@ export const ScheduleRow = memo(function ScheduleRow({
       toast.success(result.message);
       return { success: true, message: result.message };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error deleting';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error deleting';
       toast.error(errorMessage);
       return { success: false, message: errorMessage };
     }
@@ -122,7 +127,9 @@ export const ScheduleRow = memo(function ScheduleRow({
             size="icon"
             onClick={handleUnpublish}
             className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-            title={tStatus('planner.unpublishSchedule', { fallback: 'Ocultar / Borrador' })}
+            title={tStatus('planner.unpublishSchedule', {
+              fallback: 'Ocultar / Borrador',
+            })}
           >
             <Archive className="size-4" />
           </Button>

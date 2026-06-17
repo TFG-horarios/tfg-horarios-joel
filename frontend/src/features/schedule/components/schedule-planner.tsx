@@ -160,10 +160,18 @@ export function SchedulePlanner({
       }
       setLocalSchedule(result.data!);
       router.refresh();
-      toast.success(t('actions.unpublishSuccess', { fallback: 'Horario ocultado correctamente' }));
+      toast.success(
+        t('actions.unpublishSuccess', {
+          fallback: 'Horario ocultado correctamente',
+        })
+      );
     } catch (err) {
       console.error(err);
-      toast.error(t('planner.failedUnpublish', { fallback: 'Error al ocultar el horario' }));
+      toast.error(
+        t('planner.failedUnpublish', {
+          fallback: 'Error al ocultar el horario',
+        })
+      );
     } finally {
       setIsUnpublishing(false);
     }

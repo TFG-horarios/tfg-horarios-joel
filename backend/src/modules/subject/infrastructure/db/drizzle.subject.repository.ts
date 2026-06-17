@@ -16,11 +16,12 @@ import {
   type NewDrizzleSubject,
 } from './drizzle.subject.schema';
 import type { ISubjectRepository } from '../../domain/subject.repository';
-import { Subject, type Shift } from '../../domain/subject.entity';
-import {
-  type SubjectIdentifierDTO,
-  type SubjectListQueryDTO,
-  type PaginatedResponse,
+import { Subject } from '../../domain/subject.entity';
+import type {
+  Shift,
+  SubjectIdentifierDTO,
+  SubjectListQueryDTO,
+  PaginatedResponse,
 } from '@tfg-horarios/shared';
 
 export class DrizzleSubjectRepository implements ISubjectRepository {

@@ -1,3 +1,4 @@
+import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { GetSubjectGroupIdentifiersUseCase } from './get-subject-group-identifiers.usecase';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -34,7 +35,7 @@ describe('GetSubjectGroupIdentifiersUseCase', () => {
     const mockIdentifiers = [
       {
         subjectId: 'sub-1',
-        shift: 'morning' as 'morning' | 'afternoon',
+        shift: 'morning' as Shift,
         groupType: 'theory' as 'theory' | 'practices',
         weeklyHours: 2,
         groupNumber: 1,

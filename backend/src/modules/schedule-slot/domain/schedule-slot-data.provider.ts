@@ -1,6 +1,8 @@
+import type { Shift } from '@tfg-horarios/shared';
+
 export interface IScheduleSlotContext {
   academicYearId: string;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
 }
 
 export interface IScheduleSlotDataProvider {

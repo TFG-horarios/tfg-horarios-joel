@@ -1,4 +1,8 @@
-import type { ScheduleDTO, GenerationScopeDTO } from '@tfg-horarios/shared';
+import type {
+  ScheduleDTO,
+  GenerationScopeDTO,
+  Shift,
+} from '@tfg-horarios/shared';
 import { Schedule } from '../domain/schedule.entity';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleDataProvider } from '../domain/schedule-data.provider';
@@ -127,7 +131,7 @@ export class GenerateScheduleUseCase {
         const parts = scopeKey.split('_');
         const degreeId = parts[0] || '';
         const courseYear = parseInt(parts[1] || '0', 10);
-        const shift = (parts[2] || 'morning') as 'morning' | 'afternoon';
+        const shift = (parts[2] || 'morning') as Shift;
         const itineraryId =
           parts[3] === 'common' ? null : parts.slice(3).join('_');
 
@@ -192,7 +196,7 @@ export class GenerateScheduleUseCase {
           degreeId: string;
           itineraryId: string | null;
           courseYear: number;
-          shift: 'morning' | 'afternoon';
+          shift: Shift;
           assignments: typeof solution.assignments;
         }
       >();

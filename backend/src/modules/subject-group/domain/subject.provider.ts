@@ -1,4 +1,4 @@
-import type { Shift } from './subject-group.entity';
+import type { Shift } from '@tfg-horarios/shared';
 
 export interface ISubjectProvider {
   getAvailableShifts(

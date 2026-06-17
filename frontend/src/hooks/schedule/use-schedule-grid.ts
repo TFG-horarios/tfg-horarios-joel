@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import type { AcademicYearDTO } from '@tfg-horarios/shared';
+import type { AcademicYearDTO, Shift } from '@tfg-horarios/shared';
 
 export function useScheduleGrid(
   academicYear: AcademicYearDTO,
-  shift: 'morning' | 'afternoon' | 'global' | string
+  shift: Shift | 'global' | string
 ) {
   const parseTime = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(':').map(Number);

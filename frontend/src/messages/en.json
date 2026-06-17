@@ -561,7 +561,9 @@
       "typeOptions": {
         "theory": "Theory",
         "problems": "Problems",
-        "practices": "Practices"
+        "practices": "Practices",
+        "reduced_practices": "Reduced Practices",
+        "tutoring": "Tutoring"
       },
       "shift": "Shift",
       "shiftOptions": {

@@ -1,6 +1,9 @@
 import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
 
+export const SHIFT_TYPES = ['morning', 'afternoon'] as const;
+export type Shift = (typeof SHIFT_TYPES)[number];
+
 export const SubjectSchema = z
   .object({
     id: z.uuid().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
@@ -18,7 +21,7 @@ export const SubjectSchema = z
     name: z.string().min(3).max(100).openapi({ example: 'Mathematics I' }),
     code: z.string().min(2).max(20).openapi({ example: 'MAT101' }),
     availableShifts: z
-      .array(z.enum(['morning', 'afternoon']))
+      .array(z.enum(SHIFT_TYPES))
       .openapi({ example: ['morning', 'afternoon'] }),
     numberOfStudents: z.number().int().nonnegative().openapi({ example: 150 }),
     courseYear: z.number().int().positive().openapi({ example: 1 }),
@@ -51,7 +54,7 @@ export const SubjectIdParamSchema = SubjectListParamSchema.extend({
 export const SubjectListQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
   code: z.string().optional(),
-  shift: z.enum(['morning', 'afternoon']).optional(),
+  shift: z.enum(SHIFT_TYPES).optional(),
   period: z.coerce.number().optional(),
   itineraryId: z.string().optional(),
   degreeId: z.string().optional(),
@@ -63,7 +66,7 @@ export const SaveSubjectBodySchema = z
     name: z.string().min(3).max(100).openapi({ example: 'Mathematics I' }),
     code: z.string().min(2).max(20).openapi({ example: 'MAT101' }),
     availableShifts: z
-      .array(z.enum(['morning', 'afternoon']))
+      .array(z.enum(SHIFT_TYPES))
       .min(1)
       .openapi({ example: ['morning'] }),
     numberOfStudents: z.coerce

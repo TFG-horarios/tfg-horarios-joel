@@ -1,7 +1,10 @@
 'use server';
 
 import { fetchActiveClassroomConfigurations } from './queries';
-import type { ClassroomConfigurationListQueryDTO } from '@tfg-horarios/shared';
+import type {
+  ClassroomConfigurationListQueryDTO,
+  Shift,
+} from '@tfg-horarios/shared';
 
 export async function fetchActiveClassroomConfigurationsAction(
   organizationId: string,
@@ -20,7 +23,7 @@ export async function fetchActiveClassroomConfigurationsAction(
       data: [] as {
         classroomId: string;
         academicYearId: string;
-        shift: 'morning' | 'afternoon';
+        shift: Shift;
         period: number;
       }[],
       meta: { total: 0, page: 1, limit: 20, totalPages: 0 },

@@ -2,6 +2,7 @@ import type {
   ClassroomConfigurationListQueryDTO,
   ClassroomScheduleQueryDTO,
   PaginatedResponse,
+  Shift,
 } from '@tfg-horarios/shared';
 import { ScheduleSlot } from './schedule-slot.entity';
 
@@ -15,7 +16,7 @@ export interface IScheduleSlotRepository {
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   >;
@@ -27,7 +28,7 @@ export interface IScheduleSlotRepository {
   findLinkedSlots(
     subjectGroupId: string,
     academicYearId: string,
-    shift: 'morning' | 'afternoon',
+    shift: Shift,
     originalClassroomId: string | null,
     originalDayOfWeek: number | null,
     originalSlotIndex: number | null,

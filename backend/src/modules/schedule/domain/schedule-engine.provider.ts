@@ -1,12 +1,14 @@
+import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+
 export interface ScheduleEngineGroupData {
   subjectGroupId: string;
   subjectId: string;
-  groupType: 'theory' | 'problems' | 'practices';
+  groupType: GroupType;
   isCommon: boolean;
   itineraryName?: string | null;
   itineraryId?: string | null;
   numberOfStudents: number;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
   weeklyHours: number;
   degreeId: string;
   courseYear: number;
@@ -15,7 +17,7 @@ export interface ScheduleEngineGroupData {
 export interface ScheduleEngineClassroomMap {
   [classroomId: string]: {
     capacity: number;
-    type: 'theory' | 'lab';
+    type: ClassroomType;
   };
 }
 
@@ -23,8 +25,8 @@ export interface ScheduleEngineAssignment {
   id: string;
   subjectGroupId: string;
   subjectId: string;
-  shift: 'morning' | 'afternoon';
-  groupType: 'theory' | 'practices' | 'problems';
+  shift: Shift;
+  groupType: GroupType;
   isCommon: boolean;
   itineraryName: string | null;
   numberOfStudents: number;

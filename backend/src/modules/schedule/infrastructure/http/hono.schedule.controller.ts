@@ -80,7 +80,9 @@ export class HonoScheduleController {
     return c.json(publishedSchedule, 200);
   };
 
-  unpublish: RouteHandler<typeof unpublishScheduleRoute, AppEnv> = async (c) => {
+  unpublish: RouteHandler<typeof unpublishScheduleRoute, AppEnv> = async (
+    c
+  ) => {
     const { organizationId, id } = c.req.valid('param');
     const requesterUserId = c.get('userId');
     const unpublishedSchedule = await this.unpublishScheduleUseCase.execute(

@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import {
+  type Shift,
   SaveSubjectBodySchema,
   type DegreeDTO,
   type ItineraryDTO,
@@ -72,7 +73,7 @@ export function SubjectBulkUploader({
         code: (row.code || '').trim().toUpperCase(),
         availableShifts: (row.availableShifts
           ? row.availableShifts.split(',').map((s) => s.trim().toLowerCase())
-          : ['morning']) as ('morning' | 'afternoon')[],
+          : ['morning']) as Shift[],
         numberOfStudents: Number(row.numberOfStudents || 0),
         courseYear: Number(row.courseYear || 1),
         period: Number(row.period || 1),

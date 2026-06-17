@@ -1,5 +1,7 @@
 import type { SubjectGroup } from './subject-group.entity';
 import type {
+  GroupType,
+  Shift,
   SubjectGroupIdentifierDTO,
   SubjectGroupListQueryDTO,
   PaginatedResponse,
@@ -8,8 +10,8 @@ import type {
 export interface GroupWithSubjectAndItinerary {
   id: string;
   subjectId: string;
-  groupType: 'theory' | 'problems' | 'practices';
-  shift: 'morning' | 'afternoon';
+  groupType: GroupType;
+  shift: Shift;
   groupNumber: number;
   weeklyHours: number;
   numberOfStudents: number;

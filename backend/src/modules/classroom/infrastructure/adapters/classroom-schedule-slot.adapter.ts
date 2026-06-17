@@ -5,6 +5,7 @@ import type {
   PaginatedResponse,
   ClassroomScheduleQueryDTO,
   ScheduleSlotDTO,
+  Shift,
 } from '@tfg-horarios/shared';
 import { ScheduleSlotMapper } from '@/modules/schedule-slot/application/schedule-slot.mapper';
 
@@ -20,7 +21,7 @@ export class ClassroomScheduleSlotAdapter implements IClassroomScheduleSlotProvi
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   > {

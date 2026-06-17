@@ -18,7 +18,11 @@ import { ResourceFilterSelect } from '@/components/shared/resource/resource-filt
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { SubjectGroupRow } from '@/features/subject-group/components/subject-group-row';
 import { fetchSubjectGroupsAction } from '@/features/subject-group/actions';
-import type { SubjectGroupListQueryDTO } from '@tfg-horarios/shared';
+import {
+  type SubjectGroupListQueryDTO,
+  type GroupType,
+  GROUP_TYPES,
+} from '@tfg-horarios/shared';
 
 type OrganizationSubjectGroupsPageProps = {
   params: Promise<{ id: string }>;
@@ -65,10 +69,8 @@ export default async function OrganizationSubjectGroupsPage({
         : undefined,
     groupType:
       typeof rawSearchParams.groupType === 'string' &&
-      (rawSearchParams.groupType === 'theory' ||
-        rawSearchParams.groupType === 'problems' ||
-        rawSearchParams.groupType === 'practices')
-        ? rawSearchParams.groupType
+      GROUP_TYPES.includes(rawSearchParams.groupType as GroupType)
+        ? (rawSearchParams.groupType as GroupType)
         : undefined,
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
@@ -105,6 +107,8 @@ export default async function OrganizationSubjectGroupsPage({
     'typeOptions.theory': t('typeOptions.theory'),
     'typeOptions.problems': t('typeOptions.problems'),
     'typeOptions.practices': t('typeOptions.practices'),
+    'typeOptions.reduced_practices': t('typeOptions.reduced_practices'),
+    'typeOptions.tutoring': t('typeOptions.tutoring'),
     shift: t('shift'),
     'shiftOptions.morning': t('shiftOptions.morning'),
     'shiftOptions.afternoon': t('shiftOptions.afternoon'),
@@ -149,6 +153,11 @@ export default async function OrganizationSubjectGroupsPage({
                   { label: t('typeOptions.theory'), value: 'theory' },
                   { label: t('typeOptions.problems'), value: 'problems' },
                   { label: t('typeOptions.practices'), value: 'practices' },
+                  {
+                    label: t('typeOptions.reduced_practices'),
+                    value: 'reduced_practices',
+                  },
+                  { label: t('typeOptions.tutoring'), value: 'tutoring' },
                 ]}
               />
               <ResourceFilterSelect

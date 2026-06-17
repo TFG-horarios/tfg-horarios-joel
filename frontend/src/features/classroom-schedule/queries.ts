@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
 import {
+  type Shift,
   createPaginatedSchema,
   type PaginatedResponse,
   type ClassroomConfigurationListQueryDTO,
@@ -19,7 +20,7 @@ export const fetchActiveClassroomConfigurations = cache(
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   > => {

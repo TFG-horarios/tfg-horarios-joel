@@ -1,6 +1,5 @@
 import { ValidationError } from '@/core/errors/app.error';
-
-export type ClassroomType = 'theory' | 'lab';
+import type { ClassroomType } from '@tfg-horarios/shared';
 
 export interface ClassroomProps {
   id: string;

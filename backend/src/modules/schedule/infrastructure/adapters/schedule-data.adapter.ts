@@ -3,6 +3,7 @@ import type {
   ScheduleOrganizationConstraints,
   ScheduleClassroomData,
 } from '../../domain/schedule-data.provider';
+import type { ClassroomType } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '@/modules/degree/domain/degree.repository';
 import type { IClassroomRepository } from '@/modules/classroom/domain/classroom.repository';
 import type { ISubjectGroupRepository } from '@/modules/subject-group/domain/subject-group.repository';
@@ -29,7 +30,7 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
     return classrooms.map((c) => ({
       id: c.id,
       capacity: c.capacity,
-      type: c.type as 'theory' | 'lab',
+      type: c.type as ClassroomType,
     }));
   }
 

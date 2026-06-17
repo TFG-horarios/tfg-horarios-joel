@@ -1,7 +1,5 @@
 import { ValidationError } from '@/core/errors/app.error';
-
-export type GroupType = 'theory' | 'problems' | 'practices';
-export type Shift = 'morning' | 'afternoon';
+import type { GroupType, Shift } from '@tfg-horarios/shared';
 
 export interface SubjectGroupProps {
   id: string;

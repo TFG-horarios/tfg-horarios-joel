@@ -9,8 +9,9 @@ import {
 } from 'drizzle-orm/pg-core';
 import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
 import { sql } from 'drizzle-orm';
+import { CLASSROOM_TYPES } from '@tfg-horarios/shared';
 
-export const classroomTypeEnum = pgEnum('classroom_type', ['theory', 'lab']);
+export const classroomTypeEnum = pgEnum('classroom_type', CLASSROOM_TYPES);
 
 export const classroomsTable = pgTable(
   'classroom',

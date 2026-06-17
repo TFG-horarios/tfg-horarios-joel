@@ -1,4 +1,8 @@
-import type { ScheduleDTO, GenerationScopeDTO } from '@tfg-horarios/shared';
+import type {
+  ScheduleDTO,
+  GenerationScopeDTO,
+  Shift,
+} from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleDataProvider } from '../domain/schedule-data.provider';
 import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
@@ -68,7 +72,7 @@ export class CheckScheduleOverwriteUseCase {
           degreeId: string;
           itineraryId: string | null;
           courseYear: number;
-          shift: 'morning' | 'afternoon';
+          shift: Shift;
         }
       >();
 

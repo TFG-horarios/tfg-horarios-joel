@@ -3,6 +3,7 @@ import type { IClassroomMemberProvider } from '../domain/classroom-member.provid
 import type {
   ClassroomConfigurationListQueryDTO,
   PaginatedResponse,
+  Shift,
 } from '@tfg-horarios/shared';
 import { ForbiddenError } from '@/core/errors/app.error';
 
@@ -20,7 +21,7 @@ export class GetActiveClassroomConfigurationsUseCase {
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   > {

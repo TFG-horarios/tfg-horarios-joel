@@ -12,12 +12,9 @@ import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subje
 import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
 import { sql } from 'drizzle-orm';
+import { GROUP_TYPES } from '@tfg-horarios/shared';
 
-export const groupTypeEnum = pgEnum('group_type', [
-  'theory',
-  'problems',
-  'practices',
-]);
+export const groupTypeEnum = pgEnum('group_type', GROUP_TYPES);
 
 export const subjectGroupsTable = pgTable(
   'subject_group',

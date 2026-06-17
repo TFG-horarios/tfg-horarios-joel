@@ -1,14 +1,15 @@
-import { type Assignment, type Solution, type ClassroomMap } from './types';
+import type { Assignment, ClassroomMap, Solution } from './types';
+import type { GroupType, Shift } from '@tfg-horarios/shared';
 import { PenaltyCalculator } from './penalty-calculator';
 
 export interface GroupInitialData {
   subjectGroupId: string;
   subjectId: string;
-  groupType: 'theory' | 'problems' | 'practices';
+  groupType: GroupType;
   isCommon: boolean;
   itineraryName?: string | null;
   numberOfStudents: number;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
   weeklyHours: number;
   degreeId: string;
   courseYear: number;

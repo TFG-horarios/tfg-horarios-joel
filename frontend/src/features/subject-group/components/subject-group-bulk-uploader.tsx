@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import {
   SaveSubjectGroupBodySchema,
   type SubjectDTO,
+  type GroupType,
 } from '@tfg-horarios/shared';
 import {
   bulkCreateSubjectGroups,
@@ -55,20 +56,46 @@ export function SubjectGroupBulkUploader({
         'groupNumber',
       ]}
       schema={GlobalSubjectGroupCsvSchema}
-      rowTransformer={(row) => ({
-        subjectCode: (row.subjectCode || '').trim().toUpperCase(),
-        name: (row.name || '').trim(),
-        groupType: (row.groupType || 'theory').trim().toLowerCase() as
-          | 'theory'
-          | 'problems'
-          | 'practices',
-        shift: (row.shift || 'morning').trim().toLowerCase() as
-          | 'morning'
-          | 'afternoon',
-        numberOfStudents: Number(row.numberOfStudents || 0),
-        weeklyHours: Number(row.weeklyHours || 0),
-        groupNumber: Number(row.groupNumber || 1),
-      })}
+      rowTransformer={(row) => {
+        const rawType = (row.groupType || 'theory').trim().toLowerCase();
+        let groupType = 'theory';
+        if (
+          rawType === 'problems' ||
+          rawType === 'problemas' ||
+          rawType === 'pa'
+        )
+          groupType = 'problems';
+        else if (
+          rawType === 'practices' ||
+          rawType === 'prácticas' ||
+          rawType === 'pe'
+        )
+          groupType = 'practices';
+        else if (
+          rawType === 'reduced_practices' ||
+          rawType === 'prácticas reducidas' ||
+          rawType === 'px'
+        )
+          groupType = 'reduced_practices';
+        else if (
+          rawType === 'tutoring' ||
+          rawType === 'tutoría' ||
+          rawType === 'tu'
+        )
+          groupType = 'tutoring';
+
+        return {
+          subjectCode: (row.subjectCode || '').trim().toUpperCase(),
+          name: (row.name || '').trim(),
+          groupType: groupType as GroupType,
+          shift: (row.shift || 'morning').trim().toLowerCase() as
+            | 'morning'
+            | 'afternoon',
+          numberOfStudents: Number(row.numberOfStudents || 0),
+          weeklyHours: Number(row.weeklyHours || 0),
+          groupNumber: Number(row.groupNumber || 1),
+        };
+      }}
       onAnalyze={async (validData) => {
         let currentIdentifiers: {
           subjectId: string;
@@ -157,6 +184,8 @@ export function SubjectGroupBulkUploader({
             theory: number;
             practices: number;
             problems: number;
+            reduced_practices: number;
+            tutoring: number;
             rows: number[];
           }
         >();
@@ -169,6 +198,8 @@ export function SubjectGroupBulkUploader({
                 theory: 0,
                 practices: 0,
                 problems: 0,
+                reduced_practices: 0,
+                tutoring: 0,
                 rows: [],
               });
             }
@@ -179,6 +210,13 @@ export function SubjectGroupBulkUploader({
               data.practices = Math.max(data.practices, g.weeklyHours);
             if (g.groupType === 'problems')
               data.problems = Math.max(data.problems, g.weeklyHours);
+            if (g.groupType === 'reduced_practices')
+              data.reduced_practices = Math.max(
+                data.reduced_practices,
+                g.weeklyHours
+              );
+            if (g.groupType === 'tutoring')
+              data.tutoring = Math.max(data.tutoring, g.weeklyHours);
           });
         }
 
@@ -190,6 +228,8 @@ export function SubjectGroupBulkUploader({
               theory: 0,
               practices: 0,
               problems: 0,
+              reduced_practices: 0,
+              tutoring: 0,
               rows: [],
             });
           }
@@ -203,12 +243,24 @@ export function SubjectGroupBulkUploader({
             data.practices = Math.max(data.practices, row.weeklyHours);
           if (row.groupType === 'problems')
             data.problems = Math.max(data.problems, row.weeklyHours);
+          if (row.groupType === 'reduced_practices')
+            data.reduced_practices = Math.max(
+              data.reduced_practices,
+              row.weeklyHours
+            );
+          if (row.groupType === 'tutoring')
+            data.tutoring = Math.max(data.tutoring, row.weeklyHours);
         });
 
         for (const [key, data] of hoursBySubjectShift.entries()) {
           const subjectId = key.split('|')[0];
           const subject = subjects.find((s) => s.id === subjectId)!;
-          const totalCalculated = data.theory + data.practices + data.problems;
+          const totalCalculated =
+            data.theory +
+            data.practices +
+            data.problems +
+            data.reduced_practices +
+            data.tutoring;
 
           if (totalCalculated !== subject.weeklyHours) {
             data.rows.forEach((rowNumber) => {

@@ -1,3 +1,4 @@
+import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { ReplaceSubjectsUseCase } from './replace-subjects.usecase';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
@@ -31,7 +32,7 @@ describe('ReplaceSubjectsUseCase', () => {
       {
         name: 'Subject A',
         code: 'SA',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 10,
         courseYear: 1,
         period: 1,
@@ -42,7 +43,7 @@ describe('ReplaceSubjectsUseCase', () => {
       {
         name: 'Subject B',
         code: 'SB',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 10,
         courseYear: 1,
         period: 1,
@@ -83,7 +84,7 @@ describe('ReplaceSubjectsUseCase', () => {
       {
         name: 'Subject A',
         code: 'SA',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 10,
         courseYear: 1,
         period: 1,
@@ -94,7 +95,7 @@ describe('ReplaceSubjectsUseCase', () => {
       {
         name: 'Subject B',
         code: 'SA',
-        availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+        availableShifts: ['morning'] as Shift[],
         numberOfStudents: 10,
         courseYear: 1,
         period: 1,

@@ -1,6 +1,6 @@
 import type { ISubjectProvider } from '../../domain/subject.provider';
 import type { ISubjectRepository } from '@/modules/subject/domain/subject.repository';
-import type { Shift } from '../../domain/subject-group.entity';
+import type { Shift } from '@tfg-horarios/shared';
 
 export class SubjectAdapter implements ISubjectProvider {
   constructor(private readonly subjectRepository: ISubjectRepository) {}

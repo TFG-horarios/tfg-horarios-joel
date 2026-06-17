@@ -1,5 +1,6 @@
 'use client';
 
+import type { Shift } from '@tfg-horarios/shared';
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,7 @@ import {
 export interface ClassroomScheduleDTO {
   classroomId: string;
   academicYearId: string;
-  shift: 'morning' | 'afternoon';
+  shift: Shift;
   period: number;
 }
 

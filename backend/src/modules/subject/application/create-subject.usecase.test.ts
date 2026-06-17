@@ -1,3 +1,4 @@
+import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
 import { CreateSubjectUseCase } from './create-subject.usecase';
 import { ForbiddenError } from '@/core/errors/app.error';
@@ -24,7 +25,7 @@ describe('CreateSubjectUseCase', () => {
     const dto = {
       name: 'Math',
       code: 'M1',
-      availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+      availableShifts: ['morning'] as Shift[],
       numberOfStudents: 30,
       courseYear: 1,
       period: 1,
@@ -41,7 +42,7 @@ describe('CreateSubjectUseCase', () => {
     const dto = {
       name: 'Math',
       code: 'M1',
-      availableShifts: ['morning'] as ('morning' | 'afternoon')[],
+      availableShifts: ['morning'] as Shift[],
       numberOfStudents: 30,
       courseYear: 1,
       period: 1,

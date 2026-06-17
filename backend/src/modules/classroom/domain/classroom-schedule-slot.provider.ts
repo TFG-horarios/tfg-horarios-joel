@@ -3,6 +3,7 @@ import type {
   PaginatedResponse,
   ClassroomScheduleQueryDTO,
   ScheduleSlotDTO,
+  Shift,
 } from '@tfg-horarios/shared';
 
 export interface IClassroomScheduleSlotProvider {
@@ -13,7 +14,7 @@ export interface IClassroomScheduleSlotProvider {
     PaginatedResponse<{
       classroomId: string;
       academicYearId: string;
-      shift: 'morning' | 'afternoon';
+      shift: Shift;
       period: number;
     }>
   >;

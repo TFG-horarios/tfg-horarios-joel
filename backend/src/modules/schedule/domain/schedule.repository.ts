@@ -2,6 +2,7 @@ import { Schedule } from './schedule.entity';
 import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
+  Shift,
 } from '@tfg-horarios/shared';
 import type { ScheduleEngineAssignment } from './schedule-engine.provider';
 
@@ -23,7 +24,7 @@ export interface IScheduleRepository {
     academicYearId: string,
     courseYear: number,
     period: number,
-    shift: 'morning' | 'afternoon'
+    shift: Shift
   ): Promise<Schedule | null>;
   findDistinctAcademicYears(organizationId: string): Promise<string[]>;
   findAll(organizationId: string): Promise<Schedule[]>;
