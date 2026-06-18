@@ -49,4 +49,20 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
     const group = groupsData.find((g) => g.subjectGroupId === subjectGroupId);
     return group ? group.isCommon : false;
   }
+
+  async unpublishSchedule(
+    scheduleId: string,
+    organizationId: string
+  ): Promise<void> {
+    const schedule = await this.scheduleRepository.findById(
+      scheduleId,
+      organizationId
+    );
+    if (!schedule) return;
+
+    if (schedule.status === 'published') {
+      schedule.markAsDraft();
+      await this.scheduleRepository.update(schedule);
+    }
+  }
 }

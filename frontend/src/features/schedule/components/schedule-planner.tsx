@@ -42,7 +42,13 @@ import {
   unpublishScheduleAction,
   updateScheduleSlotAction,
 } from '@/features/schedule/actions';
-import { Calendar, Download, Loader2, Archive } from 'lucide-react';
+import {
+  Calendar,
+  Download,
+  Loader2,
+  Archive,
+  ArchiveRestore,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 type SchedulePlannerProps = {
@@ -68,6 +74,7 @@ type MemoizedScheduleCellProps = {
   dropHereText: string;
   subjectIdsPool: string[];
   onEditSlotClassroom: (slotId: string) => void;
+  onUnassignSlot: (slotId: string) => void;
 };
 
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
@@ -78,6 +85,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   dropHereText,
   subjectIdsPool,
   onEditSlotClassroom,
+  onUnassignSlot,
 }: MemoizedScheduleCellProps) {
   return (
     <DroppableCell
@@ -100,6 +108,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
               classroom={classroom}
               subjectIdsPool={subjectIdsPool}
               onEditClassroomClick={onEditSlotClassroom}
+              onUnassignClick={onUnassignSlot}
             />
           );
         })
@@ -177,6 +186,10 @@ export function SchedulePlanner({
     effectiveShift
   );
 
+  const unassignedSlots = React.useMemo(() => {
+    return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
+  }, [slots]);
+
   const daysOfWeek = [
     { value: 1, label: t('planner.days.1') },
     { value: 2, label: t('planner.days.2') },
@@ -195,7 +208,7 @@ export function SchedulePlanner({
       if (!result.success) {
         const errorMsg = result.message || '';
         const translated = errorMsg.startsWith('ERR_')
-          ? t(`planner.errors.${errorMsg}` as any)
+          ? t(`planner.errors.${errorMsg}`)
           : errorMsg || t('planner.failedPublish');
         toast.error(translated);
         return;
@@ -252,6 +265,52 @@ export function SchedulePlanner({
     return map;
   }, [slots]);
 
+  const handleUnassignSlot = async (slotId: string) => {
+    const currentSlot = slots.find((s) => s.id === slotId);
+    if (
+      !currentSlot ||
+      (currentSlot.dayOfWeek === null && currentSlot.slotIndex === null)
+    )
+      return;
+
+    const oldSlots = [...slots];
+    const oldScheduleStatus = localSchedule.status;
+
+    setSlots((prev) =>
+      prev.map((s) =>
+        s.id === slotId
+          ? {
+              ...s,
+              dayOfWeek: null,
+              slotIndex: null,
+            }
+          : s
+      )
+    );
+
+    if (localSchedule.status === 'published') {
+      setLocalSchedule((prev) => ({ ...prev, status: 'draft' }));
+    }
+
+    try {
+      const result = await updateScheduleSlotAction(organization.id, slotId, {
+        dayOfWeek: null,
+        slotIndex: null,
+      });
+      if (!result.success) throw new Error(result.message);
+    } catch (err) {
+      setSlots(oldSlots);
+      if (oldScheduleStatus === 'published') {
+        setLocalSchedule((prev) => ({ ...prev, status: 'published' }));
+      }
+      const errorMsg =
+        err instanceof Error ? err.message : t('planner.failedAssign');
+      toast.error(
+        errorMsg.startsWith('ERR_') ? t(`planner.errors.${errorMsg}`) : errorMsg
+      );
+    }
+  };
+
   const handleEditClassroomClick = (slotId: string) => {
     const slot = slots.find((s) => s.id === slotId);
     if (slot) {
@@ -299,7 +358,7 @@ export function SchedulePlanner({
             <ul className="list-disc pl-4 space-y-1 mt-1">
               {errors.map((e, i) => {
                 const translated = e.startsWith('ERR_')
-                  ? t(`planner.errors.${e}` as any)
+                  ? t(`planner.errors.${e}`)
                   : e;
                 return <li key={i}>{translated}</li>;
               })}
@@ -309,7 +368,7 @@ export function SchedulePlanner({
         });
       } else {
         const translated = errorMsg.startsWith('ERR_')
-          ? t(`planner.errors.${errorMsg}` as any)
+          ? t(`planner.errors.${errorMsg}`)
           : errorMsg;
         toast.error(translated);
       }
@@ -363,10 +422,16 @@ export function SchedulePlanner({
     const currentSlot = slots.find((s) => s.id === slotId);
     if (!currentSlot) return;
 
-    const parts = overId.split('_');
-    if (parts.length !== 3 || parts[0] !== 'time') return;
-    const targetDay = parseInt(parts[1], 10);
-    const targetSlot = parseInt(parts[2], 10);
+    let targetDay: number | null = null;
+    let targetSlot: number | null = null;
+
+    if (overId !== 'unassigned') {
+      const parts = overId.split('_');
+      if (parts.length !== 3 || parts[0] !== 'time') return;
+      targetDay = parseInt(parts[1], 10);
+      targetSlot = parseInt(parts[2], 10);
+    }
+
     const targetClassroom =
       currentSlot.classroomId || classrooms[0]?.id || null;
 
@@ -412,7 +477,7 @@ export function SchedulePlanner({
             <ul className="list-disc pl-4 space-y-1 mt-1">
               {errors.map((e, i) => {
                 const translated = e.startsWith('ERR_')
-                  ? t(`planner.errors.${e}` as any)
+                  ? t(`planner.errors.${e}`)
                   : e;
                 return <li key={i}>{translated}</li>;
               })}
@@ -422,7 +487,7 @@ export function SchedulePlanner({
         });
       } else {
         const translated = errorMsg.startsWith('ERR_')
-          ? t(`planner.errors.${errorMsg}` as any)
+          ? t(`planner.errors.${errorMsg}`)
           : errorMsg;
         toast.error(translated);
       }
@@ -436,7 +501,7 @@ export function SchedulePlanner({
 
   return (
     <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex flex-col h-full space-y-6">
+      <div className="flex flex-col space-y-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
@@ -477,8 +542,13 @@ export function SchedulePlanner({
             {localSchedule.status === 'draft' ? (
               <Button
                 onClick={handlePublish}
-                disabled={isPublishing}
+                disabled={isPublishing || unassignedSlots.length > 0}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
+                title={
+                  unassignedSlots.length > 0
+                    ? t('planner.errors.ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS')
+                    : undefined
+                }
               >
                 {isPublishing
                   ? t('planner.publishing')
@@ -521,6 +591,46 @@ export function SchedulePlanner({
           </div>
         </div>
 
+        <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
+          <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <ArchiveRestore className="size-4 text-amber-500" />
+              {t('planner.unassignedSlots')}
+            </h2>
+            <Badge variant="secondary">{unassignedSlots.length}</Badge>
+          </div>
+          <DroppableCell
+            id="unassigned"
+            className="w-full p-4 flex flex-wrap gap-3 min-h-[120px] items-start content-start"
+          >
+            {unassignedSlots.length === 0 ? (
+              <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
+                {t('planner.noUnassignedSlots')}
+              </div>
+            ) : (
+              unassignedSlots.map((slot) => {
+                const meta = slotMetaMap.get(slot.subjectGroupId);
+                if (!meta || !meta.subject || !meta.group) return null;
+                const classroom = slot.classroomId
+                  ? classroomMap.get(slot.classroomId)
+                  : undefined;
+                return (
+                  <div key={slot.id} className="w-48">
+                    <DraggableSlot
+                      slot={slot}
+                      subject={meta.subject}
+                      group={meta.group}
+                      classroom={classroom}
+                      subjectIdsPool={subjectIdsPool}
+                      onEditClassroomClick={handleEditClassroomClick}
+                    />
+                  </div>
+                );
+              })
+            )}
+          </DroppableCell>
+        </div>
+
         <WeeklyScheduleGrid
           gridRef={gridRef}
           daysOfWeek={daysOfWeek}
@@ -540,6 +650,7 @@ export function SchedulePlanner({
                 dropHereText={t('planner.dropHere')}
                 subjectIdsPool={subjectIdsPool}
                 onEditSlotClassroom={handleEditClassroomClick}
+                onUnassignSlot={handleUnassignSlot}
               />
             );
           }}

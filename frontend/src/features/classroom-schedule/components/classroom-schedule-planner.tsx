@@ -4,7 +4,13 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Building2, Download, Loader2 } from 'lucide-react';
+import {
+  Calendar,
+  Building2,
+  Download,
+  Loader2,
+  ArchiveRestore,
+} from 'lucide-react';
 import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot';
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
@@ -86,7 +92,10 @@ export function ClassroomSchedulePlanner({
   const t = useTranslations('Organizations.classroomSchedules.planner');
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
-  const { slotTimeLabels, numSlots } = useScheduleGrid(academicYear, shift);
+  const { slotTimeLabels, numSlots, startSlotIndex } = useScheduleGrid(
+    academicYear,
+    shift
+  );
 
   const daysOfWeek = [
     { value: 1, label: t('days.1') },
@@ -113,6 +122,10 @@ export function ClassroomSchedulePlanner({
       }
     });
     return map;
+  }, [slots]);
+
+  const unassignedSlots = React.useMemo(() => {
+    return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
   }, [slots]);
 
   const slotMetaMap = React.useMemo(() => {
@@ -146,7 +159,7 @@ export function ClassroomSchedulePlanner({
   }, [slots, slotMetaMap]);
 
   return (
-    <div className="flex flex-col h-full space-y-6">
+    <div className="flex flex-col space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
@@ -188,10 +201,39 @@ export function ClassroomSchedulePlanner({
         </div>
       </div>
 
+      {unassignedSlots.length > 0 && (
+        <div className="bg-card/40 backdrop-blur-md border border-amber-200/50 bg-amber-50/10 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-medium text-sm">
+            <ArchiveRestore className="size-4" />
+            {t('unassignedSlotsTitle', {
+              fallback: 'Clases por asignar a esta aula',
+            })}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {unassignedSlots.map((slot) => {
+              const meta = slotMetaMap.get(slot.subjectGroupId);
+              if (!meta || !meta.subject || !meta.group) return null;
+              return (
+                <div key={slot.id} className="w-48 pointer-events-none">
+                  <DraggableSlot
+                    slot={slot}
+                    subject={meta.subject}
+                    group={meta.group}
+                    degree={meta.degree}
+                    subjectIdsPool={subjectIdsPool}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <WeeklyScheduleGrid
         gridRef={gridRef}
         daysOfWeek={daysOfWeek}
         numSlots={numSlots}
+        startSlotIndex={startSlotIndex}
         slotTimeLabels={slotTimeLabels}
         renderCell={(day, slotIndex) => {
           const cellSlots = slotsByCell.get(`${day}_${slotIndex}`) || [];

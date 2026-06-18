@@ -1,6 +1,7 @@
 import type { ScheduleDTO } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
+import type { IScheduleSlotProvider } from '../domain/schedule-slot.provider';
 import {
   ForbiddenError,
   NotFoundError,
@@ -12,6 +13,7 @@ import { ScheduleMapper } from './schedule.mapper';
 export class PublishScheduleUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
+    private readonly scheduleSlotProvider: IScheduleSlotProvider,
     private readonly memberProvider: IScheduleMemberProvider
   ) {}
 
@@ -45,6 +47,14 @@ export class PublishScheduleUseCase {
 
     if (schedule.conflicts > 0) {
       throw new ValidationError('ERR_SCHEDULE_HAS_CONFLICTS');
+    }
+
+    const hasUnassigned = await this.scheduleSlotProvider.hasUnassignedSlots(
+      schedule.id
+    );
+
+    if (hasUnassigned) {
+      throw new ValidationError('ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS');
     }
 
     schedule.publish();

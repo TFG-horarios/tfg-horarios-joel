@@ -57,7 +57,7 @@ export const ScheduleRow = memo(function ScheduleRow({
       if (!result.success) {
         const errorMsg = result.message || '';
         const translated = errorMsg.startsWith('ERR_')
-          ? tStatus(`planner.errors.${errorMsg}` as any)
+          ? tStatus(`planner.errors.${errorMsg}`)
           : errorMsg || 'Error publishing';
         toast.error(translated);
         return;

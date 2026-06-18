@@ -19,6 +19,7 @@ describe('UpdateScheduleSlotUseCase', () => {
   const dataProviderMock = {
     getScheduleContext: mock(),
     isGroupCommon: mock(),
+    unpublishSchedule: mock(),
   };
 
   const memberProviderMock = {
@@ -75,6 +76,7 @@ describe('UpdateScheduleSlotUseCase', () => {
       classroomId: 'c-1',
       dayOfWeek: 1,
       slotIndex: 0,
+      conflicts: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });

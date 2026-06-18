@@ -45,7 +45,7 @@ export default async function SchedulePlannerPage({
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       <SchedulePlanner
         organization={organization}
         schedule={schedule}

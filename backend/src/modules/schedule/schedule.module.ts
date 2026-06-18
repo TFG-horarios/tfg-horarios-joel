@@ -38,6 +38,7 @@ import {
 } from './infrastructure/http/hono.schedule.routes';
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
+import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.adapter';
 
 export const createScheduleModule = (db: DbConnection) => {
   const scheduleRepository = new DrizzleScheduleRepository(db);
@@ -73,11 +74,17 @@ export const createScheduleModule = (db: DbConnection) => {
     dataProvider
   );
 
+  const slotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
+
   const controller = new HonoScheduleController(
     new ListSchedulesUseCase(scheduleRepository, memberProvider),
     new ListAllSchedulesUseCase(scheduleRepository, memberProvider),
     new GetScheduleUseCase(scheduleRepository, memberProvider),
-    new PublishScheduleUseCase(scheduleRepository, memberProvider),
+    new PublishScheduleUseCase(
+      scheduleRepository,
+      slotProvider,
+      memberProvider
+    ),
     new UnpublishScheduleUseCase(scheduleRepository, memberProvider),
     new DeleteScheduleUseCase(scheduleRepository, memberProvider),
     new GenerateScheduleUseCase(

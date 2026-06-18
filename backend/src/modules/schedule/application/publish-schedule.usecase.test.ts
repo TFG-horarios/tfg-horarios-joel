@@ -21,12 +21,17 @@ describe('PublishScheduleUseCase', () => {
     findLockedAssignments: mock(),
   };
 
+  const slotProviderMock = {
+    hasUnassignedSlots: mock(),
+  };
+
   const memberProviderMock = {
     getMemberRole: mock(),
   };
 
   const useCase = new PublishScheduleUseCase(
     repositoryMock,
+    slotProviderMock,
     memberProviderMock
   );
 
@@ -40,6 +45,7 @@ describe('PublishScheduleUseCase', () => {
       period: 1,
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    slotProviderMock.hasUnassignedSlots.mockResolvedValueOnce(false);
     repositoryMock.findById.mockResolvedValueOnce(schedule);
     repositoryMock.update.mockResolvedValueOnce(undefined);
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
@@ -58,6 +64,7 @@ describe('PublishScheduleUseCase', () => {
       status: 'published',
     });
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    slotProviderMock.hasUnassignedSlots.mockResolvedValueOnce(false);
     repositoryMock.findById.mockResolvedValueOnce(schedule);
     const result = await useCase.execute('org-1', 'user-1', schedule.id);
     expect(result.status).toBe('published');

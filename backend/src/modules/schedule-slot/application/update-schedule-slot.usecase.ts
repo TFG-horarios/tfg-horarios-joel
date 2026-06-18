@@ -90,6 +90,13 @@ export class UpdateScheduleSlotUseCase {
       await this.scheduleSlotRepository.update(linkedSlot);
     }
 
+    if (dayOfWeek === null || slotIndex === null) {
+      await this.dataProvider.unpublishSchedule(
+        slot.scheduleId,
+        organizationId
+      );
+    }
+
     return ScheduleSlotMapper.toDTO(slot);
   }
 }

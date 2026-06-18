@@ -19,9 +19,8 @@ export function useScheduleExport() {
       setIsExportingPDF(true);
 
       const node = gridRef.current;
-      const rect = node.getBoundingClientRect();
-      const width = Math.ceil(rect.width);
-      const height = Math.ceil(rect.height);
+      const width = Math.max(node.scrollWidth, node.clientWidth);
+      const height = Math.max(node.scrollHeight, node.clientHeight);
 
       const imgData = await toPng(node, {
         backgroundColor: isDark ? '#0a0a0b' : '#ffffff',
@@ -31,11 +30,13 @@ export function useScheduleExport() {
         style: {
           margin: '0',
           transform: 'none',
+          width: `${width}px`,
+          height: `${height}px`,
         },
       });
 
       const pdf = new jsPDF({
-        orientation: 'landscape',
+        orientation: width > height ? 'landscape' : 'portrait',
         unit: 'px',
         format: [width, height],
       });

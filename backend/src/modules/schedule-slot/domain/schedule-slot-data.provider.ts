@@ -15,4 +15,5 @@ export interface IScheduleSlotDataProvider {
     scheduleId: string,
     organizationId: string
   ): Promise<boolean>;
+  unpublishSchedule(scheduleId: string, organizationId: string): Promise<void>;
 }

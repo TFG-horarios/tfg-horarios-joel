@@ -1,5 +1,4 @@
 import React from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -23,7 +22,7 @@ export function WeeklyScheduleGrid({
   const t = useTranslations('Organizations.schedules.planner');
 
   return (
-    <div className="flex flex-col h-[calc(100vh-16rem)] min-h-125 bg-card/30 backdrop-blur-sm border border-border rounded-xl shadow-inner overflow-hidden">
+    <div className="flex flex-col min-h-125 bg-card/30 backdrop-blur-sm border border-border rounded-xl shadow-inner overflow-hidden">
       <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
         <h2 className="font-semibold text-foreground flex items-center gap-2">
           <Clock className="size-4 text-indigo-500" />
@@ -31,8 +30,8 @@ export function WeeklyScheduleGrid({
         </h2>
       </div>
 
-      <ScrollArea className="flex-1 w-full overflow-auto">
-        <div className="min-w-200 p-6 space-y-4 bg-background" ref={gridRef}>
+      <div className="flex-1 w-full overflow-x-hidden">
+        <div className="w-full p-6 space-y-4 bg-background" ref={gridRef}>
           <div className="grid grid-cols-6 gap-3">
             <div className="flex items-center justify-center p-3 rounded-lg"></div>
             {daysOfWeek.map((day) => (
@@ -66,7 +65,7 @@ export function WeeklyScheduleGrid({
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

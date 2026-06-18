@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, TriangleAlert, Pencil } from 'lucide-react';
+import { MapPin, TriangleAlert, Pencil, X } from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -30,6 +30,7 @@ type DraggableSlotProps = {
   isOverlay?: boolean;
   subjectIdsPool?: string[];
   onEditClassroomClick?: (slotId: string) => void;
+  onUnassignClick?: (slotId: string) => void;
 };
 
 export const DraggableSlot = memo(function DraggableSlot({
@@ -41,31 +42,31 @@ export const DraggableSlot = memo(function DraggableSlot({
   isOverlay = false,
   subjectIdsPool,
   onEditClassroomClick,
+  onUnassignClick,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
     data: { slot, subject, group },
   });
 
-  const t = useTranslations('Organizations.schedules.planner.errors');
+  const tErrors = useTranslations('Organizations.schedules.planner.errors');
+  const tPlanner = useTranslations('Organizations.schedules.planner');
   const hasConflicts = slot.conflicts && slot.conflicts.length > 0;
 
   const getConflictMessage = (type: string) => {
     switch (type) {
       case 'ROOM_OVERLAP':
-        return t('ERR_ROOM_OVERLAP');
+        return tErrors('ERR_ROOM_OVERLAP');
       case 'COURSE_OVERLAP':
-        return t('ERR_OVERLAP_SAME_SUBJECT');
-      case 'ROOM_CAPACITY':
-        return t('ERR_ROOM_CAPACITY');
-      case 'SHIFT_MORNING':
-        return t('ERR_SHIFT_MORNING');
-      case 'SHIFT_AFTERNOON':
-        return t('ERR_SHIFT_AFTERNOON');
-      case 'SHIFT_EXCEEDS_DAY':
-        return t('ERR_SHIFT_EXCEEDS_DAY');
-      case 'SHIFT':
-        return t('ERR_SHIFT_EXCEEDS_DAY');
+        return tErrors('ERR_OVERLAP_SAME_SUBJECT');
+      case 'CAPACITY_EXCEEDED':
+        return tErrors('ERR_ROOM_CAPACITY');
+      case 'SHIFT_MORNING_REQUIRED':
+        return tErrors('ERR_SHIFT_MORNING');
+      case 'SHIFT_AFTERNOON_REQUIRED':
+        return tErrors('ERR_SHIFT_AFTERNOON');
+      case 'DURATION_EXCEEDS_DAY':
+        return tErrors('ERR_SHIFT_EXCEEDS_DAY');
       default:
         return 'Conflicto detectado';
     }
@@ -100,6 +101,19 @@ export const DraggableSlot = memo(function DraggableSlot({
           title="Editar aula"
         >
           <Pencil className="size-3" />
+        </button>
+      )}
+      {!isOverlay && onUnassignClick && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onUnassignClick(slot.id);
+          }}
+          className="absolute -top-2 left-5 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 cursor-pointer"
+          title={tPlanner('unassignSlot', { fallback: 'Descolocar slot' })}
+        >
+          <X className="size-3" />
         </button>
       )}
       {hasConflicts && (

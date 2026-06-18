@@ -666,8 +666,12 @@
           "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
           "ERR_RESERVATION_OVERLAP": "The physical classroom has an accepted manual reservation for this time.",
-          "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts."
+          "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
+          "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots."
         },
+        "unassignedSlots": "Unassigned slots",
+        "noUnassignedSlots": "There are no unassigned slots at the moment. Drag a slot here or click the 'Unassign' button on a slot.",
+        "unassignSlot": "Unassign slot",
         "globalItinerary": "Global Itinerary",
         "weeklyView": "Weekly Schedule View",
         "time": "Time",
@@ -887,6 +891,8 @@
         "semester": "Semester {period}"
       },
       "planner": {
+        "unassignedSlotsTitle": "Classes to be assigned to this classroom",
+        "unassignedSlotsEmpty": "There are no classes pending to be assigned to this classroom.",
         "weeklyView": "Weekly View",
         "time": "Time",
         "block": "Block {index}",

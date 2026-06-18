@@ -70,7 +70,7 @@ export default async function ClassroomScheduleDetailPage({
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col">
       <ClassroomSchedulePlanner
         classroom={classroom}
         slots={slots}
