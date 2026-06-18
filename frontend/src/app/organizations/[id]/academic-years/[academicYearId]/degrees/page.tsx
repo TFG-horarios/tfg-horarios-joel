@@ -7,14 +7,14 @@ import { ResourceViewToggle } from '@/components/shared/resource/resource-view-t
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchDegrees } from '@/features/degree/queries';
+import { fetchPaginatedDegrees } from '@/features/degree/queries';
 import { DegreeCard } from '@/features/degree/components/degree-card';
 import { DegreeActions } from '@/features/degree/components/degree-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { DegreeRow } from '@/features/degree/components/degree-row';
-import { fetchDegreesAction } from '@/features/degree/actions';
+import { fetchPaginatedDegreesAction } from '@/features/degree/actions';
 import type { DegreeListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationDegreesPageProps = {
@@ -60,7 +60,7 @@ export default async function OrganizationDegreesPage({
 
   const [organization, { data: degrees, meta }] = await Promise.all([
     fetchOrganizationById(id),
-    fetchDegrees(id, query),
+    fetchPaginatedDegrees(id, query),
   ]);
 
   if (!organization) {
@@ -110,7 +110,7 @@ export default async function OrganizationDegreesPage({
           items={degrees}
           meta={meta}
           query={query}
-          loadMore={fetchDegreesAction.bind(null, id, query)}
+          loadMore={fetchPaginatedDegreesAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={DegreeCard}
           gridItemProps={{ translations }}

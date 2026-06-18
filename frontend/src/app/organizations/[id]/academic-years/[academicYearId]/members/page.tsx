@@ -10,12 +10,12 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { getSessionUser } from '@/features/auth/queries';
 import {
   getOrganizationMemberRole,
-  fetchMembers,
+  fetchPaginatedMembers,
 } from '@/features/members/queries';
 import { MemberCard } from '@/features/members/components/member-card';
 import { MemberActions } from '@/features/members/components/member-actions';
 import { MemberRow } from '@/features/members/components/member-row';
-import { fetchMembersAction } from '@/features/members/actions';
+import { fetchPaginatedMembersAction } from '@/features/members/actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
@@ -77,7 +77,7 @@ export default async function OrganizationMembersPage({
     await Promise.all([
       fetchOrganizationById(id),
       getSessionUser(),
-      fetchMembers(id, query),
+      fetchPaginatedMembers(id, query),
     ]);
 
   if (!organization || !sessionUser) {
@@ -139,7 +139,7 @@ export default async function OrganizationMembersPage({
           items={members}
           meta={meta}
           query={query}
-          loadMore={fetchMembersAction.bind(null, id, query)}
+          loadMore={fetchPaginatedMembersAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={MemberCard}
           gridItemProps={{

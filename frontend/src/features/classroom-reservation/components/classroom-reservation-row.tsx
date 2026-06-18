@@ -37,7 +37,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
       if (res.success) {
         toast.success(translations[`statusUpdateSuccess_${status}`]);
       } else {
-        toast.error(res.error || translations['statusUpdateError']);
+        toast.error(res.message || translations['statusUpdateError']);
       }
     });
   };

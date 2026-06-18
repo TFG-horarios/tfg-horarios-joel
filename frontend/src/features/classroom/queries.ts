@@ -3,18 +3,21 @@ import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
 import {
   ClassroomSchema,
+  ClassroomIdentifierSchema,
   createPaginatedSchema,
   type ClassroomDTO,
+  type ClassroomIdentifierDTO,
   type ClassroomListQueryDTO,
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
-export const fetchClassrooms = cache(
+export const fetchPaginatedClassrooms = cache(
   async (
     organizationId: string,
     query?: ClassroomListQueryDTO
   ): Promise<PaginatedResponse<ClassroomDTO>> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
@@ -22,18 +25,16 @@ export const fetchClassrooms = cache(
       param: { organizationId },
       query: query || {},
     });
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
 
     const status = response.status + 0;
-
     if (status === 401 || status === 403) {
       return {
         data: [],
         meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
-      } as PaginatedResponse<ClassroomDTO>;
-    }
-
-    if (!response.ok) {
-      throw new Error(t('server'));
+      };
     }
 
     const payload = await response.json();
@@ -46,20 +47,19 @@ export const fetchAllClassrooms = cache(
   async (organizationId: string): Promise<ClassroomDTO[]> => {
     const t = await getTranslations('Common.errors');
     const client = await getServerClient();
+
     const response = await client.api.organizations[
       ':organizationId'
     ]!.classrooms.all.$get({
       param: { organizationId },
     });
-
-    const status = response.status + 0;
-
-    if (status === 401 || status === 403) {
-      return [];
-    }
-
     if (!response.ok) {
       throw new Error(t('server'));
+    }
+
+    const status = response.status + 0;
+    if (status === 401 || status === 403) {
+      return [];
     }
 
     const payload = await response.json();
@@ -73,23 +73,43 @@ export const fetchClassroomById = cache(
     classroomId: string
   ): Promise<ClassroomDTO | null> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
     ]!.classrooms[':id']!.$get({
       param: { organizationId, id: classroomId },
     });
-
-    const status = response.status + 0;
-
-    if (status === 404) return null;
-    if (status === 401 || status === 403) return null;
-
     if (!response.ok) {
       throw new Error(t('server'));
     }
 
+    const status = response.status + 0;
+    if (status === 404 || status === 401 || status === 403) return null;
+
     const payload = await response.json();
     return ClassroomSchema.parse(payload);
+  }
+);
+
+export const fetchClassroomIdentifiers = cache(
+  async (organizationId: string): Promise<ClassroomIdentifierDTO[]> => {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms.identifiers.$get({
+      param: { organizationId },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch classroom identifiers');
+    }
+
+    const status = response.status + 0;
+    if (status === 401 || status === 403) {
+      return [];
+    }
+
+    const payload = await response.json();
+    return ClassroomIdentifierSchema.array().parse(payload);
   }
 );

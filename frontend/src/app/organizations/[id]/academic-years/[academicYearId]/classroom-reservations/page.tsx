@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchReservations } from '@/features/classroom-reservation/queries';
-import { fetchReservationsAction } from '@/features/classroom-reservation/actions';
+import { fetchPaginatedReservations } from '@/features/classroom-reservation/queries';
+import { fetchPaginatedReservationsAction } from '@/features/classroom-reservation/actions';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 import { hasPermission } from '@/core/permissions/authorization';
+import { type ClassroomDTO } from '@tfg-horarios/shared';
 
 type OrganizationClassroomReservationsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -62,7 +63,7 @@ export default async function OrganizationClassroomReservationsPage({
   const [organization, { data: reservations, meta }, classroomsData, user] =
     await Promise.all([
       fetchOrganizationById(id),
-      fetchReservations(id, query),
+      fetchPaginatedReservations(id, query),
       fetchAllClassrooms(id),
       getSessionUser(),
     ]);
@@ -77,7 +78,7 @@ export default async function OrganizationClassroomReservationsPage({
     : false;
 
   const classroomsMap = classroomsData.reduce(
-    (acc, classroom) => {
+    (acc: Record<string, string>, classroom: ClassroomDTO) => {
       acc[classroom.id] = classroom.name;
       return acc;
     },
@@ -152,7 +153,7 @@ export default async function OrganizationClassroomReservationsPage({
           items={reservations}
           meta={meta}
           query={query}
-          loadMore={fetchReservationsAction.bind(null, id, query)}
+          loadMore={fetchPaginatedReservationsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={translations.empty} />}
           GridItemComponent={ClassroomReservationCard}
           gridItemProps={{ translations, classrooms: classroomsMap, canManage }}

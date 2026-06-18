@@ -5,7 +5,7 @@ import { SaveDegreeBodySchema, type SaveDegreeDTO } from '@tfg-horarios/shared';
 import {
   bulkCreateDegrees,
   replaceDegreesAction,
-  getDegreeIdentifiersAction,
+  fetchDegreeIdentifiersAction,
 } from '@/features/degree/actions';
 import {
   GenericBulkUploader,
@@ -42,7 +42,7 @@ export function DegreeBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
-        const identifiers = await getDegreeIdentifiersAction(organizationId);
+        const identifiers = await fetchDegreeIdentifiersAction(organizationId);
         const existingCodes = new Set(
           identifiers.map((d) => d.code.toLowerCase())
         );

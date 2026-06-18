@@ -5,7 +5,7 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
-import { fetchActiveClassroomConfigurations } from '@/features/classroom-schedule/queries';
+import { fetchPaginatedActiveClassroomConfigurations } from '@/features/classroom-schedule/queries';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
@@ -13,7 +13,7 @@ import { ResourceFilterSelect } from '@/components/shared/resource/resource-filt
 import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
-import { fetchActiveClassroomConfigurationsAction } from '@/features/classroom-schedule/actions';
+import { fetchPaginatedActiveClassroomConfigurationsAction } from '@/features/classroom-schedule/actions';
 import { ClassroomScheduleCard } from '@/features/classroom-schedule/components/classroom-schedule-card';
 import { ClassroomScheduleRow } from '@/features/classroom-schedule/components/classroom-schedule-row';
 import type { ClassroomConfigurationListQueryDTO } from '@tfg-horarios/shared';
@@ -76,7 +76,7 @@ export default async function OrganizationClassroomSchedulesPage({
     fetchOrganizationById(id),
     fetchAllClassrooms(id),
     fetchAcademicYears(id),
-    fetchActiveClassroomConfigurations(id, query),
+    fetchPaginatedActiveClassroomConfigurations(id, query),
   ]);
 
   if (!organization) {
@@ -170,7 +170,7 @@ export default async function OrganizationClassroomSchedulesPage({
           items={configurations}
           meta={meta}
           query={query}
-          loadMore={fetchActiveClassroomConfigurationsAction.bind(
+          loadMore={fetchPaginatedActiveClassroomConfigurationsAction.bind(
             null,
             id,
             query

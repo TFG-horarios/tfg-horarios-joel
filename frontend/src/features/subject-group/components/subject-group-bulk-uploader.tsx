@@ -10,7 +10,7 @@ import {
 import {
   bulkCreateSubjectGroups,
   replaceSubjectGroupsAction,
-  getSubjectGroupIdentifiersAction,
+  fetchSubjectGroupIdentifiersAction,
 } from '@/features/subject-group/actions';
 import {
   GenericBulkUploader,
@@ -107,7 +107,7 @@ export function SubjectGroupBulkUploader({
         }[];
         try {
           currentIdentifiers =
-            await getSubjectGroupIdentifiersAction(organizationId);
+            await fetchSubjectGroupIdentifiersAction(organizationId);
         } catch (error) {
           console.error('Error fetching identifiers:', error);
           return { finalValidData: [], issues: [] };

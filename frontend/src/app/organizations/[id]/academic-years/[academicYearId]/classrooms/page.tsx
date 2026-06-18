@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchClassrooms } from '@/features/classroom/queries';
+import { fetchPaginatedClassrooms } from '@/features/classroom/queries';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ClassroomActions } from '@/features/classroom/components/classroom-actions';
 import { ResourceSearch } from '@/components/shared/resource/resource-search';
@@ -15,7 +15,7 @@ import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { ClassroomCard } from '@/features/classroom/components/classroom-card';
 import { ClassroomRow } from '@/features/classroom/components/classroom-row';
-import { fetchClassroomsAction } from '@/features/classroom/actions';
+import { fetchPaginatedClassroomsAction } from '@/features/classroom/actions';
 
 type OrganizationClassroomsPageProps = {
   params: Promise<{ id: string }>;
@@ -68,7 +68,7 @@ export default async function OrganizationClassroomsPage({
 
   const [organization, { data: classrooms, meta }] = await Promise.all([
     fetchOrganizationById(id),
-    fetchClassrooms(id, query),
+    fetchPaginatedClassrooms(id, query),
   ]);
 
   if (!organization) {
@@ -134,7 +134,7 @@ export default async function OrganizationClassroomsPage({
           items={classrooms}
           meta={meta}
           query={query}
-          loadMore={fetchClassroomsAction.bind(null, id, query)}
+          loadMore={fetchPaginatedClassroomsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ClassroomCard}
           gridItemProps={{ translations }}

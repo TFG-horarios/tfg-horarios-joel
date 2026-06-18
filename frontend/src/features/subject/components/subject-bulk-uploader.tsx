@@ -11,7 +11,7 @@ import {
 import {
   bulkCreateSubjects,
   replaceSubjectsAction,
-  getSubjectIdentifiersAction,
+  fetchSubjectIdentifiersAction,
 } from '@/features/subject/actions';
 import {
   GenericBulkUploader,
@@ -84,7 +84,7 @@ export function SubjectBulkUploader({
         let currentIdentifiers: string[] = [];
         try {
           currentIdentifiers =
-            await getSubjectIdentifiersAction(organizationId);
+            await fetchSubjectIdentifiersAction(organizationId);
         } catch (error) {
           console.error('Failed to fetch existing subject identifiers', error);
         }

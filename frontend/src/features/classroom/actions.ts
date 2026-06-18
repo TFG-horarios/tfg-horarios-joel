@@ -8,89 +8,44 @@ import {
   type SaveClassroomDTO,
   type ClassroomDTO,
   type ClassroomIdentifierDTO,
+  type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { fetchClassrooms } from './queries';
+import {
+  fetchPaginatedClassrooms,
+  fetchAllClassrooms,
+  fetchClassroomIdentifiers,
+} from './queries';
 import type { ClassroomListQueryDTO } from '@tfg-horarios/shared';
-
 import { type ActionResponse } from '@/types/actions';
 
-export async function bulkCreateClassrooms(
-  organizationId: string,
-  dtos: SaveClassroomDTO[]
-): Promise<ActionResponse<ClassroomDTO[]>> {
-  const t = await getTranslations('Common.errors');
-  try {
-    const client = await getServerClient();
-    const response = await client.api.organizations[
-      ':organizationId'
-    ]!.classrooms.bulk.$post({
-      param: { organizationId },
-      json: dtos,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('ERROR DEL BACKEND DE HONO (Aulas):', errorText);
-      return { success: false, message: t('server') };
-    }
-
-    const payload = await response.json();
-
-    revalidatePath(`/organizations/${organizationId}/classrooms`);
-
-    return {
-      success: true,
-      data: ClassroomSchema.array().parse(payload),
-    };
-  } catch (error) {
-    console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
-    return { success: false, message: t('server') };
-  }
-}
-
-export async function fetchClassroomsAction(
+export async function fetchPaginatedClassroomsAction(
   organizationId: string,
   query: ClassroomListQueryDTO,
   page: number
-) {
-  return fetchClassrooms(organizationId, { ...query, page });
+): Promise<PaginatedResponse<ClassroomDTO>> {
+  return fetchPaginatedClassrooms(organizationId, { ...query, page });
 }
 
-export async function replaceClassroomsAction(
-  organizationId: string,
-  dtos: SaveClassroomDTO[]
-): Promise<ActionResponse<ClassroomDTO[]>> {
-  const t = await getTranslations('Common.errors');
+export async function fetchAllClassroomsAction(
+  organizationId: string
+): Promise<ClassroomDTO[]> {
   try {
-    const client = await getServerClient();
-    const response = await client.api.organizations[
-      ':organizationId'
-    ]!.classrooms.bulk.$put({
-      param: { organizationId },
-      json: dtos,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        'ERROR DEL BACKEND DE HONO (Aulas Reemplazo Bulk):',
-        errorText
-      );
-      return { success: false, message: t('server') };
-    }
-
-    const payload = await response.json();
-
-    revalidatePath(`/organizations/${organizationId}/classrooms`);
-
-    return {
-      success: true,
-      data: ClassroomSchema.array().parse(payload),
-    };
+    return await fetchAllClassrooms(organizationId);
   } catch (error) {
-    console.error('ERROR EN EL SERVER ACTION (Aulas Reemplazo Bulk):', error);
-    return { success: false, message: t('server') };
+    console.error('ERROR EN EL SERVER ACTION (All Classrooms):', error);
+    return [];
+  }
+}
+
+export async function fetchClassroomIdentifiersAction(
+  organizationId: string
+): Promise<ClassroomIdentifierDTO[]> {
+  try {
+    return await fetchClassroomIdentifiers(organizationId);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Aulas Identifiers):', error);
+    return [];
   }
 }
 
@@ -100,8 +55,8 @@ export async function createClassroomAction(
 ): Promise<ActionResponse<ClassroomDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
-  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
 
+  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
   if (!parsedInput.success) {
     return { success: false, message: tErrors('validation') };
   }
@@ -114,7 +69,6 @@ export async function createClassroomAction(
       param: { organizationId },
       json: parsedInput.data,
     });
-
     if (!response.ok) {
       throw new Error(tErrors('server'));
     }
@@ -144,8 +98,8 @@ export async function updateClassroomAction(
 ): Promise<ActionResponse<ClassroomDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
-  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
 
+  const parsedInput = SaveClassroomBodySchema.safeParse(dto);
   if (!parsedInput.success) {
     return { success: false, message: tErrors('validation') };
   }
@@ -158,7 +112,6 @@ export async function updateClassroomAction(
       param: { organizationId, id: classroomId },
       json: parsedInput.data,
     });
-
     if (!response.ok) {
       throw new Error(tErrors('server'));
     }
@@ -195,7 +148,6 @@ export async function deleteClassroomAction(
     ]!.classrooms[':id'].$delete({
       param: { organizationId, id: classroomId },
     });
-
     if (!response.ok) {
       throw new Error(tErrors('server'));
     }
@@ -227,7 +179,6 @@ export async function deleteAllClassroomsAction(
     ]!.classrooms.$delete({
       param: { organizationId },
     });
-
     if (!response.ok) {
       throw new Error(tErrors('server'));
     }
@@ -246,48 +197,71 @@ export async function deleteAllClassroomsAction(
   }
 }
 
-export async function getClassroomIdentifiersAction(
-  organizationId: string
-): Promise<ClassroomIdentifierDTO[]> {
+export async function bulkCreateClassrooms(
+  organizationId: string,
+  dtos: SaveClassroomDTO[]
+): Promise<ActionResponse<ClassroomDTO[]>> {
+  const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
-    ]!.classrooms.identifiers.$get({
+    ]!.classrooms.bulk.$post({
       param: { organizationId },
+      json: dtos,
     });
-
     if (!response.ok) {
-      throw new Error('Failed to fetch classroom identifiers');
+      const errorText = await response.text();
+      console.error('ERROR DEL BACKEND DE HONO (Aulas):', errorText);
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
-    return payload;
+
+    revalidatePath(`/organizations/${organizationId}/classrooms`);
+
+    return {
+      success: true,
+      data: ClassroomSchema.array().parse(payload),
+    };
   } catch (error) {
-    console.error('ERROR EN EL SERVER ACTION (Aulas Identifiers):', error);
-    return [];
+    console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
+    return { success: false, message: t('server') };
   }
 }
 
-export async function fetchAllClassroomsAction(
-  organizationId: string
-): Promise<ClassroomDTO[]> {
+export async function replaceClassroomsAction(
+  organizationId: string,
+  dtos: SaveClassroomDTO[]
+): Promise<ActionResponse<ClassroomDTO[]>> {
+  const t = await getTranslations('Common.errors');
   try {
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
-    ]!.classrooms.all.$get({
+    ]!.classrooms.bulk.$put({
       param: { organizationId },
+      json: dtos,
     });
-
     if (!response.ok) {
-      throw new Error('Failed to fetch all classrooms');
+      const errorText = await response.text();
+      console.error(
+        'ERROR DEL BACKEND DE HONO (Aulas Reemplazo Bulk):',
+        errorText
+      );
+      return { success: false, message: t('server') };
     }
 
     const payload = await response.json();
-    return ClassroomSchema.array().parse(payload);
+
+    revalidatePath(`/organizations/${organizationId}/classrooms`);
+
+    return {
+      success: true,
+      data: ClassroomSchema.array().parse(payload),
+    };
   } catch (error) {
-    console.error('ERROR EN EL SERVER ACTION (All Classrooms):', error);
-    return [];
+    console.error('ERROR EN EL SERVER ACTION (Aulas Reemplazo Bulk):', error);
+    return { success: false, message: t('server') };
   }
 }

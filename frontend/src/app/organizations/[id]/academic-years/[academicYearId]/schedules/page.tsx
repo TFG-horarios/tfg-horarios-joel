@@ -6,7 +6,7 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
-import { fetchSchedules } from '@/features/schedule/queries';
+import { fetchPaginatedSchedules } from '@/features/schedule/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
@@ -16,7 +16,7 @@ import { ResourceFilterSelect } from '@/components/shared/resource/resource-filt
 import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceViewToggle } from '@/components/shared/resource/resource-view-toggle';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
-import { fetchSchedulesAction } from '@/features/schedule/actions';
+import { fetchPaginatedSchedulesAction } from '@/features/schedule/actions';
 import { ScheduleCard } from '@/features/schedule/components/schedule-card';
 import { ScheduleRow } from '@/features/schedule/components/schedule-row';
 import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
@@ -105,7 +105,7 @@ export default async function OrganizationSchedulesPage({
     fetchAllItineraries(id),
     fetchAllSubjects(id),
     fetchAcademicYears(id),
-    fetchSchedules(id, query),
+    fetchPaginatedSchedules(id, query),
   ]);
 
   if (!organization) {
@@ -255,7 +255,7 @@ export default async function OrganizationSchedulesPage({
           items={schedules}
           meta={meta}
           query={query}
-          loadMore={fetchSchedulesAction.bind(null, id, query)}
+          loadMore={fetchPaginatedSchedulesAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ScheduleCard}
           gridItemProps={{

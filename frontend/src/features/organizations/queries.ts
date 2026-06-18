@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
-import type { OrganizationDTO } from '@tfg-horarios/shared';
+import { OrganizationSchema, type OrganizationDTO } from '@tfg-horarios/shared';
 
 export const fetchOrganizations = cache(
   async (): Promise<OrganizationDTO[]> => {
@@ -9,10 +9,17 @@ export const fetchOrganizations = cache(
     const client = await getServerClient();
     const response = await client.api.organizations.$get();
 
-    if (response.status === 400) return [];
-    if (!response.ok) throw new Error(t('server'));
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
 
-    return await response.json();
+    const status = response.status + 0;
+    if (status === 400 || status === 401 || status === 403) {
+      return [];
+    }
+
+    const payload = await response.json();
+    return OrganizationSchema.array().parse(payload);
   }
 );
 
@@ -24,9 +31,16 @@ export const fetchOrganizationById = cache(
       param: { id: organizationId },
     });
 
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error(t('server'));
+    const status = response.status + 0;
+    if (status === 404 || status === 401 || status === 403) {
+      return null;
+    }
 
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    return OrganizationSchema.parse(payload);
   }
 );

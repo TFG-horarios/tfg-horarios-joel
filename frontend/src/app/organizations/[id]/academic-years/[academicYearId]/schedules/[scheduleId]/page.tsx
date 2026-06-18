@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchSchedule, fetchScheduleSlots } from '@/features/schedule/queries';
+import {
+  fetchScheduleById,
+  fetchScheduleSlots,
+} from '@/features/schedule/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
@@ -30,7 +33,7 @@ export default async function SchedulePlannerPage({
     academicYears,
   ] = await Promise.all([
     fetchOrganizationById(id),
-    fetchSchedule(id, scheduleId),
+    fetchScheduleById(id, scheduleId),
     fetchScheduleSlots(id, scheduleId),
     fetchAllClassrooms(id),
     fetchAllSubjects(id),

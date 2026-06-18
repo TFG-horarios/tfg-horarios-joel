@@ -8,7 +8,7 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchSubjects } from '@/features/subject/queries';
+import { fetchPaginatedSubjects } from '@/features/subject/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';
@@ -18,7 +18,7 @@ import { ResourceFilterSelect } from '@/components/shared/resource/resource-filt
 import { ResourceFilterInput } from '@/components/shared/resource/resource-filter-input';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { SubjectRow } from '@/features/subject/components/subject-row';
-import { fetchSubjectsAction } from '@/features/subject/actions';
+import { fetchPaginatedSubjectsAction } from '@/features/subject/actions';
 import type { SubjectListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationSubjectsPageProps = {
@@ -93,7 +93,7 @@ export default async function OrganizationSubjectsPage({
     academicYears,
   ] = await Promise.all([
     fetchOrganizationById(id),
-    fetchSubjects(id, query),
+    fetchPaginatedSubjects(id, query),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
     fetchAcademicYears(id),
@@ -210,7 +210,7 @@ export default async function OrganizationSubjectsPage({
           items={subjects}
           meta={meta}
           query={query}
-          loadMore={fetchSubjectsAction.bind(null, id, query)}
+          loadMore={fetchPaginatedSubjectsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectCard}
           gridItemProps={{

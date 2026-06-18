@@ -1,33 +1,11 @@
 'use server';
 
-import { fetchActiveClassroomConfigurations } from './queries';
-import type {
-  ClassroomConfigurationListQueryDTO,
-  Shift,
-} from '@tfg-horarios/shared';
+import { fetchPaginatedActiveClassroomConfigurations } from './queries';
+import type { ClassroomConfigurationListQueryDTO } from '@tfg-horarios/shared';
 
-export async function fetchActiveClassroomConfigurationsAction(
+export async function fetchPaginatedActiveClassroomConfigurationsAction(
   organizationId: string,
   query?: ClassroomConfigurationListQueryDTO
 ) {
-  try {
-    const data = await fetchActiveClassroomConfigurations(
-      organizationId,
-      query
-    );
-    return { success: true, ...data };
-  } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      data: [] as {
-        classroomId: string;
-        academicYearId: string;
-        shift: Shift;
-        period: number;
-      }[],
-      meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
-      message: error instanceof Error ? error.message : 'Unknown error',
-    };
-  }
+  return fetchPaginatedActiveClassroomConfigurations(organizationId, query);
 }

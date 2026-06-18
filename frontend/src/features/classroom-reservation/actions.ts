@@ -8,83 +8,21 @@ import {
   type UpdateClassroomReservationStatusDTO,
   ClassroomReservationSchema,
   type ClassroomReservationListQueryDTO,
+  type ClassroomReservationDTO,
+  type ScheduleDTO,
+  type PaginatedResponse,
+  type ScheduleSlotDTO,
 } from '@tfg-horarios/shared';
 import { fetchClassroomScheduleSlots } from '../classroom-schedule/queries';
-import { fetchReservations } from './queries';
-import { fetchSchedules } from '../schedule/queries';
+import { fetchPaginatedReservations } from './queries';
+import { fetchPaginatedSchedules } from '../schedule/queries';
+import { type ActionResponse } from '@/types/actions';
 
-export async function fetchReservationsAction(
+export async function fetchPaginatedReservationsAction(
   organizationId: string,
   query: ClassroomReservationListQueryDTO
 ) {
-  return await fetchReservations(organizationId, query);
-}
-
-export async function requestReservationAction(
-  organizationId: string,
-  data: SaveClassroomReservationDTO
-) {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-
-  const response = await client.api.organizations[':organizationId']![
-    'classroom-reservations'
-  ].$post({
-    param: { organizationId },
-    json: data,
-  });
-
-  if (!response.ok) {
-    if (response.status === 400 || response.status === 403) {
-      const errorData = (await response.json()) as { error?: string };
-      return { success: false, error: errorData.error || t('server') };
-    }
-    return { success: false, error: t('server') };
-  }
-
-  const payload = await response.json();
-  const parsed = ClassroomReservationSchema.parse(payload);
-
-  revalidatePath(
-    `/organizations/${organizationId}/academic-years/${data.academicYearId}/classroom-reservations`
-  );
-
-  return { success: true, data: parsed };
-}
-
-export async function updateReservationStatusAction(
-  organizationId: string,
-  id: string,
-  data: UpdateClassroomReservationStatusDTO
-) {
-  const t = await getTranslations('Common.errors');
-  const client = await getServerClient();
-
-  const response = await client.api.organizations[':organizationId']![
-    'classroom-reservations'
-  ][':id']!.status.$patch({
-    param: { organizationId, id },
-    json: data,
-  });
-
-  if (!response.ok) {
-    if (
-      response.status === 400 ||
-      response.status === 403 ||
-      response.status === 404
-    ) {
-      const errorData = (await response.json()) as { error?: string };
-      return { success: false, error: errorData.error || t('server') };
-    }
-    return { success: false, error: t('server') };
-  }
-
-  const payload = await response.json();
-  const parsed = ClassroomReservationSchema.parse(payload);
-
-  revalidatePath(`/organizations/${organizationId}`, 'layout');
-
-  return { success: true, data: parsed };
+  return await fetchPaginatedReservations(organizationId, query);
 }
 
 export async function getOccupiedSlotsAction(
@@ -92,7 +30,13 @@ export async function getOccupiedSlotsAction(
   classroomId: string,
   academicYearId: string,
   datesOfWeek: string[]
-) {
+): Promise<
+  ActionResponse<{
+    scheduleSlots: (ScheduleSlotDTO & { period?: number })[];
+    reservations: ClassroomReservationDTO[];
+  }>
+> {
+  const tErrors = await getTranslations('Common.errors');
   try {
     const scheduleSlots = await fetchClassroomScheduleSlots(
       organizationId,
@@ -100,13 +44,13 @@ export async function getOccupiedSlotsAction(
       { academicYearId }
     );
 
-    const schedulesResp = await fetchSchedules(organizationId, {
+    const schedulesResp = await fetchPaginatedSchedules(organizationId, {
       academicYearId,
       limit: 1000,
     });
 
     const schedulePeriodMap = new Map(
-      schedulesResp.data.map((s) => [s.id, s.period])
+      schedulesResp.data.map((s: ScheduleDTO) => [s.id, s.period])
     );
     const slotsWithPeriod = scheduleSlots.map((slot) => ({
       ...slot,
@@ -114,11 +58,11 @@ export async function getOccupiedSlotsAction(
     }));
 
     const reservationsPromises = datesOfWeek.map((date) =>
-      fetchReservations(organizationId, {
+      fetchPaginatedReservations(organizationId, {
         classroomId,
         academicYearId,
         date,
-      }).then((res) => res.data)
+      }).then((res: PaginatedResponse<ClassroomReservationDTO>) => res.data)
     );
 
     const reservationsArrays = await Promise.all(reservationsPromises);
@@ -128,10 +72,110 @@ export async function getOccupiedSlotsAction(
       success: true,
       data: {
         scheduleSlots: slotsWithPeriod,
-        reservations: reservations.filter((r) => r.status !== 'REJECTED'),
+        reservations: reservations.filter(
+          (r: ClassroomReservationDTO) => r.status !== 'REJECTED'
+        ),
       },
     };
-  } catch {
-    return { success: false, error: 'Failed to fetch occupied slots' };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function requestReservationAction(
+  organizationId: string,
+  data: SaveClassroomReservationDTO
+): Promise<ActionResponse<ClassroomReservationDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+  const client = await getServerClient();
+
+  try {
+    const response = await client.api.organizations[':organizationId']![
+      'classroom-reservations'
+    ].$post({
+      param: { organizationId },
+      json: data,
+    });
+
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 403) {
+        const errorData = (await response.json()) as {
+          error?: string;
+          message?: string;
+        };
+        return {
+          success: false,
+          message: errorData.message || errorData.error || tErrors('server'),
+        };
+      }
+      return { success: false, message: tErrors('server') };
+    }
+
+    const payload = await response.json();
+    const parsed = ClassroomReservationSchema.parse(payload);
+
+    revalidatePath(
+      `/organizations/${organizationId}/academic-years/${data.academicYearId}/classroom-reservations`
+    );
+
+    return { success: true, message: tSuccess('created'), data: parsed };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function updateReservationStatusAction(
+  organizationId: string,
+  id: string,
+  data: UpdateClassroomReservationStatusDTO
+): Promise<ActionResponse<ClassroomReservationDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+  const client = await getServerClient();
+
+  try {
+    const response = await client.api.organizations[':organizationId']![
+      'classroom-reservations'
+    ][':id']!.status.$patch({
+      param: { organizationId, id },
+      json: data,
+    });
+
+    if (!response.ok) {
+      if (
+        response.status === 400 ||
+        response.status === 403 ||
+        response.status === 404
+      ) {
+        const errorData = (await response.json()) as {
+          error?: string;
+          message?: string;
+        };
+        return {
+          success: false,
+          message: errorData.message || errorData.error || tErrors('server'),
+        };
+      }
+      return { success: false, message: tErrors('server') };
+    }
+
+    const payload = await response.json();
+    const parsed = ClassroomReservationSchema.parse(payload);
+
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+
+    return { success: true, message: tSuccess('updated'), data: parsed };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
   }
 }

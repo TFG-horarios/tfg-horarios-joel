@@ -12,7 +12,7 @@ import {
 } from '@tfg-horarios/shared';
 import { z } from 'zod';
 
-export const fetchActiveClassroomConfigurations = cache(
+export const fetchPaginatedActiveClassroomConfigurations = cache(
   async (
     organizationId: string,
     query?: ClassroomConfigurationListQueryDTO

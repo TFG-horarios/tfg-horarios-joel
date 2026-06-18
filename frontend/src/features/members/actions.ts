@@ -8,20 +8,31 @@ import {
   CreateMemberBodySchema,
   UpdateMemberRoleBodySchema,
   type MemberListQueryDTO,
+  type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { fetchMembers } from './queries';
+import { fetchPaginatedMembers, fetchAllMembers } from './queries';
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
-
 import { type ActionResponse } from '@/types/actions';
 
-export async function fetchMembersAction(
+export async function fetchPaginatedMembersAction(
   organizationId: string,
   query: MemberListQueryDTO,
   page: number
-) {
-  return fetchMembers(organizationId, { ...query, page });
+): Promise<PaginatedResponse<MemberDTO>> {
+  return fetchPaginatedMembers(organizationId, { ...query, page });
+}
+
+export async function fetchAllMembersAction(
+  organizationId: string
+): Promise<MemberDTO[]> {
+  try {
+    return await fetchAllMembers(organizationId);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (All Members):', error);
+    return [];
+  }
 }
 
 export async function addMemberAction(
@@ -30,8 +41,8 @@ export async function addMemberAction(
 ): Promise<ActionResponse<MemberDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
-  const parsedInput = CreateMemberBodySchema.safeParse(dto);
 
+  const parsedInput = CreateMemberBodySchema.safeParse(dto);
   if (!parsedInput.success) {
     return { success: false, message: tErrors('validation') };
   }
@@ -44,7 +55,6 @@ export async function addMemberAction(
       param: { organizationId },
       json: parsedInput.data,
     });
-
     if (!response.ok) {
       let responseMessage = tErrors('server');
       try {
@@ -61,7 +71,11 @@ export async function addMemberAction(
 
     revalidatePath(`/organizations/${organizationId}/members`);
 
-    return { success: true, message: tSuccess('created'), data: member };
+    return {
+      success: true,
+      message: tSuccess('created'),
+      data: member,
+    };
   } catch (error) {
     return {
       success: false,
@@ -76,8 +90,9 @@ export async function updateMemberRoleAction(
   dto: UpdateMemberRoleDTO
 ): Promise<ActionResponse> {
   const tErrors = await getTranslations('Common.errors');
-  const parsedInput = UpdateMemberRoleBodySchema.safeParse(dto);
+  const tSuccess = await getTranslations('Common.success');
 
+  const parsedInput = UpdateMemberRoleBodySchema.safeParse(dto);
   if (!parsedInput.success) {
     return { success: false, message: tErrors('validation') };
   }
@@ -90,7 +105,6 @@ export async function updateMemberRoleAction(
       param: { organizationId, id: memberId },
       json: parsedInput.data,
     });
-
     if (!response.ok) {
       let responseMessage = tErrors('server');
       try {
@@ -104,7 +118,10 @@ export async function updateMemberRoleAction(
 
     revalidatePath(`/organizations/${organizationId}/members`);
 
-    return { success: true };
+    return {
+      success: true,
+      message: tSuccess('updated'),
+    };
   } catch (error) {
     return {
       success: false,
@@ -118,6 +135,7 @@ export async function removeMemberAction(
   memberId: string
 ): Promise<ActionResponse> {
   const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
 
   try {
     const client = await getServerClient();
@@ -126,7 +144,6 @@ export async function removeMemberAction(
     ]!.$delete({
       param: { organizationId, id: memberId },
     });
-
     if (!response.ok) {
       let responseMessage = tErrors('server');
       try {
@@ -139,7 +156,11 @@ export async function removeMemberAction(
     }
 
     revalidatePath(`/organizations/${organizationId}/members`);
-    return { success: true };
+
+    return {
+      success: true,
+      message: tSuccess('deleted'),
+    };
   } catch (error) {
     return {
       success: false,

@@ -8,7 +8,7 @@ import {
 import {
   bulkCreateClassrooms,
   replaceClassroomsAction,
-  getClassroomIdentifiersAction,
+  fetchClassroomIdentifiersAction,
 } from '@/features/classroom/actions';
 import {
   GenericBulkUploader,
@@ -46,7 +46,8 @@ export function ClassroomBulkUploader({
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];
 
-        const identifiers = await getClassroomIdentifiersAction(organizationId);
+        const identifiers =
+          await fetchClassroomIdentifiersAction(organizationId);
         const existingNames = new Set(
           identifiers.map((name) => name.toLowerCase())
         );

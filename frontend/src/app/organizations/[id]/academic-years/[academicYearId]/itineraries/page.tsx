@@ -7,7 +7,7 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchItineraries } from '@/features/itinerary/queries';
+import { fetchPaginatedItineraries } from '@/features/itinerary/queries';
 import { ItineraryCard } from '@/features/itinerary/components/itinerary-card';
 import { ItineraryActions } from '@/features/itinerary/components/itinerary-actions';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
@@ -16,7 +16,7 @@ import { ResourceFilterInput } from '@/components/shared/resource/resource-filte
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { ItineraryRow } from '@/features/itinerary/components/itinerary-row';
-import { fetchItinerariesAction } from '@/features/itinerary/actions';
+import { fetchPaginatedItinerariesAction } from '@/features/itinerary/actions';
 import type { ItineraryListQueryDTO } from '@tfg-horarios/shared';
 
 type OrganizationItinerariesPageProps = {
@@ -67,7 +67,7 @@ export default async function OrganizationItinerariesPage({
   const [organization, { data: itineraries, meta }, degrees] =
     await Promise.all([
       fetchOrganizationById(id),
-      fetchItineraries(id, query),
+      fetchPaginatedItineraries(id, query),
       fetchAllDegrees(id),
     ]);
 
@@ -123,7 +123,7 @@ export default async function OrganizationItinerariesPage({
           items={itineraries}
           meta={meta}
           query={query}
-          loadMore={fetchItinerariesAction.bind(null, id, query)}
+          loadMore={fetchPaginatedItinerariesAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ItineraryCard}
           gridItemProps={{ degreeMap, translations }}

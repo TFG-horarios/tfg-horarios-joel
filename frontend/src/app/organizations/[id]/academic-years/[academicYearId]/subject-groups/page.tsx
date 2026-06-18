@@ -7,7 +7,7 @@ import { ResourceViewToggle } from '@/components/shared/resource/resource-view-t
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
-import { fetchSubjectGroups } from '@/features/subject-group/queries';
+import { fetchPaginatedSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
@@ -17,7 +17,7 @@ import { ResourceSearch } from '@/components/shared/resource/resource-search';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import { SubjectGroupRow } from '@/features/subject-group/components/subject-group-row';
-import { fetchSubjectGroupsAction } from '@/features/subject-group/actions';
+import { fetchPaginatedSubjectGroupsAction } from '@/features/subject-group/actions';
 import {
   type SubjectGroupListQueryDTO,
   type GroupType,
@@ -88,7 +88,7 @@ export default async function OrganizationSubjectGroupsPage({
   const [organization, { data: groups, meta }, subjects, degrees, itineraries] =
     await Promise.all([
       fetchOrganizationById(id),
-      fetchSubjectGroups(id, query),
+      fetchPaginatedSubjectGroups(id, query),
       fetchAllSubjects(id),
       fetchAllDegrees(id),
       fetchAllItineraries(id),
@@ -193,7 +193,7 @@ export default async function OrganizationSubjectGroupsPage({
           items={groups}
           meta={meta}
           query={query}
-          loadMore={fetchSubjectGroupsAction.bind(null, id, query)}
+          loadMore={fetchPaginatedSubjectGroupsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectGroupCard}
           gridItemProps={{ subjectMap, degreeMap, itineraryMap, translations }}

@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { getServerClient } from '@/lib/api/server';
 import {
   MemberSchema,
+  createPaginatedSchema,
   type MemberDTO,
   type MemberListQueryDTO,
   type PaginatedResponse,
@@ -13,12 +14,13 @@ type OrganizationMemberContext = {
   currentMember: MemberDTO | null;
 };
 
-export const fetchMembers = cache(
+export const fetchPaginatedMembers = cache(
   async (
     organizationId: string,
     query?: MemberListQueryDTO
   ): Promise<PaginatedResponse<MemberDTO>> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
@@ -26,35 +28,41 @@ export const fetchMembers = cache(
       param: { organizationId },
       query: query || {},
     });
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
 
-    const status = response.status as number;
+    const status = response.status + 0;
     if (status === 401 || status === 403) {
       return {
         data: [],
         meta: { total: 0, page: 1, limit: 100, totalPages: 0 },
       };
     }
-    if (status !== 200) throw new Error(t('fetchFailed'));
 
-    return (await response.json()) as PaginatedResponse<MemberDTO>;
+    const payload = await response.json();
+    const schema = createPaginatedSchema(MemberSchema);
+    return schema.parse(payload);
   }
 );
 
-const fetchAllMembers = cache(
+export const fetchAllMembers = cache(
   async (organizationId: string): Promise<MemberDTO[]> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
     ]!.members.all.$get({
       param: { organizationId },
     });
-
-    const status = response.status as number;
-    if (status === 401 || status === 403) return [];
-
     if (!response.ok) {
       throw new Error(t('server'));
+    }
+
+    const status = response.status + 0;
+    if (status === 401 || status === 403) {
+      return [];
     }
 
     const payload = await response.json();

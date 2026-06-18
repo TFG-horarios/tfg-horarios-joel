@@ -6,7 +6,7 @@ import { SaveItineraryBodySchema, type DegreeDTO } from '@tfg-horarios/shared';
 import {
   bulkCreateItineraries,
   replaceItinerariesAction,
-  getItineraryIdentifiersAction,
+  fetchItineraryIdentifiersAction,
 } from '@/features/itinerary/actions';
 import {
   GenericBulkUploader,
@@ -53,7 +53,7 @@ export function ItineraryBulkUploader({
         let currentIdentifiers: string[] = [];
         try {
           currentIdentifiers =
-            await getItineraryIdentifiersAction(organizationId);
+            await fetchItineraryIdentifiersAction(organizationId);
         } catch (error) {
           console.error(
             'Failed to fetch existing itinerary identifiers',

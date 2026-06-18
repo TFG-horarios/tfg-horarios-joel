@@ -9,7 +9,7 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
-export const fetchReservations = cache(
+export const fetchPaginatedReservations = cache(
   async (
     organizationId: string,
     query?: ClassroomReservationListQueryDTO

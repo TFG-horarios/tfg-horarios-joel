@@ -4,18 +4,20 @@ import { getTranslations } from 'next-intl/server';
 import {
   ScheduleSchema,
   ScheduleSlotSchema,
+  createPaginatedSchema,
   type ScheduleDTO,
   type ScheduleSlotDTO,
   type ScheduleListQueryDTO,
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
-export const fetchSchedules = cache(
+export const fetchPaginatedSchedules = cache(
   async (
     organizationId: string,
     query?: ScheduleListQueryDTO
   ): Promise<PaginatedResponse<ScheduleDTO>> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
@@ -23,26 +25,31 @@ export const fetchSchedules = cache(
       param: { organizationId },
       query: query || {},
     });
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
 
-    const status = response.status as number;
+    const status = response.status + 0;
     if (status === 401 || status === 403) {
       return {
         data: [],
         meta: { total: 0, page: 1, limit: 100, totalPages: 0 },
       };
     }
-    if (status !== 200) throw new Error(t('server'));
 
-    return (await response.json()) as PaginatedResponse<ScheduleDTO>;
+    const payload = await response.json();
+    const schema = createPaginatedSchema(ScheduleSchema);
+    return schema.parse(payload);
   }
 );
 
-export const fetchSchedule = cache(
+export const fetchScheduleById = cache(
   async (
     organizationId: string,
     scheduleId: string
   ): Promise<ScheduleDTO | null> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
@@ -50,9 +57,10 @@ export const fetchSchedule = cache(
       param: { organizationId, id: scheduleId },
     });
 
-    const status = response.status as number;
-    if (status === 404) return null;
-    if (status === 401 || status === 403) return null;
+    const status = response.status + 0;
+    if (status === 404 || status === 401 || status === 403) {
+      return null;
+    }
 
     if (!response.ok) {
       throw new Error(t('server'));
@@ -69,6 +77,7 @@ export const fetchScheduleSlots = cache(
     scheduleId: string
   ): Promise<ScheduleSlotDTO[]> => {
     const t = await getTranslations('Common.errors');
+
     const client = await getServerClient();
     const response = await client.api.organizations[
       ':organizationId'
@@ -76,9 +85,10 @@ export const fetchScheduleSlots = cache(
       param: { organizationId, id: scheduleId },
     });
 
-    const status = response.status as number;
-    if (status === 404) return [];
-    if (status === 401 || status === 403) return [];
+    const status = response.status + 0;
+    if (status === 404 || status === 401 || status === 403) {
+      return [];
+    }
 
     if (!response.ok) {
       throw new Error(t('server'));

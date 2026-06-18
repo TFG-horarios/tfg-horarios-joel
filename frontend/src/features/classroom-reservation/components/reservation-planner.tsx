@@ -231,7 +231,7 @@ export function ReservationPlanner({
         setModalOpen(false);
         router.push(`/organizations/${organization.id}/classroom-reservations`);
       } else {
-        toast.error(result.error || 'Error al procesar la reserva');
+        toast.error(result.message || 'Error al procesar la reserva');
       }
     });
   };
