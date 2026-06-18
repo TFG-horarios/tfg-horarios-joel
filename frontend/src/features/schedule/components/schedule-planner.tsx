@@ -8,6 +8,21 @@ import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { DraggableSlot } from './dnd/draggable-slot';
 import { DroppableCell } from './dnd/droppable-cell';
@@ -52,6 +67,7 @@ type MemoizedScheduleCellProps = {
   classroomMap: Map<string, ClassroomDTO>;
   dropHereText: string;
   subjectIdsPool: string[];
+  onEditSlotClassroom: (slotId: string) => void;
 };
 
 const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
@@ -61,6 +77,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
   classroomMap,
   dropHereText,
   subjectIdsPool,
+  onEditSlotClassroom,
 }: MemoizedScheduleCellProps) {
   return (
     <DroppableCell
@@ -82,6 +99,7 @@ const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
               group={meta.group}
               classroom={classroom}
               subjectIdsPool={subjectIdsPool}
+              onEditClassroomClick={onEditSlotClassroom}
             />
           );
         })
@@ -112,6 +130,10 @@ export function SchedulePlanner({
   const [slots, setSlots] = useState<ScheduleSlotDTO[]>(initialSlots);
 
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [editingClassroomId, setEditingClassroomId] = useState<string>('none');
+  const [isSavingClassroom, setIsSavingClassroom] = useState(false);
+
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [localSchedule, setLocalSchedule] = useState<ScheduleDTO>(schedule);
@@ -229,6 +251,72 @@ export function SchedulePlanner({
     });
     return map;
   }, [slots]);
+
+  const handleEditClassroomClick = (slotId: string) => {
+    const slot = slots.find((s) => s.id === slotId);
+    if (slot) {
+      setEditingSlotId(slotId);
+      setEditingClassroomId(slot.classroomId || 'none');
+    }
+  };
+
+  const handleSaveClassroom = async () => {
+    if (!editingSlotId) return;
+    setIsSavingClassroom(true);
+    const oldSlots = [...slots];
+    try {
+      const targetClassroom =
+        editingClassroomId === 'none' ? null : editingClassroomId;
+      setSlots((prev) =>
+        prev.map((s) =>
+          s.id === editingSlotId ? { ...s, classroomId: targetClassroom } : s
+        )
+      );
+
+      const result = await updateScheduleSlotAction(
+        organization.id,
+        editingSlotId,
+        {
+          classroomId: targetClassroom,
+        }
+      );
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      toast.success(
+        t('actions.updateSuccess', { fallback: 'Aula actualizada' })
+      );
+      setEditingSlotId(null);
+    } catch (err) {
+      setSlots(oldSlots);
+      const errorMsg =
+        err instanceof Error ? err.message : t('planner.failedAssign');
+
+      if (errorMsg.includes('\n')) {
+        const errors = errorMsg.split('\n');
+        toast.error(t('planner.failedAssign'), {
+          description: (
+            <ul className="list-disc pl-4 space-y-1 mt-1">
+              {errors.map((e, i) => {
+                const translated = e.startsWith('ERR_')
+                  ? t(`planner.errors.${e}` as any)
+                  : e;
+                return <li key={i}>{translated}</li>;
+              })}
+            </ul>
+          ),
+          duration: 5000,
+        });
+      } else {
+        const translated = errorMsg.startsWith('ERR_')
+          ? t(`planner.errors.${errorMsg}` as any)
+          : errorMsg;
+        toast.error(translated);
+      }
+    } finally {
+      setIsSavingClassroom(false);
+    }
+  };
 
   const slotMetaMap = React.useMemo(() => {
     const map = new Map<
@@ -451,6 +539,7 @@ export function SchedulePlanner({
                 classroomMap={classroomMap}
                 dropHereText={t('planner.dropHere')}
                 subjectIdsPool={subjectIdsPool}
+                onEditSlotClassroom={handleEditClassroomClick}
               />
             );
           }}
@@ -478,6 +567,63 @@ export function SchedulePlanner({
           ) : null}
         </DragOverlay>
       </div>
+
+      <Dialog
+        open={!!editingSlotId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingSlotId(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {t('planner.editClassroom', { fallback: 'Editar aula del slot' })}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="classroom" className="text-right">
+                Aula
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  value={editingClassroomId}
+                  onValueChange={setEditingClassroomId}
+                >
+                  <SelectTrigger id="classroom">
+                    <SelectValue placeholder="Seleccionar aula" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sin aula asignada</SelectItem>
+                    {classrooms.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} ({c.capacity} cap.)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingSlotId(null)}
+              disabled={isSavingClassroom}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveClassroom} disabled={isSavingClassroom}>
+              {isSavingClassroom && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Guardar cambios
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DragDropProvider>
   );
 }

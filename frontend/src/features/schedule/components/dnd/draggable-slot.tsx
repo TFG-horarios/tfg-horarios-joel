@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, TriangleAlert } from 'lucide-react';
+import { MapPin, TriangleAlert, Pencil } from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -29,6 +29,7 @@ type DraggableSlotProps = {
   degree?: DegreeDTO;
   isOverlay?: boolean;
   subjectIdsPool?: string[];
+  onEditClassroomClick?: (slotId: string) => void;
 };
 
 export const DraggableSlot = memo(function DraggableSlot({
@@ -39,6 +40,7 @@ export const DraggableSlot = memo(function DraggableSlot({
   degree,
   isOverlay = false,
   subjectIdsPool,
+  onEditClassroomClick,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
@@ -81,12 +83,25 @@ export const DraggableSlot = memo(function DraggableSlot({
         zIndex: isOverlay ? 9999 : 20,
         cursor: isDragging ? 'grabbing' : 'grab',
       }}
-      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative
+      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative group
         ${getSubjectColorClasses(subject.id, subjectIdsPool)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
         ${hasConflicts ? 'border-destructive border-2' : ''}
       `}
     >
+      {!isOverlay && onEditClassroomClick && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onEditClassroomClick(slot.id);
+          }}
+          className="absolute -top-2 -left-2 bg-primary text-primary-foreground rounded-full p-1 shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 cursor-pointer"
+          title="Editar aula"
+        >
+          <Pencil className="size-3" />
+        </button>
+      )}
       {hasConflicts && (
         <TooltipProvider delayDuration={200}>
           <Tooltip>
@@ -119,7 +134,18 @@ export const DraggableSlot = memo(function DraggableSlot({
           variant="outline"
           className="text-[9px] uppercase px-1.5 py-0 shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white"
         >
-          {group.groupType} {group.groupNumber}
+          {group.groupType === 'theory'
+            ? 'TE'
+            : group.groupType === 'problems'
+              ? 'PA'
+              : group.groupType === 'practices'
+                ? 'PE'
+                : group.groupType === 'tutoring'
+                  ? 'TU'
+                  : group.groupType === 'reduced_practices'
+                    ? 'PX'
+                    : group.groupType}
+          {group.groupNumber}
         </Badge>
 
         <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full text-black dark:text-white">

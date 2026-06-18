@@ -11,7 +11,10 @@ export const SUBJECT_COLORS = [
   'bg-amber-200 border-amber-300 text-black dark:text-white dark:bg-amber-950/60 dark:border-amber-900',
 ];
 
-export function getSubjectColorClasses(subjectId: string, subjectIdsPool?: string[]): string {
+export function getSubjectColorClasses(
+  subjectId: string,
+  subjectIdsPool?: string[]
+): string {
   if (subjectIdsPool && subjectIdsPool.length > 0) {
     const sortedPool = Array.from(new Set(subjectIdsPool)).sort();
     const index = sortedPool.indexOf(subjectId);

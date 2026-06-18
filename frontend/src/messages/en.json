@@ -655,6 +655,7 @@
         "publishing": "Publishing...",
         "failedPublish": "Failed to publish schedule.",
         "failedAssign": "Failed to assign slot.",
+        "editClassroom": "Edit classroom",
         "errors": {
           "ERR_ROOM_CAPACITY": "The selected classroom does not have enough capacity for this group.",
           "ERR_SHIFT_MORNING": "This subject must be taught within the morning shift.",
@@ -696,7 +697,8 @@
         "generating": "Generating schedules...",
         "publishSuccess": "Schedule published successfully.",
         "unpublishSuccess": "Schedule reverted to draft successfully.",
-        "generateSuccess": "Schedules generated successfully."
+        "generateSuccess": "Schedules generated successfully.",
+        "updateSuccess": "Classroom updated successfully."
       },
       "form": {
         "academicYear": "Academic Year",

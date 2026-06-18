@@ -656,6 +656,7 @@
         "publishing": "Publicando...",
         "failedPublish": "Error al publicar el horario.",
         "failedAssign": "Error al asignar la franja horaria.",
+        "editClassroom": "Editar aula del slot",
         "errors": {
           "ERR_ROOM_CAPACITY": "El aula seleccionada no tiene capacidad suficiente para este grupo.",
           "ERR_SHIFT_MORNING": "Esta asignatura debe impartirse en el turno de mañana.",
@@ -697,7 +698,8 @@
         "generating": "Generando horarios...",
         "publishSuccess": "Horario publicado correctamente.",
         "unpublishSuccess": "Horario despublicado correctamente.",
-        "generateSuccess": "Horarios generados correctamente."
+        "generateSuccess": "Horarios generados correctamente.",
+        "updateSuccess": "Aula actualizada correctamente."
       },
       "form": {
         "academicYear": "Año Académico",
