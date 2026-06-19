@@ -36,35 +36,54 @@ export function useScheduleGrid(
   }, [shift, maxMorningSlots]);
 
   const slotTimeLabels = useMemo(() => {
-    let startMins;
-    let endMins;
-
-    if (shift === 'morning') {
-      startMins = parseTime(academicYear.morningStart);
-      endMins = parseTime(academicYear.morningEnd);
-    } else if (shift === 'afternoon') {
-      startMins = parseTime(academicYear.afternoonStart);
-      endMins = parseTime(academicYear.afternoonEnd);
-    } else {
-      startMins = parseTime(academicYear.morningStart);
-      endMins = parseTime(academicYear.afternoonEnd);
-    }
-
-    const count = Math.floor(
-      (endMins - startMins) / academicYear.slotDurationMinutes
-    );
     const labels: Record<number, string> = {};
 
-    for (let i = 0; i < count; i++) {
-      const slotStart = startMins + i * academicYear.slotDurationMinutes;
-      const slotEnd = slotStart + academicYear.slotDurationMinutes;
-      labels[startSlotIndex + i] =
-        `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+    if (shift === 'morning' || shift === 'global') {
+      const startMins = parseTime(academicYear.morningStart);
+      const endMins = parseTime(academicYear.morningEnd);
+      const count = Math.floor(
+        (endMins - startMins) / academicYear.slotDurationMinutes
+      );
+      for (let i = 0; i < count; i++) {
+        const slotStart = startMins + i * academicYear.slotDurationMinutes;
+        const slotEnd = slotStart + academicYear.slotDurationMinutes;
+        labels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+      }
     }
-    return labels;
-  }, [academicYear, shift, startSlotIndex]);
 
-  const numSlots = Object.keys(slotTimeLabels).length;
+    if (shift === 'afternoon' || shift === 'global') {
+      const startMins = parseTime(academicYear.afternoonStart);
+      const endMins = parseTime(academicYear.afternoonEnd);
+      const count = Math.floor(
+        (endMins - startMins) / academicYear.slotDurationMinutes
+      );
+      for (let i = 0; i < count; i++) {
+        const slotStart = startMins + i * academicYear.slotDurationMinutes;
+        const slotEnd = slotStart + academicYear.slotDurationMinutes;
+        labels[maxMorningSlots + i] =
+          `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+      }
+    }
+
+    return labels;
+  }, [academicYear, shift, maxMorningSlots]);
+
+  const numSlots = useMemo(() => {
+    if (shift === 'morning') return maxMorningSlots;
+    if (shift === 'afternoon') {
+      const startMins = parseTime(academicYear.afternoonStart);
+      const endMins = parseTime(academicYear.afternoonEnd);
+      return Math.floor(
+        (endMins - startMins) / academicYear.slotDurationMinutes
+      );
+    }
+    const pmStart = parseTime(academicYear.afternoonStart);
+    const pmEnd = parseTime(academicYear.afternoonEnd);
+    return (
+      maxMorningSlots +
+      Math.floor((pmEnd - pmStart) / academicYear.slotDurationMinutes)
+    );
+  }, [academicYear, shift, maxMorningSlots]);
 
   return {
     startSlotIndex,

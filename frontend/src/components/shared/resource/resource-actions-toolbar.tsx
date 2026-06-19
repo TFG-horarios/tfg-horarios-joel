@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Trash2, Plus, Upload, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,8 +37,8 @@ import { ResourceActions } from '@/components/shared/resource/resource-actions';
 
 export interface ResourceActionsToolbarProps {
   onDeleteAll: () => Promise<{ success: boolean; message?: string }>;
-  appendModalContent: React.ReactNode;
-  overwriteModalContent: React.ReactNode;
+  appendModalContent: ReactNode;
+  overwriteModalContent: ReactNode;
   onCreateClick?: () => void;
   onExportCsv?: () => void;
   translations: {

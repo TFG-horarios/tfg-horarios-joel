@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
 
 type OrganizationSectionShellProps = {
   label: string;
@@ -6,7 +7,7 @@ type OrganizationSectionShellProps = {
   description: string;
   count?: number;
   countLabel?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 };
 

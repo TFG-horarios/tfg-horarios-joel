@@ -35,6 +35,7 @@ import {
   listAllSchedulesRoute,
   deleteScheduleRoute,
   unpublishScheduleRoute,
+  streamScheduleEventsRoute,
 } from './infrastructure/http/hono.schedule.routes';
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
@@ -48,6 +49,7 @@ export const createScheduleModule = (db: DbConnection) => {
   const classroomRepository = new DrizzleClassroomRepository(db);
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const reservationRepository = new DrizzleClassroomReservationRepository(db);
 
   const memberProvider = new ScheduleMemberAdapter(memberRepository);
   const slotMemberProvider = new ScheduleSlotMemberAdapter(memberRepository);
@@ -55,23 +57,22 @@ export const createScheduleModule = (db: DbConnection) => {
     degreeRepository,
     classroomRepository,
     subjectGroupRepository,
-    academicYearRepository
+    academicYearRepository,
+    reservationRepository
   );
 
   const engineProvider = new SchedulerEngineAdapter();
 
-  const reservationRepository = new DrizzleClassroomReservationRepository(db);
-
   const slotValidationProvider = new ScheduleSlotValidationAdapter(
     scheduleSlotRepository,
     scheduleRepository,
-    dataProvider,
-    reservationRepository
+    dataProvider
   );
 
   const slotDataProvider = new ScheduleSlotDataAdapter(
     scheduleRepository,
-    dataProvider
+    dataProvider,
+    reservationRepository
   );
 
   const slotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
@@ -118,7 +119,8 @@ export const createScheduleModule = (db: DbConnection) => {
     .openapi(generateScheduleRoute, controller.generate)
     .openapi(checkOverwriteScheduleRoute, controller.checkOverwrite)
     .openapi(listScheduleSlotsRoute, controller.listSlots)
-    .openapi(updateScheduleSlotRoute, controller.updateSlot);
+    .openapi(updateScheduleSlotRoute, controller.updateSlot)
+    .openapi(streamScheduleEventsRoute, controller.streamEvents);
 
   return routes;
 };

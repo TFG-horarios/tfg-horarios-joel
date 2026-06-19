@@ -1,9 +1,10 @@
 import { Header } from '@/components/layout/header';
+import type { ReactNode } from 'react';
 
 export default function LandingLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-foreground">

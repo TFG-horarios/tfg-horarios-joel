@@ -16,4 +16,11 @@ export interface IScheduleSlotDataProvider {
     organizationId: string
   ): Promise<boolean>;
   unpublishSchedule(scheduleId: string, organizationId: string): Promise<void>;
+  rejectConflictingReservations(
+    organizationId: string,
+    classroomId: string,
+    dayOfWeek: number,
+    slotIndex: number,
+    duration: number
+  ): Promise<void>;
 }

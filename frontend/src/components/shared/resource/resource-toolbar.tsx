@@ -1,9 +1,11 @@
 'use client';
 
+import type { ReactNode } from "react";
+
 export interface ResourceToolbarProps {
-  search?: React.ReactNode;
-  filters?: React.ReactNode;
-  viewToggle?: React.ReactNode;
+  search?: ReactNode;
+  filters?: ReactNode;
+  viewToggle?: ReactNode;
 }
 
 export function ResourceToolbar({

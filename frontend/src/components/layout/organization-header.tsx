@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, Fragment, type ReactNode } from 'react';
 import { LogOut, Search, Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
@@ -145,7 +145,7 @@ export function OrganizationHeader() {
                         '/' + pathSegments.slice(0, index + 2).join('/');
                       const realIndex = index + 1;
 
-                      let label: React.ReactNode = segment;
+                      let label: ReactNode = segment;
                       if (realIndex === 1) {
                         const text =
                           orgName ||
@@ -153,13 +153,13 @@ export function OrganizationHeader() {
                             ? segment.substring(0, 8)
                             : segment);
                         label = (
-                          <span className="inline-block max-w-[100px] truncate align-bottom sm:max-w-[200px] md:max-w-[350px]">
+                          <span className="inline-block max-w-25 truncate align-bottom sm:max-w-50 md:max-w-87.5">
                             {text}
                           </span>
                         );
                       } else if (realIndex === 3) {
                         label = (
-                          <span className="inline-block max-w-[100px] truncate align-bottom">
+                          <span className="inline-block max-w-25 truncate align-bottom">
                             {segment.length > 8
                               ? segment.substring(0, 8)
                               : segment}
@@ -176,7 +176,7 @@ export function OrganizationHeader() {
                           ? segment
                           : translated;
                         label = (
-                          <span className="inline-block max-w-[150px] truncate align-bottom">
+                          <span className="inline-block max-w-37.5 truncate align-bottom">
                             {text}
                           </span>
                         );

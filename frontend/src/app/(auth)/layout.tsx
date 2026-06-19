@@ -1,9 +1,10 @@
 import { Header } from '@/components/layout/header';
+import type { ReactNode } from 'react';
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="relative min-h-screen overflow-hidden text-foreground transition-colors duration-300">

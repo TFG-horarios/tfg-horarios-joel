@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ import type {
   DegreeDTO,
   AcademicYearDTO,
 } from '@tfg-horarios/shared';
+import { memo, useMemo } from 'react';
 
 type ClassroomSchedulePlannerProps = {
   slots: ScheduleSlotDTO[];
@@ -50,7 +50,7 @@ type MemoizedScheduleCellProps = {
   subjectIdsPool: string[];
 };
 
-const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
+const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
   cellSlots,
   slotMetaMap,
   subjectIdsPool,
@@ -105,7 +105,7 @@ export function ClassroomSchedulePlanner({
     { value: 5, label: t('days.5') },
   ];
 
-  const slotsByCell = React.useMemo(() => {
+  const slotsByCell = useMemo(() => {
     const map = new Map<string, ScheduleSlotDTO[]>();
     slots.forEach((s) => {
       const key = `${s.dayOfWeek}_${s.slotIndex}`;
@@ -124,11 +124,11 @@ export function ClassroomSchedulePlanner({
     return map;
   }, [slots]);
 
-  const unassignedSlots = React.useMemo(() => {
+  const unassignedSlots = useMemo(() => {
     return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
   }, [slots]);
 
-  const slotMetaMap = React.useMemo(() => {
+  const slotMetaMap = useMemo(() => {
     const map = new Map<
       string,
       {
@@ -147,7 +147,7 @@ export function ClassroomSchedulePlanner({
     return map;
   }, [subjectGroups, subjects, degrees]);
 
-  const subjectIdsPool = React.useMemo(() => {
+  const subjectIdsPool = useMemo(() => {
     const presentSubjectIds = new Set<string>();
     slots.forEach((slot) => {
       const meta = slotMetaMap.get(slot.subjectGroupId);
@@ -202,7 +202,7 @@ export function ClassroomSchedulePlanner({
       </div>
 
       {unassignedSlots.length > 0 && (
-        <div className="bg-card/40 backdrop-blur-md border border-amber-200/50 bg-amber-50/10 rounded-xl p-4 shadow-sm">
+        <div className="backdrop-blur-md border border-amber-200/50 bg-amber-50/10 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-medium text-sm">
             <ArchiveRestore className="size-4" />
             {t('unassignedSlotsTitle', {

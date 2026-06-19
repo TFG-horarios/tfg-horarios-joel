@@ -10,11 +10,14 @@ import { ClassroomReservationScheduleAdapter } from './infrastructure/adapters/c
 import { RequestClassroomReservationUseCase } from './application/request-classroom-reservation.usecase';
 import { UpdateClassroomReservationStatusUseCase } from './application/update-classroom-reservation-status.usecase';
 import { ListClassroomReservationsUseCase } from './application/list-classroom-reservations.usecase';
+import { GetClassroomAvailabilityUseCase } from './application/get-classroom-availability.usecase';
 import { HonoClassroomReservationController } from './infrastructure/http/hono.classroom-reservation.controller';
 import {
   createReservationRoute,
   listReservationsRoute,
   updateReservationStatusRoute,
+  getAvailabilityRoute,
+  streamClassroomReservationEventsRoute,
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
@@ -58,17 +61,26 @@ export const createClassroomReservationModule = (
     memberProvider
   );
 
+  const getAvailabilityUseCase = new GetClassroomAvailabilityUseCase(
+    reservationRepository,
+    scheduleProvider,
+    academicYearProvider
+  );
+
   const controller = new HonoClassroomReservationController(
     requestUseCase,
     updateStatusUseCase,
-    listUseCase
+    listUseCase,
+    getAvailabilityUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(createReservationRoute, controller.create)
     .openapi(listReservationsRoute, controller.list)
-    .openapi(updateReservationStatusRoute, controller.updateStatus);
+    .openapi(updateReservationStatusRoute, controller.updateStatus)
+    .openapi(getAvailabilityRoute, controller.getAvailability)
+    .openapi(streamClassroomReservationEventsRoute, controller.streamEvents);
 
   return routes;
 };

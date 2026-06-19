@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Sidebar, type NavItem } from '@/components/layout/sidebar';
 import { getSessionUser } from '@/features/auth/queries';
@@ -6,7 +7,7 @@ import { getOrganizationMemberRole } from '@/features/members/queries';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 
 type OrganizationLayoutProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   params: Promise<{ id: string; academicYearId: string }>;
 };
 

@@ -63,6 +63,11 @@ export class ScheduleSlot {
     this.props.updatedAt = new Date();
   }
 
+  public updateConflicts(conflicts: ScheduleConflictDetailDTO[]): void {
+    this.props.conflicts = conflicts;
+    this.props.updatedAt = new Date();
+  }
+
   get id() {
     return this.props.id;
   }

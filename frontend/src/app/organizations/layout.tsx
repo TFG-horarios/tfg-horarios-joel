@@ -2,11 +2,12 @@
 
 import { usePathname } from 'next/navigation';
 import { OrganizationHeader } from '@/components/layout/organization-header';
+import type { ReactNode } from 'react';
 
 export default function OrganizationLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const pathname = usePathname();
   const isListPage =

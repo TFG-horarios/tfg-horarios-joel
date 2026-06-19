@@ -1,4 +1,10 @@
-import { useActionState, useEffect, startTransition, useRef } from 'react';
+import {
+  useActionState,
+  useEffect,
+  startTransition,
+  useRef,
+  type BaseSyntheticEvent,
+} from 'react';
 import {
   useForm,
   type UseFormReturn,
@@ -29,7 +35,7 @@ export interface UseActionFormReturn<
   form: UseFormReturn<TFieldValues>;
   state: ActionResponse<TData> | null;
   isPending: boolean;
-  handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
+  handleSubmit: (e?: BaseSyntheticEvent) => Promise<void>;
 }
 
 export function useActionForm<TFieldValues extends FieldValues, TData = any>({

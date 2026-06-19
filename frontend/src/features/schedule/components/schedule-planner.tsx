@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, useEffect, memo, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
@@ -77,7 +77,7 @@ type MemoizedScheduleCellProps = {
   onUnassignSlot: (slotId: string) => void;
 };
 
-const MemoizedScheduleCell = React.memo(function MemoizedScheduleCell({
+const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
   cellId,
   cellSlots,
   slotMetaMap,
@@ -138,14 +138,45 @@ export function SchedulePlanner({
   const t = useTranslations('Organizations.schedules');
   const [slots, setSlots] = useState<ScheduleSlotDTO[]>(initialSlots);
 
+  useEffect(() => {
+    setSlots(initialSlots);
+  }, [initialSlots]);
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/schedules/${schedule.id}/events`
+    );
+
+    eventSource.addEventListener('schedule_updated', () => {
+      if (activeId || editingSlotId) {
+        toast.info(t('planner.realTimeUpdatePending', { fallback: 'Otro usuario ha modificado el horario. Recarga la página pronto para ver los cambios.' }));
+      } else {
+        toast.info(t('planner.realTimeUpdate', { fallback: 'El horario ha sido modificado por otro usuario. Sincronizando...' }));
+        router.refresh();
+      }
+    });
+
+    eventSource.onerror = (error) => {
+      console.error('SSE Error:', error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [organization.id, schedule.id, activeId, editingSlotId, router, t]);
   const [editingClassroomId, setEditingClassroomId] = useState<string>('none');
   const [isSavingClassroom, setIsSavingClassroom] = useState(false);
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [localSchedule, setLocalSchedule] = useState<ScheduleDTO>(schedule);
+
+  useEffect(() => {
+    setLocalSchedule(schedule);
+  }, [schedule]);
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
 
@@ -160,7 +191,7 @@ export function SchedulePlanner({
       academicYear.slotDurationMinutes
   );
 
-  const effectiveShift = React.useMemo(() => {
+  const effectiveShift = useMemo(() => {
     if (!localSchedule.shift) return 'global';
 
     const assignedSlots = slots
@@ -186,7 +217,7 @@ export function SchedulePlanner({
     effectiveShift
   );
 
-  const unassignedSlots = React.useMemo(() => {
+  const unassignedSlots = useMemo(() => {
     return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
   }, [slots]);
 
@@ -253,7 +284,7 @@ export function SchedulePlanner({
     }
   };
 
-  const slotsByCell = React.useMemo(() => {
+  const slotsByCell = useMemo(() => {
     const map = new Map<string, ScheduleSlotDTO[]>();
     slots.forEach((s) => {
       const key = `${s.dayOfWeek}_${s.slotIndex}`;
@@ -298,6 +329,7 @@ export function SchedulePlanner({
         slotIndex: null,
       });
       if (!result.success) throw new Error(result.message);
+      router.refresh();
     } catch (err) {
       setSlots(oldSlots);
       if (oldScheduleStatus === 'published') {
@@ -377,7 +409,7 @@ export function SchedulePlanner({
     }
   };
 
-  const slotMetaMap = React.useMemo(() => {
+  const slotMetaMap = useMemo(() => {
     const map = new Map<
       string,
       { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
@@ -389,7 +421,7 @@ export function SchedulePlanner({
     return map;
   }, [subjectGroups, subjects]);
 
-  const subjectIdsPool = React.useMemo(() => {
+  const subjectIdsPool = useMemo(() => {
     const presentSubjectIds = new Set<string>();
     slots.forEach((slot) => {
       const meta = slotMetaMap.get(slot.subjectGroupId);
@@ -400,7 +432,7 @@ export function SchedulePlanner({
     return Array.from(presentSubjectIds);
   }, [slots, slotMetaMap]);
 
-  const classroomMap = React.useMemo(() => {
+  const classroomMap = useMemo(() => {
     return new Map(classrooms.map((c) => [c.id, c]));
   }, [classrooms]);
 
@@ -465,6 +497,7 @@ export function SchedulePlanner({
       if (!result.success) {
         throw new Error(result.message);
       }
+      router.refresh();
     } catch (err) {
       setSlots(oldSlots);
       const errorMsg =
@@ -601,7 +634,7 @@ export function SchedulePlanner({
           </div>
           <DroppableCell
             id="unassigned"
-            className="w-full p-4 flex flex-wrap gap-3 min-h-[120px] items-start content-start"
+            className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start"
           >
             {unassignedSlots.length === 0 ? (
               <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
@@ -687,7 +720,7 @@ export function SchedulePlanner({
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>
               {t('planner.editClassroom', { fallback: 'Editar aula del slot' })}

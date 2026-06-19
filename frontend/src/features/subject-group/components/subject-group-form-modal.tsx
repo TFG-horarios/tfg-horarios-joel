@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -21,7 +21,7 @@ interface SubjectGroupFormModalProps {
   organizationId: string;
   subjects: SubjectDTO[];
   group?: SubjectGroupDTO;
-  children?: React.ReactNode;
+  children?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

@@ -180,9 +180,9 @@ export class AcademicYear {
       }
     };
 
-    checkPeriod(0, this.period0Start, this.period0End);
-    checkPeriod(1, this.period1Start, this.period1End);
-    checkPeriod(2, this.period2Start, this.period2End);
+    checkPeriod(1, this.period0Start, this.period0End);
+    checkPeriod(2, this.period1Start, this.period1End);
+    checkPeriod(3, this.period2Start, this.period2End);
 
     return matchingPeriods;
   }

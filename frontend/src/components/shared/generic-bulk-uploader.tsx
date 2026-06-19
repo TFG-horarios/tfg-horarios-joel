@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import Papa from 'papaparse';
 import { z } from 'zod';
 import { CheckCircle2, Loader2, FileSpreadsheet } from 'lucide-react';
@@ -78,7 +78,7 @@ export function GenericBulkUploader<TData>({
   const [validData, setValidData] = useState<TData[]>([]);
   const t = useTranslations('Common.bulkUploader');
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

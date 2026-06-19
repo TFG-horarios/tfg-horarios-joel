@@ -30,10 +30,16 @@ export class InitialSolution {
     groups: GroupInitialData[],
     lockedAssignments: Assignment[] = []
   ): Solution {
+    // Prioridades de asinación
     const sortedGroups = [...groups].sort((a, b) => {
+      if (a.isCommon !== b.isCommon) {
+        return a.isCommon ? -1 : 1;
+      }
+
       const isAPractices = a.groupType === 'practices' ? 1 : 0;
       const isBPractices = b.groupType === 'practices' ? 1 : 0;
       if (isAPractices !== isBPractices) return isBPractices - isAPractices;
+
       return b.numberOfStudents - a.numberOfStudents;
     });
 

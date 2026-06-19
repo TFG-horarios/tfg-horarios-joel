@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 interface ClassroomFormModalProps {
   organizationId: string;
   classroom?: ClassroomDTO;
-  children?: React.ReactNode;
+  children?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

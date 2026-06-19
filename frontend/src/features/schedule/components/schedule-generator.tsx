@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
@@ -116,7 +116,7 @@ export function ScheduleGenerator({
     }
   };
 
-  const handleCheck = async (event: React.FormEvent) => {
+  const handleCheck = async (event: FormEvent) => {
     event.preventDefault();
     setIsChecking(true);
     try {

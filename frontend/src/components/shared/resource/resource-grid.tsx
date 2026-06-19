@@ -1,11 +1,11 @@
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 
 export interface ResourceGridProps<T> {
   items?: T[];
-  renderItem?: (item: T) => React.ReactNode;
-  emptyState?: React.ReactNode;
+  renderItem?: (item: T) => ReactNode;
+  emptyState?: ReactNode;
   keyExtractor?: (item: T) => string | number;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 function ResourceGridBase<T>({

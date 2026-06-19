@@ -11,6 +11,7 @@ import type {
   listAllSchedulesRoute,
   deleteScheduleRoute,
   unpublishScheduleRoute,
+  streamScheduleEventsRoute,
 } from './hono.schedule.routes';
 import type { ListSchedulesUseCase } from '../../application/list-schedules.usecase';
 import type { ListAllSchedulesUseCase } from '../../application/list-all-schedules.usecase';
@@ -22,6 +23,8 @@ import type { GenerateScheduleUseCase } from '../../application/generate-schedul
 import type { CheckScheduleOverwriteUseCase } from '../../application/check-schedule-overwrite.usecase';
 import type { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import type { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
+import { SseService } from '@/core/services/sse.service';
+import { streamSSE } from 'hono/streaming';
 
 export class HonoScheduleController {
   constructor(
@@ -77,6 +80,7 @@ export class HonoScheduleController {
       requesterUserId,
       id
     );
+    SseService.getInstance().broadcast(`schedule_${id}`, 'schedule_updated', publishedSchedule);
     return c.json(publishedSchedule, 200);
   };
 
@@ -90,6 +94,7 @@ export class HonoScheduleController {
       requesterUserId,
       id
     );
+    SseService.getInstance().broadcast(`schedule_${id}`, 'schedule_updated', unpublishedSchedule);
     return c.json(unpublishedSchedule, 200);
   };
 
@@ -129,6 +134,7 @@ export class HonoScheduleController {
       id,
       body
     );
+    SseService.getInstance().broadcast(`schedule_${updatedSlot.scheduleId}`, 'schedule_updated', updatedSlot);
     return c.json(updatedSlot, 200);
   };
 
@@ -157,4 +163,24 @@ export class HonoScheduleController {
         );
       return c.json(overwrittenSchedules, 200);
     };
+
+  streamEvents: RouteHandler<typeof streamScheduleEventsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { id } = c.req.valid('param');
+    const topic = `schedule_${id}`;
+
+    return streamSSE(c, async (stream) => {
+      const sseService = SseService.getInstance();
+      sseService.addClient(topic, stream);
+
+      stream.onAbort(() => {
+        sseService.removeClient(topic, stream);
+      });
+
+      while (true) {
+        await stream.sleep(30000);
+      }
+    });
+  };
 }

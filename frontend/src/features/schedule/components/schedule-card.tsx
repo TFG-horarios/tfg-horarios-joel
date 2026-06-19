@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, type MouseEvent } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -74,7 +74,7 @@ export const ScheduleCard = memo(function ScheduleCard({
     return translations[status] || status;
   };
 
-  const handlePublish = async (e: React.MouseEvent) => {
+  const handlePublish = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
@@ -93,7 +93,7 @@ export const ScheduleCard = memo(function ScheduleCard({
     }
   };
 
-  const handleUnpublish = async (e: React.MouseEvent) => {
+  const handleUnpublish = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
@@ -107,7 +107,7 @@ export const ScheduleCard = memo(function ScheduleCard({
     }
   };
 
-  const handleExportCSV = async (e: React.MouseEvent) => {
+  const handleExportCSV = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {

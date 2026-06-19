@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Pencil, Trash, Eye, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
@@ -11,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ResourceDeleteAction } from './resource-delete-action';
+import type { ReactNode } from 'react';
 
 export interface ResourceCardActionsProps {
   onEdit?: () => void;
@@ -19,7 +19,7 @@ export interface ResourceCardActionsProps {
   itemName?: string;
   deleteTitle?: string;
   deleteDescription?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export function ResourceCardActions({
@@ -48,7 +48,7 @@ export function ResourceCardActions({
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent align="end" className="w-40">
         {children}
         {onView && (
           <DropdownMenuItem onClick={onView}>

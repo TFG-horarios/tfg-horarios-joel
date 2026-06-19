@@ -157,4 +157,48 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
 
     return !!row;
   }
+
+  async hasAcceptedReservationOnDate(
+    organizationId: string,
+    classroomId: string,
+    date: string,
+    slotIndex: number
+  ): Promise<boolean> {
+    const [row] = await this.db
+      .select({ id: classroomReservations.id })
+      .from(classroomReservations)
+      .where(
+        and(
+          eq(classroomReservations.organizationId, organizationId),
+          eq(classroomReservations.classroomId, classroomId),
+          eq(classroomReservations.slotIndex, slotIndex),
+          eq(classroomReservations.date, date),
+          eq(classroomReservations.status, 'ACCEPTED')
+        )
+      )
+      .limit(1);
+
+    return !!row;
+  }
+
+  async findReservationsInDateRange(
+    organizationId: string,
+    classroomId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<ClassroomReservation[]> {
+    const rows = await this.db
+      .select()
+      .from(classroomReservations)
+      .where(
+        and(
+          eq(classroomReservations.organizationId, organizationId),
+          eq(classroomReservations.classroomId, classroomId),
+          sql`${classroomReservations.date} >= ${startDate}`,
+          sql`${classroomReservations.date} <= ${endDate}`
+        )
+      );
+
+    return rows.map(this.mapToDomain.bind(this));
+  }
 }

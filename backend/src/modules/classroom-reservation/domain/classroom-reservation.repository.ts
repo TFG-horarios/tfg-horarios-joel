@@ -19,4 +19,16 @@ export interface IClassroomReservationRepository {
     dayOfWeek: number,
     slotIndex: number
   ): Promise<boolean>;
+  hasAcceptedReservationOnDate(
+    organizationId: string,
+    classroomId: string,
+    date: string,
+    slotIndex: number
+  ): Promise<boolean>;
+  findReservationsInDateRange(
+    organizationId: string,
+    classroomId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<ClassroomReservation[]>;
 }

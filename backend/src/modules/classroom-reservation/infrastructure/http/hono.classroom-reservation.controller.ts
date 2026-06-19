@@ -3,17 +3,23 @@ import type { AppEnv } from '@/core/types/app-types';
 import type { RequestClassroomReservationUseCase } from '../../application/request-classroom-reservation.usecase';
 import type { UpdateClassroomReservationStatusUseCase } from '../../application/update-classroom-reservation-status.usecase';
 import type { ListClassroomReservationsUseCase } from '../../application/list-classroom-reservations.usecase';
+import type { GetClassroomAvailabilityUseCase } from '../../application/get-classroom-availability.usecase';
+import { streamSSE } from 'hono/streaming';
+import { SseService } from '@/core/services/sse.service';
 import {
   createReservationRoute,
   listReservationsRoute,
   updateReservationStatusRoute,
+  getAvailabilityRoute,
+  streamClassroomReservationEventsRoute,
 } from './hono.classroom-reservation.routes';
 
 export class HonoClassroomReservationController {
   constructor(
     private readonly requestReservationUseCase: RequestClassroomReservationUseCase,
     private readonly updateReservationStatusUseCase: UpdateClassroomReservationStatusUseCase,
-    private readonly listReservationsUseCase: ListClassroomReservationsUseCase
+    private readonly listReservationsUseCase: ListClassroomReservationsUseCase,
+    private readonly getAvailabilityUseCase: GetClassroomAvailabilityUseCase
   ) {}
 
   create: RouteHandler<typeof createReservationRoute, AppEnv> = async (c) => {
@@ -27,6 +33,7 @@ export class HonoClassroomReservationController {
       dto
     );
 
+    SseService.getInstance().broadcast(`classroom_${result.classroomId}`, 'reservation_updated', result);
     return c.json(result, 201);
   };
 
@@ -57,6 +64,41 @@ export class HonoClassroomReservationController {
         { status }
       );
 
+      SseService.getInstance().broadcast(`classroom_${result.classroomId}`, 'reservation_updated', result);
       return c.json(result, 200);
     };
+
+  getAvailability: RouteHandler<typeof getAvailabilityRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    const query = c.req.valid('query');
+
+    const result = await this.getAvailabilityUseCase.execute(
+      organizationId,
+      query
+    );
+
+    return c.json(result, 200);
+  };
+
+  streamEvents: RouteHandler<typeof streamClassroomReservationEventsRoute, AppEnv> = async (
+    c
+  ) => {
+    const { classroomId } = c.req.valid('param');
+    const topic = `classroom_${classroomId}`;
+
+    return streamSSE(c, async (stream) => {
+      const sseService = SseService.getInstance();
+      sseService.addClient(topic, stream);
+
+      stream.onAbort(() => {
+        sseService.removeClient(topic, stream);
+      });
+
+      while (true) {
+        await stream.sleep(30000);
+      }
+    });
+  };
 }

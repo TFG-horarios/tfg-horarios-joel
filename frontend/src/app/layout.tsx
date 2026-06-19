@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { getSessionUser } from '@/features/auth/queries';
@@ -32,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   const [user, locale, messages] = await Promise.all([
     getSessionUser(),

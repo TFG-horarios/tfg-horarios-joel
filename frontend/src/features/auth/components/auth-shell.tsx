@@ -5,12 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import type { ReactNode } from 'react';
 
 type AuthShellProps = {
   eyebrow?: string;
   title: string;
   description: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export function AuthShell({

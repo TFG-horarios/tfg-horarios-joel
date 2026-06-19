@@ -9,13 +9,8 @@ import {
   ClassroomReservationSchema,
   type ClassroomReservationListQueryDTO,
   type ClassroomReservationDTO,
-  type ScheduleDTO,
-  type PaginatedResponse,
-  type ScheduleSlotDTO,
 } from '@tfg-horarios/shared';
-import { fetchClassroomScheduleSlots } from '../classroom-schedule/queries';
 import { fetchPaginatedReservations } from './queries';
-import { fetchPaginatedSchedules } from '../schedule/queries';
 import { type ActionResponse } from '@/types/actions';
 
 export async function fetchPaginatedReservationsAction(
@@ -32,49 +27,46 @@ export async function getOccupiedSlotsAction(
   datesOfWeek: string[]
 ): Promise<
   ActionResponse<{
-    scheduleSlots: (ScheduleSlotDTO & { period?: number })[];
-    reservations: ClassroomReservationDTO[];
+    occupiedSlots: { date: string; slotIndex: number; reason: string }[];
   }>
 > {
   const tErrors = await getTranslations('Common.errors');
-  try {
-    const scheduleSlots = await fetchClassroomScheduleSlots(
-      organizationId,
-      classroomId,
-      { academicYearId }
-    );
+  const client = await getServerClient();
 
-    const schedulesResp = await fetchPaginatedSchedules(organizationId, {
-      academicYearId,
-      limit: 1000,
+  if (datesOfWeek.length === 0) {
+    return { success: true, data: { occupiedSlots: [] } };
+  }
+
+  const sortedDates = [...datesOfWeek].sort();
+  const startDate = sortedDates[0]!;
+  const endDate = sortedDates[sortedDates.length - 1]!;
+
+  try {
+    const response = await client.api.organizations[':organizationId']![
+      'classroom-reservations'
+    ]['availability'].$get({
+      param: { organizationId },
+      query: { classroomId, academicYearId, startDate, endDate },
     });
 
-    const schedulePeriodMap = new Map(
-      schedulesResp.data.map((s: ScheduleDTO) => [s.id, s.period])
-    );
-    const slotsWithPeriod = scheduleSlots.map((slot) => ({
-      ...slot,
-      period: schedulePeriodMap.get(slot.scheduleId),
-    }));
+    if (!response.ok) {
+      const status = response.status + 0;
+      if (status === 400 || status === 404) {
+        const errorData = (await response.json()) as { message?: string };
+        return {
+          success: false,
+          message: errorData.message || tErrors('server'),
+        };
+      }
+      return { success: false, message: tErrors('server') };
+    }
 
-    const reservationsPromises = datesOfWeek.map((date) =>
-      fetchPaginatedReservations(organizationId, {
-        classroomId,
-        academicYearId,
-        date,
-      }).then((res: PaginatedResponse<ClassroomReservationDTO>) => res.data)
-    );
-
-    const reservationsArrays = await Promise.all(reservationsPromises);
-    const reservations = reservationsArrays.flat();
+    const data = await response.json();
 
     return {
       success: true,
       data: {
-        scheduleSlots: slotsWithPeriod,
-        reservations: reservations.filter(
-          (r: ClassroomReservationDTO) => r.status !== 'REJECTED'
-        ),
+        occupiedSlots: data.occupiedSlots,
       },
     };
   } catch (error) {

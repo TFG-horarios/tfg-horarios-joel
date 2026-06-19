@@ -333,6 +333,27 @@ export class GenerateScheduleUseCase {
         await this.scheduleRepository.createSchedulesWithSlots(
           schedulesToPersist
         );
+
+        const allGeneratedSlots = schedulesToPersist
+          .flatMap((s) => s.slots)
+          .filter(
+            (s) =>
+              s.classroomId !== null &&
+              s.dayOfWeek !== null &&
+              s.slotIndex !== null
+          );
+        if (allGeneratedSlots.length > 0) {
+          const slotsToReject = allGeneratedSlots.map((s) => ({
+            classroomId: s.classroomId as string,
+            dayOfWeek: s.dayOfWeek as number,
+            slotIndex: s.slotIndex as number,
+            duration: s.duration,
+          }));
+          await this.dataProvider.rejectConflictingReservationsBatch(
+            organizationId,
+            slotsToReject
+          );
+        }
       }
 
       return generatedSchedules;

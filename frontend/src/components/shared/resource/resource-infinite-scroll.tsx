@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback, memo } from 'react';
+import { useEffect, useState, useRef, useCallback, memo, type ComponentType } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { PaginationMetaDTO } from '@tfg-horarios/shared';
 
@@ -8,7 +8,7 @@ export interface ResourceInfiniteScrollProps<T> {
   initialItems: T[];
   initialMeta: PaginationMetaDTO;
   loadMore: (page: number) => Promise<{ data: T[]; meta: PaginationMetaDTO }>;
-  ItemComponent: React.ComponentType<{ item: T } & any>;
+  ItemComponent: ComponentType<{ item: T } & any>;
   itemProps?: Record<string, any>;
   keyProp: keyof T;
 }

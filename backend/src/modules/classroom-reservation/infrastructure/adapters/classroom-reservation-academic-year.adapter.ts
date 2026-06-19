@@ -20,4 +20,18 @@ export class ClassroomReservationAcademicYearAdapter implements IClassroomReserv
 
     return academicYear.getMatchingPeriods(date);
   }
+
+  async getAcademicYear(
+    organizationId: string,
+    academicYearId: string
+  ): Promise<any | null> {
+    const academicYear =
+      await this.academicYearRepository.findById(academicYearId);
+
+    if (!academicYear || academicYear.organizationId !== organizationId) {
+      return null;
+    }
+
+    return academicYear;
+  }
 }

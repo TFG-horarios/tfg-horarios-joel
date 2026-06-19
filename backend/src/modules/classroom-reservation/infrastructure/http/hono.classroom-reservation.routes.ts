@@ -1,4 +1,5 @@
 import { createRoute } from '@hono/zod-openapi';
+import { z } from 'zod';
 import {
   SaveClassroomReservationBodySchema,
   ClassroomReservationSchema,
@@ -7,6 +8,8 @@ import {
   createPaginatedSchema,
   ClassroomReservationBaseParamSchema,
   ClassroomReservationIdParamSchema,
+  ClassroomAvailabilityQuerySchema,
+  ClassroomAvailabilityResponseSchema,
 } from '@tfg-horarios/shared';
 
 const tags = ['Classroom Reservations'];
@@ -95,5 +98,44 @@ export const updateReservationStatusRoute = createRoute({
     404: {
       description: 'Not found',
     },
+  },
+});
+
+export const getAvailabilityRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classroom-reservations/availability',
+  tags,
+  request: {
+    params: ClassroomReservationBaseParamSchema,
+    query: ClassroomAvailabilityQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Classroom availability',
+      content: {
+        'application/json': {
+          schema: ClassroomAvailabilityResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+export const streamClassroomReservationEventsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classroom-reservations/classrooms/{classroomId}/events',
+  tags,
+  request: {
+    params: z.object({
+      organizationId: z.uuid(),
+      classroomId: z.uuid(),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'SSE events stream for classroom reservations',
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
   },
 });

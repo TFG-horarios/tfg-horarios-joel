@@ -1,4 +1,3 @@
-import * as React from 'react';
 import type { PaginationMetaDTO } from '@tfg-horarios/shared';
 import { ResourceGrid } from './resource-grid';
 import { ResourceInfiniteScroll } from './resource-infinite-scroll';
@@ -10,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type { ComponentType, ReactNode } from 'react';
 
 export interface ResourceLayoutProps<T> {
   view: 'grid' | 'table';
@@ -17,13 +17,13 @@ export interface ResourceLayoutProps<T> {
   meta: PaginationMetaDTO;
   query: any;
   loadMore: (page: number) => Promise<{ data: T[]; meta: PaginationMetaDTO }>;
-  emptyState: React.ReactNode;
+  emptyState: ReactNode;
 
-  GridItemComponent: React.ComponentType<{ item: T } & any>;
+  GridItemComponent: ComponentType<{ item: T } & any>;
   gridItemProps?: Record<string, any>;
 
-  tableHeaders: React.ReactNode[];
-  TableRowComponent: React.ComponentType<{ item: T } & any>;
+  tableHeaders: ReactNode[];
+  TableRowComponent: ComponentType<{ item: T } & any>;
   tableRowProps?: Record<string, any>;
 
   keyProp?: keyof T;

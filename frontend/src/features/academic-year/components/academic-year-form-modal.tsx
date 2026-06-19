@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type FormEvent, type ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -39,7 +39,7 @@ export function AcademicYearFormModal({
 }: {
   organization: OrganizationDTO;
   academicYear?: AcademicYearDTO;
-  trigger?: React.ReactNode;
+  trigger?: ReactNode;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -65,7 +65,7 @@ export function AcademicYearFormModal({
 
   const periodType = formData.periodType;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       const payload: SaveAcademicYearBodyDTO = {

@@ -1,9 +1,10 @@
 import { Header } from '@/components/layout/header';
+import type { ReactNode } from 'react';
 
 export default function ProfileLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="relative h-screen w-full overflow-hidden text-foreground">

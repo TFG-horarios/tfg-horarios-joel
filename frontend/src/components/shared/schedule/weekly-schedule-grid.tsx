@@ -1,14 +1,14 @@
-import React from 'react';
 import { Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Fragment, type ReactNode, type RefObject } from 'react';
 
 export type WeeklyScheduleGridProps = {
-  gridRef?: React.RefObject<HTMLDivElement | null>;
+  gridRef?: RefObject<HTMLDivElement | null>;
   daysOfWeek: { value: number; label: string }[];
   numSlots: number;
   startSlotIndex?: number;
   slotTimeLabels: Record<number, string>;
-  renderCell: (day: number, slotIndex: number) => React.ReactNode;
+  renderCell: (day: number, slotIndex: number) => ReactNode;
 };
 
 export function WeeklyScheduleGrid({
@@ -57,9 +57,9 @@ export function WeeklyScheduleGrid({
                 </div>
 
                 {daysOfWeek.map((day) => (
-                  <React.Fragment key={`${day.value}_${idx}`}>
+                  <Fragment key={`${day.value}_${idx}`}>
                     {renderCell(day.value, idx)}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
               </div>
             );

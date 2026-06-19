@@ -30,4 +30,13 @@ export interface IScheduleDataProvider {
   getAcademicYearConstraints(
     academicYearId: string
   ): Promise<ScheduleOrganizationConstraints | null>;
+  rejectConflictingReservationsBatch(
+    organizationId: string,
+    slots: {
+      classroomId: string;
+      dayOfWeek: number;
+      slotIndex: number;
+      duration: number;
+    }[]
+  ): Promise<void>;
 }

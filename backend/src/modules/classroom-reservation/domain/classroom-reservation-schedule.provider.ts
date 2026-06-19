@@ -11,4 +11,11 @@ export interface IClassroomReservationScheduleProvider {
     organizationId: string,
     academicYearId: string
   ): Promise<boolean>;
+  getClassroomScheduleSlots(
+    organizationId: string,
+    academicYearId: string,
+    classroomId: string
+  ): Promise<
+    { dayOfWeek: number; slotIndex: number; duration: number; period: number }[]
+  >;
 }

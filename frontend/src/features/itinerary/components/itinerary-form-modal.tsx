@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -18,7 +18,7 @@ interface ItineraryFormModalProps {
   organizationId: string;
   degrees: DegreeDTO[];
   itinerary?: ItineraryDTO;
-  children?: React.ReactNode;
+  children?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

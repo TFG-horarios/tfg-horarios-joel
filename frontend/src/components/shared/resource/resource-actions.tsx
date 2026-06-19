@@ -1,7 +1,9 @@
 'use client';
 
+import type { ReactNode } from "react";
+
 export interface ResourceActionsProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function ResourceActions({ children }: ResourceActionsProps) {

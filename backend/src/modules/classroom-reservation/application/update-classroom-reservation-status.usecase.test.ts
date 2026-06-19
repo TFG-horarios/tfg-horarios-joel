@@ -14,6 +14,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     save: mock(),
     update: mock(),
     hasAcceptedFutureReservation: mock(),
+    hasAcceptedReservationOnDate: mock(),
+    findReservationsInDateRange: mock(),
   };
 
   const scheduleProviderMock = {
@@ -39,6 +41,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
   beforeEach(() => {
     repositoryMock.findById.mockReset();
     repositoryMock.update.mockReset();
+    repositoryMock.hasAcceptedReservationOnDate.mockReset();
+    repositoryMock.findReservationsInDateRange.mockReset();
     scheduleProviderMock.hasSubjectInSlot.mockReset();
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
@@ -115,6 +119,7 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
   test('should successfully accept reservation', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('editor');
     repositoryMock.findById.mockResolvedValue(baseReservation);
+    repositoryMock.hasAcceptedReservationOnDate.mockResolvedValue(false);
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
     const result = await useCase.execute('org-1', 'user-2', 'res-1', {

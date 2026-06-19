@@ -665,7 +665,6 @@
           "ERR_OVERLAP_PRACTICES": "Student overlap: Practical/problem classes cannot coincide at the same time.",
           "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
-          "ERR_RESERVATION_OVERLAP": "The physical classroom has an accepted manual reservation for this time.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots."
         },

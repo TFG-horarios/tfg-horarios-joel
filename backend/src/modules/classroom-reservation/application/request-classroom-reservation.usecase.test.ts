@@ -9,6 +9,7 @@ describe('RequestClassroomReservationUseCase', () => {
     save: mock(),
     update: mock(),
     hasAcceptedFutureReservation: mock(),
+    hasAcceptedReservationOnDate: mock(),
   };
 
   const scheduleProviderMock = {
@@ -22,6 +23,7 @@ describe('RequestClassroomReservationUseCase', () => {
 
   const academicYearProviderMock = {
     getMatchingPeriods: mock(),
+    getAcademicYear: mock(),
   };
 
   const useCase = new RequestClassroomReservationUseCase(
@@ -33,16 +35,32 @@ describe('RequestClassroomReservationUseCase', () => {
 
   beforeEach(() => {
     repositoryMock.save.mockReset();
+    repositoryMock.hasAcceptedReservationOnDate.mockReset();
     scheduleProviderMock.areAllSchedulesPublished.mockReset();
     scheduleProviderMock.hasSubjectInSlot.mockReset();
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
+    academicYearProviderMock.getAcademicYear.mockReset();
+
+    academicYearProviderMock.getAcademicYear.mockResolvedValue({
+      period0Start: '2020-01-01',
+      period0End: '2035-12-31',
+      period1Start: null,
+      period1End: null,
+      period2Start: null,
+      period2End: null,
+      getMatchingPeriods: () => [1],
+    });
   });
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]!;
 
   const validDto = {
     classroomId: 'classroom-1',
     academicYearId: 'ay-1',
-    date: '2024-11-15',
+    date: tomorrowStr,
     slotIndex: 2,
     reason: 'Extra class',
   };
@@ -90,24 +108,33 @@ describe('RequestClassroomReservationUseCase', () => {
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
     scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
-    const sundayDto = { ...validDto, date: '2024-11-17' };
+    
+    const nextSunday = new Date();
+    nextSunday.setDate(nextSunday.getDate() + ((7 - nextSunday.getDay()) % 7) + 7);
+    const sundayStr = nextSunday.toISOString().split('T')[0]!;
+
+    const nextMonday = new Date(nextSunday);
+    nextMonday.setDate(nextMonday.getDate() + 1);
+    const mondayStr = nextMonday.toISOString().split('T')[0]!;
+
+    const sundayDto = { ...validDto, date: sundayStr };
     await useCase.execute('org-1', 'user-1', sundayDto);
     expect(scheduleProviderMock.hasSubjectInSlot).toHaveBeenCalledWith(
       'org-1',
       'ay-1',
       [1],
       'classroom-1',
-      6,
+      7,
       2
     );
-    const mondayDto = { ...validDto, date: '2024-11-18' };
+    const mondayDto = { ...validDto, date: mondayStr };
     await useCase.execute('org-1', 'user-1', mondayDto);
     expect(scheduleProviderMock.hasSubjectInSlot).toHaveBeenCalledWith(
       'org-1',
       'ay-1',
       [1],
       'classroom-1',
-      0,
+      1,
       2
     );
   });

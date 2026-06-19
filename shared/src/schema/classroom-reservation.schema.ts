@@ -87,3 +87,28 @@ export type ClassroomReservationListQueryDTO = z.infer<
 export type ClassroomReservationIdParamDTO = z.infer<
   typeof ClassroomReservationIdParamSchema
 >;
+
+export const ClassroomAvailabilityQuerySchema = z.object({
+  classroomId: z.uuid(),
+  academicYearId: z.uuid(),
+  startDate: z.string().openapi({ format: 'date' }),
+  endDate: z.string().openapi({ format: 'date' }),
+});
+
+export const OccupiedSlotSchema = z.object({
+  date: z.string().openapi({ format: 'date' }),
+  slotIndex: z.number().int(),
+  reason: z.string(),
+});
+
+export const ClassroomAvailabilityResponseSchema = z.object({
+  occupiedSlots: z.array(OccupiedSlotSchema),
+});
+
+export type ClassroomAvailabilityQueryDTO = z.infer<
+  typeof ClassroomAvailabilityQuerySchema
+>;
+export type OccupiedSlotDTO = z.infer<typeof OccupiedSlotSchema>;
+export type ClassroomAvailabilityResponseDTO = z.infer<
+  typeof ClassroomAvailabilityResponseSchema
+>;

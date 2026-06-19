@@ -25,12 +25,18 @@ export class ClassroomReservationScheduleAdapter implements IClassroomReservatio
     for (const scheduleId of scheduleIds) {
       const slots =
         await this.scheduleSlotRepository.findByScheduleId(scheduleId);
-      const conflict = slots.some(
-        (s) =>
-          s.classroomId === classroomId &&
-          s.dayOfWeek === dayOfWeek &&
-          s.slotIndex === slotIndex
-      );
+      const conflict = slots.some((s) => {
+        if (
+          s.classroomId !== classroomId ||
+          s.dayOfWeek !== dayOfWeek ||
+          s.slotIndex === null
+        ) {
+          return false;
+        }
+        const startSlot = s.slotIndex;
+        const endSlot = s.slotIndex + Math.ceil(s.duration) - 1;
+        return slotIndex >= startSlot && slotIndex <= endSlot;
+      });
       if (conflict) return true;
     }
 
@@ -49,5 +55,40 @@ export class ClassroomReservationScheduleAdapter implements IClassroomReservatio
     if (yearSchedules.length === 0) return false;
 
     return yearSchedules.every((s) => s.status === 'published');
+  }
+
+  async getClassroomScheduleSlots(
+    organizationId: string,
+    academicYearId: string,
+    classroomId: string
+  ): Promise<
+    { dayOfWeek: number; slotIndex: number; duration: number; period: number }[]
+  > {
+    const schedules = await this.scheduleRepository.findAll(organizationId);
+    const yearSchedules = schedules.filter(
+      (s) => s.academicYearId === academicYearId
+    );
+
+    const scheduleSlots = [];
+    for (const schedule of yearSchedules) {
+      const slots = await this.scheduleSlotRepository.findByScheduleId(
+        schedule.id
+      );
+      const classroomSlots = slots.filter(
+        (s) =>
+          s.classroomId === classroomId &&
+          s.slotIndex !== null &&
+          s.dayOfWeek !== null
+      );
+      for (const slot of classroomSlots) {
+        scheduleSlots.push({
+          dayOfWeek: slot.dayOfWeek as number,
+          slotIndex: slot.slotIndex as number,
+          duration: slot.duration,
+          period: schedule.period,
+        });
+      }
+    }
+    return scheduleSlots;
   }
 }

@@ -1,11 +1,11 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useDroppable } from '@dnd-kit/react';
 
 type DroppableCellProps = {
   id: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 };
 

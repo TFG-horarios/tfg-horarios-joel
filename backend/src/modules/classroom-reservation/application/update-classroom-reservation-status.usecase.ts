@@ -52,8 +52,8 @@ export class UpdateClassroomReservationStatusUseCase {
       }
 
       const reservationDate = new Date(reservation.date);
-      const jsDay = reservationDate.getDay();
-      const systemDayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
+      const jsDay = reservationDate.getUTCDay();
+      const systemDayOfWeek = jsDay === 0 ? 7 : jsDay;
 
       const matchingPeriods =
         await this.academicYearProvider.getMatchingPeriods(
@@ -78,6 +78,20 @@ export class UpdateClassroomReservationStatusUseCase {
       if (hasSubject) {
         throw new ValidationError(
           'No se puede aceptar la reserva porque el aula ha sido ocupada por una asignatura en esa fecha y hora.'
+        );
+      }
+
+      const hasOtherReservation =
+        await this.repository.hasAcceptedReservationOnDate(
+          organizationId,
+          reservation.classroomId,
+          reservation.date,
+          reservation.slotIndex
+        );
+
+      if (hasOtherReservation) {
+        throw new ValidationError(
+          'No se puede aceptar la reserva porque el aula ya tiene otra reserva confirmada en esa fecha y hora.'
         );
       }
 

@@ -43,12 +43,18 @@ export class ClassroomReservation {
   }
 
   public accept(): void {
+    if (this.props.status === 'REJECTED') {
+      throw new Error('Cannot accept a rejected reservation');
+    }
     this.props.status = 'ACCEPTED';
     this.props.updatedAt = new Date();
   }
 
-  public reject(): void {
+  public reject(reason?: string): void {
     this.props.status = 'REJECTED';
+    if (reason) {
+      this.props.reason = reason;
+    }
     this.props.updatedAt = new Date();
   }
 

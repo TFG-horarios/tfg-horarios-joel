@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useTransition } from 'react';
+import { useTransition, type ReactNode, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,7 @@ export interface ResourceDeleteActionProps {
   itemName?: string;
   deleteTitle?: string;
   deleteDescription?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function ResourceDeleteAction({
@@ -31,7 +31,7 @@ export function ResourceDeleteAction({
 }: ResourceDeleteActionProps) {
   const t = useTranslations('Common.actions');
   const [isPending, startTransition] = useTransition();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDelete = () => {
     startTransition(async () => {

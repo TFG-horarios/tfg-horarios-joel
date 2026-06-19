@@ -1,5 +1,5 @@
 {
-  "id": "bbeb2011-c382-4cd4-8bae-5a83a2e482f3",
+  "id": "76c707e8-52dc-4b4d-9f1b-4c36d2c82058",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1297,7 +1297,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(20)",
+          "type": "reservation_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PENDING'"
@@ -1590,6 +1591,15 @@
         "admin",
         "editor",
         "viewer"
+      ]
+    },
+    "public.reservation_status": {
+      "name": "reservation_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "ACCEPTED",
+        "REJECTED"
       ]
     },
     "public.period_type": {

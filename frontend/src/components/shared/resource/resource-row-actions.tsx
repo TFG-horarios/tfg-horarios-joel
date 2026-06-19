@@ -4,8 +4,8 @@ import { Pencil, Trash, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TableCell } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import React from 'react';
 import { ResourceDeleteAction } from './resource-delete-action';
+import type { ReactNode } from 'react';
 
 export interface ResourceRowActionsProps {
   onEdit?: () => void;
@@ -14,7 +14,7 @@ export interface ResourceRowActionsProps {
   itemName?: string;
   deleteTitle?: string;
   deleteDescription?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export function ResourceRowActions({

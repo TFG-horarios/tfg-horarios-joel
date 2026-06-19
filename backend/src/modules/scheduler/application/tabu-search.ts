@@ -18,7 +18,8 @@ interface TabuMove {
 }
 
 export class TabuSearchEngine {
-  private readonly MAX_ITERATIONS = 1000;
+  // TODO: Buscar la mejor combinación de hiperparámetros
+  private readonly MAX_ITERATIONS = 2000;
   private readonly NEIGHBORHOOD_SIZE = 50;
   private readonly TABU_TENURE = 15;
 

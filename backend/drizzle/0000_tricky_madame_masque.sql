@@ -3,6 +3,7 @@ CREATE TYPE "public"."shift" AS ENUM('morning', 'afternoon');--> statement-break
 CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices', 'reduced_practices', 'tutoring');--> statement-breakpoint
 CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'editor', 'viewer');--> statement-breakpoint
+CREATE TYPE "public"."reservation_status" AS ENUM('PENDING', 'ACCEPTED', 'REJECTED');--> statement-breakpoint
 CREATE TYPE "public"."period_type" AS ENUM('semester', 'trimester', 'annual');--> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -132,7 +133,7 @@ CREATE TABLE "classroom_reservations" (
 	"academic_year_id" uuid NOT NULL,
 	"date" varchar(10) NOT NULL,
 	"slot_index" integer NOT NULL,
-	"status" varchar(20) DEFAULT 'PENDING' NOT NULL,
+	"status" "reservation_status" DEFAULT 'PENDING' NOT NULL,
 	"reason" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL

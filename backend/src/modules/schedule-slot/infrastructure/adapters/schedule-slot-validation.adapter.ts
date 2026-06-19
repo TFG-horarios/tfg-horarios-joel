@@ -8,7 +8,6 @@ import type {
   Assignment,
   ClassroomMap,
 } from '@/modules/scheduler/domain/types';
-import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type {
   IMoveValidationRule,
   MoveValidationContext,
@@ -17,7 +16,6 @@ import { RoomCapacityRule } from '../../domain/rules/room-capacity.rule';
 import { ShiftRule } from '../../domain/rules/shift.rule';
 import { CourseGroupOverlapRule } from '../../domain/rules/course-group-overlap.rule';
 import { RoomOverlapRule } from '../../domain/rules/room-overlap.rule';
-import { ClassroomReservationRule } from '../../domain/rules/classroom-reservation.rule';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
   private readonly rules: IMoveValidationRule[];
@@ -25,14 +23,12 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly scheduleRepository: IScheduleRepository,
-    private readonly dataProvider: IScheduleDataProvider,
-    private readonly reservationRepository: IClassroomReservationRepository
+    private readonly dataProvider: IScheduleDataProvider
   ) {
     this.rules = [
       new RoomCapacityRule(),
       new ShiftRule(),
       new CourseGroupOverlapRule(),
-      new ClassroomReservationRule(this.reservationRepository),
       new RoomOverlapRule(this.scheduleSlotRepository),
     ];
   }

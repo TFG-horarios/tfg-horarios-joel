@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { useQueryFilters } from '@/hooks/use-query-filters';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ChangeEvent } from 'react';
 
 interface ResourceFilterInputProps {
   paramKey: string;
@@ -24,7 +24,7 @@ export function ResourceFilterInput({
     setValue(currentFilter);
   }, [currentFilter]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
 

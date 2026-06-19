@@ -1,6 +1,7 @@
 import type {
   ScheduleSlotDTO,
   SaveScheduleSlotDTO,
+  ScheduleConflictType,
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
 import type { IScheduleSlotDataProvider } from '../domain/schedule-slot-data.provider';
@@ -88,6 +89,16 @@ export class UpdateScheduleSlotUseCase {
     for (const linkedSlot of linkedSlots) {
       linkedSlot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
       await this.scheduleSlotRepository.update(linkedSlot);
+
+      if (classroomId !== null && dayOfWeek !== null && slotIndex !== null) {
+        await this.dataProvider.rejectConflictingReservations(
+          organizationId,
+          classroomId,
+          dayOfWeek,
+          slotIndex,
+          linkedSlot.duration
+        );
+      }
     }
 
     if (dayOfWeek === null || slotIndex === null) {
@@ -95,6 +106,55 @@ export class UpdateScheduleSlotUseCase {
         slot.scheduleId,
         organizationId
       );
+    }
+
+    const allSlots = await this.scheduleSlotRepository.findByScheduleId(
+      slot.scheduleId
+    );
+
+    const mapErrorToConflictType = (err: string): ScheduleConflictType => {
+      switch (err) {
+        case 'ERR_ROOM_CAPACITY':
+          return 'ROOM_CAPACITY';
+        case 'ERR_ROOM_OVERLAP':
+          return 'ROOM_OVERLAP';
+        case 'ERR_OVERLAP_SAME_SUBJECT':
+          return 'COURSE_OVERLAP';
+        case 'ERR_SHIFT_MORNING':
+          return 'SHIFT_MORNING';
+        case 'ERR_SHIFT_AFTERNOON':
+          return 'SHIFT_AFTERNOON';
+        case 'ERR_SHIFT_EXCEEDS_DAY':
+          return 'SHIFT_EXCEEDS_DAY';
+        default:
+          return 'UNASSIGNED';
+      }
+    };
+
+    for (const s of allSlots) {
+      if (linkedSlots.some((ls) => ls.id === s.id)) continue;
+      if (s.conflicts.length === 0) continue;
+
+      try {
+        await this.validationProvider.validateMove(
+          organizationId,
+          s,
+          s.classroomId,
+          s.dayOfWeek,
+          s.slotIndex
+        );
+        s.updateConflicts([]);
+        await this.scheduleSlotRepository.update(s);
+      } catch (err) {
+        if (err instanceof Error && err.name === 'ConflictError') {
+          const newConflicts = err.message.split('\n').map((msg) => ({
+            type: mapErrorToConflictType(msg),
+            message: msg,
+          }));
+          s.updateConflicts(newConflicts);
+          await this.scheduleSlotRepository.update(s);
+        }
+      }
     }
 
     return ScheduleSlotMapper.toDTO(slot);

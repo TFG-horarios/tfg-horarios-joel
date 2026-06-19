@@ -44,7 +44,7 @@ export class ConstraintContext {
 export interface ConflictDetail {
   type: ScheduleConflictType;
   message?: string;
-  subjectGroupId?: string;
+  subjectGroupId: string;
   assignmentId?: string;
   classroomId?: string;
   relatedSubjectGroupIds?: string[];

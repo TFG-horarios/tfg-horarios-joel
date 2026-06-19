@@ -40,11 +40,52 @@ export class RequestClassroomReservationUseCase {
     }
 
     const reservationDate = new Date(dto.date);
-    const matchingPeriods = await this.academicYearProvider.getMatchingPeriods(
+    reservationDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (reservationDate < today) {
+      throw new ValidationError('No se pueden realizar reservas en el pasado.');
+    }
+
+    const academicYear = await this.academicYearProvider.getAcademicYear(
       organizationId,
-      dto.academicYearId,
-      reservationDate
+      dto.academicYearId
     );
+
+    if (!academicYear) {
+      throw new NotFoundError('Academic year', dto.academicYearId);
+    }
+
+    const validStarts = [
+      academicYear.period0Start,
+      academicYear.period1Start,
+      academicYear.period2Start,
+    ].filter(Boolean) as string[];
+
+    const validEnds = [
+      academicYear.period0End,
+      academicYear.period1End,
+      academicYear.period2End,
+    ].filter(Boolean) as string[];
+
+    if (validStarts.length > 0 && validEnds.length > 0) {
+      const minDate = new Date(
+        Math.min(...validStarts.map((d) => new Date(d).getTime()))
+      );
+      const maxDate = new Date(
+        Math.max(...validEnds.map((d) => new Date(d).getTime()))
+      );
+
+      if (reservationDate < minDate || reservationDate > maxDate) {
+        throw new ValidationError(
+          'La fecha seleccionada está fuera de los límites del curso académico.'
+        );
+      }
+    }
+
+    const matchingPeriods = academicYear.getMatchingPeriods(reservationDate);
 
     if (!matchingPeriods) {
       throw new NotFoundError('Academic year', dto.academicYearId);
@@ -62,8 +103,8 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const jsDay = reservationDate.getDay();
-    const systemDayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
+    const jsDay = reservationDate.getUTCDay();
+    const systemDayOfWeek = jsDay === 0 ? 7 : jsDay;
 
     const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
       organizationId,
@@ -80,8 +121,20 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const isAdminOrEditor =
-      role && hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS');
+    const hasReservation = await this.repository.hasAcceptedReservationOnDate(
+      organizationId,
+      dto.classroomId,
+      dto.date,
+      dto.slotIndex
+    );
+
+    if (hasReservation) {
+      throw new ValidationError(
+        'This classroom is already reserved at this time.'
+      );
+    }
+
+    const isAdminOrEditor = hasPermission(role, 'ACCEPT_RESERVATION');
 
     const reservation = ClassroomReservation.create({
       organizationId,

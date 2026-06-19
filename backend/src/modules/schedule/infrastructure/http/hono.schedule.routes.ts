@@ -144,7 +144,7 @@ export const updateScheduleSlotRoute = createRoute({
     404: { description: 'Schedule slot not found' },
     409: {
       description:
-        'Conflict validation errors during slot movement. Possible error codes (can be multiple separated by \\n):\n- ERR_ROOM_CAPACITY: Classroom capacity is lower than the number of students.\n- ERR_SHIFT_MORNING: Subject is forced to morning shift but placed in afternoon.\n- ERR_SHIFT_AFTERNOON: Subject is forced to afternoon shift but placed in morning.\n- ERR_SHIFT_EXCEEDS_DAY: Subject duration exceeds the maximum slots of the day.\n- ERR_OVERLAP_THEORY: Theory classes for the same students overlap.\n- ERR_OVERLAP_PRACTICES: Practice/Problem classes for the same students overlap.\n- ERR_OVERLAP_SAME_SUBJECT: Two groups of the same subject overlap.\n- ERR_ROOM_OVERLAP: Physical classroom is already occupied at this time.\n- ERR_RESERVATION_OVERLAP: Classroom has an accepted manual reservation at this time.',
+        'Conflict validation errors during slot movement. Possible error codes (can be multiple separated by \\n):\n- ERR_ROOM_CAPACITY: Classroom capacity is lower than the number of students.\n- ERR_SHIFT_MORNING: Subject is forced to morning shift but placed in afternoon.\n- ERR_SHIFT_AFTERNOON: Subject is forced to afternoon shift but placed in morning.\n- ERR_SHIFT_EXCEEDS_DAY: Subject duration exceeds the maximum slots of the day.\n- ERR_OVERLAP_THEORY: Theory classes for the same students overlap.\n- ERR_OVERLAP_PRACTICES: Practice/Problem classes for the same students overlap.\n- ERR_OVERLAP_SAME_SUBJECT: Two groups of the same subject overlap.\n- ERR_ROOM_OVERLAP: Physical classroom is already occupied at this time.',
     },
   },
 });
@@ -193,5 +193,19 @@ export const checkOverwriteScheduleRoute = createRoute({
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
+  },
+});
+
+export const streamScheduleEventsRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/schedules/{id}/events',
+  request: { params: ScheduleIdParamSchema },
+  responses: {
+    200: {
+      description: 'SSE events stream for a schedule',
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Schedule not found' },
   },
 });
