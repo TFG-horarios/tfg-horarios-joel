@@ -5,12 +5,14 @@ import type {
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IScheduleDataProvider } from '@/modules/schedule/domain/schedule-data.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
+import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
     private readonly scheduleDataProvider: IScheduleDataProvider,
-    private readonly reservationRepository: IClassroomReservationRepository
+    private readonly reservationRepository: IClassroomReservationRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async getScheduleContext(
@@ -103,6 +105,15 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
             'Cancelada automáticamente por solapamiento con clase regular'
           );
           await this.reservationRepository.update(res);
+
+          await this.createNotificationUseCase.execute({
+            userId: res.requesterUserId,
+            organizationId: organizationId,
+            title: 'Reserva cancelada automáticamente',
+            message:
+              'Tu reserva ha sido cancelada debido a un solapamiento con un horario regular tras una modificación.',
+            type: 'ERROR',
+          });
         }
       }
     }

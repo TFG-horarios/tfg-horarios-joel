@@ -6,16 +6,21 @@ import {
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ROLES, type AppRole } from '@/core/permissions/roles';
+import type { Member } from '../domain/member.entity';
+import type { IMemberNotificationProvider } from '../domain/member-notification.provider';
 
 export class EditMemberRoleUseCase {
-  constructor(private readonly memberRepository: IMemberRepository) {}
+  constructor(
+    private readonly memberRepository: IMemberRepository,
+    private readonly notificationProvider: IMemberNotificationProvider
+  ) {}
 
   async execute(
     organizationId: string,
     requesterUserId: string,
     memberId: string,
     roleToUpdate: AppRole
-  ): Promise<void> {
+  ): Promise<Member> {
     const member = await this.memberRepository.findById(
       memberId,
       organizationId
@@ -46,5 +51,13 @@ export class EditMemberRoleUseCase {
 
     member.updateRole(roleToUpdate, requesterUserId);
     await this.memberRepository.update(member);
+
+    await this.notificationProvider.notifyRoleUpdated(
+      member.userId,
+      organizationId,
+      roleToUpdate
+    );
+
+    return member;
   }
 }

@@ -14,6 +14,7 @@ describe('ListMembersUseCase', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
   const useCase = new ListMembersUseCase(repositoryMock);

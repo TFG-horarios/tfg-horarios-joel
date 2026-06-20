@@ -33,7 +33,12 @@ export class HonoClassroomReservationController {
       dto
     );
 
-    SseService.getInstance().broadcast(`classroom_${result.classroomId}`, 'reservation_updated', result);
+    SseService.getInstance().broadcast(
+      `classroom_${result.classroomId}`,
+      'reservation_updated',
+      result
+    );
+
     return c.json(result, 201);
   };
 
@@ -64,7 +69,12 @@ export class HonoClassroomReservationController {
         { status }
       );
 
-      SseService.getInstance().broadcast(`classroom_${result.classroomId}`, 'reservation_updated', result);
+      SseService.getInstance().broadcast(
+        `classroom_${result.classroomId}`,
+        'reservation_updated',
+        result
+      );
+
       return c.json(result, 200);
     };
 
@@ -82,9 +92,10 @@ export class HonoClassroomReservationController {
     return c.json(result, 200);
   };
 
-  streamEvents: RouteHandler<typeof streamClassroomReservationEventsRoute, AppEnv> = async (
-    c
-  ) => {
+  streamEvents: RouteHandler<
+    typeof streamClassroomReservationEventsRoute,
+    AppEnv
+  > = async (c) => {
     const { classroomId } = c.req.valid('param');
     const topic = `classroom_${classroomId}`;
 

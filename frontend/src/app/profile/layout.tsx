@@ -1,11 +1,7 @@
 import { Header } from '@/components/layout/header';
 import type { ReactNode } from 'react';
 
-export default function ProfileLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function ProfileLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative h-screen w-full overflow-hidden text-foreground">
       <div className="flex h-full flex-col gap-2 p-2 lg:gap-3 lg:p-3">

@@ -11,6 +11,7 @@ describe('ScheduleSlotMemberAdapter', () => {
     delete: mock(),
     countAdmins: mock(),
     findPaginated: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
   const adapter = new ScheduleSlotMemberAdapter(memberRepositoryMock);

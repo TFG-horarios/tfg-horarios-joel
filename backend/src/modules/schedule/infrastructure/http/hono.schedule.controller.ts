@@ -80,7 +80,11 @@ export class HonoScheduleController {
       requesterUserId,
       id
     );
-    SseService.getInstance().broadcast(`schedule_${id}`, 'schedule_updated', publishedSchedule);
+    SseService.getInstance().broadcast(
+      `schedule_${id}`,
+      'schedule_updated',
+      publishedSchedule
+    );
     return c.json(publishedSchedule, 200);
   };
 
@@ -94,7 +98,11 @@ export class HonoScheduleController {
       requesterUserId,
       id
     );
-    SseService.getInstance().broadcast(`schedule_${id}`, 'schedule_updated', unpublishedSchedule);
+    SseService.getInstance().broadcast(
+      `schedule_${id}`,
+      'schedule_updated',
+      unpublishedSchedule
+    );
     return c.json(unpublishedSchedule, 200);
   };
 
@@ -134,7 +142,11 @@ export class HonoScheduleController {
       id,
       body
     );
-    SseService.getInstance().broadcast(`schedule_${updatedSlot.scheduleId}`, 'schedule_updated', updatedSlot);
+    SseService.getInstance().broadcast(
+      `schedule_${updatedSlot.scheduleId}`,
+      'schedule_updated',
+      updatedSlot
+    );
     return c.json(updatedSlot, 200);
   };
 

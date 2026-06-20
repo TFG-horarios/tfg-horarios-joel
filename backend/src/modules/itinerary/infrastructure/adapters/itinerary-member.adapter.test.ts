@@ -11,6 +11,7 @@ describe('ItineraryMemberAdapter', () => {
     delete: mock(),
     countAdmins: mock(),
     findPaginated: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
   const adapter = new ItineraryMemberAdapter(memberRepositoryMock);

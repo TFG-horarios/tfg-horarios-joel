@@ -1,6 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback, memo, type ComponentType } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  memo,
+  type ComponentType,
+} from 'react';
 import { Loader2 } from 'lucide-react';
 import type { PaginationMetaDTO } from '@tfg-horarios/shared';
 

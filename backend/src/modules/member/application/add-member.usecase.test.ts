@@ -17,13 +17,24 @@ describe('AddMemberUseCase', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
   const userProviderMock = {
     getUserByEmail: mock(),
   };
 
-  const useCase = new AddMemberUseCase(repositoryMock, userProviderMock);
+  const notificationProviderMock = {
+    notifyAddedToOrganization: mock(),
+    notifyRoleUpdated: mock(),
+    notifyRemovedFromOrganization: mock(),
+  };
+
+  const useCase = new AddMemberUseCase(
+    repositoryMock,
+    userProviderMock,
+    notificationProviderMock
+  );
 
   test('should add member successfully', async () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({

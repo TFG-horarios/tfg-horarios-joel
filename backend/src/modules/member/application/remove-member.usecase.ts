@@ -6,15 +6,20 @@ import {
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ROLES } from '@/core/permissions/roles';
+import type { Member } from '../domain/member.entity';
+import type { IMemberNotificationProvider } from '../domain/member-notification.provider';
 
 export class RemoveMemberUseCase {
-  constructor(private readonly memberRepository: IMemberRepository) {}
+  constructor(
+    private readonly memberRepository: IMemberRepository,
+    private readonly notificationProvider: IMemberNotificationProvider
+  ) {}
 
   async execute(
     organizationId: string,
     requesterUserId: string,
     memberId: string
-  ): Promise<void> {
+  ): Promise<Member> {
     const member = await this.memberRepository.findById(
       memberId,
       organizationId
@@ -50,5 +55,12 @@ export class RemoveMemberUseCase {
     }
 
     await this.memberRepository.delete(member.id, member.organizationId);
+
+    await this.notificationProvider.notifyRemovedFromOrganization(
+      member.userId,
+      member.organizationId
+    );
+
+    return member;
   }
 }

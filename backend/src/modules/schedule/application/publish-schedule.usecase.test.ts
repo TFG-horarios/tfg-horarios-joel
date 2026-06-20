@@ -19,6 +19,7 @@ describe('PublishScheduleUseCase', () => {
     update: mock(),
     createSchedulesWithSlots: mock(),
     findLockedAssignments: mock(),
+    delete: mock(),
   };
 
   const slotProviderMock = {

@@ -5,6 +5,7 @@ CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> stateme
 CREATE TYPE "public"."role" AS ENUM('admin', 'editor', 'viewer');--> statement-breakpoint
 CREATE TYPE "public"."reservation_status" AS ENUM('PENDING', 'ACCEPTED', 'REJECTED');--> statement-breakpoint
 CREATE TYPE "public"."period_type" AS ENUM('semester', 'trimester', 'annual');--> statement-breakpoint
+CREATE TYPE "public"."notification_type" AS ENUM('INFO', 'SUCCESS', 'WARNING', 'ERROR');--> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
@@ -160,6 +161,17 @@ CREATE TABLE "academic_year" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "notifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"organization_id" uuid,
+	"title" varchar(255) NOT NULL,
+	"message" text NOT NULL,
+	"type" "notification_type" NOT NULL,
+	"is_read" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "classroom" ADD CONSTRAINT "classroom_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "subject" ADD CONSTRAINT "subject_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "subject" ADD CONSTRAINT "subject_degree_id_degree_id_fk" FOREIGN KEY ("degree_id") REFERENCES "public"."degree"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -183,6 +195,8 @@ ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_requ
 ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_classroom_id_classroom_id_fk" FOREIGN KEY ("classroom_id") REFERENCES "public"."classroom"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_academic_year_id_academic_year_id_fk" FOREIGN KEY ("academic_year_id") REFERENCES "public"."academic_year"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_year" ADD CONSTRAINT "academic_year_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "classroom_name_org_idx" ON "classroom" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_code_org_idx" ON "subject" USING btree ("organization_id","code") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "subject_group_logic_idx" ON "subject_group" USING btree ("subject_id","group_type","group_number","shift") WHERE deleted_at IS NULL;--> statement-breakpoint

@@ -6,6 +6,7 @@ import { useEffect, useState, Fragment, type ReactNode } from 'react';
 import { LogOut, Search, Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
+import { NotificationBell } from '@/features/notification/components/notification-bell';
 import { LanguageToggle } from '@/components/i18n/language-toggle';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import {
@@ -214,6 +215,7 @@ export function OrganizationHeader() {
         )}
 
         <div className="flex items-center gap-4">
+          {isAuthenticated && <NotificationBell />}
           <LanguageToggle />
           <ThemeToggle />
 

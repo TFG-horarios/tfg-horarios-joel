@@ -13,6 +13,7 @@ describe('GenerateScheduleUseCase', () => {
     update: mock(),
     createSchedulesWithSlots: mock(),
     findLockedAssignments: mock(),
+    delete: mock(),
   };
 
   const dataProviderMock = {
@@ -20,6 +21,7 @@ describe('GenerateScheduleUseCase', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    rejectConflictingReservationsBatch: mock(),
   };
 
   const memberProviderMock = {

@@ -154,6 +154,7 @@ describe('DrizzleScheduleRepository Integration', () => {
         dayOfWeek: 1,
         slotIndex: 1,
         duration: 1,
+        conflicts: [],
       },
     ];
     await repository.createSchedulesWithSlots([{ schedule, slots }]);

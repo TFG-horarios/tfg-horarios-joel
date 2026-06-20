@@ -18,9 +18,19 @@ describe('RemoveMemberUseCase', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
-  const useCase = new RemoveMemberUseCase(repositoryMock);
+  const notificationProviderMock = {
+    notifyRoleUpdated: mock(),
+    notifyAddedToOrganization: mock(),
+    notifyRemovedFromOrganization: mock(),
+  };
+
+  const useCase = new RemoveMemberUseCase(
+    repositoryMock,
+    notificationProviderMock
+  );
 
   test('should remove member successfully', async () => {
     const member = Member.reconstitute({

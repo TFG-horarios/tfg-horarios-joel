@@ -11,6 +11,7 @@ describe('SubjectMemberAdapter', () => {
     delete: mock(),
     countAdmins: mock(),
     findPaginated: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
   const adapter = new SubjectMemberAdapter(memberRepositoryMock);

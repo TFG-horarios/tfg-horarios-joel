@@ -18,9 +18,19 @@ describe('EditMemberRoleUseCase', () => {
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
-  const useCase = new EditMemberRoleUseCase(repositoryMock);
+  const notificationProviderMock = {
+    notifyRoleUpdated: mock(),
+    notifyAddedToOrganization: mock(),
+    notifyRemovedFromOrganization: mock(),
+  };
+
+  const useCase = new EditMemberRoleUseCase(
+    repositoryMock,
+    notificationProviderMock
+  );
 
   test('should edit member role successfully', async () => {
     const member = Member.reconstitute({

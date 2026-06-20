@@ -12,3 +12,4 @@ export * from './schema/degree.schema';
 export * from './schema/pagination.schema';
 export * from './schema/academic-year.schema';
 export * from './schema/classroom-reservation.schema';
+export * from './schema/notification.schema';

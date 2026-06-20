@@ -23,6 +23,8 @@ import { DrizzleScheduleRepository } from './modules/schedule/infrastructure/db/
 import { DrizzleScheduleSlotRepository } from './modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
 import { createAcademicYearModule } from './modules/academic-year/academic-year.module';
 import { DrizzleAcademicYearRepository } from './modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { createNotificationModule } from './modules/notification/notification.module';
+import { ClassroomReservationReminderWorker } from './modules/classroom-reservation/infrastructure/workers/classroom-reservation-reminder.worker';
 
 const api = new OpenAPIHono();
 const protectedApi = new OpenAPIHono();
@@ -51,17 +53,22 @@ api.use(
 api.onError(globalErrorMiddleware);
 
 protectedApi.use('/*', authMiddleware);
+const notificationModule = createNotificationModule(db);
+const { routes: notificationRoutes, createUseCase: createNotificationUseCase } =
+  notificationModule;
+
 const protectedRoutes = protectedApi
   .route('/', createOrganizationModule(db, memberRepository))
   .route('/', createUserModule(db))
-  .route('/', createMemberModule(db, userRepository))
+  .route('/', createMemberModule(db, userRepository, createNotificationUseCase))
   .route('/', createDegreeModule(db, memberRepository))
   .route('/', createClassroomModule(db, memberRepository))
   .route('/', createItineraryModule(db, memberRepository))
   .route('/', createSubjectModule(db, memberRepository))
   .route('/', createSubjectGroupModule(db, memberRepository, subjectRepository))
-  .route('/', createScheduleModule(db))
+  .route('/', createScheduleModule(db, createNotificationUseCase))
   .route('/', createAcademicYearModule(db, memberRepository))
+  .route('/', notificationRoutes)
   .route(
     '/',
     createClassroomReservationModule(
@@ -69,7 +76,8 @@ const protectedRoutes = protectedApi
       memberRepository,
       scheduleRepository,
       scheduleSlotRepository,
-      academicYearRepository
+      academicYearRepository,
+      createNotificationUseCase
     )
   );
 
@@ -79,6 +87,12 @@ const routes = api
 
 api.get('/reference', Scalar({ url: '/doc', theme: 'moon' }));
 api.doc('/doc', { openapi: '3.0.0', info: { version: '1.0.0', title: 'TFG' } });
+
+const reminderWorker = new ClassroomReservationReminderWorker(
+  db,
+  createNotificationUseCase
+);
+reminderWorker.start();
 
 export default {
   port: 8080,

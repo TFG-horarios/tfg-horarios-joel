@@ -14,6 +14,7 @@ describe('GetScheduleUseCase', () => {
     update: mock(),
     createSchedulesWithSlots: mock(),
     findLockedAssignments: mock(),
+    delete: mock(),
   };
 
   const memberProviderMock = {

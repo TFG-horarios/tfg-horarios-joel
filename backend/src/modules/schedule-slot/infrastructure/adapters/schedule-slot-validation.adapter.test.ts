@@ -26,6 +26,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     update: mock(),
     createSchedulesWithSlots: mock(),
     findLockedAssignments: mock(),
+    delete: mock(),
   };
 
   const dataProviderMock = {
@@ -33,6 +34,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    rejectConflictingReservationsBatch: mock(),
   };
 
   const reservationRepositoryMock = {
@@ -46,8 +48,7 @@ describe('ScheduleSlotValidationAdapter', () => {
   const adapter = new ScheduleSlotValidationAdapter(
     scheduleSlotRepositoryMock,
     scheduleRepositoryMock,
-    dataProviderMock,
-    reservationRepositoryMock
+    dataProviderMock
   );
 
   beforeEach(() => {

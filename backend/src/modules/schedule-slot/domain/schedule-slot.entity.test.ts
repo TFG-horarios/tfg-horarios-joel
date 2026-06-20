@@ -42,6 +42,7 @@ describe('ScheduleSlot', () => {
       slotIndex: 0,
       createdAt: date,
       updatedAt: date,
+      conflicts: [],
     };
     const slot = ScheduleSlot.reconstitute(persistedProps);
     expect(slot.id).toBe('slot-1');

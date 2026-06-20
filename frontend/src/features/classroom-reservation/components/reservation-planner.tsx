@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
-import { requestReservationAction, getOccupiedSlotsAction } from '../actions';
+import { requestReservationAction, fetchOccupiedSlotsAction } from '../actions';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import type {
@@ -68,12 +68,18 @@ export function ReservationPlanner({
     if (dateStr < tomorrowStr) return true;
 
     if (validStarts.length > 0) {
-      const minStartStr = validStarts.reduce((min, cur) => (cur < min ? cur : min), validStarts[0]!);
+      const minStartStr = validStarts.reduce(
+        (min, cur) => (cur < min ? cur : min),
+        validStarts[0]!
+      );
       if (dateStr < minStartStr) return true;
     }
 
     if (validEnds.length > 0) {
-      const maxEndStr = validEnds.reduce((max, cur) => (cur > max ? cur : max), validEnds[0]!);
+      const maxEndStr = validEnds.reduce(
+        (max, cur) => (cur > max ? cur : max),
+        validEnds[0]!
+      );
       if (dateStr > maxEndStr) return true;
     }
 
@@ -85,13 +91,18 @@ export function ReservationPlanner({
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
 
-    const initialDateStr = validStarts.length > 0
-      ? validStarts.reduce((min, cur) => (cur < min ? cur : min), validStarts[0]!)
-      : tomorrowStr;
+    const initialDateStr =
+      validStarts.length > 0
+        ? validStarts.reduce(
+            (min, cur) => (cur < min ? cur : min),
+            validStarts[0]!
+          )
+        : tomorrowStr;
 
-    const maxEndStr = validEnds.length > 0
-      ? validEnds.reduce((max, cur) => (cur > max ? cur : max), validEnds[0]!)
-      : null;
+    const maxEndStr =
+      validEnds.length > 0
+        ? validEnds.reduce((max, cur) => (cur > max ? cur : max), validEnds[0]!)
+        : null;
 
     let targetDateStr = initialDateStr;
     if (targetDateStr < tomorrowStr) {
@@ -167,7 +178,7 @@ export function ReservationPlanner({
 
     const fetchOccupied = async () => {
       const datesToFetch = daysOfWeek.map((d) => format(d.date, 'yyyy-MM-dd'));
-      const result = await getOccupiedSlotsAction(
+      const result = await fetchOccupiedSlotsAction(
         organization.id,
         selectedClassroom,
         academicYear.id,
@@ -201,7 +212,13 @@ export function ReservationPlanner({
     };
 
     fetchOccupied();
-  }, [selectedClassroom, weekStart.getTime(), academicYear, organization.id, refreshTrigger]);
+  }, [
+    selectedClassroom,
+    weekStart.getTime(),
+    academicYear,
+    organization.id,
+    refreshTrigger,
+  ]);
 
   useEffect(() => {
     if (!selectedClassroom) return;
@@ -212,9 +229,14 @@ export function ReservationPlanner({
 
     eventSource.addEventListener('reservation_updated', () => {
       if (modalOpen) {
-        toast.info('Atención: El calendario del aula ha sido actualizado por otro usuario. Puede que el hueco ya no esté disponible.', { duration: 6000 });
+        toast.info(
+          'Atención: El calendario del aula ha sido actualizado por otro usuario. Puede que el hueco ya no esté disponible.',
+          { duration: 6000 }
+        );
       } else {
-        toast.info('El calendario del aula ha sido actualizado por otro usuario.');
+        toast.info(
+          'El calendario del aula ha sido actualizado por otro usuario.'
+        );
       }
       setRefreshTrigger((prev) => prev + 1);
     });
@@ -337,18 +359,24 @@ export function ReservationPlanner({
               const isPending = occupied.reason === 'Reserva pendiente';
               const isAccepted = occupied.reason === 'Reservado';
 
-              let styleClasses = "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-600 dark:text-red-400";
-              
+              let styleClasses =
+                'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+
               if (isClass) {
-                styleClasses = "border-blue-200 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400";
+                styleClasses =
+                  'border-blue-200 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400';
               } else if (isAccepted) {
-                styleClasses = "border-green-200 bg-green-50/70 dark:border-green-900/50 dark:bg-green-950/20 text-green-700 dark:text-green-400";
+                styleClasses =
+                  'border-green-200 bg-green-50/70 dark:border-green-900/50 dark:bg-green-950/20 text-green-700 dark:text-green-400';
               } else if (isPending) {
-                styleClasses = "border-amber-200 bg-amber-50/70 dark:border-amber-900/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400";
+                styleClasses =
+                  'border-amber-200 bg-amber-50/70 dark:border-amber-900/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400';
               }
 
               return (
-                <div className={`w-full h-full min-h-15 rounded-md border border-dashed cursor-not-allowed flex flex-col items-center justify-center p-2 ${styleClasses}`}>
+                <div
+                  className={`w-full h-full min-h-15 rounded-md border border-dashed cursor-not-allowed flex flex-col items-center justify-center p-2 ${styleClasses}`}
+                >
                   <span className="text-[10px] font-medium text-center uppercase tracking-wider">
                     {occupied.reason}
                   </span>

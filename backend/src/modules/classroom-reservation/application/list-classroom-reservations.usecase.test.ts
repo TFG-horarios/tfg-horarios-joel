@@ -9,6 +9,8 @@ describe('ListClassroomReservationsUseCase', () => {
     save: mock(),
     update: mock(),
     hasAcceptedFutureReservation: mock(),
+    hasAcceptedReservationOnDate: mock(),
+    findReservationsInDateRange: mock(),
   };
 
   const memberProviderMock = {

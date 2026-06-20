@@ -20,6 +20,7 @@ describe('UpdateScheduleSlotUseCase', () => {
     getScheduleContext: mock(),
     isGroupCommon: mock(),
     unpublishSchedule: mock(),
+    rejectConflictingReservations: mock(),
   };
 
   const memberProviderMock = {
@@ -52,6 +53,7 @@ describe('UpdateScheduleSlotUseCase', () => {
     dataProviderMock.isGroupCommon.mockResolvedValueOnce(true);
     repositoryMock.findLinkedSlots.mockResolvedValueOnce([slot]);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
     const dto = { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 1 };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
     expect(result.classroomId).toBe('c-2');
@@ -88,6 +90,7 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
 
     const dto = { classroomId: 'c-2' };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);

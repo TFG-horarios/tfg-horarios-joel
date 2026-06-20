@@ -21,13 +21,16 @@ import {
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
+import { ClassroomReservationNotificationAdapter } from './infrastructure/adapters/classroom-reservation-notification.adapter';
+import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export const createClassroomReservationModule = (
   db: DbConnection,
   memberRepository: IMemberRepository,
   scheduleRepository: IScheduleRepository,
   scheduleSlotRepository: IScheduleSlotRepository,
-  academicYearRepository: IAcademicYearRepository
+  academicYearRepository: IAcademicYearRepository,
+  createNotificationUseCase: CreateNotificationUseCase
 ) => {
   const reservationRepository = new DrizzleClassroomReservationRepository(db);
   const memberProvider = new ClassroomReservationMemberAdapter(
@@ -42,18 +45,24 @@ export const createClassroomReservationModule = (
     academicYearRepository
   );
 
+  const notificationProvider = new ClassroomReservationNotificationAdapter(
+    createNotificationUseCase
+  );
+
   const requestUseCase = new RequestClassroomReservationUseCase(
     reservationRepository,
     scheduleProvider,
     memberProvider,
-    academicYearProvider
+    academicYearProvider,
+    notificationProvider
   );
 
   const updateStatusUseCase = new UpdateClassroomReservationStatusUseCase(
     reservationRepository,
     scheduleProvider,
     memberProvider,
-    academicYearProvider
+    academicYearProvider,
+    notificationProvider
   );
 
   const listUseCase = new ListClassroomReservationsUseCase(

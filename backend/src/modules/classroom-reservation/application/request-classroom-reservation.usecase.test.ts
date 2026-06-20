@@ -10,11 +10,13 @@ describe('RequestClassroomReservationUseCase', () => {
     update: mock(),
     hasAcceptedFutureReservation: mock(),
     hasAcceptedReservationOnDate: mock(),
+    findReservationsInDateRange: mock(),
   };
 
   const scheduleProviderMock = {
     areAllSchedulesPublished: mock(),
     hasSubjectInSlot: mock(),
+    getClassroomScheduleSlots: mock(),
   };
 
   const memberProviderMock = {
@@ -26,11 +28,17 @@ describe('RequestClassroomReservationUseCase', () => {
     getAcademicYear: mock(),
   };
 
+  const notificationProviderMock = {
+    notifyReservationRequested: mock(),
+    notifyReservationStatusChanged: mock(),
+  };
+
   const useCase = new RequestClassroomReservationUseCase(
     repositoryMock,
     scheduleProviderMock,
     memberProviderMock,
-    academicYearProviderMock
+    academicYearProviderMock,
+    notificationProviderMock
   );
 
   beforeEach(() => {
@@ -41,6 +49,8 @@ describe('RequestClassroomReservationUseCase', () => {
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
     academicYearProviderMock.getAcademicYear.mockReset();
+    notificationProviderMock.notifyReservationRequested.mockReset();
+    notificationProviderMock.notifyReservationStatusChanged.mockReset();
 
     academicYearProviderMock.getAcademicYear.mockResolvedValue({
       period0Start: '2020-01-01',
@@ -108,9 +118,11 @@ describe('RequestClassroomReservationUseCase', () => {
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
     scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
-    
+
     const nextSunday = new Date();
-    nextSunday.setDate(nextSunday.getDate() + ((7 - nextSunday.getDay()) % 7) + 7);
+    nextSunday.setDate(
+      nextSunday.getDate() + ((7 - nextSunday.getDay()) % 7) + 7
+    );
     const sundayStr = nextSunday.toISOString().split('T')[0]!;
 
     const nextMonday = new Date(nextSunday);

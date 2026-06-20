@@ -24,6 +24,7 @@ import {
 import { cn } from '@/lib/utils';
 import { logoutAction } from '@/features/auth/actions';
 import { useSession } from '../providers/session-provider';
+import { NotificationBell } from '@/features/notification/components/notification-bell';
 
 interface HeaderProps {
   variant?: 'floating' | 'inline';
@@ -212,6 +213,8 @@ export function Header({ variant = 'inline' }: HeaderProps) {
               )}
             </>
           )}
+
+          {isAuthenticated && <NotificationBell />}
 
           <LanguageToggle />
           <ThemeToggle />

@@ -11,10 +11,13 @@ import { Member } from '../domain/member.entity';
 import { MemberMapper } from './member.mapper';
 import { hasPermission } from '@/core/permissions/authorization';
 
+import type { IMemberNotificationProvider } from '../domain/member-notification.provider';
+
 export class AddMemberUseCase {
   constructor(
     private readonly memberRepository: IMemberRepository,
-    private readonly userProvider: IMemberUserProvider
+    private readonly userProvider: IMemberUserProvider,
+    private readonly notificationProvider: IMemberNotificationProvider
   ) {}
 
   async execute(
@@ -55,6 +58,11 @@ export class AddMemberUseCase {
     });
 
     await this.memberRepository.create(newMember);
+
+    await this.notificationProvider.notifyAddedToOrganization(
+      newMember.userId,
+      organizationId
+    );
 
     return MemberMapper.toDTO(newMember, userToAdd.name, userToAdd.email);
   }

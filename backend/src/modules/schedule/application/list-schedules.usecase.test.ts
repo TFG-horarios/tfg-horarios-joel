@@ -14,6 +14,7 @@ describe('ListSchedulesUseCase', () => {
     update: mock(),
     createSchedulesWithSlots: mock(),
     findLockedAssignments: mock(),
+    delete: mock(),
   };
 
   const memberProviderMock = {

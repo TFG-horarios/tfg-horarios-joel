@@ -7,6 +7,7 @@ import type { IClassroomReservationRepository } from '../domain/classroom-reserv
 import type { IClassroomReservationScheduleProvider } from '../domain/classroom-reservation-schedule.provider';
 import type { IClassroomReservationMemberProvider } from '../domain/classroom-reservation-member.provider';
 import type { IClassroomReservationAcademicYearProvider } from '../domain/classroom-reservation-academic-year.provider';
+import type { IClassroomReservationNotificationProvider } from '../domain/classroom-reservation-notification.provider';
 import { ClassroomReservationMapper } from './classroom-reservation.mapper';
 import {
   ForbiddenError,
@@ -20,7 +21,8 @@ export class RequestClassroomReservationUseCase {
     private readonly repository: IClassroomReservationRepository,
     private readonly scheduleProvider: IClassroomReservationScheduleProvider,
     private readonly memberProvider: IClassroomReservationMemberProvider,
-    private readonly academicYearProvider: IClassroomReservationAcademicYearProvider
+    private readonly academicYearProvider: IClassroomReservationAcademicYearProvider,
+    private readonly notificationProvider: IClassroomReservationNotificationProvider
   ) {}
 
   async execute(
@@ -151,6 +153,13 @@ export class RequestClassroomReservationUseCase {
     }
 
     await this.repository.save(reservation);
+
+    if (!isAdminOrEditor) {
+      await this.notificationProvider.notifyReservationRequested(
+        reservation.requesterUserId,
+        organizationId
+      );
+    }
 
     return ClassroomReservationMapper.toDTO(reservation);
   }

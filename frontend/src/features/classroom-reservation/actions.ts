@@ -10,7 +10,7 @@ import {
   type ClassroomReservationListQueryDTO,
   type ClassroomReservationDTO,
 } from '@tfg-horarios/shared';
-import { fetchPaginatedReservations } from './queries';
+import { fetchPaginatedReservations, fetchOccupiedSlots } from './queries';
 import { type ActionResponse } from '@/types/actions';
 
 export async function fetchPaginatedReservationsAction(
@@ -20,7 +20,7 @@ export async function fetchPaginatedReservationsAction(
   return await fetchPaginatedReservations(organizationId, query);
 }
 
-export async function getOccupiedSlotsAction(
+export async function fetchOccupiedSlotsAction(
   organizationId: string,
   classroomId: string,
   academicYearId: string,
@@ -31,7 +31,6 @@ export async function getOccupiedSlotsAction(
   }>
 > {
   const tErrors = await getTranslations('Common.errors');
-  const client = await getServerClient();
 
   if (datesOfWeek.length === 0) {
     return { success: true, data: { occupiedSlots: [] } };
@@ -42,32 +41,17 @@ export async function getOccupiedSlotsAction(
   const endDate = sortedDates[sortedDates.length - 1]!;
 
   try {
-    const response = await client.api.organizations[':organizationId']![
-      'classroom-reservations'
-    ]['availability'].$get({
-      param: { organizationId },
-      query: { classroomId, academicYearId, startDate, endDate },
-    });
-
-    if (!response.ok) {
-      const status = response.status + 0;
-      if (status === 400 || status === 404) {
-        const errorData = (await response.json()) as { message?: string };
-        return {
-          success: false,
-          message: errorData.message || tErrors('server'),
-        };
-      }
-      return { success: false, message: tErrors('server') };
-    }
-
-    const data = await response.json();
+    const occupiedSlots = await fetchOccupiedSlots(
+      organizationId,
+      classroomId,
+      academicYearId,
+      startDate,
+      endDate
+    );
 
     return {
       success: true,
-      data: {
-        occupiedSlots: data.occupiedSlots,
-      },
+      data: { occupiedSlots },
     };
   } catch (error) {
     return {

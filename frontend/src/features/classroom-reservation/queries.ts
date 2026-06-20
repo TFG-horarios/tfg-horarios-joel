@@ -42,3 +42,35 @@ export const fetchPaginatedReservations = cache(
     return schema.parse(payload);
   }
 );
+
+export const fetchOccupiedSlots = cache(
+  async (
+    organizationId: string,
+    classroomId: string,
+    academicYearId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<{ date: string; slotIndex: number; reason: string }[]> => {
+    const t = await getTranslations('Common.errors');
+    const client = await getServerClient();
+
+    const response = await client.api.organizations[':organizationId']![
+      'classroom-reservations'
+    ]['availability'].$get({
+      param: { organizationId },
+      query: { classroomId, academicYearId, startDate, endDate },
+    });
+
+    if (!response.ok) {
+      const status = response.status + 0;
+      if (status === 400 || status === 404) {
+        const errorData = (await response.json()) as { message?: string };
+        throw new Error(errorData.message || t('server'));
+      }
+      throw new Error(t('server'));
+    }
+
+    const data = await response.json();
+    return data.occupiedSlots;
+  }
+);

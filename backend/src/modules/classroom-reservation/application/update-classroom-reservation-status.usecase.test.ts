@@ -21,6 +21,7 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
   const scheduleProviderMock = {
     areAllSchedulesPublished: mock(),
     hasSubjectInSlot: mock(),
+    getClassroomScheduleSlots: mock(),
   };
 
   const memberProviderMock = {
@@ -29,13 +30,20 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
 
   const academicYearProviderMock = {
     getMatchingPeriods: mock(),
+    getAcademicYear: mock(),
+  };
+
+  const notificationProviderMock = {
+    notifyReservationRequested: mock(),
+    notifyReservationStatusChanged: mock(),
   };
 
   const useCase = new UpdateClassroomReservationStatusUseCase(
     repositoryMock,
     scheduleProviderMock,
     memberProviderMock,
-    academicYearProviderMock
+    academicYearProviderMock,
+    notificationProviderMock
   );
 
   beforeEach(() => {
@@ -46,6 +54,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     scheduleProviderMock.hasSubjectInSlot.mockReset();
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
+    notificationProviderMock.notifyReservationRequested.mockReset();
+    notificationProviderMock.notifyReservationStatusChanged.mockReset();
   });
 
   const baseReservation = ClassroomReservation.create({

@@ -40,8 +40,12 @@ import {
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
 import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.adapter';
+import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
-export const createScheduleModule = (db: DbConnection) => {
+export const createScheduleModule = (
+  db: DbConnection,
+  createNotificationUseCase: CreateNotificationUseCase
+) => {
   const scheduleRepository = new DrizzleScheduleRepository(db);
   const scheduleSlotRepository = new DrizzleScheduleSlotRepository(db);
   const memberRepository = new DrizzleMemberRepository(db);
@@ -72,7 +76,8 @@ export const createScheduleModule = (db: DbConnection) => {
   const slotDataProvider = new ScheduleSlotDataAdapter(
     scheduleRepository,
     dataProvider,
-    reservationRepository
+    reservationRepository,
+    createNotificationUseCase
   );
 
   const slotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
