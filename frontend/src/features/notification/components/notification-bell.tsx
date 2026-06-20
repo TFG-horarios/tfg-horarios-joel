@@ -49,7 +49,8 @@ export function NotificationBell() {
     if (!user) return;
 
     const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/users/${user.id}/notifications/stream`
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/users/${user.id}/notifications/stream`,
+      { withCredentials: true }
     );
 
     eventSource.addEventListener('notification_received', (e) => {

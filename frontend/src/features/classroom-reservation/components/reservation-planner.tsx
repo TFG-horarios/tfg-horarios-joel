@@ -224,20 +224,11 @@ export function ReservationPlanner({
     if (!selectedClassroom) return;
 
     const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/classroom-reservations/classrooms/${selectedClassroom}/events`
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/classroom-reservations/classrooms/${selectedClassroom}/events`,
+      { withCredentials: true }
     );
 
     eventSource.addEventListener('reservation_updated', () => {
-      if (modalOpen) {
-        toast.info(
-          'Atención: El calendario del aula ha sido actualizado por otro usuario. Puede que el hueco ya no esté disponible.',
-          { duration: 6000 }
-        );
-      } else {
-        toast.info(
-          'El calendario del aula ha sido actualizado por otro usuario.'
-        );
-      }
       setRefreshTrigger((prev) => prev + 1);
     });
 

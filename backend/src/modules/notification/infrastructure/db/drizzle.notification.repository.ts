@@ -82,7 +82,7 @@ export class DrizzleNotificationRepository implements INotificationRepository {
     };
   }
 
-  async markAsRead(id: string, userId: string): Promise<void> {
+  async markAsRead(id: string, userId: string): Promise<Notification> {
     const [row] = await this.db
       .update(notificationsTable)
       .set({ isRead: true })
@@ -97,6 +97,8 @@ export class DrizzleNotificationRepository implements INotificationRepository {
     if (!row) {
       throw new Error('Notification not found');
     }
+
+    return this.mapToDomain(row);
   }
 
   async markAllAsRead(userId: string): Promise<void> {

@@ -47,6 +47,7 @@ api.use(
     origin: Bun.env.FRONTEND_URL ?? 'http://localhost:3000',
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
   })
 );
 

@@ -8,13 +8,21 @@ describe('AuthMiddleware', () => {
   const middleware = createAuthMiddleware(tokenServiceMock);
 
   test('throws Unauthorized if no header', async () => {
-    const c = { req: { header: () => undefined } } as never as Context;
+    const c = {
+      req: {
+        header: () => undefined,
+        raw: { headers: { get: () => null } },
+      },
+    } as never as Context;
     expect(middleware(c, async () => {})).rejects.toThrow(UnauthorizedError);
   });
 
   test('throws Unauthorized if invalid header format', async () => {
     const c = {
-      req: { header: () => 'InvalidFormat token' },
+      req: {
+        header: () => 'InvalidFormat token',
+        raw: { headers: { get: () => null } },
+      },
     } as never as Context;
     expect(middleware(c, async () => {})).rejects.toThrow(UnauthorizedError);
   });

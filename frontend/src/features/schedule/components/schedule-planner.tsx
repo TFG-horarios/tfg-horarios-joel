@@ -147,24 +147,12 @@ export function SchedulePlanner({
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/schedules/${schedule.id}/events`
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/schedules/${schedule.id}/events`,
+      { withCredentials: true }
     );
 
     eventSource.addEventListener('schedule_updated', () => {
-      if (activeId || editingSlotId) {
-        toast.info(
-          t('planner.realTimeUpdatePending', {
-            fallback:
-              'Otro usuario ha modificado el horario. Recarga la página pronto para ver los cambios.',
-          })
-        );
-      } else {
-        toast.info(
-          t('planner.realTimeUpdate', {
-            fallback:
-              'El horario ha sido modificado por otro usuario. Sincronizando...',
-          })
-        );
+      if (!activeId && !editingSlotId) {
         router.refresh();
       }
     });

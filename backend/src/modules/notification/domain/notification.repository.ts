@@ -10,7 +10,7 @@ export interface INotificationRepository {
     userId: string,
     filters?: NotificationListQueryDTO
   ): Promise<PaginatedResponse<Notification>>;
-  markAsRead(id: string, userId: string): Promise<void>;
+  markAsRead(id: string, userId: string): Promise<Notification>;
   markAllAsRead(userId: string): Promise<void>;
   deleteOldNotifications(days: number): Promise<void>;
 }
