@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Plus, CalendarDays, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,9 +68,6 @@ function DashboardContent({
         </Button>
       </div>
       <DashboardGrid
-        icon={
-          <CalendarDays className="size-5 text-purple-600 dark:text-purple-200" />
-        }
         title="Cursos Académicos"
         countLabel={academicYearCountLabel}
         description="Selecciona un curso académico para gestionar sus horarios y configuración."

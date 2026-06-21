@@ -8,7 +8,6 @@ import { Background } from '@/components/layout/background';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import './globals.css';
-
 import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
@@ -42,10 +41,8 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <body className="antialiased text-foreground">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ThemeProvider
             attribute="class"

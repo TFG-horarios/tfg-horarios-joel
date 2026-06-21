@@ -48,14 +48,12 @@ export function OrganizationCard({
         ) : undefined
       }
     >
-      <div
-        className={cn(
-          'flex flex-col flex-1 justify-center',
-          (canEdit || canDelete) && 'pr-16'
-        )}
-      >
+      <div className="flex flex-col flex-1 justify-center">
         <h3
-          className="text-xl font-semibold text-center transition-colors line-clamp-3"
+          className={cn(
+            'text-xl font-semibold transition-colors line-clamp-3 text-center',
+            (canEdit || canDelete) ? 'pr-14' : 'pr-10'
+          )}
           title={organization.name}
         >
           {organization.name}

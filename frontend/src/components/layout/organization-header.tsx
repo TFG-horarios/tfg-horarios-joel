@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef, Fragment, type ReactNode } from 'react';
-import { LogOut, Search, Building2, User } from 'lucide-react';
+import { LogOut, Search, Building2, User, X, ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
 import { NotificationBell } from '@/features/notification/components/notification-bell';
@@ -33,6 +33,7 @@ export function OrganizationHeader() {
   const pathname = usePathname();
   const { user, isAuthenticated } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const t = useTranslations('Common.actions');
   const tBrand = useTranslations('Common');
   const tNav = useTranslations('Organizations.navigation');
@@ -98,20 +99,130 @@ export function OrganizationHeader() {
   };
 
   return (
-    <header className="rounded-3xl border border-border bg-white/70 p-2 text-foreground dark:bg-white/5 dark:text-white">
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          href="/organizations"
-          className={cn(
-            'rounded-lg px-3 py-2 text-sm font-semibold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10'
+    <header className="relative rounded-3xl border border-border bg-white/70 p-2 text-foreground dark:bg-white/5 dark:text-white">
+      {isSearchOpen && showSearch && (
+        <div className="flex items-center gap-2 w-full md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSearchOpen(false)}
+            className="shrink-0 size-9 rounded-lg"
+          >
+            <ArrowLeft className="size-5" />
+          </Button>
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Search className="size-4" />
+            </span>
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={
+                isOrganizationsList
+                  ? 'Buscar organización...'
+                  : 'Buscar curso académico...'
+              }
+              className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
+            />
+          </div>
+          {query && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setQuery('')}
+              className="shrink-0 size-9 rounded-lg"
+            >
+              <X className="size-4" />
+            </Button>
           )}
-        >
-          {tBrand('brand')}
-        </Link>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          'flex flex-col gap-3 md:flex-row md:items-center md:justify-between',
+          isSearchOpen && showSearch && 'hidden md:flex'
+        )}
+      >
+        <div className="flex w-full justify-center md:w-auto md:justify-start">
+          <Link
+            href="/organizations"
+            className={cn(
+              'rounded-lg px-3 pt-2 text-base font-extrabold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10 md:text-sm md:font-semibold'
+            )}
+          >
+            {tBrand('brand')}
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 md:hidden pb-2">
+          {showSearch && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsSearchOpen(true)}
+              className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+            >
+              <Search className="size-4" />
+            </Button>
+          )}
+
+          {isAuthenticated && <NotificationBell />}
+          <LanguageToggle />
+          <ThemeToggle />
+
+          {!isLoggingOut && isAuthenticated && user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t('signOut')}
+                  className="relative size-9 cursor-pointer rounded-full bg-card border-border dark:border-border dark:bg-input/30 text-sm font-medium"
+                >
+                  {(user.name || user.email)?.charAt(0).toUpperCase()}
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="w-56 border border-border bg-white/85 text-foreground backdrop-blur-lg dark:bg-black/60 dark:text-neutral-200"
+              >
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-foreground">
+                    {user.name ?? ''}
+                  </p>
+                  <p className="mt-1 break-all text-xs text-muted-foreground dark:text-neutral-300">
+                    {user.email}
+                  </p>
+                </div>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="w-full cursor-pointer">
+                    <User className="mr-2 size-4" />
+                    {tProfile('title')}
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => handleLogout()}
+                  data-variant="destructive"
+                >
+                  <LogOut className="mr-2 size-4" />
+                  {t('signOut')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
 
         {showSearch && (
-          <div className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 px-4">
-            <div className="pointer-events-auto">
+          <div className="hidden md:absolute md:left-1/2 md:top-1/2 md:block md:w-full md:max-w-[14rem] lg:max-w-xs xl:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:px-4">
+            <div>
               <label className="sr-only">Buscar organizaciones</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -133,9 +244,9 @@ export function OrganizationHeader() {
         )}
 
         {isOrgDetail && (
-          <div className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-[50vw] -translate-x-1/2 -translate-y-1/2 px-4 lg:max-w-[60vw]">
-            <div className="pointer-events-auto flex justify-center">
-              <div className="flex h-9 items-center rounded-full border border-black/5 bg-black/5 px-4 shadow-inner dark:border-white/10 dark:bg-white/5">
+          <div className="w-full px-2 md:absolute md:left-1/2 md:top-1/2 md:w-full md:max-w-[50vw] md:-translate-x-1/2 md:-translate-y-1/2 md:px-4 lg:max-w-[60vw]">
+            <div className="flex justify-center">
+              <div className="flex h-9 items-center rounded-full border border-black/5 bg-black/5 px-4 shadow-inner dark:border-white/10 dark:bg-white/5 max-w-full overflow-x-auto">
                 <Breadcrumb>
                   <BreadcrumbList className="flex-nowrap">
                     <BreadcrumbItem>
@@ -231,7 +342,7 @@ export function OrganizationHeader() {
           </div>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           {isAuthenticated && <NotificationBell />}
           <LanguageToggle />
           <ThemeToggle />

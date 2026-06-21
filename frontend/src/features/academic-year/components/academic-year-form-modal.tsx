@@ -124,8 +124,8 @@ export function AcademicYearFormModal({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg md:max-w-xl p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle>
             {academicYear
               ? 'Editar Curso Académico'
@@ -137,103 +137,65 @@ export function AcademicYearFormModal({
               : 'Configura el nuevo año académico y sus períodos lectivos.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          {academicYear && (
-            <div className="flex items-start gap-2 p-3 bg-amber-500/15 border border-amber-500/20 rounded-md text-amber-600 text-sm">
-              <p>
-                <strong>¡Atención!</strong> Si editas los horarios de inicio/fin
-                de turnos o la duración de clase, los horarios existentes
-                cambiarán de acuerdo a los nuevos parámetros visualmente.
-              </p>
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nombre del curso (ej. 2025-2026)</Label>
-              <Input
-                required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder="2025-2026"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Tipo de Períodos</Label>
-              <Select
-                value={formData.periodType}
-                onValueChange={(value: AcademicYearDTO['periodType']) =>
-                  setFormData({ ...formData, periodType: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="semester">
-                    Semestral (2 periodos)
-                  </SelectItem>
-                  <SelectItem value="trimester">
-                    Trimestral (3 periodos)
-                  </SelectItem>
-                  <SelectItem value="annual">Anual (1 periodo)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Inicio Período 1</Label>
-              <DatePicker
-                value={
-                  formData.period0Start
-                    ? new Date(formData.period0Start + 'T12:00:00')
-                    : undefined
-                }
-                onChange={(date) =>
-                  setFormData({
-                    ...formData,
-                    period0Start: date
-                      ? (date.toISOString().split('T')[0] ?? '')
-                      : '',
-                  })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Fin Período 1</Label>
-              <DatePicker
-                value={
-                  formData.period0End
-                    ? new Date(formData.period0End + 'T12:00:00')
-                    : undefined
-                }
-                onChange={(date) =>
-                  setFormData({
-                    ...formData,
-                    period0End: date
-                      ? (date.toISOString().split('T')[0] ?? '')
-                      : '',
-                  })
-                }
-              />
-            </div>
-          </div>
-          {(periodType === 'semester' || periodType === 'trimester') && (
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col max-h-[85vh]">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 max-h-[50vh] sm:max-h-[60vh]">
+            {academicYear && (
+              <div className="flex items-start gap-2 p-3 bg-amber-500/15 border border-amber-500/20 rounded-md text-amber-600 text-sm">
+                <p>
+                  <strong>¡Atención!</strong> Si editas los horarios de inicio/fin
+                  de turnos o la duración de clase, los horarios existentes
+                  cambiarán de acuerdo a los nuevos parámetros visualmente.
+                </p>
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Inicio Período 2</Label>
+                <Label>Nombre del curso (ej. 2025-2026)</Label>
+                <Input
+                  required
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="2025-2026"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo de Períodos</Label>
+                <Select
+                  value={formData.periodType}
+                  onValueChange={(value: AcademicYearDTO['periodType']) =>
+                    setFormData({ ...formData, periodType: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="semester">
+                      Semestral (2 periodos)
+                    </SelectItem>
+                    <SelectItem value="trimester">
+                      Trimestral (3 periodos)
+                    </SelectItem>
+                    <SelectItem value="annual">Anual (1 periodo)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Inicio Período 1</Label>
                 <DatePicker
                   value={
-                    formData.period1Start
-                      ? new Date(formData.period1Start + 'T12:00:00')
+                    formData.period0Start
+                      ? new Date(formData.period0Start + 'T12:00:00')
                       : undefined
                   }
                   onChange={(date) =>
                     setFormData({
                       ...formData,
-                      period1Start: date
+                      period0Start: date
                         ? (date.toISOString().split('T')[0] ?? '')
                         : '',
                     })
@@ -241,17 +203,17 @@ export function AcademicYearFormModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Fin Período 2</Label>
+                <Label>Fin Período 1</Label>
                 <DatePicker
                   value={
-                    formData.period1End
-                      ? new Date(formData.period1End + 'T12:00:00')
+                    formData.period0End
+                      ? new Date(formData.period0End + 'T12:00:00')
                       : undefined
                   }
                   onChange={(date) =>
                     setFormData({
                       ...formData,
-                      period1End: date
+                      period0End: date
                         ? (date.toISOString().split('T')[0] ?? '')
                         : '',
                     })
@@ -259,119 +221,159 @@ export function AcademicYearFormModal({
                 />
               </div>
             </div>
-          )}
-          {periodType === 'trimester' && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Inicio Período 3</Label>
-                <DatePicker
-                  value={
-                    formData.period2Start
-                      ? new Date(formData.period2Start + 'T12:00:00')
-                      : undefined
-                  }
-                  onChange={(date) =>
-                    setFormData({
-                      ...formData,
-                      period2Start: date
-                        ? (date.toISOString().split('T')[0] ?? '')
-                        : '',
-                    })
-                  }
-                />
+            {(periodType === 'semester' || periodType === 'trimester') && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Inicio Período 2</Label>
+                  <DatePicker
+                    value={
+                      formData.period1Start
+                        ? new Date(formData.period1Start + 'T12:00:00')
+                        : undefined
+                    }
+                    onChange={(date) =>
+                      setFormData({
+                        ...formData,
+                        period1Start: date
+                          ? (date.toISOString().split('T')[0] ?? '')
+                          : '',
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fin Período 2</Label>
+                  <DatePicker
+                    value={
+                      formData.period1End
+                        ? new Date(formData.period1End + 'T12:00:00')
+                        : undefined
+                    }
+                    onChange={(date) =>
+                      setFormData({
+                        ...formData,
+                        period1End: date
+                          ? (date.toISOString().split('T')[0] ?? '')
+                          : '',
+                      })
+                    }
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Fin Período 3</Label>
-                <DatePicker
-                  value={
-                    formData.period2End
-                      ? new Date(formData.period2End + 'T12:00:00')
-                      : undefined
-                  }
-                  onChange={(date) =>
-                    setFormData({
-                      ...formData,
-                      period2End: date
-                        ? (date.toISOString().split('T')[0] ?? '')
-                        : '',
-                    })
-                  }
-                />
+            )}
+            {periodType === 'trimester' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Inicio Período 3</Label>
+                  <DatePicker
+                    value={
+                      formData.period2Start
+                        ? new Date(formData.period2Start + 'T12:00:00')
+                        : undefined
+                    }
+                    onChange={(date) =>
+                      setFormData({
+                        ...formData,
+                        period2Start: date
+                          ? (date.toISOString().split('T')[0] ?? '')
+                          : '',
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fin Período 3</Label>
+                  <DatePicker
+                    value={
+                      formData.period2End
+                        ? new Date(formData.period2End + 'T12:00:00')
+                        : undefined
+                    }
+                    onChange={(date) =>
+                      setFormData({
+                        ...formData,
+                        period2End: date
+                          ? (date.toISOString().split('T')[0] ?? '')
+                          : '',
+                      })
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="pt-4 border-t border-border mt-4">
-            <h4 className="text-sm font-semibold mb-3">
-              Configuración de Horarios
-            </h4>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="pt-4 border-t border-border mt-4">
+              <h4 className="text-sm font-semibold mb-3">
+                Configuración de Horarios
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <Label>Inicio Mañana</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={formData.morningStart}
+                    onChange={(e) =>
+                      setFormData({ ...formData, morningStart: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fin Mañana</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={formData.morningEnd}
+                    onChange={(e) =>
+                      setFormData({ ...formData, morningEnd: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <Label>Inicio Tarde</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={formData.afternoonStart}
+                    onChange={(e) =>
+                      setFormData({ ...formData, afternoonStart: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fin Tarde</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={formData.afternoonEnd}
+                    onChange={(e) =>
+                      setFormData({ ...formData, afternoonEnd: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label>Inicio Mañana</Label>
+                <Label>Duración del Slot (minutos)</Label>
                 <Input
-                  type="time"
+                  type="number"
+                  min={15}
+                  max={240}
                   required
-                  value={formData.morningStart}
+                  value={formData.slotDurationMinutes}
                   onChange={(e) =>
-                    setFormData({ ...formData, morningStart: e.target.value })
+                    setFormData({
+                      ...formData,
+                      slotDurationMinutes: parseInt(e.target.value) || 60,
+                    })
                   }
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Fin Mañana</Label>
-                <Input
-                  type="time"
-                  required
-                  value={formData.morningEnd}
-                  onChange={(e) =>
-                    setFormData({ ...formData, morningEnd: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="space-y-2">
-                <Label>Inicio Tarde</Label>
-                <Input
-                  type="time"
-                  required
-                  value={formData.afternoonStart}
-                  onChange={(e) =>
-                    setFormData({ ...formData, afternoonStart: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Fin Tarde</Label>
-                <Input
-                  type="time"
-                  required
-                  value={formData.afternoonEnd}
-                  onChange={(e) =>
-                    setFormData({ ...formData, afternoonEnd: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Duración del Slot (minutos)</Label>
-              <Input
-                type="number"
-                min={15}
-                max={240}
-                required
-                value={formData.slotDurationMinutes}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    slotDurationMinutes: parseInt(e.target.value) || 60,
-                  })
-                }
-              />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 p-6 border-t border-border bg-muted/20 shrink-0">
             <Button
               type="button"
               variant="outline"

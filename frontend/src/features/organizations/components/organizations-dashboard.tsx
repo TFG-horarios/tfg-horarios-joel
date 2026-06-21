@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from '@/lib/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Building2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,9 +63,6 @@ function DashboardContent({
 
   return (
     <DashboardGrid
-      icon={
-        <Building2 className="size-5 text-purple-600 dark:text-purple-200" />
-      }
       title={t('page.title')}
       countLabel={organizationCountLabel}
       description={t('page.description')}

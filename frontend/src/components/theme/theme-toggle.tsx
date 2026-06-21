@@ -18,7 +18,7 @@ export function ThemeToggle() {
   if (!mounted) {
     return (
       <div
-        className="flex h-9 w-[76px] items-center justify-between rounded-lg border border-border bg-card px-2 py-1"
+        className="flex h-9 w-[76px] items-center justify-between rounded-lg border border-border bg-card dark:border-border dark:bg-input/30 px-2 py-1"
         aria-hidden="true"
       />
     );
@@ -27,7 +27,7 @@ export function ThemeToggle() {
   const isDarkTheme = resolvedTheme === 'dark';
 
   return (
-    <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-2 py-1">
+    <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card dark:border-border dark:bg-input/30 px-2 py-1">
       <Sun
         className={`size-4 transition-colors duration-200 ${
           !isDarkTheme
