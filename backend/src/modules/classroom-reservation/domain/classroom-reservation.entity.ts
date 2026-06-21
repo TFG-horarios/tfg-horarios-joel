@@ -58,6 +58,14 @@ export class ClassroomReservation {
     this.props.updatedAt = new Date();
   }
 
+  public cancel(): void {
+    if (this.props.status === 'REJECTED') {
+      throw new Error('Cannot cancel a rejected reservation');
+    }
+    this.props.status = 'CANCELLED';
+    this.props.updatedAt = new Date();
+  }
+
   public isExpired(): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

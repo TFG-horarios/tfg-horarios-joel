@@ -12,6 +12,7 @@ import {
   type ClassroomDTO,
   type DegreeDTO,
 } from '@tfg-horarios/shared';
+import { cn } from '@/lib/utils';
 import { getSubjectColorClasses } from '@/lib/subject-colors';
 import {
   Tooltip,
@@ -31,6 +32,7 @@ type DraggableSlotProps = {
   subjectIdsPool?: string[];
   onEditClassroomClick?: (slotId: string) => void;
   onUnassignClick?: (slotId: string) => void;
+  disabled?: boolean;
 };
 
 export const DraggableSlot = memo(function DraggableSlot({
@@ -43,10 +45,12 @@ export const DraggableSlot = memo(function DraggableSlot({
   subjectIdsPool,
   onEditClassroomClick,
   onUnassignClick,
+  disabled = false,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
     data: { slot, subject, group },
+    disabled,
   });
 
   const tErrors = useTranslations('Organizations.schedules.planner.errors');
@@ -82,7 +86,7 @@ export const DraggableSlot = memo(function DraggableSlot({
           : undefined,
         transform: isOverlay ? 'scale(1.05) rotate(2deg)' : undefined,
         zIndex: isOverlay ? 9999 : 20,
-        cursor: isDragging ? 'grabbing' : 'grab',
+        cursor: disabled ? 'default' : isDragging ? 'grabbing' : 'grab',
       }}
       className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative group
         ${getSubjectColorClasses(subject.id, subjectIdsPool)}
@@ -142,7 +146,10 @@ export const DraggableSlot = memo(function DraggableSlot({
       )}
       <CardContent
         ref={handleRef}
-        className="p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full cursor-grab active:cursor-grabbing outline-none text-center"
+        className={cn(
+          'p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full outline-none text-center',
+          disabled ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
+        )}
       >
         <Badge
           variant="outline"

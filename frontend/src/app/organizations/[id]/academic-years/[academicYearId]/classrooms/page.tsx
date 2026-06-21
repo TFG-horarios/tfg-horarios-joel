@@ -16,6 +16,8 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { ClassroomCard } from '@/features/classroom/components/classroom-card';
 import { ClassroomRow } from '@/features/classroom/components/classroom-row';
 import { fetchPaginatedClassroomsAction } from '@/features/classroom/actions';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationClassroomsPageProps = {
   params: Promise<{ id: string }>;
@@ -66,10 +68,21 @@ export default async function OrganizationClassroomsPage({
 
   const t = await getTranslations('Organizations.classrooms');
 
-  const [organization, { data: classrooms, meta }] = await Promise.all([
+  const [organization, { data: classrooms, meta }, user] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedClassrooms(id, query),
+    getSessionUser(),
   ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canCreate = isAdmin || isEditor;
+  const canDeleteAll = isAdmin;
+  const canImport = isAdmin || isEditor;
+  const canReplaceAll = isAdmin;
+  const canEdit = isAdmin || isEditor;
+  const canDelete = isAdmin;
 
   if (!organization) {
     notFound();
@@ -126,7 +139,13 @@ export default async function OrganizationClassroomsPage({
             </div>
           }
         />
-        <ClassroomActions organizationId={id} />
+        <ClassroomActions
+          organizationId={id}
+          canCreate={canCreate}
+          canDeleteAll={canDeleteAll}
+          canImport={canImport}
+          canReplaceAll={canReplaceAll}
+        />
       </div>
       <div>
         <ResourceLayout
@@ -137,10 +156,15 @@ export default async function OrganizationClassroomsPage({
           loadMore={fetchPaginatedClassroomsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ClassroomCard}
-          gridItemProps={{ translations }}
-          tableHeaders={['Nombre', 'Tipo', 'Capacidad', 'Acciones']}
+          gridItemProps={{ translations, canEdit, canDelete }}
+          tableHeaders={[
+            'Nombre',
+            'Tipo',
+            'Capacidad',
+            ...(canEdit || canDelete ? ['Acciones'] : []),
+          ]}
           TableRowComponent={ClassroomRow}
-          tableRowProps={{ translations }}
+          tableRowProps={{ translations, canEdit, canDelete }}
         />
       </div>
     </OrganizationSectionShell>

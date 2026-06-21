@@ -87,7 +87,10 @@ export const MemberCard = memo(function MemberCard({
 
           <div className={cn('flex flex-col flex-1 justify-center')}>
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-2"
+              className={cn(
+                'text-xl font-semibold transition-colors line-clamp-2',
+                hasActions && 'pr-12'
+              )}
               title={member.userName}
             >
               {member.userName}

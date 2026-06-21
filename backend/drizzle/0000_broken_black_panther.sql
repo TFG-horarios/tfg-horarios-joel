@@ -3,7 +3,7 @@ CREATE TYPE "public"."shift" AS ENUM('morning', 'afternoon');--> statement-break
 CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices', 'reduced_practices', 'tutoring');--> statement-breakpoint
 CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'editor', 'viewer');--> statement-breakpoint
-CREATE TYPE "public"."reservation_status" AS ENUM('PENDING', 'ACCEPTED', 'REJECTED');--> statement-breakpoint
+CREATE TYPE "public"."reservation_status" AS ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."period_type" AS ENUM('semester', 'trimester', 'annual');--> statement-breakpoint
 CREATE TYPE "public"."notification_type" AS ENUM('INFO', 'SUCCESS', 'WARNING', 'ERROR');--> statement-breakpoint
 CREATE TABLE "user" (

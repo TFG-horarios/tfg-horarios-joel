@@ -19,6 +19,7 @@ export interface ResourceDeleteActionProps {
   itemName?: string;
   deleteTitle?: string;
   deleteDescription?: string;
+  deleteLabel?: string;
   children: ReactNode;
 }
 
@@ -27,6 +28,7 @@ export function ResourceDeleteAction({
   itemName = 'este elemento',
   deleteTitle,
   deleteDescription,
+  deleteLabel,
   children,
 }: ResourceDeleteActionProps) {
   const t = useTranslations('Common.actions');
@@ -70,7 +72,7 @@ export function ResourceDeleteAction({
             disabled={isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isPending ? '...' : t('delete')}
+            {isPending ? '...' : deleteLabel || t('delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

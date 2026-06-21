@@ -20,6 +20,8 @@ import { ResourceFilterClear } from '@/components/shared/resource/resource-filte
 import { SubjectRow } from '@/features/subject/components/subject-row';
 import { fetchPaginatedSubjectsAction } from '@/features/subject/actions';
 import type { SubjectListQueryDTO } from '@tfg-horarios/shared';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationSubjectsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -91,13 +93,25 @@ export default async function OrganizationSubjectsPage({
     degrees,
     itineraries,
     academicYears,
+    user,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedSubjects(id, query),
     fetchAllDegrees(id),
     fetchAllItineraries(id),
     fetchAcademicYears(id),
+    getSessionUser(),
   ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canCreate = isAdmin || isEditor;
+  const canDeleteAll = isAdmin;
+  const canImport = isAdmin || isEditor;
+  const canReplaceAll = isAdmin;
+  const canEdit = isAdmin || isEditor;
+  const canDelete = isAdmin;
 
   if (!organization) {
     notFound();
@@ -202,6 +216,10 @@ export default async function OrganizationSubjectsPage({
           academicYear={currentAcademicYear}
           degrees={degrees}
           itineraries={itineraries}
+          canCreate={canCreate}
+          canDeleteAll={canDeleteAll}
+          canImport={canImport}
+          canReplaceAll={canReplaceAll}
         />
       </div>
       <div>
@@ -219,6 +237,8 @@ export default async function OrganizationSubjectsPage({
             degreeMap,
             itineraryMap,
             translations,
+            canEdit,
+            canDelete,
           }}
           tableHeaders={[
             'Código',
@@ -230,7 +250,7 @@ export default async function OrganizationSubjectsPage({
             'Horas',
             'Turnos',
             'Estudiantes',
-            'Acciones',
+            ...(canEdit || canDelete ? ['Acciones'] : []),
           ]}
           TableRowComponent={SubjectRow}
           tableRowProps={{
@@ -239,6 +259,8 @@ export default async function OrganizationSubjectsPage({
             degreeMap,
             itineraryMap,
             translations,
+            canEdit,
+            canDelete,
           }}
         />
       </div>

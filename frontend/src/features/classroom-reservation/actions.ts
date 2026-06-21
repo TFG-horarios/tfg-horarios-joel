@@ -156,10 +156,10 @@ export async function updateReservationStatusAction(
   }
 }
 
-export async function deleteReservationAction(
+export async function cancelReservationAction(
   organizationId: string,
   id: string
-): Promise<ActionResponse<void>> {
+): Promise<ActionResponse<ClassroomReservationDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
   const client = await getServerClient();
@@ -189,11 +189,15 @@ export async function deleteReservationAction(
       return { success: false, message: tErrors('server') };
     }
 
+    const payload = await response.json();
+    const parsed = ClassroomReservationSchema.parse(payload);
+
     revalidatePath(`/organizations/${organizationId}`, 'layout');
 
     return {
       success: true,
       message: tSuccess('deleted') || 'Reserva cancelada',
+      data: parsed,
     };
   } catch (error) {
     return {

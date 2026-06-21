@@ -98,6 +98,7 @@ reminderWorker.start();
 export default {
   port: 8080,
   fetch: routes.fetch,
+  idleTimeout: 255,
 };
 
 export type AppType = typeof routes;

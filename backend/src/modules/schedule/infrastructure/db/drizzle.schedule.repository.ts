@@ -140,6 +140,11 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       eq(schedulesTable.organizationId, organizationId),
     ];
 
+    if (filters?.academicYearId) {
+      conditions.push(
+        eq(schedulesTable.academicYearId, filters.academicYearId)
+      );
+    }
     if (filters?.degreeId) {
       conditions.push(eq(schedulesTable.degreeId, filters.degreeId));
     }

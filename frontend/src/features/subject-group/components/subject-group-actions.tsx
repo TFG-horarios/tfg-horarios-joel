@@ -15,11 +15,19 @@ import { downloadCsv } from '@/lib/utils/csv';
 interface SubjectGroupActionsProps {
   organizationId: string;
   subjects: SubjectDTO[];
+  canCreate?: boolean;
+  canDeleteAll?: boolean;
+  canImport?: boolean;
+  canReplaceAll?: boolean;
 }
 
 export function SubjectGroupActions({
   organizationId,
   subjects,
+  canCreate,
+  canDeleteAll,
+  canImport,
+  canReplaceAll,
 }: SubjectGroupActionsProps) {
   const t = useTranslations('Organizations.subjectGroups.actions');
   const tCommon = useTranslations('Common.actions');
@@ -44,8 +52,12 @@ export function SubjectGroupActions({
   return (
     <>
       <ResourceActionsToolbar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onDeleteAll={() => deleteAllSubjectGroupsAction(organizationId)}
+        onCreateClick={canCreate ? () => setIsCreateOpen(true) : undefined}
+        onDeleteAll={
+          canDeleteAll
+            ? () => deleteAllSubjectGroupsAction(organizationId)
+            : undefined
+        }
         translations={{
           deleteAllConfirm: t('deleteAllConfirm'),
           deleteAllTitle: t('deleteAllTitle'),
@@ -61,18 +73,22 @@ export function SubjectGroupActions({
         }}
         onExportCsv={handleExportCsv}
         appendModalContent={
-          <SubjectGroupBulkUploader
-            organizationId={organizationId}
-            subjects={subjects}
-            mode="append"
-          />
+          canImport ? (
+            <SubjectGroupBulkUploader
+              organizationId={organizationId}
+              subjects={subjects}
+              mode="append"
+            />
+          ) : undefined
         }
         overwriteModalContent={
-          <SubjectGroupBulkUploader
-            organizationId={organizationId}
-            subjects={subjects}
-            mode="overwrite"
-          />
+          canReplaceAll ? (
+            <SubjectGroupBulkUploader
+              organizationId={organizationId}
+              subjects={subjects}
+              mode="overwrite"
+            />
+          ) : undefined
         }
       />
       <SubjectGroupFormModal

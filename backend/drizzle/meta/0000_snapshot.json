@@ -1,5 +1,5 @@
 {
-  "id": "19d81199-2f10-401f-8826-61912542bd25",
+  "id": "d200eb09-dfc1-46bb-b702-2d5456306eb0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1691,7 +1691,8 @@
       "values": [
         "PENDING",
         "ACCEPTED",
-        "REJECTED"
+        "REJECTED",
+        "CANCELLED"
       ]
     },
     "public.period_type": {

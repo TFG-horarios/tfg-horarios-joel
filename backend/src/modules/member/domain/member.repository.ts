@@ -16,6 +16,10 @@ export interface IMemberRepository {
     userId: string,
     organizationId: string
   ): Promise<Member | null>;
+  findWithUserDetailsByUserAndOrg(
+    userId: string,
+    organizationId: string
+  ): Promise<MemberWithUserDetails | null>;
   findByOrganizationId(
     organizationId: string
   ): Promise<MemberWithUserDetails[]>;

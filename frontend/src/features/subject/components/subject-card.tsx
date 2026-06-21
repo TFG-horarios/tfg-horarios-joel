@@ -2,6 +2,7 @@
 
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
+import { cn } from '@/lib/utils';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectAction } from '@/features/subject/actions';
 import { toast } from 'sonner';
@@ -30,6 +31,8 @@ export interface SubjectCardProps {
   degreeMap: Map<string, DegreeDTO>;
   itineraryMap: Map<string, ItineraryDTO>;
   translations: Record<string, string>;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const SubjectCard = memo(function SubjectCard({
@@ -39,6 +42,8 @@ export const SubjectCard = memo(function SubjectCard({
   degreeMap,
   itineraryMap,
   translations,
+  canEdit,
+  canDelete,
 }: SubjectCardProps) {
   const degree = degreeMap.get(subject.degreeId);
   const itinerary = subject.itineraryId
@@ -63,21 +68,27 @@ export const SubjectCard = memo(function SubjectCard({
       <InteractiveCard
         className="h-full"
         actions={
-          <ResourceCardActions
-            itemName={subject.name}
-            onEdit={() => setIsEditOpen(true)}
-            onDelete={async () => {
-              const res = await deleteSubjectAction(
-                subject.organizationId,
-                subject.id
-              );
-              if (res.success) {
-                toast.success('Asignatura eliminada correctamente');
-              } else {
-                toast.error(res.message);
+          canEdit || canDelete ? (
+            <ResourceCardActions
+              itemName={subject.name}
+              onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+              onDelete={
+                canDelete
+                  ? async () => {
+                      const res = await deleteSubjectAction(
+                        subject.organizationId,
+                        subject.id
+                      );
+                      if (res.success) {
+                        toast.success('Asignatura eliminada correctamente');
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  : undefined
               }
-            }}
-          />
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col h-full w-full">
@@ -88,7 +99,10 @@ export const SubjectCard = memo(function SubjectCard({
           </div>
           <div className="flex flex-col flex-1 justify-center">
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              className={cn(
+                'text-xl font-semibold transition-colors line-clamp-3',
+                (canEdit || canDelete) && 'pr-12'
+              )}
               title={subject.name}
             >
               {subject.name}

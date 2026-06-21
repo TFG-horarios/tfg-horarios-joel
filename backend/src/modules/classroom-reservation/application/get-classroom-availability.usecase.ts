@@ -84,7 +84,10 @@ export class GetClassroomAvailabilityUseCase {
       }
 
       const dateReservations = reservations.filter(
-        (r) => r.date === dateStr && r.status !== 'REJECTED'
+        (r) =>
+          r.date === dateStr &&
+          r.status !== 'REJECTED' &&
+          r.status !== 'CANCELLED'
       );
 
       for (const res of dateReservations) {

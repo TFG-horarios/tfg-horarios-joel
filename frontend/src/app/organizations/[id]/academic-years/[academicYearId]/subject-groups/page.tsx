@@ -23,6 +23,8 @@ import {
   type GroupType,
   GROUP_TYPES,
 } from '@tfg-horarios/shared';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationSubjectGroupsPageProps = {
   params: Promise<{ id: string }>;
@@ -85,14 +87,31 @@ export default async function OrganizationSubjectGroupsPage({
   const t = await getTranslations('Organizations.subjectGroups');
   const tSubjects = await getTranslations('Organizations.subjects');
 
-  const [organization, { data: groups, meta }, subjects, degrees, itineraries] =
-    await Promise.all([
-      fetchOrganizationById(id),
-      fetchPaginatedSubjectGroups(id, query),
-      fetchAllSubjects(id),
-      fetchAllDegrees(id),
-      fetchAllItineraries(id),
-    ]);
+  const [
+    organization,
+    { data: groups, meta },
+    subjects,
+    degrees,
+    itineraries,
+    user,
+  ] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchPaginatedSubjectGroups(id, query),
+    fetchAllSubjects(id),
+    fetchAllDegrees(id),
+    fetchAllItineraries(id),
+    getSessionUser(),
+  ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canCreate = isAdmin || isEditor;
+  const canDeleteAll = isAdmin;
+  const canImport = isAdmin || isEditor;
+  const canReplaceAll = isAdmin;
+  const canEdit = isAdmin || isEditor;
+  const canDelete = isAdmin;
 
   if (!organization) {
     notFound();
@@ -185,7 +204,14 @@ export default async function OrganizationSubjectGroupsPage({
             </div>
           }
         />
-        <SubjectGroupActions organizationId={id} subjects={subjects} />
+        <SubjectGroupActions
+          organizationId={id}
+          subjects={subjects}
+          canCreate={canCreate}
+          canDeleteAll={canDeleteAll}
+          canImport={canImport}
+          canReplaceAll={canReplaceAll}
+        />
       </div>
       <div>
         <ResourceLayout
@@ -196,8 +222,17 @@ export default async function OrganizationSubjectGroupsPage({
           loadMore={fetchPaginatedSubjectGroupsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={SubjectGroupCard}
-          gridItemProps={{ subjectMap, degreeMap, itineraryMap, translations }}
+          gridItemProps={{
+            subjectMap,
+            degreeMap,
+            itineraryMap,
+            translations,
+            canEdit,
+            canDelete,
+          }}
           tableHeaders={[
+            'Cód. Asig.',
+            translations.subject,
             translations.type,
             translations.number,
             'Nombre',
@@ -206,11 +241,17 @@ export default async function OrganizationSubjectGroupsPage({
             translations.shift,
             translations.degree,
             translations.itinerary,
-            translations.subject,
-            'Acciones',
+            ...(canEdit || canDelete ? ['Acciones'] : []),
           ]}
           TableRowComponent={SubjectGroupRow}
-          tableRowProps={{ subjectMap, degreeMap, itineraryMap, translations }}
+          tableRowProps={{
+            subjectMap,
+            degreeMap,
+            itineraryMap,
+            translations,
+            canEdit,
+            canDelete,
+          }}
         />
       </div>
     </OrganizationSectionShell>

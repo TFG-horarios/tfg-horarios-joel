@@ -9,25 +9,26 @@ describe('ListMembersUseCase', () => {
     findById: mock(),
     findByUserAndOrg: mock(),
     findByOrganizationId: mock(),
-    findPaginated: mock(),
     create: mock(),
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
     getOrganizationsWhereUserIsSoleAdmin: mock(),
+    findWithUserDetailsByUserAndOrg: mock(),
   };
 
   const useCase = new ListMembersUseCase(repositoryMock);
 
   test('should list members successfully', async () => {
     repositoryMock.findByUserAndOrg.mockResolvedValueOnce({
-      role: 'viewer',
+      role: 'admin',
     });
     const member = Member.reconstitute({
       id: 'member-1',
       organizationId: 'org-1',
       userId: 'user-1',
-      role: ROLES.VIEWER,
+      role: ROLES.ADMIN,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

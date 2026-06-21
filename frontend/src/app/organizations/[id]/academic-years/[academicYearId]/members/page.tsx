@@ -147,7 +147,12 @@ export default async function OrganizationMembersPage({
             currentUserId: sessionUser.id,
             canManage,
           }}
-          tableHeaders={['Usuario', 'Rol', 'Acciones']}
+          tableHeaders={[
+            'Nombre',
+            'Correo',
+            'Rol',
+            ...(canManage ? ['Acciones'] : []),
+          ]}
           TableRowComponent={MemberRow}
           tableRowProps={{
             organizationId: id,

@@ -12,6 +12,7 @@ describe('OrganizationMemberAdapter', () => {
     countAdmins: mock(),
     findPaginated: mock(),
     getOrganizationsWhereUserIsSoleAdmin: mock(),
+    findWithUserDetailsByUserAndOrg: mock(),
   };
 
   const adapter = new OrganizationMemberAdapter(memberRepositoryMock);

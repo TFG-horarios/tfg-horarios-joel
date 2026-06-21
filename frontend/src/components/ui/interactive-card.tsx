@@ -8,6 +8,7 @@ export interface InteractiveCardProps extends Omit<
   'title'
 > {
   actions?: React.ReactNode;
+  bottomActions?: React.ReactNode;
   href?: string;
   onClick?: () => void;
   cutoutSize?: string;
@@ -30,6 +31,7 @@ export const InteractiveCard = React.forwardRef<
       className,
       children,
       actions,
+      bottomActions,
       href,
       onClick,
       cutoutSize = '3.5rem',
@@ -40,7 +42,7 @@ export const InteractiveCard = React.forwardRef<
     },
     ref
   ) => {
-    const hasNavigation = !!href || !!onClick;
+    const hasNavigation = !!href || !!onClick || !!bottomActions;
     const hasActions = !!actions;
 
     const s = parseValueToPx(cutoutSize) + parseValueToPx(cutoutGap);
@@ -141,7 +143,9 @@ export const InteractiveCard = React.forwardRef<
             className="absolute bottom-0 right-0 flex items-end justify-end z-20"
             style={{ width: cutoutSize, height: cutoutSize }}
           >
-            {href ? (
+            {bottomActions ? (
+              bottomActions
+            ) : href ? (
               <Link
                 href={href}
                 className="flex items-center justify-center w-full h-full bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30 transition-colors rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40"

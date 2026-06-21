@@ -11,7 +11,7 @@ import { RequestClassroomReservationUseCase } from './application/request-classr
 import { UpdateClassroomReservationStatusUseCase } from './application/update-classroom-reservation-status.usecase';
 import { ListClassroomReservationsUseCase } from './application/list-classroom-reservations.usecase';
 import { GetClassroomAvailabilityUseCase } from './application/get-classroom-availability.usecase';
-import { DeleteClassroomReservationUseCase } from './application/delete-classroom-reservation.usecase';
+import { CancelClassroomReservationUseCase } from './application/cancel-classroom-reservation.usecase';
 import { HonoClassroomReservationController } from './infrastructure/http/hono.classroom-reservation.controller';
 import {
   createReservationRoute,
@@ -19,7 +19,7 @@ import {
   updateReservationStatusRoute,
   getAvailabilityRoute,
   streamClassroomReservationEventsRoute,
-  deleteReservationRoute,
+  cancelReservationRoute,
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
@@ -78,7 +78,7 @@ export const createClassroomReservationModule = (
     academicYearProvider
   );
 
-  const deleteUseCase = new DeleteClassroomReservationUseCase(
+  const cancelUseCase = new CancelClassroomReservationUseCase(
     reservationRepository,
     memberProvider
   );
@@ -88,7 +88,7 @@ export const createClassroomReservationModule = (
     updateStatusUseCase,
     listUseCase,
     getAvailabilityUseCase,
-    deleteUseCase
+    cancelUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -98,7 +98,7 @@ export const createClassroomReservationModule = (
     .openapi(updateReservationStatusRoute, controller.updateStatus)
     .openapi(getAvailabilityRoute, controller.getAvailability)
     .openapi(streamClassroomReservationEventsRoute, controller.streamEvents)
-    .openapi(deleteReservationRoute, controller.delete);
+    .openapi(cancelReservationRoute, controller.cancel);
 
   return routes;
 };

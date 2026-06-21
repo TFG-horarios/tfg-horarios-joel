@@ -19,6 +19,7 @@ export interface ResourceCardActionsProps {
   itemName?: string;
   deleteTitle?: string;
   deleteDescription?: string;
+  deleteLabel?: string;
   children?: ReactNode;
 }
 
@@ -29,6 +30,7 @@ export function ResourceCardActions({
   itemName,
   deleteTitle,
   deleteDescription,
+  deleteLabel,
   children,
 }: ResourceCardActionsProps) {
   const t = useTranslations('Common.actions');
@@ -72,13 +74,14 @@ export function ResourceCardActions({
             itemName={itemName}
             deleteTitle={deleteTitle}
             deleteDescription={deleteDescription}
+            deleteLabel={deleteLabel}
           >
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
               className="text-destructive cursor-pointer"
             >
               <Trash className="mr-2 h-4 w-4" />
-              {t('delete')}
+              {deleteLabel || t('delete')}
             </DropdownMenuItem>
           </ResourceDeleteAction>
         )}

@@ -4,25 +4,80 @@ import { memo, useTransition } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
-import { updateReservationStatusAction } from '../actions';
+import { CheckCircle, XCircle, Clock, Loader2, Ban } from 'lucide-react';
+import {
+  cancelReservationAction,
+  updateReservationStatusAction,
+} from '../actions';
 import { toast } from 'sonner';
-import type { ClassroomReservationDTO } from '@tfg-horarios/shared';
+import type {
+  ClassroomReservationDTO,
+  AcademicYearDTO,
+} from '@tfg-horarios/shared';
 
 export type ClassroomReservationRowProps = {
   item: ClassroomReservationDTO;
   translations: Record<string, string>;
   classrooms?: Record<string, string>;
-  canManage: boolean;
+  memberRole: string | null;
   currentUserId?: string;
+  membersMap?: Record<string, string>;
+  academicYear?: AcademicYearDTO;
+};
+
+const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  if (
+    hours === undefined ||
+    minutes === undefined ||
+    isNaN(hours) ||
+    isNaN(minutes)
+  )
+    return 0;
+  return hours * 60 + minutes;
+};
+
+const minutesToTime = (totalMinutes: number) => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
+export const getSlotTimeRange = (
+  slotIndex: number,
+  academicYear?: AcademicYearDTO
+) => {
+  if (!academicYear) return `Slot ${slotIndex}`;
+
+  const morningTotalMinutes =
+    timeToMinutes(academicYear.morningEnd) -
+    timeToMinutes(academicYear.morningStart);
+  const morningSlots = Math.floor(
+    morningTotalMinutes / academicYear.slotDurationMinutes
+  );
+
+  const isAfternoon = slotIndex >= morningSlots;
+  const baseMinutes = isAfternoon
+    ? timeToMinutes(academicYear.afternoonStart)
+    : timeToMinutes(academicYear.morningStart);
+
+  const effectiveIndex = isAfternoon ? slotIndex - morningSlots : slotIndex;
+
+  const startMinutes =
+    baseMinutes + effectiveIndex * academicYear.slotDurationMinutes;
+  const endMinutes = startMinutes + academicYear.slotDurationMinutes;
+
+  return `${minutesToTime(startMinutes)} - ${minutesToTime(endMinutes)}`;
 };
 
 export const ClassroomReservationRow = memo(function ClassroomReservationRow({
   item: reservation,
   translations,
   classrooms,
-  canManage,
+  memberRole,
   currentUserId,
+  membersMap,
+  academicYear,
 }: ClassroomReservationRowProps) {
   const [isPending, startTransition] = useTransition();
 
@@ -46,8 +101,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
 
   const handleCancel = () => {
     startTransition(async () => {
-      const { deleteReservationAction } = await import('../actions');
-      const res = await deleteReservationAction(
+      const res = await cancelReservationAction(
         reservation.organizationId,
         reservation.id
       );
@@ -88,27 +142,51 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
             {translations['status.PENDING']}
           </Badge>
         );
+      case 'CANCELLED':
+        return (
+          <Badge variant="outline" className="text-muted-foreground">
+            <Ban className="mr-1 size-3" />
+            {translations['status.CANCELLED'] || 'Cancelada'}
+          </Badge>
+        );
     }
   };
 
+  const isRequester = reservation.requesterUserId === currentUserId;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+
+  const canAcceptReject =
+    (isAdmin || isEditor) && reservation.status === 'PENDING';
+  const canCancel =
+    (isAdmin && reservation.status === 'ACCEPTED') ||
+    (isRequester &&
+      (reservation.status === 'PENDING' || reservation.status === 'ACCEPTED') &&
+      !canAcceptReject);
+
+  const requesterDisplay = isRequester
+    ? 'yo'
+    : membersMap?.[reservation.requesterUserId] || 'Desconocido';
+
   return (
     <TableRow>
+      <TableCell>{getStatusBadge()}</TableCell>
       <TableCell className="font-medium">{classroomName}</TableCell>
       <TableCell>
         {new Date(reservation.date).toLocaleDateString('es-ES')}
       </TableCell>
       <TableCell>
-        {translations[`slot.${reservation.slotIndex}`] || reservation.slotIndex}
+        {getSlotTimeRange(reservation.slotIndex, academicYear)}
       </TableCell>
+      {(isAdmin || isEditor) && <TableCell>{requesterDisplay}</TableCell>}
       <TableCell
         className="max-w-[200px] truncate"
         title={reservation.reason || ''}
       >
         {reservation.reason || '-'}
       </TableCell>
-      <TableCell>{getStatusBadge()}</TableCell>
       <TableCell className="text-right">
-        {canManage && reservation.status === 'PENDING' ? (
+        {canAcceptReject ? (
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
@@ -139,9 +217,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
               {translations['action.reject']}
             </Button>
           </div>
-        ) : reservation.requesterUserId === currentUserId &&
-          (reservation.status === 'PENDING' ||
-            reservation.status === 'ACCEPTED') ? (
+        ) : canCancel ? (
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"

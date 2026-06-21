@@ -19,9 +19,13 @@ export function ResourceFilterInput({
   const currentFilter = getFilter(paramKey);
   const [value, setValue] = useState(currentFilter);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPushedValue = useRef(currentFilter);
 
   useEffect(() => {
-    setValue(currentFilter);
+    if (currentFilter !== lastPushedValue.current) {
+      setValue(currentFilter);
+      lastPushedValue.current = currentFilter;
+    }
   }, [currentFilter]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +37,7 @@ export function ResourceFilterInput({
     }
 
     timerRef.current = setTimeout(() => {
+      lastPushedValue.current = newValue || '';
       setFilter(paramKey, newValue || null);
     }, 300);
   };

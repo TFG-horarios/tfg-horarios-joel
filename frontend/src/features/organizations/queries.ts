@@ -9,13 +9,13 @@ export const fetchOrganizations = cache(
     const client = await getServerClient();
     const response = await client.api.organizations.$get();
 
-    if (!response.ok) {
-      throw new Error(t('server'));
-    }
-
     const status = response.status + 0;
     if (status === 400 || status === 401 || status === 403) {
       return [];
+    }
+
+    if (!response.ok) {
+      throw new Error(t('server'));
     }
 
     const payload = await response.json();

@@ -33,6 +33,8 @@ export interface ScheduleCardProps {
   itineraryMap: Record<string, string>;
   organizationId: string;
   translations?: Record<string, string>;
+  canUpdate?: boolean;
+  canDelete?: boolean;
 }
 
 export const ScheduleCard = memo(function ScheduleCard({
@@ -41,6 +43,8 @@ export const ScheduleCard = memo(function ScheduleCard({
   itineraryMap,
   organizationId,
   translations = {},
+  canUpdate,
+  canDelete,
 }: ScheduleCardProps) {
   const t = useTranslations('Organizations.schedules.card');
   const tStatus = useTranslations('Organizations.schedules');
@@ -142,35 +146,39 @@ export const ScheduleCard = memo(function ScheduleCard({
       href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
       actions={
         <ResourceCardActions
-          onDelete={handleDelete}
+          onDelete={canDelete ? handleDelete : undefined}
           itemName={t('scheduleItemName', { name: degreeName })}
         >
-          {schedule.status === 'draft' ? (
-            <DropdownMenuItem
-              onClick={handlePublish}
-              className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50"
-            >
-              <UploadCloud className="mr-2 h-4 w-4" />
-              <span>
-                {tStatus('planner.publishSchedule', {
-                  fallback: 'Publicar',
-                })}
-              </span>
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onClick={handleUnpublish}
-              className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
-            >
-              <Archive className="mr-2 h-4 w-4" />
-              <span>
-                {tStatus('planner.unpublishSchedule', {
-                  fallback: 'Borrador',
-                })}
-              </span>
-            </DropdownMenuItem>
+          {canUpdate && (
+            <>
+              {schedule.status === 'draft' ? (
+                <DropdownMenuItem
+                  onClick={handlePublish}
+                  className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50"
+                >
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                  <span>
+                    {tStatus('planner.publishSchedule', {
+                      fallback: 'Publicar',
+                    })}
+                  </span>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  onClick={handleUnpublish}
+                  className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
+                >
+                  <Archive className="mr-2 h-4 w-4" />
+                  <span>
+                    {tStatus('planner.unpublishSchedule', {
+                      fallback: 'Borrador',
+                    })}
+                  </span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+            </>
           )}
-          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleExportCSV}
             className="text-muted-foreground focus:text-foreground focus:bg-muted"

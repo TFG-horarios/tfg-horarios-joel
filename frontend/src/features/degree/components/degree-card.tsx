@@ -2,6 +2,7 @@
 
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
+import { cn } from '@/lib/utils';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteDegreeAction } from '@/features/degree/actions';
 import { toast } from 'sonner';
@@ -11,10 +12,14 @@ import type { DegreeDTO } from '@tfg-horarios/shared';
 export interface DegreeCardProps {
   item: DegreeDTO;
   translations?: Record<string, string>;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const DegreeCard = memo(function DegreeCard({
   item: degree,
+  canEdit,
+  canDelete,
 }: DegreeCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -23,21 +28,27 @@ export const DegreeCard = memo(function DegreeCard({
       <InteractiveCard
         className="h-full"
         actions={
-          <ResourceCardActions
-            itemName={degree.name}
-            onEdit={() => setIsEditOpen(true)}
-            onDelete={async () => {
-              const res = await deleteDegreeAction(
-                degree.organizationId,
-                degree.id
-              );
-              if (res.success) {
-                toast.success('Grado eliminado correctamente');
-              } else {
-                toast.error(res.message);
+          canEdit || canDelete ? (
+            <ResourceCardActions
+              itemName={degree.name}
+              onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+              onDelete={
+                canDelete
+                  ? async () => {
+                      const res = await deleteDegreeAction(
+                        degree.organizationId,
+                        degree.id
+                      );
+                      if (res.success) {
+                        toast.success('Grado eliminado correctamente');
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  : undefined
               }
-            }}
-          />
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col h-full w-full justify-center">
@@ -48,7 +59,10 @@ export const DegreeCard = memo(function DegreeCard({
               </span>
             </div>
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              className={cn(
+                'text-xl font-semibold transition-colors line-clamp-3',
+                (canEdit || canDelete) && 'pr-12'
+              )}
               title={degree.name}
             >
               {degree.name}

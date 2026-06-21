@@ -9,11 +9,6 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
-type OrganizationMemberContext = {
-  members: MemberDTO[];
-  currentMember: MemberDTO | null;
-};
-
 export const fetchPaginatedMembers = cache(
   async (
     organizationId: string,
@@ -28,16 +23,16 @@ export const fetchPaginatedMembers = cache(
       param: { organizationId },
       query: query || {},
     });
-    if (!response.ok) {
-      throw new Error(t('server'));
-    }
-
     const status = response.status + 0;
     if (status === 401 || status === 403) {
       return {
         data: [],
         meta: { total: 0, page: 1, limit: 100, totalPages: 0 },
       };
+    }
+
+    if (!response.ok) {
+      throw new Error(t('server'));
     }
 
     const payload = await response.json();
@@ -56,13 +51,13 @@ export const fetchAllMembers = cache(
     ]!.members.all.$get({
       param: { organizationId },
     });
-    if (!response.ok) {
-      throw new Error(t('server'));
-    }
-
     const status = response.status + 0;
     if (status === 401 || status === 403) {
       return [];
+    }
+
+    if (!response.ok) {
+      throw new Error(t('server'));
     }
 
     const payload = await response.json();
@@ -70,21 +65,27 @@ export const fetchAllMembers = cache(
   }
 );
 
-const getOrganizationMemberContext = cache(
-  async (
-    organizationId: string,
-    userId: string | null
-  ): Promise<OrganizationMemberContext> => {
-    const members = await fetchAllMembers(organizationId);
-    const currentMember =
-      userId === null
-        ? null
-        : (members.find((member) => member.userId === userId) ?? null);
+export const fetchMeMember = cache(
+  async (organizationId: string): Promise<MemberDTO | null> => {
+    const t = await getTranslations('Common.errors');
 
-    return {
-      members,
-      currentMember,
-    };
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.members.me.$get({
+      param: { organizationId },
+    });
+    const status = response.status + 0;
+    if (status === 401 || status === 403 || status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    return MemberSchema.parse(payload);
   }
 );
 
@@ -92,10 +93,7 @@ export async function getOrganizationMemberRole(
   organizationId: string,
   userId: string | null
 ): Promise<MemberDTO['role'] | null> {
-  const { currentMember } = await getOrganizationMemberContext(
-    organizationId,
-    userId
-  );
-
+  if (!userId) return null;
+  const currentMember = await fetchMeMember(organizationId);
   return currentMember?.role ?? null;
 }

@@ -4,7 +4,7 @@ import type { RequestClassroomReservationUseCase } from '../../application/reque
 import type { UpdateClassroomReservationStatusUseCase } from '../../application/update-classroom-reservation-status.usecase';
 import type { ListClassroomReservationsUseCase } from '../../application/list-classroom-reservations.usecase';
 import type { GetClassroomAvailabilityUseCase } from '../../application/get-classroom-availability.usecase';
-import type { DeleteClassroomReservationUseCase } from '../../application/delete-classroom-reservation.usecase';
+import type { CancelClassroomReservationUseCase } from '../../application/cancel-classroom-reservation.usecase';
 import { streamSSE } from 'hono/streaming';
 import { SseService } from '@/core/services/sse.service';
 import {
@@ -13,7 +13,7 @@ import {
   updateReservationStatusRoute,
   getAvailabilityRoute,
   streamClassroomReservationEventsRoute,
-  deleteReservationRoute,
+  cancelReservationRoute,
 } from './hono.classroom-reservation.routes';
 
 export class HonoClassroomReservationController {
@@ -22,7 +22,7 @@ export class HonoClassroomReservationController {
     private readonly updateReservationStatusUseCase: UpdateClassroomReservationStatusUseCase,
     private readonly listReservationsUseCase: ListClassroomReservationsUseCase,
     private readonly getAvailabilityUseCase: GetClassroomAvailabilityUseCase,
-    private readonly deleteReservationUseCase: DeleteClassroomReservationUseCase
+    private readonly cancelReservationUseCase: CancelClassroomReservationUseCase
   ) {}
 
   create: RouteHandler<typeof createReservationRoute, AppEnv> = async (c) => {
@@ -81,11 +81,22 @@ export class HonoClassroomReservationController {
       return c.json(result, 200);
     };
 
-  delete: RouteHandler<typeof deleteReservationRoute, AppEnv> = async (c) => {
+  cancel: RouteHandler<typeof cancelReservationRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
     const user = c.get('userId');
-    await this.deleteReservationUseCase.execute(organizationId, user, id);
-    return c.body(null, 204);
+    const result = await this.cancelReservationUseCase.execute(
+      organizationId,
+      user,
+      id
+    );
+
+    SseService.getInstance().broadcast(
+      `classroom_${result.classroomId}`,
+      'reservation_updated',
+      result
+    );
+
+    return c.json(result, 200);
   };
 
   getAvailability: RouteHandler<typeof getAvailabilityRoute, AppEnv> = async (

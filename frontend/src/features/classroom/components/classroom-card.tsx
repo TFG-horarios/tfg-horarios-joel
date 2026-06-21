@@ -13,11 +13,15 @@ import { cn } from '@/lib/utils';
 export interface ClassroomCardProps {
   item: ClassroomDTO;
   translations: Record<string, string>;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const ClassroomCard = memo(function ClassroomCard({
   item: classroom,
   translations,
+  canEdit,
+  canDelete,
 }: ClassroomCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const isTheory = classroom.type === 'theory';
@@ -27,21 +31,27 @@ export const ClassroomCard = memo(function ClassroomCard({
       <InteractiveCard
         className="h-full"
         actions={
-          <ResourceCardActions
-            itemName={classroom.name}
-            onEdit={() => setIsEditOpen(true)}
-            onDelete={async () => {
-              const res = await deleteClassroomAction(
-                classroom.organizationId,
-                classroom.id
-              );
-              if (res.success) {
-                toast.success(res.message);
-              } else {
-                toast.error(res.message);
+          canEdit || canDelete ? (
+            <ResourceCardActions
+              itemName={classroom.name}
+              onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+              onDelete={
+                canDelete
+                  ? async () => {
+                      const res = await deleteClassroomAction(
+                        classroom.organizationId,
+                        classroom.id
+                      );
+                      if (res.success) {
+                        toast.success(res.message);
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  : undefined
               }
-            }}
-          />
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col h-full w-full">
@@ -59,9 +69,14 @@ export const ClassroomCard = memo(function ClassroomCard({
                 : translations['type.lab']}
             </span>
           </div>
-          <div className="flex flex-col flex-1 justify-center">
+          <div
+            className={cn(
+              'flex flex-col flex-1 justify-center',
+              (canEdit || canDelete) && 'pr-12'
+            )}
+          >
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              className="text-xl font-semibold transition-colors line-clamp-3"
               title={classroom.name}
             >
               {classroom.name}

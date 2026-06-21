@@ -7,12 +7,14 @@ import { AddMemberUseCase } from './application/add-member.usecase';
 import { ListMembersUseCase } from './application/list-members.usecase';
 import { ListAllMembersUseCase } from './application/list-all-members.usecase';
 import { EditMemberRoleUseCase } from './application/edit-member-role.usecase';
+import { GetMeMemberUseCase } from './application/get-me-member.usecase';
 import {
   addMemberRoute,
   removeMemberRoute,
   listMembersRoute,
   listAllMembersRoute,
   updateMemberRoleRoute,
+  getMeRoute,
 } from './infrastructure/http/hono.member.routes';
 import type { AppEnv } from '@/core/types/app-types';
 import type { IUserRepository } from '@/modules/user/domain/user.repository';
@@ -46,13 +48,15 @@ export const createMemberModule = (
     memberRepository,
     notificationProvider
   );
+  const getMeUseCase = new GetMeMemberUseCase(memberRepository);
 
   const controller = new HonoMemberController(
     listUseCase,
     listAllUseCase,
     addUseCase,
     editRoleUseCase,
-    removeUseCase
+    removeUseCase,
+    getMeUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -61,6 +65,7 @@ export const createMemberModule = (
     .openapi(listAllMembersRoute, controller.listAll)
     .openapi(listMembersRoute, controller.list)
     .openapi(updateMemberRoleRoute, controller.updateRole)
-    .openapi(removeMemberRoute, controller.remove);
+    .openapi(removeMemberRoute, controller.remove)
+    .openapi(getMeRoute, controller.getMe);
   return routes;
 };

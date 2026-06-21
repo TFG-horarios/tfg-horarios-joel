@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, Fragment, type ReactNode } from 'react';
+import { useEffect, useState, useRef, Fragment, type ReactNode } from 'react';
 import { LogOut, Search, Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
@@ -40,7 +40,10 @@ export function OrganizationHeader() {
 
   const isOrganizations = pathname?.startsWith('/organizations');
   const pathSegments = pathname?.split('/').filter(Boolean) || [];
-  const isOrgDetail = isOrganizations && pathSegments.length >= 2;
+  const isOrganizationsList = pathname === '/organizations';
+  const isAcademicYearsList = isOrganizations && pathSegments.length === 2;
+  const showSearch = isOrganizationsList || isAcademicYearsList;
+  const isOrgDetail = isOrganizations && pathSegments.length >= 3;
   const orgId = isOrgDetail ? pathSegments[1] : null;
 
   const [orgName, setOrgName] = useState<string | null>(null);
@@ -62,10 +65,13 @@ export function OrganizationHeader() {
 
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
 
+  const lastPushedQ = useRef(searchParams.get('q') ?? '');
+
   useEffect(() => {
     const currentQ = searchParams.get('q') ?? '';
-    if (currentQ !== query) {
+    if (currentQ !== lastPushedQ.current) {
       setQuery(currentQ);
+      lastPushedQ.current = currentQ;
     }
   }, [searchParams]);
 
@@ -79,6 +85,7 @@ export function OrganizationHeader() {
         } else {
           params.delete('q');
         }
+        lastPushedQ.current = query;
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
       }, 200);
       return () => clearTimeout(handler);
@@ -102,7 +109,7 @@ export function OrganizationHeader() {
           {tBrand('brand')}
         </Link>
 
-        {isOrganizations && pathname === '/organizations' && (
+        {showSearch && (
           <div className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 px-4">
             <div className="pointer-events-auto">
               <label className="sr-only">Buscar organizaciones</label>
@@ -113,8 +120,12 @@ export function OrganizationHeader() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar organización..."
-                  className="w-full rounded-lg border border-border bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
+                  placeholder={
+                    isOrganizationsList
+                      ? 'Buscar organización...'
+                      : 'Buscar curso académico...'
+                  }
+                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>

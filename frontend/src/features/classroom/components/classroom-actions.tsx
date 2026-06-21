@@ -13,9 +13,19 @@ import { downloadCsv } from '@/lib/utils/csv';
 
 interface ClassroomActionsProps {
   organizationId: string;
+  canCreate?: boolean;
+  canDeleteAll?: boolean;
+  canImport?: boolean;
+  canReplaceAll?: boolean;
 }
 
-export function ClassroomActions({ organizationId }: ClassroomActionsProps) {
+export function ClassroomActions({
+  organizationId,
+  canCreate,
+  canDeleteAll,
+  canImport,
+  canReplaceAll,
+}: ClassroomActionsProps) {
   const t = useTranslations('Organizations.classrooms.actions');
   const tCommon = useTranslations('Common.actions');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -33,8 +43,12 @@ export function ClassroomActions({ organizationId }: ClassroomActionsProps) {
   return (
     <>
       <ResourceActionsToolbar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onDeleteAll={() => deleteAllClassroomsAction(organizationId)}
+        onCreateClick={canCreate ? () => setIsCreateOpen(true) : undefined}
+        onDeleteAll={
+          canDeleteAll
+            ? () => deleteAllClassroomsAction(organizationId)
+            : undefined
+        }
         translations={{
           deleteAllConfirm: t('deleteAllConfirm'),
           deleteAllTitle: t('deleteAllTitle'),
@@ -50,16 +64,20 @@ export function ClassroomActions({ organizationId }: ClassroomActionsProps) {
         }}
         onExportCsv={handleExportCsv}
         appendModalContent={
-          <ClassroomBulkUploader
-            organizationId={organizationId}
-            mode="append"
-          />
+          canImport ? (
+            <ClassroomBulkUploader
+              organizationId={organizationId}
+              mode="append"
+            />
+          ) : undefined
         }
         overwriteModalContent={
-          <ClassroomBulkUploader
-            organizationId={organizationId}
-            mode="overwrite"
-          />
+          canReplaceAll ? (
+            <ClassroomBulkUploader
+              organizationId={organizationId}
+              mode="overwrite"
+            />
+          ) : undefined
         }
       />
       <ClassroomFormModal

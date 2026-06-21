@@ -24,7 +24,7 @@ export class UpdateAcademicYearUseCase {
       requesterUserId,
       organizationId
     );
-    if (!role || !hasPermission(role, 'CREATE_ORGANIZATION_COMPONENTS')) {
+    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS')) {
       throw new ForbiddenError(
         'You do not have permission to update an academic year in this organization'
       );

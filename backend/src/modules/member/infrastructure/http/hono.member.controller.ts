@@ -11,7 +11,9 @@ import {
   updateMemberRoleRoute,
   removeMemberRoute,
   listAllMembersRoute,
+  getMeRoute,
 } from './hono.member.routes';
+import type { GetMeMemberUseCase } from '../../application/get-me-member.usecase';
 
 export class HonoMemberController {
   constructor(
@@ -19,7 +21,8 @@ export class HonoMemberController {
     private readonly listAllMembersUseCase: ListAllMembersUseCase,
     private readonly addMemberUseCase: AddMemberUseCase,
     private readonly editMemberRoleUseCase: EditMemberRoleUseCase,
-    private readonly removeMemberUseCase: RemoveMemberUseCase
+    private readonly removeMemberUseCase: RemoveMemberUseCase,
+    private readonly getMeMemberUseCase: GetMeMemberUseCase
   ) {}
 
   list: RouteHandler<typeof listMembersRoute, AppEnv> = async (c) => {
@@ -41,6 +44,15 @@ export class HonoMemberController {
       c.get('userId')
     );
     return c.json(members, 200);
+  };
+
+  getMe: RouteHandler<typeof getMeRoute, AppEnv> = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const member = await this.getMeMemberUseCase.execute(
+      organizationId,
+      c.get('userId')
+    );
+    return c.json(member, 200);
   };
 
   add: RouteHandler<typeof addMemberRoute, AppEnv> = async (c) => {

@@ -16,6 +16,8 @@ import { ResourceFilterClear } from '@/components/shared/resource/resource-filte
 import { DegreeRow } from '@/features/degree/components/degree-row';
 import { fetchPaginatedDegreesAction } from '@/features/degree/actions';
 import type { DegreeListQueryDTO } from '@tfg-horarios/shared';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationDegreesPageProps = {
   params: Promise<{ id: string }>;
@@ -58,10 +60,21 @@ export default async function OrganizationDegreesPage({
 
   const t = await getTranslations('Organizations.degrees');
 
-  const [organization, { data: degrees, meta }] = await Promise.all([
+  const [organization, { data: degrees, meta }, user] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedDegrees(id, query),
+    getSessionUser(),
   ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canCreate = isAdmin || isEditor;
+  const canDeleteAll = isAdmin;
+  const canImport = isAdmin || isEditor;
+  const canReplaceAll = isAdmin;
+  const canEdit = isAdmin || isEditor;
+  const canDelete = isAdmin;
 
   if (!organization) {
     notFound();
@@ -102,7 +115,13 @@ export default async function OrganizationDegreesPage({
             </div>
           }
         />
-        <DegreeActions organizationId={id} />
+        <DegreeActions
+          organizationId={id}
+          canCreate={canCreate}
+          canDeleteAll={canDeleteAll}
+          canImport={canImport}
+          canReplaceAll={canReplaceAll}
+        />
       </div>
       <div>
         <ResourceLayout
@@ -113,10 +132,14 @@ export default async function OrganizationDegreesPage({
           loadMore={fetchPaginatedDegreesAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={DegreeCard}
-          gridItemProps={{ translations }}
-          tableHeaders={['Nombre', 'Código', 'Acciones']}
+          gridItemProps={{ translations, canEdit, canDelete }}
+          tableHeaders={[
+            'Nombre',
+            'Código',
+            ...(canEdit || canDelete ? ['Acciones'] : []),
+          ]}
           TableRowComponent={DegreeRow}
-          tableRowProps={{ translations }}
+          tableRowProps={{ translations, canEdit, canDelete }}
         />
       </div>
     </OrganizationSectionShell>

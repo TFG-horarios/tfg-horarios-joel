@@ -2,8 +2,9 @@ import type { IClassroomReservationRepository } from '../domain/classroom-reserv
 import type { IClassroomReservationMemberProvider } from '../domain/classroom-reservation-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { ClassroomReservationDTO } from '@tfg-horarios/shared';
 
-export class DeleteClassroomReservationUseCase {
+export class CancelClassroomReservationUseCase {
   constructor(
     private readonly repository: IClassroomReservationRepository,
     private readonly memberProvider: IClassroomReservationMemberProvider
@@ -13,7 +14,7 @@ export class DeleteClassroomReservationUseCase {
     organizationId: string,
     requesterUserId: string,
     reservationId: string
-  ): Promise<void> {
+  ): Promise<ClassroomReservationDTO> {
     const reservation = await this.repository.findById(reservationId);
 
     if (!reservation || reservation.organizationId !== organizationId) {
@@ -28,11 +29,26 @@ export class DeleteClassroomReservationUseCase {
 
       if (!role || !hasPermission(role, 'DELETE_ORGANIZATION_COMPONENTS')) {
         throw new ForbiddenError(
-          'You do not have permission to delete this reservation.'
+          'You do not have permission to cancel this reservation.'
         );
       }
     }
 
-    await this.repository.delete(reservationId);
+    reservation.cancel();
+    await this.repository.update(reservation);
+
+    return {
+      id: reservation.id,
+      organizationId: reservation.organizationId,
+      requesterUserId: reservation.requesterUserId,
+      classroomId: reservation.classroomId,
+      academicYearId: reservation.academicYearId,
+      date: reservation.date,
+      slotIndex: reservation.slotIndex,
+      status: reservation.status,
+      reason: reservation.reason,
+      createdAt: reservation.createdAt.toISOString(),
+      updatedAt: reservation.updatedAt.toISOString(),
+    };
   }
 }

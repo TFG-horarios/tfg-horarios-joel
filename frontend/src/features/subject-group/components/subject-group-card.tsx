@@ -1,6 +1,7 @@
 'use client';
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
+import { cn } from '@/lib/utils';
 import { Clock, Users, Sun, Moon, GraduationCap, Map } from 'lucide-react';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
@@ -19,6 +20,8 @@ export interface SubjectGroupCardProps {
   degreeMap: Map<string, DegreeDTO>;
   itineraryMap: Map<string, ItineraryDTO>;
   translations: Record<string, string>;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const SubjectGroupCard = memo(function SubjectGroupCard({
@@ -27,6 +30,8 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
   degreeMap,
   itineraryMap,
   translations,
+  canEdit,
+  canDelete,
 }: SubjectGroupCardProps) {
   const subject = subjectMap.get(group.subjectId);
   const degree = subject ? degreeMap.get(subject.degreeId) : undefined;
@@ -40,21 +45,27 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
       <InteractiveCard
         className="h-full"
         actions={
-          <ResourceCardActions
-            itemName={group.name}
-            onEdit={() => setIsEditOpen(true)}
-            onDelete={async () => {
-              const res = await deleteSubjectGroupAction(
-                group.organizationId,
-                group.id
-              );
-              if (res.success) {
-                toast.success('Grupo eliminado correctamente');
-              } else {
-                toast.error(res.message);
+          canEdit || canDelete ? (
+            <ResourceCardActions
+              itemName={group.name}
+              onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+              onDelete={
+                canDelete
+                  ? async () => {
+                      const res = await deleteSubjectGroupAction(
+                        group.organizationId,
+                        group.id
+                      );
+                      if (res.success) {
+                        toast.success('Grupo eliminado correctamente');
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  : undefined
               }
-            }}
-          />
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col h-full w-full">
@@ -63,8 +74,17 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
               {subject?.code ?? '-'}
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
-              {translations[`typeOptions.${group.groupType}`]?.toUpperCase() ||
-                group.groupType?.toUpperCase()}
+              {group.groupType === 'theory'
+                ? 'TE'
+                : group.groupType === 'problems'
+                  ? 'PA'
+                  : group.groupType === 'practices'
+                    ? 'PE'
+                    : group.groupType === 'reduced_practices'
+                      ? 'PX'
+                      : group.groupType === 'tutoring'
+                        ? 'TU'
+                        : group.groupType || 'TE'}
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
               {group.groupNumber}
@@ -72,7 +92,10 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
           </div>
           <div className="flex flex-col flex-1 justify-center">
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-2 pr-12"
+              className={cn(
+                'text-xl font-semibold transition-colors line-clamp-2',
+                (canEdit || canDelete) && 'pr-12'
+              )}
               title={group.name}
             >
               {group.name}

@@ -23,7 +23,7 @@ import { OrganizationForm } from './organization-form';
 import { OrganizationCard } from './organization-card';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { DashboardGrid } from '@/components/layout/dashboard-grid';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 type OrganizationsDashboardProps = {
   initialOrganizations: OrganizationDTO[];
@@ -31,31 +31,23 @@ type OrganizationsDashboardProps = {
   initialError?: string | null;
 };
 
-export function OrganizationsDashboard({
+function DashboardContent({
   initialOrganizations,
   userRolesMap,
   initialError = null,
-}: OrganizationsDashboardProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  searchQuery,
+  isModalOpen,
+  handleModalChange,
+}: OrganizationsDashboardProps & {
+  searchQuery: string;
+  isModalOpen: boolean;
+  handleModalChange: (open: boolean) => void;
+}) {
   const t = useTranslations('Organizations');
-  const isModalOpen = searchParams.get('new') === 'true';
   const [editingOrganization, setEditingOrganization] =
     useState<OrganizationDTO | null>(null);
 
-  const handleModalChange = (open: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (open) {
-      params.set('new', 'true');
-    } else {
-      params.delete('new');
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
   const organizations = initialOrganizations;
-  const searchQuery = searchParams.get('q') ?? '';
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredOrganizations =
     normalizedQuery.length > 0
@@ -174,5 +166,49 @@ export function OrganizationsDashboard({
         </DialogContent>
       </Dialog>
     </DashboardGrid>
+  );
+}
+
+function DashboardWithSearch(props: OrganizationsDashboardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isModalOpen = searchParams.get('new') === 'true';
+  const searchQuery = searchParams.get('q') ?? '';
+
+  const handleModalChange = (open: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (open) {
+      params.set('new', 'true');
+    } else {
+      params.delete('new');
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  return (
+    <DashboardContent
+      {...props}
+      searchQuery={searchQuery}
+      isModalOpen={isModalOpen}
+      handleModalChange={handleModalChange}
+    />
+  );
+}
+
+export function OrganizationsDashboard(props: OrganizationsDashboardProps) {
+  return (
+    <Suspense
+      fallback={
+        <DashboardContent
+          {...props}
+          searchQuery=""
+          isModalOpen={false}
+          handleModalChange={() => {}}
+        />
+      }
+    >
+      <DashboardWithSearch {...props} />
+    </Suspense>
   );
 }

@@ -2,7 +2,6 @@
 
 import { memo, useTransition } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
-import { Button } from '@/components/ui/button';
 import {
   CheckCircle,
   XCircle,
@@ -10,19 +9,27 @@ import {
   CalendarDays,
   AlignLeft,
   Loader2,
+  Ban,
 } from 'lucide-react';
-import { updateReservationStatusAction } from '../actions';
+import {
+  cancelReservationAction,
+  updateReservationStatusAction,
+} from '../actions';
 import { toast } from 'sonner';
 import type { ClassroomReservationRowProps } from './classroom-reservation-row';
 import { cn } from '@/lib/utils';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
+import { getSlotTimeRange } from './classroom-reservation-row';
+import { User } from 'lucide-react';
 
 export const ClassroomReservationCard = memo(function ClassroomReservationCard({
   item: reservation,
   translations,
   classrooms,
-  canManage,
+  memberRole,
   currentUserId,
+  membersMap,
+  academicYear,
 }: ClassroomReservationRowProps) {
   const [isPending, startTransition] = useTransition();
 
@@ -45,8 +52,7 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
   };
 
   const handleCancel = async () => {
-    const { deleteReservationAction } = await import('../actions');
-    const res = await deleteReservationAction(
+    const res = await cancelReservationAction(
       reservation.organizationId,
       reservation.id
     );
@@ -58,21 +64,63 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
     return res;
   };
 
+  const isRequester = reservation.requesterUserId === currentUserId;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+
+  const canAcceptReject =
+    (isAdmin || isEditor) && reservation.status === 'PENDING';
   const canCancel =
-    reservation.requesterUserId === currentUserId &&
-    (reservation.status === 'PENDING' || reservation.status === 'ACCEPTED');
+    (isAdmin && reservation.status === 'ACCEPTED') ||
+    (isRequester &&
+      (reservation.status === 'PENDING' || reservation.status === 'ACCEPTED') &&
+      !canAcceptReject);
+
+  const requesterDisplay = isRequester
+    ? 'yo'
+    : membersMap?.[reservation.requesterUserId] || 'Desconocido';
 
   return (
     <InteractiveCard
       className="h-full"
       actions={
-        canCancel ? (
+        canAcceptReject ? (
+          <button
+            className="flex items-center justify-center w-full h-full bg-red-500/15 text-red-700 border border-red-500/40 hover:bg-red-500/25 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30 dark:hover:bg-red-500/30 transition-colors rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 disabled:opacity-50"
+            onClick={() => handleStatusUpdate('REJECTED')}
+            disabled={isPending}
+            title={translations['action.reject']}
+          >
+            {isPending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
+          </button>
+        ) : canCancel ? (
           <ResourceCardActions
             itemName="esta reserva"
             deleteTitle="Cancelar Reserva"
             deleteDescription="¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer."
+            deleteLabel="Cancelar"
             onDelete={handleCancel}
           />
+        ) : undefined
+      }
+      bottomActions={
+        canAcceptReject ? (
+          <button
+            className="flex items-center justify-center w-full h-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/40 hover:bg-emerald-500/25 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30 dark:hover:bg-emerald-500/30 transition-colors rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 disabled:opacity-50"
+            onClick={() => handleStatusUpdate('ACCEPTED')}
+            disabled={isPending}
+            title={translations['action.accept']}
+          >
+            {isPending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <CheckCircle className="w-5 h-5" />
+            )}
+          </button>
         ) : undefined
       }
     >
@@ -86,7 +134,9 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
               reservation.status === 'REJECTED' &&
                 'bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400',
               reservation.status === 'PENDING' &&
-                'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400'
+                'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
+              reservation.status === 'CANCELLED' &&
+                'bg-gray-500/10 text-gray-600 border-gray-500/20 dark:text-gray-400'
             )}
           >
             {reservation.status === 'ACCEPTED' && (
@@ -97,6 +147,9 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
             )}
             {reservation.status === 'PENDING' && (
               <Clock className="w-3 h-3 mr-1.5 shrink-0" />
+            )}
+            {reservation.status === 'CANCELLED' && (
+              <Ban className="w-3 h-3 mr-1.5 shrink-0" />
             )}
             {translations[`status.${reservation.status}`] || reservation.status}
           </span>
@@ -132,43 +185,21 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
 
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
               <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="truncate capitalize">
-                {translations[`slot.${reservation.slotIndex}`] ||
-                  reservation.slotIndex}
+              <span className="truncate">
+                {getSlotTimeRange(reservation.slotIndex, academicYear)}
               </span>
             </div>
-          </div>
 
-          {canManage && reservation.status === 'PENDING' && (
-            <div className="flex gap-2 w-full mt-1">
-              <Button
-                variant="outline"
-                className="flex-1 bg-emerald-500/10 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/20 border-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30 dark:hover:bg-emerald-500/20 transition-colors"
-                disabled={isPending}
-                onClick={() => handleStatusUpdate('ACCEPTED')}
+            {(isAdmin || isEditor) && (
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+                title="Solicitante"
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <CheckCircle className="size-4 mr-2" />
-                )}
-                {translations['action.accept']}
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 bg-red-500/10 text-red-600 hover:text-red-700 hover:bg-red-500/20 border-red-500/20 dark:text-red-400 dark:border-red-500/30 dark:hover:bg-red-500/20 transition-colors"
-                disabled={isPending}
-                onClick={() => handleStatusUpdate('REJECTED')}
-              >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <XCircle className="size-4 mr-2" />
-                )}
-                {translations['action.reject']}
-              </Button>
-            </div>
-          )}
+                <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">{requesterDisplay}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </InteractiveCard>

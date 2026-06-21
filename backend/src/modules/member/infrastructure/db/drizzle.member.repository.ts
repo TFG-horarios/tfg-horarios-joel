@@ -76,6 +76,35 @@ export class DrizzleMemberRepository implements IMemberRepository {
     return result[0] ? this.mapToDomain(result[0]) : null;
   }
 
+  async findWithUserDetailsByUserAndOrg(
+    userId: string,
+    organizationId: string
+  ): Promise<MemberWithUserDetails | null> {
+    const results = await this.database
+      .select({
+        member: membersTable,
+        userName: usersTable.name,
+        userEmail: usersTable.email,
+      })
+      .from(membersTable)
+      .innerJoin(usersTable, eq(membersTable.userId, usersTable.id))
+      .where(
+        and(
+          eq(membersTable.userId, userId),
+          eq(membersTable.organizationId, organizationId)
+        )
+      )
+      .limit(1);
+
+    if (!results[0]) return null;
+
+    return {
+      member: this.mapToDomain(results[0].member),
+      userName: results[0].userName,
+      userEmail: results[0].userEmail,
+    };
+  }
+
   async findByOrganizationId(
     organizationId: string
   ): Promise<MemberWithUserDetails[]> {

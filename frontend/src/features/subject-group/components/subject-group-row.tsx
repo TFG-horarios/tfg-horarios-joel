@@ -2,6 +2,7 @@
 
 import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
 import { toast } from 'sonner';
@@ -14,6 +15,8 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
   degreeMap,
   itineraryMap,
   translations,
+  canEdit,
+  canDelete,
 }: SubjectGroupCardProps) {
   const subject = subjectMap.get(group.subjectId);
   const degree = subject ? degreeMap.get(subject.degreeId) : undefined;
@@ -23,8 +26,18 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const groupTypeLabel = group.groupType
-    ? translations[`typeOptions.${group.groupType}`]
-    : translations['typeOptions.theory'];
+    ? group.groupType === 'theory'
+      ? 'TE'
+      : group.groupType === 'problems'
+        ? 'PA'
+        : group.groupType === 'practices'
+          ? 'PE'
+          : group.groupType === 'reduced_practices'
+            ? 'PX'
+            : group.groupType === 'tutoring'
+              ? 'TU'
+              : group.groupType
+    : 'TE';
 
   const shiftLabel = translations[`shiftOptions.${group.shift}`];
   const itineraryCode = itinerary ? itinerary.code : translations.common;
@@ -32,6 +45,15 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
   return (
     <>
       <TableRow>
+        <TableCell className="font-mono uppercase tracking-widest text-muted-foreground">
+          {subject?.code ?? '-'}
+        </TableCell>
+        <TableCell
+          className="font-medium max-w-48 truncate"
+          title={subject?.name}
+        >
+          {subject?.name ?? '-'}
+        </TableCell>
         <TableCell>{groupTypeLabel}</TableCell>
         <TableCell>{group.groupNumber}</TableCell>
         <TableCell className="font-medium">{group.name}</TableCell>
@@ -39,25 +61,30 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
         <TableCell>{group.numberOfStudents}</TableCell>
         <TableCell className="capitalize">{shiftLabel}</TableCell>
         <TableCell>{degree?.code ?? '-'}</TableCell>
-        <TableCell>{itineraryCode}</TableCell>
-        <TableCell className="font-mono uppercase tracking-widest text-muted-foreground">
-          {subject?.code ?? '-'}
+        <TableCell className={cn(!canEdit && !canDelete && 'text-right')}>
+          {itineraryCode}
         </TableCell>
-        <ResourceRowActions
-          itemName={group.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteSubjectGroupAction(
-              group.organizationId,
-              group.id
-            );
-            if (res.success) {
-              toast.success('Grupo eliminado correctamente');
-            } else {
-              toast.error(res.message);
+        {(canEdit || canDelete) && (
+          <ResourceRowActions
+            itemName={group.name}
+            onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+            onDelete={
+              canDelete
+                ? async () => {
+                    const res = await deleteSubjectGroupAction(
+                      group.organizationId,
+                      group.id
+                    );
+                    if (res.success) {
+                      toast.success('Grupo eliminado correctamente');
+                    } else {
+                      toast.error(res.message);
+                    }
+                  }
+                : undefined
             }
-          }}
-        />
+          />
+        )}
       </TableRow>
       <SubjectGroupFormModal
         organizationId={group.organizationId}

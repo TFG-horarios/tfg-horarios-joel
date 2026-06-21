@@ -8,12 +8,13 @@ describe('ListAllMembersUseCase', () => {
     findById: mock(),
     findByUserAndOrg: mock(),
     findByOrganizationId: mock(),
-    findPaginated: mock(),
     create: mock(),
     update: mock(),
     delete: mock(),
     countAdmins: mock(),
+    findPaginated: mock(),
     getOrganizationsWhereUserIsSoleAdmin: mock(),
+    findWithUserDetailsByUserAndOrg: mock(),
   };
 
   const useCase = new ListAllMembersUseCase(repositoryMock);

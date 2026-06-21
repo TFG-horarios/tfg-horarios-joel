@@ -3,8 +3,8 @@
 import { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Shield, User } from 'lucide-react';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { removeMemberAction } from '@/features/members/actions';
 import { toast } from 'sonner';
@@ -23,31 +23,25 @@ const ROLE_BADGE_VARIANTS: Record<
 export const MemberRow = memo(function MemberRow({
   item: member,
   currentUserId,
+  canManage,
 }: {
   item: MemberDTO;
   currentUserId: string;
+  canManage: boolean;
 }) {
   const t = useTranslations('Organizations.membersManagement');
   const isSelf = member.userId === currentUserId;
+  const hasActions = !isSelf && canManage;
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   return (
     <>
       <TableRow>
-        <TableCell className="font-medium flex items-center gap-2">
-          {member.role === 'admin' ? (
-            <Shield className="h-4 w-4 text-primary shrink-0" />
-          ) : (
-            <User className="h-4 w-4 text-muted-foreground shrink-0" />
-          )}
-          <div className="flex flex-col">
-            <span>{member.userName}</span>
-            <span className="text-xs text-muted-foreground font-normal">
-              {member.userEmail}
-            </span>
-          </div>
+        <TableCell className="font-medium">{member.userName}</TableCell>
+        <TableCell className="text-muted-foreground">
+          {member.userEmail}
         </TableCell>
-        <TableCell>
+        <TableCell className={cn(!canManage && 'text-right')}>
           <Badge variant={ROLE_BADGE_VARIANTS[member.role]}>
             {t(`roles.${member.role}`)}
           </Badge>
@@ -57,25 +51,28 @@ export const MemberRow = memo(function MemberRow({
             </Badge>
           )}
         </TableCell>
-        <ResourceRowActions
-          itemName={member.userName}
-          onEdit={isSelf ? undefined : () => setIsEditOpen(true)}
-          onDelete={
-            isSelf
-              ? undefined
-              : async () => {
-                  const res = await removeMemberAction(
-                    member.organizationId,
-                    member.id
-                  );
-                  if (res.success) {
-                    toast.success('Miembro eliminado correctamente');
-                  } else {
-                    toast.error(res.message);
-                  }
+        {canManage &&
+          (hasActions ? (
+            <ResourceRowActions
+              itemName={member.userName}
+              onEdit={() => setIsEditOpen(true)}
+              onDelete={async () => {
+                const res = await removeMemberAction(
+                  member.organizationId,
+                  member.id
+                );
+                if (res.success) {
+                  toast.success('Miembro eliminado correctamente');
+                } else {
+                  toast.error(res.message);
                 }
-          }
-        />
+              }}
+            />
+          ) : (
+            <TableCell className="text-right text-muted-foreground">
+              -
+            </TableCell>
+          ))}
       </TableRow>
       <MemberFormModal
         organizationId={member.organizationId}

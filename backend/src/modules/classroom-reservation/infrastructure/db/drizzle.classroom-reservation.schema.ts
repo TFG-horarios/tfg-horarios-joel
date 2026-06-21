@@ -15,6 +15,7 @@ export const reservationStatusEnum = pgEnum('reservation_status', [
   'PENDING',
   'ACCEPTED',
   'REJECTED',
+  'CANCELLED',
 ]);
 
 export const classroomReservations = pgTable('classroom_reservations', {

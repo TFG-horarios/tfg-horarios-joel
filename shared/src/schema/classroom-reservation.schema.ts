@@ -5,6 +5,7 @@ export const ClassroomReservationStatusSchema = z.enum([
   'PENDING',
   'ACCEPTED',
   'REJECTED',
+  'CANCELLED',
 ]);
 
 export const ClassroomReservationSchema = z

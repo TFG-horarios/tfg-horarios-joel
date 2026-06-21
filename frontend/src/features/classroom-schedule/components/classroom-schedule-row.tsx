@@ -12,7 +12,6 @@ import type { ClassroomScheduleDTO } from './classroom-schedule-card';
 export interface ClassroomScheduleCardProps {
   item: ClassroomScheduleDTO;
   classroomMap: Record<string, string>;
-  academicYearMap: Record<string, string>;
   organizationId: string;
   academicYearId: string;
   translations?: Record<string, string>;
@@ -21,7 +20,6 @@ export interface ClassroomScheduleCardProps {
 export const ClassroomScheduleRow = memo(function ClassroomScheduleRow({
   item: config,
   classroomMap,
-  academicYearMap,
   organizationId,
   academicYearId,
   translations = {},
@@ -36,7 +34,6 @@ export const ClassroomScheduleRow = memo(function ClassroomScheduleRow({
   return (
     <TableRow>
       <TableCell className="font-medium">{classroomName}</TableCell>
-      <TableCell>{academicYearMap[config.academicYearId]}</TableCell>
       <TableCell>{config.period}</TableCell>
       <TableCell className="capitalize">{shiftLabel}</TableCell>
       <ResourceRowActions>

@@ -140,7 +140,7 @@ export const streamClassroomReservationEventsRoute = createRoute({
   },
 });
 
-export const deleteReservationRoute = createRoute({
+export const cancelReservationRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/classroom-reservations/{id}',
   tags,
@@ -148,8 +148,13 @@ export const deleteReservationRoute = createRoute({
     params: ClassroomReservationIdParamSchema,
   },
   responses: {
-    204: {
-      description: 'Reservation deleted',
+    200: {
+      description: 'Reservation cancelled',
+      content: {
+        'application/json': {
+          schema: ClassroomReservationSchema,
+        },
+      },
     },
     400: {
       description: 'Bad request',

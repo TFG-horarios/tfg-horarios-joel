@@ -186,7 +186,6 @@ export default async function OrganizationClassroomSchedulesPage({
           }}
           tableHeaders={[
             t('headers.classroom'),
-            tStatus('form.academicYear'),
             tStatus('period'),
             tStatus('shift'),
             t('headers.actions'),

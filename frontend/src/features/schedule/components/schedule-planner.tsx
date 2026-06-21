@@ -61,6 +61,7 @@ type SchedulePlannerProps = {
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
   academicYear: AcademicYearDTO;
+  canUpdate?: boolean;
 };
 
 type MemoizedScheduleCellProps = {
@@ -73,8 +74,8 @@ type MemoizedScheduleCellProps = {
   classroomMap: Map<string, ClassroomDTO>;
   dropHereText: string;
   subjectIdsPool: string[];
-  onEditSlotClassroom: (slotId: string) => void;
-  onUnassignSlot: (slotId: string) => void;
+  onEditSlotClassroom?: (slotId: string) => void;
+  onUnassignSlot?: (slotId: string) => void;
 };
 
 const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
@@ -109,6 +110,7 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
               subjectIdsPool={subjectIdsPool}
               onEditClassroomClick={onEditSlotClassroom}
               onUnassignClick={onUnassignSlot}
+              disabled={!onEditSlotClassroom}
             />
           );
         })
@@ -133,6 +135,7 @@ export function SchedulePlanner({
   degrees,
   itineraries,
   academicYear,
+  canUpdate = false,
 }: SchedulePlannerProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
@@ -435,11 +438,13 @@ export function SchedulePlanner({
   }, [classrooms]);
 
   const handleDragStart = (event: any) => {
+    if (!canUpdate) return;
     const active = event.active || event.operation?.source;
     setActiveId(active?.id || null);
   };
 
   const handleDragEnd = async (event: any) => {
+    if (!canUpdate) return;
     setActiveId(null);
     const active = event.active || event.operation?.source;
     const over = event.over || event.operation?.target;
@@ -570,23 +575,23 @@ export function SchedulePlanner({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            {localSchedule.status === 'draft' ? (
-              <Button
-                onClick={handlePublish}
-                disabled={isPublishing || unassignedSlots.length > 0}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
-                title={
-                  unassignedSlots.length > 0
-                    ? t('planner.errors.ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS')
-                    : undefined
-                }
-              >
-                {isPublishing
-                  ? t('planner.publishing')
-                  : t('planner.publishSchedule')}
-              </Button>
-            ) : (
-              <>
+            {canUpdate &&
+              (localSchedule.status === 'draft' ? (
+                <Button
+                  onClick={handlePublish}
+                  disabled={isPublishing || unassignedSlots.length > 0}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
+                  title={
+                    unassignedSlots.length > 0
+                      ? t('planner.errors.ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS')
+                      : undefined
+                  }
+                >
+                  {isPublishing
+                    ? t('planner.publishing')
+                    : t('planner.publishSchedule')}
+                </Button>
+              ) : (
                 <Button
                   onClick={handleUnpublish}
                   disabled={isUnpublishing || isExportingPDF}
@@ -600,67 +605,73 @@ export function SchedulePlanner({
                   )}
                   {t('planner.unpublishSchedule', { fallback: 'Borrador' })}
                 </Button>
-                <Button
-                  onClick={() =>
-                    exportPDF(
-                      `horario-${academicYear.name}-P${localSchedule.period}`
-                    )
-                  }
-                  disabled={isExportingPDF || isUnpublishing}
-                  variant="outline"
-                  className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
-                >
-                  {isExportingPDF ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Download className="size-4" />
-                  )}
-                  Exportar PDF
-                </Button>
-              </>
+              ))}
+            {(!canUpdate || localSchedule.status !== 'draft') && (
+              <Button
+                onClick={() =>
+                  exportPDF(
+                    `horario-${academicYear.name}-P${localSchedule.period}`
+                  )
+                }
+                disabled={isExportingPDF || isUnpublishing}
+                variant="outline"
+                className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+              >
+                {isExportingPDF ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Download className="size-4" />
+                )}
+                Exportar PDF
+              </Button>
             )}
           </div>
         </div>
 
-        <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
-          <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
-            <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <ArchiveRestore className="size-4 text-amber-500" />
-              {t('planner.unassignedSlots')}
-            </h2>
-            <Badge variant="secondary">{unassignedSlots.length}</Badge>
+        {(canUpdate || unassignedSlots.length > 0) && (
+          <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
+            <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+              <h2 className="font-semibold text-foreground flex items-center gap-2">
+                <ArchiveRestore className="size-4 text-amber-500" />
+                {t('planner.unassignedSlots')}
+              </h2>
+              <Badge variant="secondary">{unassignedSlots.length}</Badge>
+            </div>
+            <DroppableCell
+              id="unassigned"
+              className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start"
+            >
+              {unassignedSlots.length === 0 ? (
+                <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
+                  {t('planner.noUnassignedSlots')}
+                </div>
+              ) : (
+                unassignedSlots.map((slot) => {
+                  const meta = slotMetaMap.get(slot.subjectGroupId);
+                  if (!meta || !meta.subject || !meta.group) return null;
+                  const classroom = slot.classroomId
+                    ? classroomMap.get(slot.classroomId)
+                    : undefined;
+                  return (
+                    <div key={slot.id} className="w-48">
+                      <DraggableSlot
+                        slot={slot}
+                        subject={meta.subject}
+                        group={meta.group}
+                        classroom={classroom}
+                        subjectIdsPool={subjectIdsPool}
+                        onEditClassroomClick={
+                          canUpdate ? handleEditClassroomClick : undefined
+                        }
+                        disabled={!canUpdate}
+                      />
+                    </div>
+                  );
+                })
+              )}
+            </DroppableCell>
           </div>
-          <DroppableCell
-            id="unassigned"
-            className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start"
-          >
-            {unassignedSlots.length === 0 ? (
-              <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
-                {t('planner.noUnassignedSlots')}
-              </div>
-            ) : (
-              unassignedSlots.map((slot) => {
-                const meta = slotMetaMap.get(slot.subjectGroupId);
-                if (!meta || !meta.subject || !meta.group) return null;
-                const classroom = slot.classroomId
-                  ? classroomMap.get(slot.classroomId)
-                  : undefined;
-                return (
-                  <div key={slot.id} className="w-48">
-                    <DraggableSlot
-                      slot={slot}
-                      subject={meta.subject}
-                      group={meta.group}
-                      classroom={classroom}
-                      subjectIdsPool={subjectIdsPool}
-                      onEditClassroomClick={handleEditClassroomClick}
-                    />
-                  </div>
-                );
-              })
-            )}
-          </DroppableCell>
-        </div>
+        )}
 
         <WeeklyScheduleGrid
           gridRef={gridRef}
@@ -680,8 +691,10 @@ export function SchedulePlanner({
                 classroomMap={classroomMap}
                 dropHereText={t('planner.dropHere')}
                 subjectIdsPool={subjectIdsPool}
-                onEditSlotClassroom={handleEditClassroomClick}
-                onUnassignSlot={handleUnassignSlot}
+                onEditSlotClassroom={
+                  canUpdate ? handleEditClassroomClick : undefined
+                }
+                onUnassignSlot={canUpdate ? handleUnassignSlot : undefined}
               />
             );
           }}
@@ -704,6 +717,7 @@ export function SchedulePlanner({
                 }
                 isOverlay
                 subjectIdsPool={subjectIdsPool}
+                disabled={!canUpdate}
               />
             </div>
           ) : null}

@@ -12,6 +12,7 @@ describe('ScheduleMemberAdapter', () => {
     countAdmins: mock(),
     findPaginated: mock(),
     getOrganizationsWhereUserIsSoleAdmin: mock(),
+    findWithUserDetailsByUserAndOrg: mock(),
   };
 
   const adapter = new ScheduleMemberAdapter(memberRepositoryMock);

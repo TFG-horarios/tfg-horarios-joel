@@ -11,6 +11,8 @@ import type { ClassroomCardProps } from './classroom-card';
 export const ClassroomRow = memo(function ClassroomRow({
   item: classroom,
   translations,
+  canEdit,
+  canDelete,
 }: ClassroomCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -23,22 +25,32 @@ export const ClassroomRow = memo(function ClassroomRow({
             ? translations['type.theory']
             : translations['type.lab']}
         </TableCell>
-        <TableCell>{classroom.capacity}</TableCell>
-        <ResourceRowActions
-          itemName={classroom.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteClassroomAction(
-              classroom.organizationId,
-              classroom.id
-            );
-            if (res.success) {
-              toast.success(res.message);
-            } else {
-              toast.error(res.message);
+        <TableCell
+          className={!canEdit && !canDelete ? 'text-right' : undefined}
+        >
+          {classroom.capacity}
+        </TableCell>
+        {(canEdit || canDelete) && (
+          <ResourceRowActions
+            itemName={classroom.name}
+            onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+            onDelete={
+              canDelete
+                ? async () => {
+                    const res = await deleteClassroomAction(
+                      classroom.organizationId,
+                      classroom.id
+                    );
+                    if (res.success) {
+                      toast.success(res.message);
+                    } else {
+                      toast.error(res.message);
+                    }
+                  }
+                : undefined
             }
-          }}
-        />
+          />
+        )}
       </TableRow>
       <ClassroomFormModal
         organizationId={classroom.organizationId}

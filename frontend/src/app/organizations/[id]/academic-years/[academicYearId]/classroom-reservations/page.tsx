@@ -5,6 +5,8 @@ import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchPaginatedReservations } from '@/features/classroom-reservation/queries';
 import { fetchPaginatedReservationsAction } from '@/features/classroom-reservation/actions';
 import { fetchAllClassrooms } from '@/features/classroom/queries';
+import { fetchAcademicYears } from '@/features/academic-year/queries';
+import { fetchAllMembers } from '@/features/members/queries';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
@@ -24,7 +26,6 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
-import { hasPermission } from '@/core/permissions/authorization';
 import { type ClassroomDTO } from '@tfg-horarios/shared';
 
 type OrganizationClassroomReservationsPageProps = {
@@ -60,28 +61,58 @@ export default async function OrganizationClassroomReservationsPage({
         : 12,
     status:
       typeof rawSearchParams.status === 'string' &&
-      ['PENDING', 'ACCEPTED', 'REJECTED'].includes(rawSearchParams.status)
-        ? (rawSearchParams.status as 'PENDING' | 'ACCEPTED' | 'REJECTED')
+      ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'].includes(
+        rawSearchParams.status
+      )
+        ? (rawSearchParams.status as
+            | 'PENDING'
+            | 'ACCEPTED'
+            | 'REJECTED'
+            | 'CANCELLED')
         : undefined,
     academicYearId,
   };
 
-  const [organization, { data: reservations, meta }, classroomsData, user] =
-    await Promise.all([
-      fetchOrganizationById(id),
-      fetchPaginatedReservations(id, query),
-      fetchAllClassrooms(id),
-      getSessionUser(),
-    ]);
+  const [
+    organization,
+    { data: reservations, meta },
+    classroomsData,
+    user,
+    academicYears,
+  ] = await Promise.all([
+    fetchOrganizationById(id),
+    fetchPaginatedReservations(id, query),
+    fetchAllClassrooms(id),
+    getSessionUser(),
+    fetchAcademicYears(id),
+  ]);
 
   if (!organization) {
     notFound();
   }
 
   const role = user ? await getOrganizationMemberRole(id, user.id) : null;
-  const canManage = role
-    ? hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS')
-    : false;
+  const isAdminOrEditor = role === 'admin' || role === 'editor';
+
+  let membersMap: Record<string, string> = {};
+  if (isAdminOrEditor) {
+    try {
+      const members = await fetchAllMembers(id);
+      membersMap = members.reduce(
+        (acc, m) => {
+          acc[m.userId] = m.userEmail;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+    } catch (e) {
+      console.error('Failed to fetch members for reservations map', e);
+    }
+  }
+
+  const currentAcademicYear = academicYears.find(
+    (ay) => ay.id === academicYearId
+  );
 
   const classroomsMap = classroomsData.reduce(
     (acc: Record<string, string>, classroom: ClassroomDTO) => {
@@ -96,8 +127,10 @@ export default async function OrganizationClassroomReservationsPage({
     'status.PENDING': 'Pendiente',
     'status.ACCEPTED': 'Aceptada',
     'status.REJECTED': 'Rechazada',
+    'status.CANCELLED': 'Cancelada',
     statusUpdateSuccess_ACCEPTED: 'Reserva aceptada correctamente',
     statusUpdateSuccess_REJECTED: 'Reserva rechazada correctamente',
+    statusUpdateSuccess_CANCELLED: 'Reserva cancelada correctamente',
     statusUpdateError: 'Error al actualizar la reserva',
     'action.accept': 'Aceptar',
     'action.reject': 'Rechazar',
@@ -177,23 +210,28 @@ export default async function OrganizationClassroomReservationsPage({
           gridItemProps={{
             translations,
             classrooms: classroomsMap,
-            canManage,
+            memberRole: role || null,
             currentUserId: user?.id,
+            membersMap,
+            academicYear: currentAcademicYear,
           }}
           tableHeaders={[
+            'Estado',
             'Aula',
             'Fecha',
-            'Slot',
+            'Horario',
+            ...(isAdminOrEditor ? ['Solicitante'] : []),
             'Motivo',
-            'Estado',
             'Acciones',
           ]}
           TableRowComponent={ClassroomReservationRow}
           tableRowProps={{
             translations,
             classrooms: classroomsMap,
-            canManage,
+            memberRole: role || null,
             currentUserId: user?.id,
+            membersMap,
+            academicYear: currentAcademicYear,
           }}
         />
       </div>

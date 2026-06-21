@@ -18,6 +18,8 @@ import { ResourceFilterClear } from '@/components/shared/resource/resource-filte
 import { ItineraryRow } from '@/features/itinerary/components/itinerary-row';
 import { fetchPaginatedItinerariesAction } from '@/features/itinerary/actions';
 import type { ItineraryListQueryDTO } from '@tfg-horarios/shared';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationItinerariesPageProps = {
   params: Promise<{ id: string }>;
@@ -64,12 +66,23 @@ export default async function OrganizationItinerariesPage({
 
   const t = await getTranslations('Organizations.itineraries');
 
-  const [organization, { data: itineraries, meta }, degrees] =
+  const [organization, { data: itineraries, meta }, degrees, user] =
     await Promise.all([
       fetchOrganizationById(id),
       fetchPaginatedItineraries(id, query),
       fetchAllDegrees(id),
+      getSessionUser(),
     ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canCreate = isAdmin || isEditor;
+  const canDeleteAll = isAdmin;
+  const canImport = isAdmin || isEditor;
+  const canReplaceAll = isAdmin;
+  const canEdit = isAdmin || isEditor;
+  const canDelete = isAdmin;
 
   if (!organization) {
     notFound();
@@ -115,7 +128,14 @@ export default async function OrganizationItinerariesPage({
             </div>
           }
         />
-        <ItineraryActions organizationId={id} degrees={degrees} />
+        <ItineraryActions
+          organizationId={id}
+          degrees={degrees}
+          canCreate={canCreate}
+          canDeleteAll={canDeleteAll}
+          canImport={canImport}
+          canReplaceAll={canReplaceAll}
+        />
       </div>
       <div>
         <ResourceLayout
@@ -126,10 +146,15 @@ export default async function OrganizationItinerariesPage({
           loadMore={fetchPaginatedItinerariesAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={t('empty')} />}
           GridItemComponent={ItineraryCard}
-          gridItemProps={{ degreeMap, translations }}
-          tableHeaders={['Nombre', 'Código', translations.degree, 'Acciones']}
+          gridItemProps={{ degreeMap, translations, canEdit, canDelete }}
+          tableHeaders={[
+            'Nombre',
+            'Código',
+            translations.degree,
+            ...(canEdit || canDelete ? ['Acciones'] : []),
+          ]}
           TableRowComponent={ItineraryRow}
-          tableRowProps={{ degreeMap, translations }}
+          tableRowProps={{ degreeMap, translations, canEdit, canDelete }}
         />
       </div>
     </OrganizationSectionShell>

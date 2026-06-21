@@ -20,6 +20,8 @@ import { fetchPaginatedSchedulesAction } from '@/features/schedule/actions';
 import { ScheduleCard } from '@/features/schedule/components/schedule-card';
 import { ScheduleRow } from '@/features/schedule/components/schedule-row';
 import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
+import { getSessionUser } from '@/features/auth/queries';
+import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationSchedulesPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -99,6 +101,7 @@ export default async function OrganizationSchedulesPage({
     subjects,
     academicYears,
     { data: schedules, meta },
+    user,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchAllDegrees(id),
@@ -106,7 +109,16 @@ export default async function OrganizationSchedulesPage({
     fetchAllSubjects(id),
     fetchAcademicYears(id),
     fetchPaginatedSchedules(id, query),
+    getSessionUser(),
   ]);
+
+  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const isAdmin = memberRole === 'admin';
+  const isEditor = memberRole === 'editor';
+  const canGenerate = isAdmin || isEditor;
+  const canUpdate = isAdmin || isEditor;
+  const canDelete = isAdmin;
+  const canSeeConflicts = isAdmin || isEditor;
 
   if (!organization) {
     notFound();
@@ -226,27 +238,31 @@ export default async function OrganizationSchedulesPage({
                   { label: t('published'), value: 'published' },
                 ]}
               />
-              <ResourceFilterSelect
-                paramKey="hasConflicts"
-                placeholder={t('conflictsLabel')}
-                options={[
-                  { label: t('withConflicts'), value: 'true' },
-                  { label: t('withoutConflicts'), value: 'false' },
-                ]}
-              />
+              {canSeeConflicts && (
+                <ResourceFilterSelect
+                  paramKey="hasConflicts"
+                  placeholder={t('conflictsLabel')}
+                  options={[
+                    { label: t('withConflicts'), value: 'true' },
+                    { label: t('withoutConflicts'), value: 'false' },
+                  ]}
+                />
+              )}
               <ResourceFilterClear />
             </div>
           }
         />
-        <ResourceActions>
-          <ScheduleGenerator
-            organizationId={id}
-            periodType={currentAcademicYear?.periodType || 'semester'}
-            academicYearId={academicYearId}
-            degrees={degrees}
-            subjects={subjects}
-          />
-        </ResourceActions>
+        {canGenerate && (
+          <ResourceActions>
+            <ScheduleGenerator
+              organizationId={id}
+              periodType={currentAcademicYear?.periodType || 'semester'}
+              academicYearId={academicYearId}
+              degrees={degrees}
+              subjects={subjects}
+            />
+          </ResourceActions>
+        )}
       </div>
 
       <div className="mt-6">
@@ -264,12 +280,13 @@ export default async function OrganizationSchedulesPage({
             academicYearMap,
             organizationId: id,
             translations,
+            canUpdate,
+            canDelete,
           }}
           tableHeaders={[
             'Estado',
-            'Titulación',
+            'Grado',
             'Itinerario',
-            'Año',
             'Curso',
             'Período',
             'Turno',
@@ -282,6 +299,8 @@ export default async function OrganizationSchedulesPage({
             academicYearMap,
             organizationId: id,
             translations,
+            canUpdate,
+            canDelete,
           }}
         />
       </div>

@@ -2,6 +2,7 @@
 
 import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { deleteSubjectAction } from '@/features/subject/actions';
 import { toast } from 'sonner';
@@ -15,6 +16,8 @@ export const SubjectRow = memo(function SubjectRow({
   degreeMap,
   itineraryMap,
   translations,
+  canEdit,
+  canDelete,
 }: SubjectCardProps) {
   const degreeCode =
     degreeMap.get(subject.degreeId)?.code ?? translations.unassigned;
@@ -51,22 +54,30 @@ export const SubjectRow = memo(function SubjectRow({
         <TableCell>{periodText}</TableCell>
         <TableCell>{subject.weeklyHours}h</TableCell>
         <TableCell>{shiftsText}</TableCell>
-        <TableCell>{subject.numberOfStudents}</TableCell>
-        <ResourceRowActions
-          itemName={subject.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteSubjectAction(
-              subject.organizationId,
-              subject.id
-            );
-            if (res.success) {
-              toast.success('Asignatura eliminada correctamente');
-            } else {
-              toast.error(res.message);
+        <TableCell className={cn(!canEdit && !canDelete && 'text-right')}>
+          {subject.numberOfStudents}
+        </TableCell>
+        {(canEdit || canDelete) && (
+          <ResourceRowActions
+            itemName={subject.name}
+            onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+            onDelete={
+              canDelete
+                ? async () => {
+                    const res = await deleteSubjectAction(
+                      subject.organizationId,
+                      subject.id
+                    );
+                    if (res.success) {
+                      toast.success('Asignatura eliminada correctamente');
+                    } else {
+                      toast.error(res.message);
+                    }
+                  }
+                : undefined
             }
-          }}
-        />
+          />
+        )}
       </TableRow>
       <SubjectFormModal
         organization={organization}

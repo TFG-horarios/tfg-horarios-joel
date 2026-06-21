@@ -29,6 +29,8 @@ export const ScheduleRow = memo(function ScheduleRow({
   itineraryMap,
   organizationId,
   translations = {},
+  canUpdate,
+  canDelete,
 }: ScheduleCardProps) {
   const t = useTranslations('Organizations.schedules.card');
   const tStatus = useTranslations('Organizations.schedules');
@@ -158,32 +160,33 @@ export const ScheduleRow = memo(function ScheduleRow({
       <TableCell>{schedule.period}</TableCell>
       <TableCell className="capitalize">{schedule.shift || 'Global'}</TableCell>
       <ResourceRowActions
-        onDelete={handleDelete}
+        onDelete={canDelete ? handleDelete : undefined}
         itemName={t('scheduleItemName', { name: degreeName })}
       >
-        {schedule.status === 'draft' ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handlePublish}
-            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-            title={tStatus('planner.publishSchedule')}
-          >
-            <UploadCloud className="size-4" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleUnpublish}
-            className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-            title={tStatus('planner.unpublishSchedule', {
-              fallback: 'Borrador',
-            })}
-          >
-            <Archive className="size-4" />
-          </Button>
-        )}
+        {canUpdate &&
+          (schedule.status === 'draft' ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePublish}
+              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+              title={tStatus('planner.publishSchedule')}
+            >
+              <UploadCloud className="size-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleUnpublish}
+              className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+              title={tStatus('planner.unpublishSchedule', {
+                fallback: 'Borrador',
+              })}
+            >
+              <Archive className="size-4" />
+            </Button>
+          ))}
         <Button
           variant="ghost"
           size="icon"

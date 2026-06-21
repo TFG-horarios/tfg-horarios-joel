@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { LogOut, Search, User } from 'lucide-react';
@@ -50,10 +50,13 @@ export function Header({ variant = 'inline' }: HeaderProps) {
 
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
 
+  const lastPushedQ = useRef(searchParams.get('q') ?? '');
+
   useEffect(() => {
     const currentQ = searchParams.get('q') ?? '';
-    if (currentQ !== query) {
+    if (currentQ !== lastPushedQ.current) {
       setQuery(currentQ);
+      lastPushedQ.current = currentQ;
     }
   }, [searchParams]);
 
@@ -67,6 +70,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
         } else {
           params.delete('q');
         }
+        lastPushedQ.current = query;
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
       }, 200);
       return () => clearTimeout(handler);
@@ -107,7 +111,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar organización..."
-                  className="w-full rounded-lg border border-border bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
+                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>

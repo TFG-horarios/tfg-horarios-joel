@@ -14,9 +14,19 @@ import { downloadCsv } from '@/lib/utils/csv';
 
 interface DegreeActionsProps {
   organizationId: string;
+  canCreate?: boolean;
+  canDeleteAll?: boolean;
+  canImport?: boolean;
+  canReplaceAll?: boolean;
 }
 
-export function DegreeActions({ organizationId }: DegreeActionsProps) {
+export function DegreeActions({
+  organizationId,
+  canCreate,
+  canDeleteAll,
+  canImport,
+  canReplaceAll,
+}: DegreeActionsProps) {
   const t = useTranslations('Organizations.degrees.actions');
   const tCommon = useTranslations('Common.actions');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -33,8 +43,12 @@ export function DegreeActions({ organizationId }: DegreeActionsProps) {
   return (
     <>
       <ResourceActionsToolbar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onDeleteAll={() => deleteAllDegreesAction(organizationId)}
+        onCreateClick={canCreate ? () => setIsCreateOpen(true) : undefined}
+        onDeleteAll={
+          canDeleteAll
+            ? () => deleteAllDegreesAction(organizationId)
+            : undefined
+        }
         translations={{
           deleteAllConfirm: t('deleteAllConfirm'),
           deleteAllTitle: t('deleteAllTitle'),
@@ -50,13 +64,17 @@ export function DegreeActions({ organizationId }: DegreeActionsProps) {
         }}
         onExportCsv={handleExportCsv}
         appendModalContent={
-          <DegreeBulkUploader organizationId={organizationId} mode="append" />
+          canImport ? (
+            <DegreeBulkUploader organizationId={organizationId} mode="append" />
+          ) : undefined
         }
         overwriteModalContent={
-          <DegreeBulkUploader
-            organizationId={organizationId}
-            mode="overwrite"
-          />
+          canReplaceAll ? (
+            <DegreeBulkUploader
+              organizationId={organizationId}
+              mode="overwrite"
+            />
+          ) : undefined
         }
       />
       <DegreeFormModal

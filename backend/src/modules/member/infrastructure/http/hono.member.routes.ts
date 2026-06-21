@@ -46,6 +46,23 @@ export const listAllMembersRoute = createRoute({
   },
 });
 
+export const getMeRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/members/me',
+  request: {
+    params: MemberBaseParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'Miembro actual',
+      content: {
+        'application/json': { schema: MemberSchema },
+      },
+    },
+    403: { description: 'Forbidden (Not a member)' },
+  },
+});
+
 export const addMemberRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/members',

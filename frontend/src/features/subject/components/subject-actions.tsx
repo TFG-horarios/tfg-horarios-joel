@@ -22,6 +22,10 @@ interface SubjectActionsProps {
   academicYear: AcademicYearDTO;
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
+  canCreate?: boolean;
+  canDeleteAll?: boolean;
+  canImport?: boolean;
+  canReplaceAll?: boolean;
 }
 
 export function SubjectActions({
@@ -29,6 +33,10 @@ export function SubjectActions({
   academicYear,
   degrees,
   itineraries,
+  canCreate,
+  canDeleteAll,
+  canImport,
+  canReplaceAll,
 }: SubjectActionsProps) {
   const t = useTranslations('Organizations.subjects.actions');
   const tCommon = useTranslations('Common.actions');
@@ -59,8 +67,12 @@ export function SubjectActions({
   return (
     <>
       <ResourceActionsToolbar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onDeleteAll={() => deleteAllSubjectsAction(organization.id)}
+        onCreateClick={canCreate ? () => setIsCreateOpen(true) : undefined}
+        onDeleteAll={
+          canDeleteAll
+            ? () => deleteAllSubjectsAction(organization.id)
+            : undefined
+        }
         translations={{
           deleteAllConfirm: t('deleteAllConfirm'),
           deleteAllTitle: t('deleteAllTitle'),
@@ -76,20 +88,24 @@ export function SubjectActions({
         }}
         onExportCsv={handleExportCsv}
         appendModalContent={
-          <SubjectBulkUploader
-            organizationId={organization.id}
-            degrees={degrees}
-            itineraries={itineraries}
-            mode="append"
-          />
+          canImport ? (
+            <SubjectBulkUploader
+              organizationId={organization.id}
+              degrees={degrees}
+              itineraries={itineraries}
+              mode="append"
+            />
+          ) : undefined
         }
         overwriteModalContent={
-          <SubjectBulkUploader
-            organizationId={organization.id}
-            degrees={degrees}
-            itineraries={itineraries}
-            mode="overwrite"
-          />
+          canReplaceAll ? (
+            <SubjectBulkUploader
+              organizationId={organization.id}
+              degrees={degrees}
+              itineraries={itineraries}
+              mode="overwrite"
+            />
+          ) : undefined
         }
       />
       <SubjectFormModal

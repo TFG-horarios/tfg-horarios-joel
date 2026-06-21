@@ -2,6 +2,7 @@
 
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
+import { cn } from '@/lib/utils';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteItineraryAction } from '@/features/itinerary/actions';
 import { toast } from 'sonner';
@@ -13,12 +14,16 @@ export interface ItineraryCardProps {
   item: ItineraryDTO;
   degreeMap: Map<string, DegreeDTO>;
   translations: Record<string, string>;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const ItineraryCard = memo(function ItineraryCard({
   item: itinerary,
   degreeMap,
   translations,
+  canEdit,
+  canDelete,
 }: ItineraryCardProps) {
   const degree = degreeMap.get(itinerary.degreeId);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -28,22 +33,28 @@ export const ItineraryCard = memo(function ItineraryCard({
       <InteractiveCard
         className="h-full"
         actions={
-          <ResourceCardActions
-            itemName={itinerary.name}
-            onEdit={() => setIsEditOpen(true)}
-            onDelete={async () => {
-              const res = await deleteItineraryAction(
-                itinerary.organizationId,
-                itinerary.degreeId,
-                itinerary.id
-              );
-              if (res.success) {
-                toast.success('Itinerario eliminado correctamente');
-              } else {
-                toast.error(res.message);
+          canEdit || canDelete ? (
+            <ResourceCardActions
+              itemName={itinerary.name}
+              onEdit={canEdit ? () => setIsEditOpen(true) : undefined}
+              onDelete={
+                canDelete
+                  ? async () => {
+                      const res = await deleteItineraryAction(
+                        itinerary.organizationId,
+                        itinerary.degreeId,
+                        itinerary.id
+                      );
+                      if (res.success) {
+                        toast.success('Itinerario eliminado correctamente');
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  : undefined
               }
-            }}
-          />
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col h-full w-full">
@@ -54,7 +65,10 @@ export const ItineraryCard = memo(function ItineraryCard({
           </div>
           <div className="flex flex-col flex-1 justify-center">
             <h3
-              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              className={cn(
+                'text-xl font-semibold transition-colors line-clamp-3',
+                (canEdit || canDelete) && 'pr-12'
+              )}
               title={itinerary.name}
             >
               {itinerary.name}

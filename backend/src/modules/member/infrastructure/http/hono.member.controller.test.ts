@@ -17,6 +17,7 @@ describe('HonoMemberController Integration', () => {
   const addMock = { execute: mock() };
   const editRoleMock = { execute: mock() };
   const removeMock = { execute: mock() };
+  const getMemberMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoMemberController>;
   const controller = new HonoMemberController(
@@ -24,7 +25,8 @@ describe('HonoMemberController Integration', () => {
     listAllMock as unknown as Params[1],
     addMock as unknown as Params[2],
     editRoleMock as unknown as Params[3],
-    removeMock as unknown as Params[4]
+    removeMock as unknown as Params[4],
+    getMemberMock as unknown as Params[5]
   );
 
   const router = new OpenAPIHono<AppEnv>();

@@ -12,6 +12,7 @@ describe('ItineraryMemberAdapter', () => {
     countAdmins: mock(),
     findPaginated: mock(),
     getOrganizationsWhereUserIsSoleAdmin: mock(),
+    findWithUserDetailsByUserAndOrg: mock(),
   };
 
   const adapter = new ItineraryMemberAdapter(memberRepositoryMock);

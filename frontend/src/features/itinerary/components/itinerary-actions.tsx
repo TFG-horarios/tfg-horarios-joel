@@ -16,11 +16,19 @@ import { downloadCsv } from '@/lib/utils/csv';
 interface ItineraryActionsProps {
   organizationId: string;
   degrees: DegreeDTO[];
+  canCreate?: boolean;
+  canDeleteAll?: boolean;
+  canImport?: boolean;
+  canReplaceAll?: boolean;
 }
 
 export function ItineraryActions({
   organizationId,
   degrees,
+  canCreate,
+  canDeleteAll,
+  canImport,
+  canReplaceAll,
 }: ItineraryActionsProps) {
   const t = useTranslations('Organizations.itineraries.actions');
   const tCommon = useTranslations('Common.actions');
@@ -41,8 +49,12 @@ export function ItineraryActions({
   return (
     <>
       <ResourceActionsToolbar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onDeleteAll={() => deleteAllItinerariesAction(organizationId)}
+        onCreateClick={canCreate ? () => setIsCreateOpen(true) : undefined}
+        onDeleteAll={
+          canDeleteAll
+            ? () => deleteAllItinerariesAction(organizationId)
+            : undefined
+        }
         translations={{
           deleteAllConfirm: t('deleteAllConfirm'),
           deleteAllTitle: t('deleteAllTitle'),
@@ -58,18 +70,22 @@ export function ItineraryActions({
         }}
         onExportCsv={handleExportCsv}
         appendModalContent={
-          <ItineraryBulkUploader
-            organizationId={organizationId}
-            degrees={degrees}
-            mode="append"
-          />
+          canImport ? (
+            <ItineraryBulkUploader
+              organizationId={organizationId}
+              degrees={degrees}
+              mode="append"
+            />
+          ) : undefined
         }
         overwriteModalContent={
-          <ItineraryBulkUploader
-            organizationId={organizationId}
-            degrees={degrees}
-            mode="overwrite"
-          />
+          canReplaceAll ? (
+            <ItineraryBulkUploader
+              organizationId={organizationId}
+              degrees={degrees}
+              mode="overwrite"
+            />
+          ) : undefined
         }
       />
       <ItineraryFormModal
