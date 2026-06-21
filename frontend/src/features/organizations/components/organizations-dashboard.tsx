@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from '@/lib/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Building2, ArrowRight } from 'lucide-react';
+import { Plus, Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { OrganizationForm } from './organization-form';
+import { OrganizationCard } from './organization-card';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { DashboardGrid } from '@/components/layout/dashboard-grid';
-import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
-import { removeOrganizationAction } from '../actions';
-import { toast } from 'sonner';
 import { useState } from 'react';
 
 type OrganizationsDashboardProps = {
@@ -65,10 +69,6 @@ export function OrganizationsDashboard({
       ? t('page.count.one')
       : t('page.count.other', { count: organizations.length });
 
-  const handleSelectOrganization = (orgId: string) => {
-    router.push(`/organizations/${orgId}`);
-  };
-
   return (
     <DashboardGrid
       icon={
@@ -79,50 +79,36 @@ export function OrganizationsDashboard({
       description={t('page.description')}
       error={error}
       actionButton={
-        <Button
-          onClick={() => handleModalChange(true)}
-          className="h-11 shrink-0 cursor-pointer bg-purple-600/90 px-5 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600/80 dark:bg-purple-500/80 dark:hover:bg-purple-500/70"
-        >
-          {t('actions.create')}
-        </Button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => handleModalChange(true)}
+                size="icon"
+                className="size-11 shrink-0 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30 shadow-lg shadow-purple-500/10 dark:shadow-black/20"
+                aria-label={t('actions.create')}
+              >
+                <Plus className="size-5" />
+                <span className="sr-only">{t('actions.create')}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('actions.create')}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       }
     >
       {filteredOrganizations.map((org) => {
-        const isAdmin = userRolesMap[org.id] === 'admin';
+        const userRole = userRolesMap[org.id];
+        const canEdit = userRole === 'admin';
+        const canDelete = userRole === 'admin';
         return (
-          <Card
+          <OrganizationCard
             key={org.id}
-            className="relative group hover-lift cursor-pointer p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-black/5 hover:shadow-lg hover:shadow-black/10 dark:hover:bg-white/10 dark:hover:shadow-black/50"
-            onClick={() => handleSelectOrganization(org.id)}
-          >
-            {isAdmin && (
-              <div
-                className="absolute top-2 right-2 z-20"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ResourceCardActions
-                  itemName={org.name}
-                  onEdit={() => setEditingOrganization(org)}
-                  onDelete={async () => {
-                    const res = await removeOrganizationAction(org.id);
-                    if (res.success) {
-                      toast.success(
-                        t('actions.deleteSuccess') || 'Organización eliminada'
-                      );
-                    } else {
-                      toast.error(res.message);
-                    }
-                  }}
-                />
-              </div>
-            )}
-            <div className="absolute bottom-6 right-6 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-            <h3 className="mb-3 text-xl font-semibold text-foreground transition-colors">
-              {org.name}
-            </h3>
-          </Card>
+            organization={org}
+            canEdit={canEdit}
+            canDelete={canDelete}
+            onEdit={() => setEditingOrganization(org)}
+          />
         );
       })}
 
@@ -136,15 +122,12 @@ export function OrganizationsDashboard({
             handleModalChange(true);
           }
         }}
-        className="group hover-lift h-full min-h-48 cursor-pointer border-2 border-dashed border-black/10 bg-transparent p-6 transition-all duration-300 hover:border-purple-400/40 hover:shadow-lg hover:shadow-black/10 dark:border-white/20 dark:hover:shadow-black/50"
+        className="group h-full min-h-[10.5rem] cursor-pointer bg-card text-card-foreground border border-border p-6 transition-all duration-300 hover:border-purple-400/40 dark:hover:border-purple-400/40 rounded-xl"
       >
         <div className="flex h-full flex-col items-center justify-center text-center">
-          <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 dark:text-purple-200">
+          <div className="flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 transition-colors group-hover:border-purple-400/40 dark:border-white/10 dark:bg-white/5 dark:text-purple-200 dark:group-hover:border-purple-400/40">
             <Plus className="size-8" />
           </div>
-          <p className="text-lg font-medium text-foreground">
-            {t('actions.createNew')}
-          </p>
         </div>
       </Card>
 

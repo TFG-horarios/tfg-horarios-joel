@@ -381,7 +381,7 @@
       "code": "Código",
       "searchLabel": "Buscar por nombre",
       "searchPlaceholder": "Buscar grados...",
-      "codePlaceholder": "Código (ej: INF)...",
+      "codePlaceholder": "Código",
       "filteredEmpty": "Ningún grado coincide con tus filtros.",
       "organization": "Organización",
       "empty": "No hay grados registrados todavía."

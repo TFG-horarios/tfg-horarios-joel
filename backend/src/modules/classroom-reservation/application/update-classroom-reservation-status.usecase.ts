@@ -35,7 +35,7 @@ export class UpdateClassroomReservationStatusUseCase {
       organizationId
     );
 
-    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION_COMPONENTS')) {
+    if (!role || !hasPermission(role, 'MANAGE_RESERVATION_REQUEST')) {
       throw new ForbiddenError(
         'You do not have permission to update reservation statuses.'
       );
@@ -48,9 +48,7 @@ export class UpdateClassroomReservationStatusUseCase {
 
     if (dto.status === 'ACCEPTED') {
       if (reservation.isExpired()) {
-        throw new ValidationError(
-          'No se puede aceptar una reserva que ya ha expirado.'
-        );
+        throw new ValidationError('You cannot accept an expired reservation.');
       }
 
       const reservationDate = new Date(reservation.date);

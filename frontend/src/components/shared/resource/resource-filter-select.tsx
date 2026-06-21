@@ -42,7 +42,7 @@ export function ResourceFilterSelect({
 
   return (
     <Select value={value} onValueChange={handleValueChange}>
-      <SelectTrigger className="w-full lg:w-[180px]">
+      <SelectTrigger size="lg" className="w-full lg:w-[180px]">
         <div className="flex items-center gap-1 overflow-hidden">
           <span className="text-muted-foreground truncate">{placeholder}:</span>
           <SelectValue />

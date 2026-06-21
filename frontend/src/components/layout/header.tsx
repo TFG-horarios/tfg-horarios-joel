@@ -74,7 +74,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
   }, [query, pathname, router, searchParams]);
 
   const baseHeaderStyles =
-    'rounded-3xl border border-black/10 bg-white/70 p-2 shadow-lg shadow-black/10 backdrop-blur-lg transition-colors duration-300 text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-black/60';
+    'rounded-3xl border border-border bg-white/70 p-2 shadow-lg shadow-black/10 backdrop-blur-lg transition-colors duration-300 text-foreground dark:bg-white/5 dark:text-white dark:shadow-black/60';
 
   const variantStyles = {
     floating: 'fixed left-1/2 top-5 z-30 w-[min(92vw,780px)] -translate-x-1/2',
@@ -107,7 +107,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar organización..."
-                  className="w-full rounded-lg border border-black/10 bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
+                  className="w-full rounded-lg border border-border bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -141,17 +141,19 @@ export function Header({ variant = 'inline' }: HeaderProps) {
               {isAuthenticated && user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
+                    <Button
+                      variant="outline"
+                      size="icon"
                       aria-label={t('signOut')}
-                      className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/80 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/10 dark:text-white"
+                      className="relative size-9 cursor-pointer rounded-full bg-card border-border dark:border-border dark:bg-input/30 text-sm font-medium"
                     >
                       {(user.name || user.email)?.charAt(0).toUpperCase()}
-                    </button>
+                    </Button>
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent
                     align="end"
-                    className="w-56 border border-black/10 bg-white/85 text-foreground backdrop-blur-lg dark:border-white/10 dark:bg-black/60 dark:text-neutral-200"
+                    className="w-56 border border-border bg-white/85 text-foreground backdrop-blur-lg dark:bg-black/60 dark:text-neutral-200"
                   >
                     <div className="px-3 py-2">
                       <p className="text-sm font-medium text-foreground">
@@ -189,7 +191,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     asChild
                     variant="ghost"
                     className={cn(
-                      'h-9 px-4 border border-black/10 bg-white/70 text-foreground hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
+                      'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
                       pathname === '/login'
                         ? 'border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200'
                         : ''
@@ -201,7 +203,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     asChild
                     variant="ghost"
                     className={cn(
-                      'h-9 px-4 border border-black/10 bg-white/70 text-foreground hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
+                      'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
                       pathname === '/register'
                         ? 'border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200'
                         : ''

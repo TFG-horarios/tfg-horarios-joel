@@ -40,11 +40,11 @@ export function ResourceViewToggle({
   };
 
   return (
-    <div className="flex items-center rounded-lg border border-border/50 bg-white/50 p-1 shadow-sm dark:bg-white/5">
+    <div className="flex h-9 items-center rounded-lg border border-border bg-card p-0.5 dark:bg-input/30 p-1">
       <Button
         variant="ghost"
         size="icon"
-        className={`size-8 rounded-md ${currentView === 'grid' ? 'bg-white shadow-sm dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
+        className={`size-6 rounded-md ${currentView === 'grid' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
         onClick={() => setView('grid')}
         title="Vista en cuadrícula"
       >
@@ -53,7 +53,7 @@ export function ResourceViewToggle({
       <Button
         variant="ghost"
         size="icon"
-        className={`size-8 rounded-md ${currentView === 'table' ? 'bg-white shadow-sm dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
+        className={`size-6 rounded-md ${currentView === 'table' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
         onClick={() => setView('table')}
         title="Vista en tabla"
       >

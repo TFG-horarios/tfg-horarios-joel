@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { OrganizationHeader } from '@/components/layout/organization-header';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import type { ReactNode } from 'react';
 
 export default function OrganizationLayout({
@@ -21,10 +22,10 @@ export default function OrganizationLayout({
         </div>
         <div className="relative z-10 flex h-full w-full min-h-0 flex-col gap-2 lg:gap-3">
           {isListPage ? (
-            <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 dark:border-white/10 dark:bg-white/5">
-              <div className="h-full w-full overflow-y-auto scrollbar-hide">
+            <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-border bg-white/70 dark:bg-white/5">
+              <ScrollArea className="h-full w-full">
                 <div className="p-6 lg:p-8">{children}</div>
-              </div>
+              </ScrollArea>
             </main>
           ) : (
             <div className="min-h-0 flex-1 overflow-hidden">{children}</div>

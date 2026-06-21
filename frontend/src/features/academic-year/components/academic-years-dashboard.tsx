@@ -4,6 +4,12 @@ import { useSearchParams } from 'next/navigation';
 import { Plus, CalendarDays } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { AcademicYearFormModal } from './academic-year-form-modal';
 import {
   type AcademicYearDTO,
@@ -15,18 +21,22 @@ import { useState } from 'react';
 
 type AcademicYearsDashboardProps = {
   initialAcademicYears: AcademicYearDTO[];
-  isAdmin: boolean;
+  memberRole: string | null;
   organization: OrganizationDTO;
 };
 
 export function AcademicYearsDashboard({
   initialAcademicYears,
-  isAdmin,
+  memberRole,
   organization,
 }: AcademicYearsDashboardProps) {
   const searchParams = useSearchParams();
   const [editingAcademicYear, setEditingAcademicYear] =
     useState<AcademicYearDTO | null>(null);
+
+  const canCreate = memberRole === 'admin' || memberRole === 'editor';
+  const canEdit = memberRole === 'admin' || memberRole === 'editor';
+  const canDelete = memberRole === 'admin';
 
   const academicYears = initialAcademicYears;
   const searchQuery = searchParams.get('q') ?? '';
@@ -52,13 +62,25 @@ export function AcademicYearsDashboard({
       countLabel={academicYearCountLabel}
       description="Selecciona un curso académico para gestionar sus horarios y configuración."
       actionButton={
-        isAdmin ? (
+        canCreate ? (
           <AcademicYearFormModal
             organization={organization}
             trigger={
-              <Button className="h-11 shrink-0 cursor-pointer bg-purple-600/90 px-5 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600/80 dark:bg-purple-500/80 dark:hover:bg-purple-500/70">
-                Crear curso
-              </Button>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      className="size-11 shrink-0 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30 shadow-lg shadow-purple-500/10 dark:shadow-black/20"
+                      aria-label="Crear curso"
+                    >
+                      <Plus className="size-5" />
+                      <span className="sr-only">Crear curso</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Crear curso</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             }
           />
         ) : undefined
@@ -69,27 +91,25 @@ export function AcademicYearsDashboard({
           key={ay.id}
           organizationId={organization.id}
           academicYear={ay}
-          isAdmin={isAdmin}
+          canEdit={canEdit}
+          canDelete={canDelete}
           onEdit={() => setEditingAcademicYear(ay)}
         />
       ))}
 
-      {isAdmin && (
+      {canCreate && (
         <AcademicYearFormModal
           organization={organization}
           trigger={
             <Card
               role="button"
               tabIndex={0}
-              className="group hover-lift h-full min-h-48 cursor-pointer border-2 border-dashed border-black/10 bg-transparent p-6 transition-all duration-300 hover:border-purple-400/40 hover:shadow-lg hover:shadow-black/10 dark:border-white/20 dark:hover:shadow-black/50"
+              className="group h-full min-h-[10.5rem] cursor-pointer bg-card text-card-foreground border border-border p-6 transition-all duration-300 hover:border-purple-400/40 dark:hover:border-purple-400/40 rounded-xl"
             >
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 shadow-sm transition-colors dark:border-white/10 dark:bg-white/5 dark:text-purple-200">
+                <div className="flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-purple-600 transition-colors group-hover:border-purple-400/40 dark:border-white/10 dark:bg-white/5 dark:text-purple-200 dark:group-hover:border-purple-400/40">
                   <Plus className="size-8" />
                 </div>
-                <p className="text-lg font-medium text-foreground">
-                  Crear nuevo curso
-                </p>
               </div>
             </Card>
           }

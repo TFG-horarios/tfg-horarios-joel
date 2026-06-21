@@ -11,6 +11,7 @@ import { RequestClassroomReservationUseCase } from './application/request-classr
 import { UpdateClassroomReservationStatusUseCase } from './application/update-classroom-reservation-status.usecase';
 import { ListClassroomReservationsUseCase } from './application/list-classroom-reservations.usecase';
 import { GetClassroomAvailabilityUseCase } from './application/get-classroom-availability.usecase';
+import { DeleteClassroomReservationUseCase } from './application/delete-classroom-reservation.usecase';
 import { HonoClassroomReservationController } from './infrastructure/http/hono.classroom-reservation.controller';
 import {
   createReservationRoute,
@@ -18,6 +19,7 @@ import {
   updateReservationStatusRoute,
   getAvailabilityRoute,
   streamClassroomReservationEventsRoute,
+  deleteReservationRoute,
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
@@ -76,11 +78,17 @@ export const createClassroomReservationModule = (
     academicYearProvider
   );
 
+  const deleteUseCase = new DeleteClassroomReservationUseCase(
+    reservationRepository,
+    memberProvider
+  );
+
   const controller = new HonoClassroomReservationController(
     requestUseCase,
     updateStatusUseCase,
     listUseCase,
-    getAvailabilityUseCase
+    getAvailabilityUseCase,
+    deleteUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -89,7 +97,8 @@ export const createClassroomReservationModule = (
     .openapi(listReservationsRoute, controller.list)
     .openapi(updateReservationStatusRoute, controller.updateStatus)
     .openapi(getAvailabilityRoute, controller.getAvailability)
-    .openapi(streamClassroomReservationEventsRoute, controller.streamEvents);
+    .openapi(streamClassroomReservationEventsRoute, controller.streamEvents)
+    .openapi(deleteReservationRoute, controller.delete);
 
   return routes;
 };

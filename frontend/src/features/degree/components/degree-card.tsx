@@ -1,18 +1,12 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  organizationHoverCardClassName,
-  organizationHoverCardTitleClassName,
-} from '@/features/organizations/components/organization-card-styles';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteDegreeAction } from '@/features/degree/actions';
 import { toast } from 'sonner';
 import { DegreeFormModal } from './degree-form-modal';
 import type { DegreeDTO } from '@tfg-horarios/shared';
-import { GraduationCap } from 'lucide-react';
 
 export interface DegreeCardProps {
   item: DegreeDTO;
@@ -26,45 +20,43 @@ export const DegreeCard = memo(function DegreeCard({
 
   return (
     <>
-      <Card
-        className={`h-full relative group flex flex-col ${organizationHoverCardClassName}`}
+      <InteractiveCard
+        className="h-full"
+        actions={
+          <ResourceCardActions
+            itemName={degree.name}
+            onEdit={() => setIsEditOpen(true)}
+            onDelete={async () => {
+              const res = await deleteDegreeAction(
+                degree.organizationId,
+                degree.id
+              );
+              if (res.success) {
+                toast.success('Grado eliminado correctamente');
+              } else {
+                toast.error(res.message);
+              }
+            }}
+          />
+        }
       >
-        <ResourceCardActions
-          itemName={degree.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteDegreeAction(
-              degree.organizationId,
-              degree.id
-            );
-            if (res.success) {
-              toast.success('Grado eliminado correctamente');
-            } else {
-              toast.error(res.message);
-            }
-          }}
-        />
-        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
-          <Badge
-            variant="outline"
-            className="w-fit mx-auto font-mono uppercase tracking-widest border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 flex items-center gap-1 px-2.5 py-0.5"
-          >
-            {degree.code}
-          </Badge>
-          <div className="flex items-center gap-3 pr-8">
-            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
-              <GraduationCap className="w-5 h-5" />
+        <div className="flex flex-col h-full w-full justify-center">
+          <div className="flex flex-col">
+            <div className="flex flex-wrap items-center gap-2 mb-4 justify-center">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+                {degree.code}
+              </span>
             </div>
-            <div className="space-y-1">
-              <CardTitle
-                className={`text-xl leading-tight ${organizationHoverCardTitleClassName}`}
-              >
-                {degree.name}
-              </CardTitle>
-            </div>
+            <h3
+              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              title={degree.name}
+            >
+              {degree.name}
+            </h3>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </InteractiveCard>
+
       <DegreeFormModal
         organizationId={degree.organizationId}
         degree={degree}

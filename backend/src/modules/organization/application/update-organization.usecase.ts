@@ -28,7 +28,7 @@ export class UpdateOrganizationUseCase {
       requesterUserId,
       organizationId
     );
-    if (!role || !hasPermission(role, 'UPDATE_ORGANIZATION')) {
+    if (!role || !hasPermission(role, 'MANAGE_ORGANIZATION')) {
       throw new ForbiddenError(
         'You do not have permission to update this organization'
       );

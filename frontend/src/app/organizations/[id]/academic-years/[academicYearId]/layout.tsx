@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Sidebar, type NavItem } from '@/components/layout/sidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -91,8 +92,10 @@ export default async function AcademicYearLayout({
   return (
     <div className="relative z-10 flex h-full w-full min-h-0 flex-col gap-2 lg:flex-row lg:gap-3">
       <Sidebar navItems={navItems} />
-      <main className="p-6 lg:p-8 h-full w-full overflow-y-auto hide-scrollbar relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-black/10 bg-white/70 dark:border-white/10 dark:bg-white/5">
-        {children}
+      <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-border bg-white/70 dark:bg-white/5">
+        <ScrollArea className="h-full w-full">
+          <div className="p-6 lg:p-8">{children}</div>
+        </ScrollArea>
       </main>
     </div>
   );

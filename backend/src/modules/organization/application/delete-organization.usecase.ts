@@ -22,7 +22,7 @@ export class DeleteOrganizationUseCase {
       requesterUserId,
       organizationId
     );
-    if (!role || !hasPermission(role, 'DELETE_ORGANIZATION')) {
+    if (!role || !hasPermission(role, 'MANAGE_ORGANIZATION')) {
       throw new ForbiddenError(
         'You can not delete this organization. Only administrators can do it.'
       );

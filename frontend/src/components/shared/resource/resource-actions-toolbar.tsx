@@ -104,7 +104,7 @@ export function ResourceActionsToolbar({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-9 cursor-pointer border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  className="size-9 cursor-pointer border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 bg-card dark:border-red-900/50 dark:text-red-500 dark:bg-input/30 dark:hover:bg-red-950/30"
                   aria-label={translations.deleteAllConfirm}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -153,7 +153,7 @@ export function ResourceActionsToolbar({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-9 cursor-pointer"
+                  className="size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
                   aria-label={translations.import}
                 >
                   <Upload className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function ResourceActionsToolbar({
               <Button
                 variant="outline"
                 size="icon"
-                className="size-9 cursor-pointer"
+                className="size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
                 aria-label={translations.exportCsv}
                 onClick={onExportCsv}
               >
@@ -219,7 +219,7 @@ export function ResourceActionsToolbar({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              className="size-9 cursor-pointer"
+              className="size-9 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30"
               aria-label={translations.create}
               onClick={onCreateClick}
             >

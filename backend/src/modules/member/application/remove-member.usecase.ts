@@ -36,7 +36,7 @@ export class RemoveMemberUseCase {
 
     if (
       !isSelfRemoval &&
-      (!requester || !hasPermission(requester.role, 'REMOVE_MEMBER'))
+      (!requester || !hasPermission(requester.role, 'MANAGE_MEMBER'))
     ) {
       throw new ForbiddenError(
         'You cannot remove members from this organization. Only administrators can do it.'

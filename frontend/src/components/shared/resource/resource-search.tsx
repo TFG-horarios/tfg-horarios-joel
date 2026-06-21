@@ -42,7 +42,7 @@ export function ResourceSearch({
       <Input
         type="search"
         placeholder={placeholder}
-        className="w-full pl-8"
+        className="h-9 w-full pl-8"
         value={value}
         onChange={handleChange}
       />

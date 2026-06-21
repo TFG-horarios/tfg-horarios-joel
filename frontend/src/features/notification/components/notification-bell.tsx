@@ -26,6 +26,11 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -79,10 +84,6 @@ export function NotificationBell() {
       }
     });
 
-    eventSource.onerror = (error) => {
-      console.error('SSE Error on notifications stream:', error);
-    };
-
     return () => {
       eventSource.close();
     };
@@ -118,11 +119,27 @@ export function NotificationBell() {
 
   if (!user) return null;
 
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        size="icon"
+        className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+      >
+        <Bell className="size-4" />
+      </Button>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+        >
+          <Bell className="size-4" />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"

@@ -40,7 +40,7 @@ export function LanguageToggle() {
                 id="language-toggle-trigger"
                 variant="outline"
                 size="icon"
-                className="relative size-9 cursor-pointer"
+                className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
                 aria-label={t('toggleLanguage')}
               >
                 <Languages className="size-4" />

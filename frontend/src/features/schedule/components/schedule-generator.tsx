@@ -29,7 +29,7 @@ import {
   checkScheduleOverwriteAction,
 } from '@/features/schedule/actions';
 import type { DegreeDTO, SubjectDTO, ScheduleDTO } from '@tfg-horarios/shared';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -177,10 +177,10 @@ export function ScheduleGenerator({
             <DialogTrigger asChild>
               <Button
                 size="icon"
-                className="size-9 cursor-pointer"
+                className="size-9 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30"
                 aria-label={t('generate')}
               >
-                <Sparkles className="size-4" />
+                <Plus className="size-4" />
                 <span className="sr-only">{t('generate')}</span>
               </Button>
             </DialogTrigger>

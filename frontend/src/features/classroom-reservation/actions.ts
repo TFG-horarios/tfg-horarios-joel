@@ -155,3 +155,50 @@ export async function updateReservationStatusAction(
     };
   }
 }
+
+export async function deleteReservationAction(
+  organizationId: string,
+  id: string
+): Promise<ActionResponse<void>> {
+  const tErrors = await getTranslations('Common.errors');
+  const tSuccess = await getTranslations('Common.success');
+  const client = await getServerClient();
+
+  try {
+    const response = await client.api.organizations[':organizationId']![
+      'classroom-reservations'
+    ][':id']!.$delete({
+      param: { organizationId, id },
+    });
+
+    if (!response.ok) {
+      if (
+        response.status === 400 ||
+        response.status === 403 ||
+        response.status === 404
+      ) {
+        const errorData = (await response.json()) as {
+          error?: string;
+          message?: string;
+        };
+        return {
+          success: false,
+          message: errorData.message || errorData.error || tErrors('server'),
+        };
+      }
+      return { success: false, message: tErrors('server') };
+    }
+
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+
+    return {
+      success: true,
+      message: tSuccess('deleted') || 'Reserva cancelada',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}

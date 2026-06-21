@@ -1,19 +1,16 @@
 'use client';
 
 import { memo, type MouseEvent } from 'react';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 import {
-  Calendar,
-  ArrowRight,
   AlertTriangle,
-  MoreVertical,
   UploadCloud,
-  Trash,
   Archive,
   FileDown,
+  GraduationCap,
+  Clock,
+  Sun,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import {
@@ -23,25 +20,17 @@ import {
   exportScheduleCsvAction,
 } from '../actions';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ResourceDeleteAction } from '@/components/shared/resource/resource-delete-action';
-import {
-  organizationHoverCardClassName,
-  organizationHoverCardTitleClassName,
-} from '@/features/organizations/components/organization-card-styles';
+import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import type { ScheduleDTO } from '@tfg-horarios/shared';
+import { cn } from '@/lib/utils';
 
 export interface ScheduleCardProps {
   item: ScheduleDTO;
   degreeMap: Record<string, string>;
   itineraryMap: Record<string, string>;
-  academicYearMap: Record<string, string>;
   organizationId: string;
   translations?: Record<string, string>;
 }
@@ -50,7 +39,6 @@ export const ScheduleCard = memo(function ScheduleCard({
   item: schedule,
   degreeMap,
   itineraryMap,
-  academicYearMap,
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
@@ -60,15 +48,6 @@ export const ScheduleCard = memo(function ScheduleCard({
   const itineraryName = schedule.itineraryId
     ? itineraryMap[schedule.itineraryId] || t('unknownItinerary')
     : translations.commonItinerary || tStatus('itineraryOptions.common');
-
-  const getStatusBadgeVariant = (status: 'draft' | 'published') => {
-    switch (status) {
-      case 'published':
-        return 'default';
-      case 'draft':
-        return 'secondary';
-    }
-  };
 
   const getStatusLabel = (status: 'draft' | 'published') => {
     return translations[status] || status;
@@ -158,184 +137,129 @@ export const ScheduleCard = memo(function ScheduleCard({
   };
 
   return (
-    <Link
+    <InteractiveCard
+      className="h-full"
       href={`/organizations/${organizationId}/academic-years/${schedule.academicYearId}/schedules/${schedule.id}`}
-      className="block h-full cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      actions={
+        <ResourceCardActions
+          onDelete={handleDelete}
+          itemName={t('scheduleItemName', { name: degreeName })}
+        >
+          {schedule.status === 'draft' ? (
+            <DropdownMenuItem
+              onClick={handlePublish}
+              className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50"
+            >
+              <UploadCloud className="mr-2 h-4 w-4" />
+              <span>
+                {tStatus('planner.publishSchedule', {
+                  fallback: 'Publicar',
+                })}
+              </span>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              onClick={handleUnpublish}
+              className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
+            >
+              <Archive className="mr-2 h-4 w-4" />
+              <span>
+                {tStatus('planner.unpublishSchedule', {
+                  fallback: 'Borrador',
+                })}
+              </span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleExportCSV}
+            className="text-muted-foreground focus:text-foreground focus:bg-muted"
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            <span>{tStatus('csv.export', { fallback: 'Exportar CSV' })}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+        </ResourceCardActions>
+      }
     >
-      <Card
-        className={`h-full flex flex-col relative group ${organizationHoverCardClassName}`}
-      >
-        <div className="absolute bottom-5 right-5 text-muted-foreground/30 transition-all duration-300 group-hover:text-primary group-hover:translate-x-1 z-10">
-          <ArrowRight className="w-5 h-5" />
-        </div>
-        <div className="absolute top-3 right-3 z-20">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              asChild
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              {schedule.status === 'draft' ? (
-                <DropdownMenuItem
-                  onClick={handlePublish}
-                  className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50"
-                >
-                  <UploadCloud className="mr-2 h-4 w-4" />
-                  <span>
-                    {tStatus('planner.publishSchedule', {
-                      fallback: 'Publicar',
-                    })}
-                  </span>
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  onClick={handleUnpublish}
-                  className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
-                >
-                  <Archive className="mr-2 h-4 w-4" />
-                  <span>
-                    {tStatus('planner.unpublishSchedule', {
-                      fallback: 'Borrador',
-                    })}
-                  </span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleExportCSV}
-                className="text-muted-foreground focus:text-foreground focus:bg-muted"
-              >
-                <FileDown className="mr-2 h-4 w-4" />
-                <span>
-                  {tStatus('csv.export', { fallback: 'Exportar CSV' })}
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <ResourceDeleteAction
-                onDelete={handleDelete}
-                itemName={t('scheduleItemName', { name: degreeName })}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                >
-                  <Trash className="mr-2 h-4 w-4" />
-                  <span>Eliminar</span>
-                </DropdownMenuItem>
-              </ResourceDeleteAction>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
-          <div className="flex flex-row items-center justify-center gap-2 flex-wrap w-full">
-            <Badge
-              variant={getStatusBadgeVariant(schedule.status)}
-              className={`
-                ${schedule.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20' : ''}
-                ${schedule.status === 'draft' ? 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20' : ''}
-              `}
-            >
-              {getStatusLabel(schedule.status).toUpperCase()}
-            </Badge>
-
-            {schedule.conflicts > 0 && (
-              <Badge
-                variant="outline"
-                className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20 flex items-center gap-1"
-                title={t('conflictsTooltip')}
-              >
-                <AlertTriangle className="size-3" />
-                <span>{schedule.conflicts}</span>
-              </Badge>
+      <div className="flex flex-col h-full w-full pr-12">
+        <div className="flex flex-wrap items-center gap-2 mb-2 justify-center">
+          <span
+            className={cn(
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-border',
+              schedule.status === 'published'
+                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
+                : 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400'
             )}
-          </div>
+          >
+            {getStatusLabel(schedule.status)}
+          </span>
 
-          <div className="flex items-center gap-3 pr-8">
-            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div className="space-y-1 min-w-0 flex-1">
-              <CardTitle
-                className={`text-xl leading-tight ${organizationHoverCardTitleClassName} truncate`}
-                title={degreeName}
-              >
-                {degreeName}
-              </CardTitle>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-5 pt-0 mt-auto flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-            <div className="flex flex-col min-w-0">
-              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-                {translations.academicYear || tStatus('form.academicYear')}
-              </span>
-              <span className="font-medium truncate">
-                {academicYearMap[schedule.academicYearId]}
-              </span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-                {translations.course || tStatus('courseYear')}
-              </span>
-              <span className="font-medium truncate">
-                {t('year', { year: schedule.courseYear })}
-              </span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-                {translations.period || tStatus('period')}
-              </span>
-              <span className="font-medium truncate">
-                {t('semester', { period: schedule.period })}
-              </span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
-                {translations.shift || tStatus('shift')}
-              </span>
-              <span className="font-medium capitalize truncate">
-                {schedule.shift || 'Global'}
-              </span>
-            </div>
-          </div>
+          {schedule.itineraryId ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300">
+              {translations.itinerary?.toUpperCase() || 'ITINERARY'}:{' '}
+              {itineraryName}
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary text-secondary-foreground border border-border/50">
+              {translations.common || itineraryName}
+            </span>
+          )}
 
-          <div className="flex items-center justify-center gap-2 flex-wrap mt-1">
-            {schedule.itineraryId ? (
-              <Badge
-                variant="outline"
-                className="w-fit font-mono uppercase tracking-widest border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300 flex items-center gap-1 px-2.5 py-0.5"
-              >
-                <span>
-                  {translations.itinerary?.toUpperCase() || 'ITINERARY'}:{' '}
-                  <strong className="font-semibold">{itineraryName}</strong>
-                </span>
-              </Badge>
-            ) : (
-              <Badge
-                variant="outline"
-                className="w-fit font-medium border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300 flex items-center gap-1 px-2.5 py-0.5"
-              >
-                <span>{translations.common || itineraryName}</span>
-              </Badge>
+          {schedule.conflicts > 0 && (
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400"
+              title={t('conflictsTooltip')}
+            >
+              <AlertTriangle className="size-3" />
+              {schedule.conflicts}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col flex-1 justify-center">
+          <h3
+            className={cn(
+              'text-xl font-semibold transition-colors line-clamp-3'
             )}
+            title={degreeName}
+          >
+            {degreeName}
+          </h3>
+        </div>
+
+        <div className="mt-auto pt-4 flex flex-wrap gap-2 justify-center">
+          <div
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+            title={translations.course || tStatus('courseYear')}
+          >
+            <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <span className="truncate">
+              {t('year', { year: schedule.courseYear })}
+            </span>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+
+          <div
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+            title={translations.period || tStatus('period')}
+          >
+            <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <span className="truncate">
+              {t('semester', { period: schedule.period })}
+            </span>
+          </div>
+
+          <div
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+            title={translations.shift || tStatus('shift')}
+          >
+            <Sun className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <span className="capitalize truncate">
+              {schedule.shift || 'Global'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </InteractiveCard>
   );
 });

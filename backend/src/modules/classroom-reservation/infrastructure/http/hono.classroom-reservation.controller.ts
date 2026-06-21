@@ -4,6 +4,7 @@ import type { RequestClassroomReservationUseCase } from '../../application/reque
 import type { UpdateClassroomReservationStatusUseCase } from '../../application/update-classroom-reservation-status.usecase';
 import type { ListClassroomReservationsUseCase } from '../../application/list-classroom-reservations.usecase';
 import type { GetClassroomAvailabilityUseCase } from '../../application/get-classroom-availability.usecase';
+import type { DeleteClassroomReservationUseCase } from '../../application/delete-classroom-reservation.usecase';
 import { streamSSE } from 'hono/streaming';
 import { SseService } from '@/core/services/sse.service';
 import {
@@ -12,6 +13,7 @@ import {
   updateReservationStatusRoute,
   getAvailabilityRoute,
   streamClassroomReservationEventsRoute,
+  deleteReservationRoute,
 } from './hono.classroom-reservation.routes';
 
 export class HonoClassroomReservationController {
@@ -19,7 +21,8 @@ export class HonoClassroomReservationController {
     private readonly requestReservationUseCase: RequestClassroomReservationUseCase,
     private readonly updateReservationStatusUseCase: UpdateClassroomReservationStatusUseCase,
     private readonly listReservationsUseCase: ListClassroomReservationsUseCase,
-    private readonly getAvailabilityUseCase: GetClassroomAvailabilityUseCase
+    private readonly getAvailabilityUseCase: GetClassroomAvailabilityUseCase,
+    private readonly deleteReservationUseCase: DeleteClassroomReservationUseCase
   ) {}
 
   create: RouteHandler<typeof createReservationRoute, AppEnv> = async (c) => {
@@ -77,6 +80,13 @@ export class HonoClassroomReservationController {
 
       return c.json(result, 200);
     };
+
+  delete: RouteHandler<typeof deleteReservationRoute, AppEnv> = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const user = c.get('userId');
+    await this.deleteReservationUseCase.execute(organizationId, user, id);
+    return c.body(null, 204);
+  };
 
   getAvailability: RouteHandler<typeof getAvailabilityRoute, AppEnv> = async (
     c

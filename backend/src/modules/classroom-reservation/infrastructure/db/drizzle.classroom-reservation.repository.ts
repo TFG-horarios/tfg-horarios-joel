@@ -69,6 +69,12 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       .where(eq(classroomReservations.id, reservation.id));
   }
 
+  async delete(id: string): Promise<void> {
+    await this.db
+      .delete(classroomReservations)
+      .where(eq(classroomReservations.id, id));
+  }
+
   async findPaginated(
     organizationId: string,
     query: ClassroomReservationListQueryDTO,

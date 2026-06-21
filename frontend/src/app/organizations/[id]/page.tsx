@@ -20,9 +20,7 @@ export default async function OrganizationDetailPage({
     getSessionUser(),
   ]);
   const organization = organizations.find((item) => item.id === id);
-
   const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
-  const isAdmin = memberRole === 'admin';
 
   if (!organization) {
     notFound();
@@ -32,7 +30,7 @@ export default async function OrganizationDetailPage({
     <Suspense>
       <AcademicYearsDashboard
         initialAcademicYears={academicYears}
-        isAdmin={isAdmin}
+        memberRole={memberRole}
         organization={organization}
       />
     </Suspense>

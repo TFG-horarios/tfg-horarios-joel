@@ -1,18 +1,13 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  organizationHoverCardClassName,
-  organizationHoverCardTitleClassName,
-} from '@/features/organizations/components/organization-card-styles';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteItineraryAction } from '@/features/itinerary/actions';
 import { toast } from 'sonner';
 import { ItineraryFormModal } from './itinerary-form-modal';
 import type { DegreeDTO, ItineraryDTO } from '@tfg-horarios/shared';
-import { Map } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
 export interface ItineraryCardProps {
   item: ItineraryDTO;
@@ -30,63 +25,61 @@ export const ItineraryCard = memo(function ItineraryCard({
 
   return (
     <>
-      <Card
-        className={`h-full relative group flex flex-col ${organizationHoverCardClassName}`}
+      <InteractiveCard
+        className="h-full"
+        actions={
+          <ResourceCardActions
+            itemName={itinerary.name}
+            onEdit={() => setIsEditOpen(true)}
+            onDelete={async () => {
+              const res = await deleteItineraryAction(
+                itinerary.organizationId,
+                itinerary.degreeId,
+                itinerary.id
+              );
+              if (res.success) {
+                toast.success('Itinerario eliminado correctamente');
+              } else {
+                toast.error(res.message);
+              }
+            }}
+          />
+        }
       >
-        <ResourceCardActions
-          itemName={itinerary.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteItineraryAction(
-              itinerary.organizationId,
-              itinerary.degreeId,
-              itinerary.id
-            );
-            if (res.success) {
-              toast.success('Itinerario eliminado correctamente');
-            } else {
-              toast.error(res.message);
-            }
-          }}
-        />
-        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
-          <Badge
-            variant="outline"
-            className="w-fit mx-auto font-mono uppercase tracking-widest border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 flex items-center gap-1 px-2.5 py-0.5"
-          >
-            {itinerary.code}
-          </Badge>
-          <div className="flex items-center gap-3 pr-8">
-            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
-              <Map className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <CardTitle
-                className={`text-xl leading-tight ${organizationHoverCardTitleClassName}`}
-              >
-                {itinerary.name}
-              </CardTitle>
-            </div>
+        <div className="flex flex-col h-full w-full">
+          <div className="flex flex-wrap items-center gap-2 mb-2 justify-center">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+              {itinerary.code}
+            </span>
           </div>
-        </CardHeader>
-        <CardContent className="p-5 pt-0 mt-auto flex flex-col gap-3">
-          <div className="flex items-center justify-center gap-2 flex-wrap">
+          <div className="flex flex-col flex-1 justify-center">
+            <h3
+              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              title={itinerary.name}
+            >
+              {itinerary.name}
+            </h3>
+          </div>
+
+          <div className="mt-auto pt-4 flex flex-wrap gap-2 justify-center">
             {degree?.code && (
-              <Badge
-                variant="outline"
-                className="w-fit font-mono uppercase tracking-widest border-purple-400/30 bg-purple-400/10 text-purple-600 dark:border-purple-400/20 dark:bg-purple-400/10 dark:text-purple-300 flex items-center gap-1 px-2.5 py-0.5"
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+                title={translations.degree || 'Degree'}
               >
-                <span>
+                <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">
                   {translations.degree}:{' '}
-                  <strong className="font-semibold uppercase">
+                  <strong className="text-foreground font-semibold uppercase">
                     {degree.code}
                   </strong>
                 </span>
-              </Badge>
+              </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </InteractiveCard>
+
       <ItineraryFormModal
         organizationId={itinerary.organizationId}
         degrees={Array.from(degreeMap.values())}

@@ -14,7 +14,7 @@ import {
   ValidationError,
   NotFoundError,
 } from '@/core/errors/app.error';
-import { hasPermission } from '@/core/permissions/authorization';
+import { ROLES } from '@/core/permissions/roles';
 
 export class RequestClassroomReservationUseCase {
   constructor(
@@ -136,7 +136,7 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const isAdminOrEditor = hasPermission(role, 'ACCEPT_RESERVATION');
+    const isAdminOrEditor = role === ROLES.ADMIN || role === ROLES.EDITOR;
 
     const reservation = ClassroomReservation.create({
       organizationId,

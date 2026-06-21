@@ -3,11 +3,11 @@ import { hasPermission } from './authorization';
 
 describe('Authorization', () => {
   test('admin has delete organization permission', () => {
-    expect(hasPermission('admin', 'DELETE_ORGANIZATION')).toBeTrue();
+    expect(hasPermission('admin', 'MANAGE_ORGANIZATION')).toBeTrue();
   });
 
   test('editor does not have delete organization permission', () => {
-    expect(hasPermission('editor', 'DELETE_ORGANIZATION')).toBeFalse();
+    expect(hasPermission('editor', 'MANAGE_ORGANIZATION')).toBeFalse();
   });
 
   test('viewer does not have create components permission', () => {

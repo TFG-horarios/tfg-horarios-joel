@@ -61,6 +61,11 @@ export class HonoNotificationController {
 
         while (true) {
           await stream.sleep(30000);
+          try {
+            await stream.writeSSE({ event: 'ping', data: 'keep-alive' });
+          } catch {
+            break;
+          }
         }
       });
     };

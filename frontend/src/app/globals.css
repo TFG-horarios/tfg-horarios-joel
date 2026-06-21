@@ -56,15 +56,15 @@
   --popover-foreground: #111827;
   --primary: #000000;
   --primary-foreground: #f8fafc;
-  --secondary: #f3f4f6;
+  --secondary: #dfd3f1;
   --secondary-foreground: #111827;
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;
   --accent: #000000;
   --accent-foreground: #f8fafc;
   --destructive: #dc2626;
-  --border: #969292;
-  --input: #403535;
+  --border: #dbd9d9;
+  --input: #dbd9d9;
   --ring: #000000;
   --chart-1: #000000;
   --chart-2: #000000;
@@ -92,15 +92,15 @@
   --popover-foreground: #f3f4f6;
   --primary: #ffffff;
   --primary-foreground: #0b0a0b;
-  --secondary: #252b3b;
+  --secondary: #312f31;
   --secondary-foreground: #f3f4f6;
   --muted: #252b3b;
   --muted-foreground: #9ca3af;
   --accent: #ffffff;
   --accent-foreground: #0b0a0b;
   --destructive: #ef4444;
-  --border: #f8fafc;
-  --input: #252b3b;
+  --border: #2d2f33;
+  --input: #0c0b0c;
   --ring: #ffffff;
   --chart-1: #ffffff;
   --chart-2: #ffffff;
@@ -247,5 +247,10 @@
       transparent 70%
     );
     filter: blur(60px);
+  }
+
+  .grid-responsive {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 }

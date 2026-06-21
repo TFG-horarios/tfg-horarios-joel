@@ -94,7 +94,7 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          'relative z-20 flex shrink-0 flex-col rounded-3xl border border-black/10 bg-white/70 py-8 transition-all duration-300 dark:border-white/10 dark:bg-white/5',
+          'relative z-20 flex shrink-0 flex-col rounded-3xl border border-border bg-white/70 py-8 transition-all duration-300 dark:bg-white/5',
           isCollapsed ? 'w-[88px] px-2' : 'w-full px-4 lg:w-[260px]'
         )}
       >
@@ -120,7 +120,7 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
           aria-label={tCommon('navigation.contextual')}
         >
           {finalBackUrl && finalBackLabel && (
-            <div className="border-b border-black/10 pb-6 dark:border-white/10">
+            <div className="border-b border-border pb-6">
               {isCollapsed ? (
                 <Tooltip>
                   <TooltipTrigger asChild>

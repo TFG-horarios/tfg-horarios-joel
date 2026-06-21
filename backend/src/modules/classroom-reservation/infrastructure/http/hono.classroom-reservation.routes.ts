@@ -139,3 +139,26 @@ export const streamClassroomReservationEventsRoute = createRoute({
     403: { description: 'Forbidden' },
   },
 });
+
+export const deleteReservationRoute = createRoute({
+  method: 'delete',
+  path: '/organizations/{organizationId}/classroom-reservations/{id}',
+  tags,
+  request: {
+    params: ClassroomReservationIdParamSchema,
+  },
+  responses: {
+    204: {
+      description: 'Reservation deleted',
+    },
+    400: {
+      description: 'Bad request',
+    },
+    403: {
+      description: 'Forbidden',
+    },
+    404: {
+      description: 'Not found',
+    },
+  },
+});

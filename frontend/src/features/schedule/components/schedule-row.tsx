@@ -27,7 +27,6 @@ export const ScheduleRow = memo(function ScheduleRow({
   item: schedule,
   degreeMap,
   itineraryMap,
-  academicYearMap,
   organizationId,
   translations = {},
 }: ScheduleCardProps) {
@@ -155,7 +154,6 @@ export const ScheduleRow = memo(function ScheduleRow({
       </TableCell>
       <TableCell className="font-medium">{degreeName}</TableCell>
       <TableCell>{itineraryName}</TableCell>
-      <TableCell>{academicYearMap[schedule.academicYearId]}</TableCell>
       <TableCell>{schedule.courseYear}</TableCell>
       <TableCell>{schedule.period}</TableCell>
       <TableCell className="capitalize">{schedule.shift || 'Global'}</TableCell>

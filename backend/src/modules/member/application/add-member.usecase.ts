@@ -30,7 +30,7 @@ export class AddMemberUseCase {
       requesterUserId,
       organizationId
     );
-    if (!requester || !hasPermission(requester.role, 'ADD_MEMBER')) {
+    if (!requester || !hasPermission(requester.role, 'MANAGE_MEMBER')) {
       throw new ForbiddenError(
         'You cannot add members to this organization. Only administrators can do it.'
       );

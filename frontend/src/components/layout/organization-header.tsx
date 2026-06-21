@@ -27,6 +27,7 @@ import {
 import { logoutAction } from '@/features/auth/actions';
 import { getOrganizationNameAction } from '@/features/organizations/actions';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
 
 export function OrganizationHeader() {
   const pathname = usePathname();
@@ -90,7 +91,7 @@ export function OrganizationHeader() {
   };
 
   return (
-    <header className="rounded-3xl border border-black/10 bg-white/70 p-2 text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white">
+    <header className="rounded-3xl border border-border bg-white/70 p-2 text-foreground dark:bg-white/5 dark:text-white">
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/organizations"
@@ -113,7 +114,7 @@ export function OrganizationHeader() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar organización..."
-                  className="w-full rounded-lg border border-black/10 bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
+                  className="w-full rounded-lg border border-border bg-white/70 px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -192,9 +193,14 @@ export function OrganizationHeader() {
                                 {label}
                               </BreadcrumbPage>
                             ) : segment === 'academic-years' ? (
-                              <span className="truncate text-muted-foreground font-medium">
-                                {label}
-                              </span>
+                              <BreadcrumbLink
+                                asChild
+                                className="truncate transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+                              >
+                                <Link href={`/organizations/${orgId}`}>
+                                  {label}
+                                </Link>
+                              </BreadcrumbLink>
                             ) : (
                               <BreadcrumbLink
                                 asChild
@@ -222,18 +228,19 @@ export function OrganizationHeader() {
           {!isLoggingOut && isAuthenticated && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  id="user-menu-trigger"
+                <Button
+                  variant="outline"
+                  size="icon"
                   aria-label={t('signOut')}
-                  className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/80 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/10 dark:text-white"
+                  className="relative size-9 cursor-pointer rounded-full bg-card border-border dark:border-border dark:bg-input/30 text-sm font-medium"
                 >
                   {(user.name || user.email)?.charAt(0).toUpperCase()}
-                </button>
+                </Button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
                 align="end"
-                className="w-56 border border-black/10 bg-white/85 text-foreground backdrop-blur-lg dark:border-white/10 dark:bg-black/60 dark:text-neutral-200"
+                className="w-56 border border-border bg-white/85 text-foreground backdrop-blur-lg dark:bg-black/60 dark:text-neutral-200"
               >
                 <div className="px-3 py-2">
                   <p className="text-sm font-medium text-foreground">

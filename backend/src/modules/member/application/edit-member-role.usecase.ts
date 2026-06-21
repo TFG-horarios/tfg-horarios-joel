@@ -33,7 +33,7 @@ export class EditMemberRoleUseCase {
       requesterUserId,
       organizationId
     );
-    if (!requester || !hasPermission(requester.role, 'EDIT_MEMBER_ROLE')) {
+    if (!requester || !hasPermission(requester.role, 'MANAGE_MEMBER')) {
       throw new ForbiddenError(
         'You cannot update the role of members in this organization. Only administrators can do it.'
       );

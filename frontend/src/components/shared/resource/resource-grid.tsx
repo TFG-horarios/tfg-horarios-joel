@@ -23,7 +23,7 @@ function ResourceGridBase<T>({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid-responsive gap-4 md:grid-cols-2 xl:grid-cols-3">
       {items &&
         renderItem &&
         items.map((item, index) => {

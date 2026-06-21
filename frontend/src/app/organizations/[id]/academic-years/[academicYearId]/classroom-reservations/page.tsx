@@ -13,6 +13,12 @@ import { ResourceLayout } from '@/components/shared/resource/resource-layout';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { ClassroomReservationCard } from '@/features/classroom-reservation/components/classroom-reservation-card';
 import { ClassroomReservationRow } from '@/features/classroom-reservation/components/classroom-reservation-row';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -137,14 +143,26 @@ export default async function OrganizationClassroomReservationsPage({
           }
         />
         <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link
-              href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations/new`}
-            >
-              <Plus className="mr-2 size-4" />
-              Nueva Reserva
-            </Link>
-          </Button>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  size="icon"
+                  className="size-9 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30"
+                >
+                  <Link
+                    href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations/new`}
+                    aria-label="Nueva Reserva"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Nueva Reserva</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Nueva Reserva</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div>
@@ -156,7 +174,12 @@ export default async function OrganizationClassroomReservationsPage({
           loadMore={fetchPaginatedReservationsAction.bind(null, id, query)}
           emptyState={<ResourceEmptyState message={translations.empty} />}
           GridItemComponent={ClassroomReservationCard}
-          gridItemProps={{ translations, classrooms: classroomsMap, canManage }}
+          gridItemProps={{
+            translations,
+            classrooms: classroomsMap,
+            canManage,
+            currentUserId: user?.id,
+          }}
           tableHeaders={[
             'Aula',
             'Fecha',
@@ -166,7 +189,12 @@ export default async function OrganizationClassroomReservationsPage({
             'Acciones',
           ]}
           TableRowComponent={ClassroomReservationRow}
-          tableRowProps={{ translations, classrooms: classroomsMap, canManage }}
+          tableRowProps={{
+            translations,
+            classrooms: classroomsMap,
+            canManage,
+            currentUserId: user?.id,
+          }}
         />
       </div>
     </OrganizationSectionShell>

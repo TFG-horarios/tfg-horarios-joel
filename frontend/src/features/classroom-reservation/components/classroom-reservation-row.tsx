@@ -14,6 +14,7 @@ export type ClassroomReservationRowProps = {
   translations: Record<string, string>;
   classrooms?: Record<string, string>;
   canManage: boolean;
+  currentUserId?: string;
 };
 
 export const ClassroomReservationRow = memo(function ClassroomReservationRow({
@@ -21,6 +22,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
   translations,
   classrooms,
   canManage,
+  currentUserId,
 }: ClassroomReservationRowProps) {
   const [isPending, startTransition] = useTransition();
 
@@ -38,6 +40,21 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
         toast.success(translations[`statusUpdateSuccess_${status}`]);
       } else {
         toast.error(res.message || translations['statusUpdateError']);
+      }
+    });
+  };
+
+  const handleCancel = () => {
+    startTransition(async () => {
+      const { deleteReservationAction } = await import('../actions');
+      const res = await deleteReservationAction(
+        reservation.organizationId,
+        reservation.id
+      );
+      if (res.success) {
+        toast.success(res.message || 'Reserva cancelada correctamente');
+      } else {
+        toast.error(res.message || 'Error al cancelar la reserva');
       }
     });
   };
@@ -120,6 +137,25 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
                 <XCircle className="size-4 mr-1" />
               )}
               {translations['action.reject']}
+            </Button>
+          </div>
+        ) : reservation.requesterUserId === currentUserId &&
+          (reservation.status === 'PENDING' ||
+            reservation.status === 'ACCEPTED') ? (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+              disabled={isPending}
+              onClick={handleCancel}
+            >
+              {isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <XCircle className="size-4 mr-1" />
+              )}
+              Cancelar
             </Button>
           </div>
         ) : (

@@ -1,18 +1,14 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  organizationHoverCardClassName,
-  organizationHoverCardTitleClassName,
-} from '@/features/organizations/components/organization-card-styles';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteClassroomAction } from '@/features/classroom/actions';
 import { toast } from 'sonner';
 import { ClassroomFormModal } from './classroom-form-modal';
 import type { ClassroomDTO } from '@tfg-horarios/shared';
-import { Users, Presentation, Beaker } from 'lucide-react';
+import { Users } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface ClassroomCardProps {
   item: ClassroomDTO;
@@ -28,60 +24,67 @@ export const ClassroomCard = memo(function ClassroomCard({
 
   return (
     <>
-      <Card
-        className={`h-full relative group flex flex-col ${organizationHoverCardClassName}`}
+      <InteractiveCard
+        className="h-full"
+        actions={
+          <ResourceCardActions
+            itemName={classroom.name}
+            onEdit={() => setIsEditOpen(true)}
+            onDelete={async () => {
+              const res = await deleteClassroomAction(
+                classroom.organizationId,
+                classroom.id
+              );
+              if (res.success) {
+                toast.success(res.message);
+              } else {
+                toast.error(res.message);
+              }
+            }}
+          />
+        }
       >
-        <ResourceCardActions
-          itemName={classroom.name}
-          onEdit={() => setIsEditOpen(true)}
-          onDelete={async () => {
-            const res = await deleteClassroomAction(
-              classroom.organizationId,
-              classroom.id
-            );
-            if (res.success) {
-              toast.success(res.message);
-            } else {
-              toast.error(res.message);
-            }
-          }}
-        />
-        <CardHeader className="flex flex-col space-y-3 p-5 pb-4">
-          <Badge
-            variant="outline"
-            className="w-fit mx-auto capitalize font-medium border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200"
-          >
-            {isTheory ? translations['type.theory'] : translations['type.lab']}
-          </Badge>
-          <div className="flex flex-row items-center gap-3 pr-8">
-            <div className="p-2.5 rounded-xl border shrink-0 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
-              {isTheory ? (
-                <Presentation className="w-5 h-5" />
-              ) : (
-                <Beaker className="w-5 h-5" />
+        <div className="flex flex-col h-full w-full">
+          <div className="flex flex-wrap items-center gap-2 mb-2 justify-center">
+            <span
+              className={cn(
+                'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
+                isTheory
+                  ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400'
+                  : 'bg-violet-500/10 text-violet-700 border-violet-500/30 dark:text-violet-300'
               )}
-            </div>
-            <div className="space-y-1">
-              <CardTitle
-                className={`text-xl leading-tight ${organizationHoverCardTitleClassName}`}
-              >
-                {classroom.name}
-              </CardTitle>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-5 pt-0 mt-auto">
-          <div className="w-fit mx-auto flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-md">
-            <Users className="w-4 h-4 shrink-0" />
-            <span>
-              <strong className="text-foreground font-medium">
-                {classroom.capacity}
-              </strong>{' '}
-              {translations.capacity?.toLowerCase() || 'estudiantes'}
+            >
+              {isTheory
+                ? translations['type.theory']
+                : translations['type.lab']}
             </span>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex flex-col flex-1 justify-center">
+            <h3
+              className="text-xl font-semibold transition-colors line-clamp-3 pr-12"
+              title={classroom.name}
+            >
+              {classroom.name}
+            </h3>
+          </div>
+
+          <div className="mt-auto pt-4 flex flex-wrap gap-2 justify-center">
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+              title={translations.capacity || 'Capacity'}
+            >
+              <Users className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="truncate">
+                <strong className="text-foreground font-semibold">
+                  {classroom.capacity}
+                </strong>{' '}
+                {translations.capacity?.toLowerCase() || 'estudiantes'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </InteractiveCard>
+
       <ClassroomFormModal
         organizationId={classroom.organizationId}
         classroom={classroom}

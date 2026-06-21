@@ -8,6 +8,7 @@ export interface IClassroomReservationRepository {
   findById(id: string): Promise<ClassroomReservation | null>;
   save(reservation: ClassroomReservation): Promise<void>;
   update(reservation: ClassroomReservation): Promise<void>;
+  delete(id: string): Promise<void>;
   findPaginated(
     organizationId: string,
     query: ClassroomReservationListQueryDTO,

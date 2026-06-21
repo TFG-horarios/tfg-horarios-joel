@@ -43,9 +43,13 @@ export function ResourceCardActions({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+          className="h-full w-full rounded-xl bg-card border border-border shadow-sm text-muted-foreground hover:bg-secondary/80 hover:text-foreground transition-colors cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
-          <MoreVertical className="h-4 w-4" />
+          <MoreVertical className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
@@ -71,7 +75,7 @@ export function ResourceCardActions({
           >
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
-              className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer"
+              className="text-destructive cursor-pointer"
             >
               <Trash className="mr-2 h-4 w-4" />
               {t('delete')}
