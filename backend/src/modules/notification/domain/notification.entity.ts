@@ -15,13 +15,18 @@ export class Notification {
   private constructor(private readonly props: NotificationProps) {}
 
   public static create(
-    props: Omit<NotificationProps, 'id' | 'isRead' | 'createdAt'> & {
+    props: Omit<
+      NotificationProps,
+      'id' | 'isRead' | 'createdAt' | 'organizationId'
+    > & {
       id?: string;
+      organizationId?: string | null;
     }
   ): Notification {
     return new Notification({
       ...props,
       id: props.id ?? crypto.randomUUID(),
+      organizationId: props.organizationId ?? null,
       isRead: false,
       createdAt: new Date(),
     });

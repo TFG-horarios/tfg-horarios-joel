@@ -1,6 +1,6 @@
 import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
 
-interface ValidationAssignment {
+export interface ValidationAssignment {
   id: string;
   subjectGroupId: string;
   subjectId: string;

@@ -161,4 +161,52 @@ describe('DrizzleScheduleRepository Integration', () => {
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
   });
+
+  test('should find distinct academic years', async () => {
+    const schedule = createValidSchedule();
+    await repository.create(schedule);
+    const years = await repository.findDistinctAcademicYears(testOrgId);
+    expect(years.includes(testAcademicYearId)).toBe(true);
+  });
+
+  test('should find locked assignments', async () => {
+    const schedule = createValidSchedule();
+    const slots = [
+      {
+        scheduleId: schedule.id,
+        subjectGroupId: testSubjectGroupId,
+        classroomId: testClassroomId,
+        dayOfWeek: 1,
+        slotIndex: 1,
+        duration: 1,
+        conflicts: [],
+      },
+    ];
+    await repository.createSchedulesWithSlots([{ schedule, slots }]);
+    const locked = await repository.findLockedAssignments(
+      testOrgId,
+      testAcademicYearId,
+      1,
+      []
+    );
+    expect(locked.length).toBeGreaterThan(0);
+    expect(locked[0]?.subjectGroupId).toBe(testSubjectGroupId);
+    expect(locked[0]?.isLocked).toBe(true);
+
+    const lockedExcluded = await repository.findLockedAssignments(
+      testOrgId,
+      testAcademicYearId,
+      1,
+      [schedule.id]
+    );
+    expect(lockedExcluded.length).toBe(0);
+  });
+
+  test('should delete schedule successfully', async () => {
+    const schedule = createValidSchedule();
+    await repository.create(schedule);
+    await repository.delete(schedule.id, testOrgId);
+    const found = await repository.findById(schedule.id, testOrgId);
+    expect(found).toBeNull();
+  });
 });

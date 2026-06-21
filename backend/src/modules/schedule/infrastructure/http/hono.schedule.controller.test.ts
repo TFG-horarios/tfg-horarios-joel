@@ -11,6 +11,9 @@ import {
   updateScheduleSlotRoute,
   generateScheduleRoute,
   listAllSchedulesRoute,
+  unpublishScheduleRoute,
+  deleteScheduleRoute,
+  checkOverwriteScheduleRoute,
 } from './hono.schedule.routes';
 
 describe('HonoScheduleController Integration', () => {
@@ -47,6 +50,9 @@ describe('HonoScheduleController Integration', () => {
   router.openapi(listScheduleSlotsRoute, controller.listSlots);
   router.openapi(updateScheduleSlotRoute, controller.updateSlot);
   router.openapi(generateScheduleRoute, controller.generate);
+  router.openapi(unpublishScheduleRoute, controller.unpublish);
+  router.openapi(deleteScheduleRoute, controller.delete);
+  router.openapi(checkOverwriteScheduleRoute, controller.checkOverwrite);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -160,5 +166,56 @@ describe('HonoScheduleController Integration', () => {
       'u-admin',
       validBody
     );
+  });
+
+  test('GET /organizations/:organizationId/schedules/all should return 200', async () => {
+    listAllMock.execute.mockResolvedValueOnce([{ id: scheduleId }]);
+    const res = await app.request(`/api/organizations/${orgId}/schedules/all`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([{ id: scheduleId }]);
+  });
+
+  test('DELETE /organizations/:organizationId/schedules/:id should return 204', async () => {
+    deleteMock.execute.mockResolvedValueOnce(undefined);
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/${scheduleId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    expect(res.status).toBe(204);
+  });
+
+  test('PATCH /organizations/:organizationId/schedules/:id/unpublish should return 200', async () => {
+    unpublishMock.execute.mockResolvedValueOnce({
+      id: scheduleId,
+      status: 'draft',
+    });
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/${scheduleId}/unpublish`,
+      {
+        method: 'PATCH',
+      }
+    );
+    expect(res.status).toBe(200);
+  });
+
+  test('POST /organizations/:organizationId/schedules/check-overwrite should return 200', async () => {
+    const validBody = {
+      academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+      periods: [1],
+      courseYears: [1, 2],
+      degreeIds: ['d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a55'],
+    };
+    checkOverwriteMock.execute.mockResolvedValueOnce([{ id: scheduleId }]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/check-overwrite`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validBody),
+      }
+    );
+    expect(res.status).toBe(200);
   });
 });

@@ -8,6 +8,8 @@ import {
   testSubjectGroupId,
   testClassroomId,
   testScheduleId,
+  testOrgId,
+  testAcademicYearId,
 } from '@/tests/seed-db';
 
 describe('DrizzleScheduleSlotRepository Integration', () => {
@@ -100,5 +102,32 @@ describe('DrizzleScheduleSlotRepository Integration', () => {
     await repository.delete(slot.id);
     const foundSlot = await repository.findById(slot.id);
     expect(foundSlot).toBeNull();
+  });
+
+  test('should find active classroom configurations paginated', async () => {
+    const slot = createValidSlot();
+    await repository.create(slot);
+    const result = await repository.findActiveClassroomConfigurationsPaginated(
+      testOrgId,
+      { page: 1, limit: 10 }
+    );
+    expect(result.data.length).toBeGreaterThan(0);
+    expect(result.data[0]?.classroomId).toBe(testClassroomId);
+  });
+
+  test('should find linked slots', async () => {
+    const slot = createValidSlot();
+    await repository.create(slot);
+    const result = await repository.findLinkedSlots(
+      testSubjectGroupId,
+      testAcademicYearId,
+      'morning',
+      testClassroomId,
+      1,
+      1,
+      1
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]?.id).toBe(slot.id);
   });
 });

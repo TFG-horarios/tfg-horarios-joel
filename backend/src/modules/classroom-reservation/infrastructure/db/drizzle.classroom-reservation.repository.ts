@@ -136,7 +136,7 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
     dayOfWeek: number,
     slotIndex: number
   ): Promise<boolean> {
-    const postgresDow = dayOfWeek === 6 ? 0 : dayOfWeek + 1;
+    const postgresDow = dayOfWeek === 7 ? 0 : dayOfWeek;
 
     const todayDateStr = new Date().toISOString().split('T')[0];
 
