@@ -108,7 +108,16 @@ export async function generateSchedulesAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      let message = tErrors('server');
+      try {
+        const errorData = (await response.json()) as Record<string, unknown>;
+        if (typeof errorData.message === 'string') {
+          message = errorData.message;
+        }
+      } catch {
+        message = tErrors('server');
+      }
+      throw new Error(message);
     }
 
     const payload = await response.json();

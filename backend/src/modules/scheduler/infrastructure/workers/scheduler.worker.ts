@@ -8,6 +8,10 @@ import { GroupOverlapConstraint } from '../../domain/constraints/hard/group-over
 import { CourseOverlapConstraint } from '../../domain/constraints/hard/course-overlap.constraint';
 import { LCGGenerator } from '../../domain/random-generator';
 import { InitialSolution } from '../../domain/initial-solution';
+import {
+  buildSeeds,
+  runMultiStartTabuSearch,
+} from '../../application/multi-start-tabu-search';
 import type {
   ScheduleEngineGroupData,
   ScheduleEngineClassroomMap,
@@ -39,6 +43,18 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
 
   try {
     const maxSlotsPerDay = maxMorningSlots + maxAfternoonSlots;
+    const orderedClassrooms = [...availableClassrooms].sort((a, b) => {
+      const classroomA = classroomsCache[a];
+      const classroomB = classroomsCache[b];
+      return (
+        (classroomA?.capacity ?? 0) - (classroomB?.capacity ?? 0) ||
+        (classroomA?.type ?? '').localeCompare(classroomB?.type ?? '') ||
+        a.localeCompare(b)
+      );
+    });
+    const orderedLockedAssignments = [...lockedAssignments].sort((a, b) =>
+      a.id.localeCompare(b.id)
+    );
 
     const hardConstraints = [
       new RoomOverlapConstraint(),
@@ -60,7 +76,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
 
     const initialSolutionGen = new InitialSolution(
       penaltyCalculator,
-      availableClassrooms,
+      orderedClassrooms,
       classroomsCache,
       maxSlotsPerDay,
       maxMorningSlots,
@@ -68,18 +84,19 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       [1, 2, 3, 4, 5]
     );
 
-    const randomGenerator = new LCGGenerator(Date.now());
-    const tabuEngine = new TabuSearchEngine(
-      penaltyCalculator,
-      initialSolutionGen,
-      availableClassrooms,
-      classroomsCache,
-      maxMorningSlots,
-      maxSlotsPerDay,
-      randomGenerator
+    const solution = runMultiStartTabuSearch(
+      buildSeeds(),
+      (seed) =>
+        new TabuSearchEngine(
+          penaltyCalculator,
+          initialSolutionGen,
+          orderedClassrooms,
+          classroomsCache,
+          maxMorningSlots,
+          maxSlotsPerDay,
+          new LCGGenerator(seed)
+        ).run(groupsData, orderedLockedAssignments)
     );
-
-    const solution = tabuEngine.run(groupsData, lockedAssignments);
 
     const assignmentsMap = new Map<string, ScheduleEngineAssignment>();
     for (const assignment of solution.assignments) {

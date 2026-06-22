@@ -415,6 +415,79 @@ describe('GenerateScheduleUseCase', () => {
     expect(result).toHaveLength(0);
   });
 
+  test('should persist a solution even with hard conflicts', async () => {
+    const persistCallsBefore =
+      repositoryMock.createSchedulesWithSlots.mock.calls.length;
+
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
+    dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
+      { id: 'c-1', capacity: 30, type: 'theory' },
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
+      {
+        subjectGroupId: 'sg-1',
+        subjectId: 'sub-1',
+        degreeId: 'deg-1',
+        courseYear: 1,
+        shift: 'morning',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryId: null,
+      },
+    ]);
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
+    repositoryMock.findByScope.mockResolvedValueOnce(null);
+    repositoryMock.findLockedAssignments.mockResolvedValueOnce([]);
+    engineProviderMock.runGeneration.mockResolvedValueOnce({
+      assignments: [
+        {
+          id: 'conflict-assignment',
+          subjectGroupId: 'sg-1',
+          subjectId: 'sub-1',
+          degreeId: 'deg-1',
+          courseYear: 1,
+          shift: 'morning',
+          groupType: 'theory',
+          isCommon: true,
+          itineraryName: null,
+          itineraryId: null,
+          numberOfStudents: 30,
+          classroomId: 'c-1',
+          dayOfWeek: 1,
+          slotIndex: 0,
+          duration: 1,
+          conflicts: [
+            {
+              type: 'ROOM_OVERLAP',
+              message: 'Conflict',
+              severity: 'high',
+            }
+          ],
+        }
+      ],
+      penalty: 1000,
+      hardPenalty: 1000,
+    });
+
+    const result = await useCase.execute('org-1', 'user-1', {
+      academicYearId: 'ay-1',
+      periods: [1],
+    });
+
+    expect(result).toHaveLength(1);
+
+    expect(repositoryMock.createSchedulesWithSlots.mock.calls).toHaveLength(
+      persistCallsBefore + 1
+    );
+  });
+
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     expect(

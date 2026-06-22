@@ -7,7 +7,7 @@ import { Schedule } from '../domain/schedule.entity';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleDataProvider } from '../domain/schedule-data.provider';
 import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
-import { ForbiddenError } from '@/core/errors/app.error';
+import { ConflictError, ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
 import type { AppRole } from '@/core/permissions/roles';

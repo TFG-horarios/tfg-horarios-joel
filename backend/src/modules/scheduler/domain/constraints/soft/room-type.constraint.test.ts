@@ -97,12 +97,12 @@ describe('RoomTypeConstraint', () => {
       [
         {
           id: '1',
-          classroomId: 'theory-1', // +10
+          classroomId: 'theory-1',
           groupType: 'practices',
         } as Assignment,
         {
           id: '2',
-          classroomId: 'lab-1', // +10
+          classroomId: 'lab-1',
           groupType: 'theory',
         } as Assignment,
       ],

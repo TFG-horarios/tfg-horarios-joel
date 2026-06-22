@@ -55,7 +55,15 @@ export class InitialSolution {
       if (rigidityDifference !== 0) return rigidityDifference;
 
       return (
-        b.numberOfStudents - a.numberOfStudents || b.weeklyHours - a.weeklyHours
+        b.numberOfStudents - a.numberOfStudents ||
+        b.weeklyHours - a.weeklyHours ||
+        a.degreeId.localeCompare(b.degreeId) ||
+        a.courseYear - b.courseYear ||
+        a.shift.localeCompare(b.shift) ||
+        (a.itineraryId ?? '').localeCompare(b.itineraryId ?? '') ||
+        a.subjectId.localeCompare(b.subjectId) ||
+        a.groupType.localeCompare(b.groupType) ||
+        a.subjectGroupId.localeCompare(b.subjectGroupId)
       );
     });
 
