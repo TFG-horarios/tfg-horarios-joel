@@ -44,7 +44,7 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
     dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
-      { id: 'c-1', capacity: 30, type: 'THEORY' },
+      { id: 'c-1', capacity: 30, type: 'THEORY', floor: 0 },
     ]);
     dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
       {
@@ -91,7 +91,7 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
     dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
-      { id: 'c-1', capacity: 30, type: 'THEORY' },
+      { id: 'c-1', capacity: 30, type: 'THEORY', floor: 0 },
     ]);
     dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
       {
@@ -189,8 +189,8 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
     dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
-      { id: 'c-1', capacity: 60, type: 'theory' },
-      { id: 'c-2', capacity: 30, type: 'theory' },
+      { id: 'c-1', capacity: 60, type: 'theory', floor: 0 },
+      { id: 'c-2', capacity: 30, type: 'theory', floor: 0 },
     ]);
     dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
       {
@@ -422,7 +422,7 @@ describe('GenerateScheduleUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
     dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
-      { id: 'c-1', capacity: 30, type: 'theory' },
+      { id: 'c-1', capacity: 30, type: 'theory', floor: 0 },
     ]);
     dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
       {

@@ -13,6 +13,7 @@ export interface ScheduleClassroomData {
   id: string;
   capacity: number;
   type: ClassroomType;
+  floor: number;
 }
 
 export interface IScheduleDataProvider {

@@ -87,10 +87,10 @@ describe('ScheduleDataAdapter', () => {
 
   test('getAvailableClassrooms should return mapped classrooms', async () => {
     classroomRepositoryMock.findAll.mockResolvedValue([
-      { id: 'room-1', capacity: 30, type: 'theory' },
+      { id: 'room-1', capacity: 30, type: 'theory', floor: 0 },
     ]);
     const result = await adapter.getAvailableClassrooms('org-1');
-    expect(result).toEqual([{ id: 'room-1', capacity: 30, type: 'theory' }]);
+    expect(result).toEqual([{ id: 'room-1', capacity: 30, type: 'theory', floor: 0 }]);
   });
 
   test('getGroupsInScope should return mapped groups', async () => {

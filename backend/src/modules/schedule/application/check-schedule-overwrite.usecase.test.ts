@@ -38,6 +38,9 @@ describe('CheckScheduleOverwriteUseCase', () => {
   test('should return overwritten schedules correctly', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValue(['deg-1']);
+    dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
+      { id: 'c-1', capacity: 30, type: 'THEORY', floor: 0 },
+    ]);
     dataProviderMock.getGroupsInScope.mockResolvedValue([
       {
         degreeId: 'deg-1',

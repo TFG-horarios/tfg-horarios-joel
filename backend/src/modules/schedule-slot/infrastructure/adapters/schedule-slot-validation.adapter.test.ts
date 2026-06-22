@@ -100,8 +100,8 @@ describe('ScheduleSlotValidationAdapter', () => {
       slotDurationMinutes: 60,
     });
     dataProviderMock.getAvailableClassrooms.mockResolvedValue([
-      { id: 'c-1', capacity: 100, type: 'theory' },
-      { id: 'c-2', capacity: 100, type: 'theory' },
+      { id: 'c-1', capacity: 100, type: 'theory', floor: 0 },
+      { id: 'c-2', capacity: 100, type: 'theory', floor: 0 },
     ]);
     scheduleSlotRepositoryMock.findSlotsByClassroomIdAndFilters.mockResolvedValue(
       []

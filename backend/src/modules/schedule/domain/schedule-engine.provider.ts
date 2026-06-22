@@ -23,6 +23,7 @@ export interface ScheduleEngineClassroomMap {
   [classroomId: string]: {
     capacity: number;
     type: ClassroomType;
+    floor: number;
   };
 }
 

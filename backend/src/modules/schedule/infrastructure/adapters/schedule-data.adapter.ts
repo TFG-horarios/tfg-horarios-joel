@@ -33,6 +33,7 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       id: c.id,
       capacity: c.capacity,
       type: c.type as ClassroomType,
+      floor: c.floor,
     }));
   }
 

@@ -32,5 +32,6 @@ export interface ClassroomMap {
   [classroomId: string]: {
     capacity: number;
     type: ClassroomType;
+    floor: number;
   };
 }

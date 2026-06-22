@@ -56,6 +56,7 @@ export class GenerateScheduleUseCase {
       classroomsCache[c.id] = {
         capacity: c.capacity,
         type: c.type,
+        floor: c.floor,
       };
     }
 

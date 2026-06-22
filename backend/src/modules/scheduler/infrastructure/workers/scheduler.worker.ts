@@ -1,6 +1,8 @@
 import { TabuSearchEngine } from '../../application/tabu-search';
 import { PenaltyCalculator } from '../../domain/penalty-calculator';
 import { RoomTypeConstraint } from '../../domain/constraints/soft/room-type.constraint';
+import { LowerFloorConstraint } from '../../domain/constraints/soft/lower-floor.constraint';
+import { ClassroomConsolidationConstraint } from '../../domain/constraints/soft/classroom-consolidation.constraint';
 import { RoomOverlapConstraint } from '../../domain/constraints/hard/room-overlap.constraint';
 import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
@@ -64,7 +66,11 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new CourseOverlapConstraint(),
     ];
 
-    const softConstraints = [new RoomTypeConstraint()];
+    const softConstraints = [
+      new RoomTypeConstraint(),
+      new LowerFloorConstraint(),
+      new ClassroomConsolidationConstraint(),
+    ];
 
     const penaltyCalculator = new PenaltyCalculator(
       hardConstraints,
