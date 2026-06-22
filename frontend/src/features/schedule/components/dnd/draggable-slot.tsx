@@ -63,6 +63,16 @@ export const DraggableSlot = memo(function DraggableSlot({
         return tErrors('ERR_ROOM_OVERLAP');
       case 'COURSE_OVERLAP':
         return tErrors('ERR_OVERLAP_SAME_SUBJECT');
+      case 'COURSE_OVERLAP_THEORY':
+        return tErrors('ERR_OVERLAP_THEORY');
+      case 'COURSE_OVERLAP_SINGLE_GROUP':
+        return tErrors('ERR_OVERLAP_SINGLE_GROUP');
+      case 'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES':
+        return tErrors('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
+      case 'COURSE_OVERLAP_COMMON_ITINERARY':
+        return tErrors('ERR_OVERLAP_COMMON_ITINERARY');
+      case 'COURSE_OVERLAP_SAME_SUBJECT':
+        return tErrors('ERR_OVERLAP_SAME_SUBJECT');
       case 'CAPACITY_EXCEEDED':
         return tErrors('ERR_ROOM_CAPACITY');
       case 'SHIFT_MORNING_REQUIRED':

@@ -35,19 +35,22 @@ export class CourseGroupOverlapRule implements IMoveValidationRule {
             context.movingAssignment.itineraryName === other.itineraryName;
 
           if (conflict) {
-            const isAMandatory =
-              context.movingAssignment.groupType === 'theory' ||
-              groupCountsPerSubjectType.get(
+            const isATheory = context.movingAssignment.groupType === 'theory';
+            const isBTheory = other.groupType === 'theory';
+
+            const isASingleGroup = context.movingAssignment.groupType !== 'theory' && groupCountsPerSubjectType.get(
                 `${context.movingAssignment.subjectId}-${context.movingAssignment.shift}-${context.movingAssignment.groupType}`
               )?.size === 1;
-            const isBMandatory =
-              other.groupType === 'theory' ||
-              groupCountsPerSubjectType.get(`${other.subjectId}-${other.shift}-${other.groupType}`)?.size === 1;
+            const isBSingleGroup = other.groupType !== 'theory' && groupCountsPerSubjectType.get(`${other.subjectId}-${other.shift}-${other.groupType}`)?.size === 1;
 
-            if (isAMandatory || isBMandatory) {
+            if (context.movingAssignment.isCommon !== other.isCommon) {
+              throw new ConflictError('ERR_OVERLAP_COMMON_ITINERARY');
+            } else if (isATheory || isBTheory) {
               throw new ConflictError('ERR_OVERLAP_THEORY');
+            } else if (isASingleGroup || isBSingleGroup) {
+              throw new ConflictError('ERR_OVERLAP_SINGLE_GROUP');
             } else if (context.movingAssignment.groupType !== other.groupType) {
-              throw new ConflictError('ERR_OVERLAP_PRACTICES');
+              throw new ConflictError('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
             }
 
             if (context.movingAssignment.subjectId === other.subjectId) {

@@ -662,8 +662,10 @@
           "ERR_SHIFT_AFTERNOON": "This subject must be taught within the afternoon shift.",
           "ERR_SHIFT_EXCEEDS_DAY": "The duration exceeds the maximum allowed hours in the day.",
           "ERR_OVERLAP_THEORY": "Student overlap: Theory classes cannot coincide at the same time.",
-          "ERR_OVERLAP_PRACTICES": "Student overlap: Practical/problem classes cannot coincide at the same time.",
+          "ERR_OVERLAP_SINGLE_GROUP": "Student overlap: This group is the only one available in its shift and cannot coincide with another.",
+          "ERR_OVERLAP_DIFFERENT_GROUP_TYPES": "Student overlap: Different group types cannot coincide at the same time.",
           "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
+          "ERR_OVERLAP_COMMON_ITINERARY": "Student overlap: Common subjects cannot overlap with itinerary subjects.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots."

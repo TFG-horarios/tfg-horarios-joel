@@ -34,47 +34,48 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
               a.isCommon || b.isCommon || a.itineraryName === b.itineraryName;
 
             if (conflict) {
-              const isAMandatory =
-                a.groupType === 'theory' ||
-                groupCountsPerSubjectType.get(`${a.subjectId}-${a.shift}-${a.groupType}`)?.size === 1;
-              const isBMandatory =
-                b.groupType === 'theory' ||
-                groupCountsPerSubjectType.get(`${b.subjectId}-${b.shift}-${b.groupType}`)?.size === 1;
+              const isATheory = a.groupType === 'theory';
+              const isBTheory = b.groupType === 'theory';
+              const isASingleGroup = a.groupType !== 'theory' && groupCountsPerSubjectType.get(`${a.subjectId}-${a.shift}-${a.groupType}`)?.size === 1;
+              const isBSingleGroup = b.groupType !== 'theory' && groupCountsPerSubjectType.get(`${b.subjectId}-${b.shift}-${b.groupType}`)?.size === 1;
 
-              let isPenalty = false;
-              if (isAMandatory || isBMandatory) {
-                // Regla 1: Si es un grupo de teoria o es el unico grupo de su tipo, no puede solaparse con nada.
-                isPenalty = true;
+              const addConflict = (type: ConflictDetail['type']) => {
                 penalty += 1000;
-              } else {
-                // Regla 2: Si son diferentes tipos de grupos (PE, PA, TU, PX) no pueden solaparse.
-                if (a.groupType !== b.groupType) {
-                  isPenalty = true;
-                  penalty += 1000;
-                }
-              }
-
-              // Regla 3: Si son de la misma asignatura no pueden solaparse.
-              if (a.subjectId === b.subjectId) {
-                isPenalty = true;
-                penalty += 1000;
-              }
-
-              if (isPenalty) {
                 conflicts.push({
-                  type: 'COURSE_OVERLAP',
+                  type,
                   subjectGroupId: a.subjectGroupId,
                   assignmentId: a.id,
                   relatedSubjectGroupIds: [b.subjectGroupId],
                   message: `Overlap with ${b.subjectGroupId}`,
                 });
                 conflicts.push({
-                  type: 'COURSE_OVERLAP',
+                  type,
                   subjectGroupId: b.subjectGroupId,
                   assignmentId: b.id,
                   relatedSubjectGroupIds: [a.subjectGroupId],
                   message: `Overlap with ${a.subjectGroupId}`,
                 });
+              };
+
+              if (a.isCommon !== b.isCommon) {
+                // Regla 1: Una asignatura común NUNCA puede solaparse con una de itinerario
+                addConflict('COURSE_OVERLAP_COMMON_ITINERARY');
+              } else if (isATheory || isBTheory) {
+                // Regla 2: Teoría no puede solaparse con nada.
+                addConflict('COURSE_OVERLAP_THEORY');
+              } else if (isASingleGroup || isBSingleGroup) {
+                // Regla 3: Un grupo único de su tipo no puede solaparse con nada.
+                addConflict('COURSE_OVERLAP_SINGLE_GROUP');
+              } else {
+                // Regla 4: Si son diferentes tipos de grupos (PE, PA, TU, PX) no pueden solaparse.
+                if (a.groupType !== b.groupType) {
+                  addConflict('COURSE_OVERLAP_DIFFERENT_GROUP_TYPES');
+                }
+              }
+
+              // Regla 5: Si son de la misma asignatura no pueden solaparse.
+              if (a.subjectId === b.subjectId) {
+                addConflict('COURSE_OVERLAP_SAME_SUBJECT');
               }
             }
           }

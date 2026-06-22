@@ -77,7 +77,33 @@ describe('CourseGroupOverlapRule', () => {
     );
   });
 
-  test('throws ERR_OVERLAP_PRACTICES if overlaps with different practice types', () => {
+  test('throws ERR_OVERLAP_SINGLE_GROUP if overlaps with single group', () => {
+    const moving = {
+      id: '1',
+      duration: 1,
+      isCommon: true,
+      groupType: 'practice',
+      subjectId: 's1',
+      subjectGroupId: 'sg1',
+    } as unknown as ValidationAssignment;
+    const assignments = [
+      {
+        id: '2',
+        duration: 1,
+        isCommon: true,
+        groupType: 'practice',
+        subjectId: 's2',
+        dayOfWeek: 1,
+        slotIndex: 1,
+      } as unknown as ValidationAssignment,
+    ];
+    const ctx = createContext(assignments, moving, 1, 1);
+    expect(() => rule.validate(ctx)).toThrow(
+      new ConflictError('ERR_OVERLAP_SINGLE_GROUP')
+    );
+  });
+
+  test('throws ERR_OVERLAP_DIFFERENT_GROUP_TYPES if overlaps with different practice types', () => {
     const moving = {
       id: '1',
       duration: 1,
@@ -130,7 +156,7 @@ describe('CourseGroupOverlapRule', () => {
     ];
     const ctx = createContext(assignments, moving, 1, 1);
     expect(() => rule.validate(ctx)).toThrow(
-      new ConflictError('ERR_OVERLAP_PRACTICES')
+      new ConflictError('ERR_OVERLAP_DIFFERENT_GROUP_TYPES')
     );
   });
 
@@ -178,6 +204,65 @@ describe('CourseGroupOverlapRule', () => {
     const ctx = createContext(assignments, moving, 1, 1);
     expect(() => rule.validate(ctx)).toThrow(
       new ConflictError('ERR_OVERLAP_SAME_SUBJECT')
+    );
+  });
+
+  test('throws ERR_OVERLAP_COMMON_ITINERARY if common overlaps with itinerary', () => {
+    const moving = {
+      id: '1',
+      duration: 1,
+      isCommon: true,
+      groupType: 'practice',
+      subjectId: 's1',
+      subjectGroupId: 'sg1',
+    } as unknown as ValidationAssignment;
+    const assignments = [
+      {
+        id: '1',
+        duration: 1,
+        isCommon: true,
+        groupType: 'practice',
+        subjectId: 's1',
+        subjectGroupId: 'sg1',
+        dayOfWeek: 2,
+        slotIndex: 1,
+      } as unknown as ValidationAssignment,
+      {
+        id: '1b',
+        duration: 1,
+        isCommon: true,
+        groupType: 'practice',
+        subjectId: 's1',
+        subjectGroupId: 'sg1b',
+        dayOfWeek: 3,
+        slotIndex: 1,
+      } as unknown as ValidationAssignment,
+      {
+        id: '2',
+        duration: 1,
+        isCommon: false,
+        itineraryName: 'Itinerary A',
+        groupType: 'practice',
+        subjectId: 's2',
+        subjectGroupId: 'sg2',
+        dayOfWeek: 1,
+        slotIndex: 1,
+      } as unknown as ValidationAssignment,
+      {
+        id: '2b',
+        duration: 1,
+        isCommon: false,
+        itineraryName: 'Itinerary A',
+        groupType: 'practice',
+        subjectId: 's2',
+        subjectGroupId: 'sg2b',
+        dayOfWeek: 4,
+        slotIndex: 1,
+      } as unknown as ValidationAssignment,
+    ];
+    const ctx = createContext(assignments, moving, 1, 1);
+    expect(() => rule.validate(ctx)).toThrow(
+      new ConflictError('ERR_OVERLAP_COMMON_ITINERARY')
     );
   });
 });

@@ -663,8 +663,10 @@
           "ERR_SHIFT_AFTERNOON": "Esta asignatura debe impartirse en el turno de tarde.",
           "ERR_SHIFT_EXCEEDS_DAY": "La duración excede las horas máximas permitidas en el día.",
           "ERR_OVERLAP_THEORY": "Solapamiento de alumnos: Las clases de teoría no pueden coincidir a la misma hora.",
-          "ERR_OVERLAP_PRACTICES": "Solapamiento de alumnos: Las clases prácticas/problemas no pueden coincidir a la misma hora.",
+          "ERR_OVERLAP_SINGLE_GROUP": "Solapamiento de alumnos: Este grupo es el único de su turno y no puede solaparse con otros.",
+          "ERR_OVERLAP_DIFFERENT_GROUP_TYPES": "Solapamiento de alumnos: Grupos de diferentes tipos no pueden coincidir a la misma hora.",
           "ERR_OVERLAP_SAME_SUBJECT": "No se pueden impartir dos grupos de la misma asignatura a la vez.",
+          "ERR_OVERLAP_COMMON_ITINERARY": "Solapamiento de alumnos: Las asignaturas comunes no pueden solaparse con las de itinerario.",
           "ERR_ROOM_OVERLAP": "El aula ya está ocupada por otra asignatura en este horario.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "No se puede publicar un horario con conflictos activos.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "No se puede publicar un horario con slots descolocados."

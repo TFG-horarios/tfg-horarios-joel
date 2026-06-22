@@ -57,6 +57,7 @@ describe('CourseOverlapConstraint', () => {
     const result = constraint.calculatePenalty(ctx);
     expect(result.penalty).toBeGreaterThan(0);
     expect(result.conflicts).toHaveLength(2);
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_THEORY');
   });
 
   test('should return penalty if same subject overlaps', () => {
@@ -78,6 +79,7 @@ describe('CourseOverlapConstraint', () => {
     ]);
     const result = constraint.calculatePenalty(ctx);
     expect(result.penalty).toBeGreaterThan(0);
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_SAME_SUBJECT');
   });
 
   test('should not return penalty if different subjects and different group types', () => {
@@ -99,5 +101,50 @@ describe('CourseOverlapConstraint', () => {
     ]);
     const result = constraint.calculatePenalty(ctx);
     expect(result.penalty).toBe(0);
+  });
+
+  test('should return penalty if common overlaps with itinerary', () => {
+    const ctx = createMockContext([
+      {
+        id: '1',
+        subjectGroupId: 'sg-1',
+        isCommon: true,
+        groupType: 'practices',
+        subjectId: 'sub-1',
+      } as Assignment,
+      {
+        id: '2',
+        subjectGroupId: 'sg-2',
+        isCommon: false,
+        itineraryName: 'Itin A',
+        groupType: 'practices',
+        subjectId: 'sub-2',
+      } as Assignment,
+    ]);
+    const result = constraint.calculatePenalty(ctx);
+    expect(result.penalty).toBeGreaterThan(0);
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_COMMON_ITINERARY');
+  });
+
+  test('should return penalty if different practices overlap', () => {
+    const ctx = createMockContext([
+      {
+        id: '1',
+        subjectGroupId: 'sg-1',
+        isCommon: true,
+        groupType: 'practices',
+        subjectId: 'sub-1',
+      } as Assignment,
+      {
+        id: '2',
+        subjectGroupId: 'sg-2',
+        isCommon: true,
+        groupType: 'problems',
+        subjectId: 'sub-2',
+      } as Assignment,
+    ]);
+    const result = constraint.calculatePenalty(ctx);
+    expect(result.penalty).toBeGreaterThan(0);
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_DIFFERENT_GROUP_TYPES');
   });
 });
