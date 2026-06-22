@@ -6,6 +6,15 @@ import type {
 
 export class CourseGroupOverlapRule implements IMoveValidationRule {
   validate(context: MoveValidationContext): void {
+    const groupCountsPerSubjectType = new Map<string, Set<string>>();
+    for (const assignment of context.assignments) {
+      const key = `${assignment.subjectId}-${assignment.shift}-${assignment.groupType}`;
+      if (!groupCountsPerSubjectType.has(key)) {
+        groupCountsPerSubjectType.set(key, new Set());
+      }
+      groupCountsPerSubjectType.get(key)!.add(assignment.subjectGroupId);
+    }
+
     if (context.newDayOfWeek !== null && context.newSlotIndex !== null) {
       const movingDurationSlots = Math.ceil(context.movingAssignment.duration);
       const newStart = context.newSlotIndex;
@@ -26,11 +35,16 @@ export class CourseGroupOverlapRule implements IMoveValidationRule {
             context.movingAssignment.itineraryName === other.itineraryName;
 
           if (conflict) {
-            const hasTheory =
+            const isAMandatory =
               context.movingAssignment.groupType === 'theory' ||
-              other.groupType === 'theory';
+              groupCountsPerSubjectType.get(
+                `${context.movingAssignment.subjectId}-${context.movingAssignment.shift}-${context.movingAssignment.groupType}`
+              )?.size === 1;
+            const isBMandatory =
+              other.groupType === 'theory' ||
+              groupCountsPerSubjectType.get(`${other.subjectId}-${other.shift}-${other.groupType}`)?.size === 1;
 
-            if (hasTheory) {
+            if (isAMandatory || isBMandatory) {
               throw new ConflictError('ERR_OVERLAP_THEORY');
             } else if (context.movingAssignment.groupType !== other.groupType) {
               throw new ConflictError('ERR_OVERLAP_PRACTICES');

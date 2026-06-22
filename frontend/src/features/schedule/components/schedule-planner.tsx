@@ -632,7 +632,6 @@ export function SchedulePlanner({
           <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
             <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="font-semibold text-foreground flex items-center gap-2">
-                <ArchiveRestore className="size-4 text-amber-500" />
                 {t('planner.unassignedSlots')}
               </h2>
               <Badge variant="secondary">{unassignedSlots.length}</Badge>

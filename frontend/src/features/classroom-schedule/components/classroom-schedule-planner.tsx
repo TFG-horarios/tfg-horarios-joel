@@ -3,13 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Calendar,
-  Building2,
-  Download,
-  Loader2,
-  ArchiveRestore,
-} from 'lucide-react';
+import { Calendar, Download, Loader2, ArchiveRestore } from 'lucide-react';
 import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot';
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
@@ -164,7 +158,6 @@ export function ClassroomSchedulePlanner({
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Building2 className="size-8 text-indigo-500" />
               {classroom.name}
             </h1>
             <Badge

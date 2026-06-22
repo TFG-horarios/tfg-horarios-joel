@@ -1,4 +1,3 @@
-import { Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, type ReactNode, type RefObject } from 'react';
 
@@ -25,7 +24,6 @@ export function WeeklyScheduleGrid({
     <div className="flex flex-col min-h-125 bg-card/30 backdrop-blur-sm border border-border rounded-xl shadow-inner overflow-hidden">
       <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
         <h2 className="font-semibold text-foreground flex items-center gap-2">
-          <Clock className="size-4 text-indigo-500" />
           {t('weeklyView')}
         </h2>
       </div>
