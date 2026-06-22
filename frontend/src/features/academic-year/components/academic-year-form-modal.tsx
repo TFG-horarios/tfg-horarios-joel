@@ -142,9 +142,10 @@ export function AcademicYearFormModal({
             {academicYear && (
               <div className="flex items-start gap-2 p-3 bg-amber-500/15 border border-amber-500/20 rounded-md text-amber-600 text-sm">
                 <p>
-                  <strong>¡Atención!</strong> Si editas los horarios de inicio/fin
-                  de turnos o la duración de clase, los horarios existentes
-                  cambiarán de acuerdo a los nuevos parámetros visualmente.
+                  <strong>¡Atención!</strong> Si editas los horarios de
+                  inicio/fin de turnos o la duración de clase, los horarios
+                  existentes cambiarán de acuerdo a los nuevos parámetros
+                  visualmente.
                 </p>
               </div>
             )}
@@ -338,7 +339,10 @@ export function AcademicYearFormModal({
                     required
                     value={formData.afternoonStart}
                     onChange={(e) =>
-                      setFormData({ ...formData, afternoonStart: e.target.value })
+                      setFormData({
+                        ...formData,
+                        afternoonStart: e.target.value,
+                      })
                     }
                   />
                 </div>

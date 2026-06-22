@@ -95,10 +95,19 @@ export class TabuSearchEngine {
           const compatibleClassrooms = this.availableClassrooms.filter(
             (id) => this.classroomsCache[id]?.type === requiredType
           );
-          const classroomsToSearch =
+          let classroomsToSearch =
             compatibleClassrooms.length > 0
               ? compatibleClassrooms
               : this.availableClassrooms;
+
+          if (original.groupType === 'practices') {
+            const theoryRooms = this.availableClassrooms.filter(
+              (id) => this.classroomsCache[id]?.type === 'theory'
+            );
+            classroomsToSearch = Array.from(
+              new Set([...classroomsToSearch, ...theoryRooms])
+            );
+          }
 
           const classroomIndex = this.random.randomInt(
             classroomsToSearch.length

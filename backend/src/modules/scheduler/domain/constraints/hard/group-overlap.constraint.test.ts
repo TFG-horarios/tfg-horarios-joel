@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { GroupOverlapConstraint } from './group-overlap.constraint';
-import type { ConstraintContext } from './constraint.interface';
-import type { Assignment } from '../types';
+import type { ConstraintContext } from '../constraint.interface';
+import type { Assignment } from '../../types';
 
 describe('GroupOverlapConstraint', () => {
   const constraint = new GroupOverlapConstraint();

@@ -44,6 +44,15 @@ describe('InitialSolution', () => {
   });
 
   test('assigns null if no classroom fits', () => {
+    const initialEmpty = new InitialSolution(
+      penaltyCalculator,
+      [],
+      classroomsCache,
+      12,
+      6,
+      60,
+      [1]
+    );
     const groups: GroupInitialData[] = [
       {
         subjectGroupId: 'sg-1',
@@ -57,7 +66,7 @@ describe('InitialSolution', () => {
         courseYear: 1,
       },
     ];
-    const result = initial.generate(groups);
+    const result = initialEmpty.generate(groups);
     expect(result.assignments[0]?.classroomId).toBeNull();
   });
 });

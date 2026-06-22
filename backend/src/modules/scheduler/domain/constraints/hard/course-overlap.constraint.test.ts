@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { CourseOverlapConstraint } from './course-overlap.constraint';
-import type { ConstraintContext } from './constraint.interface';
-import type { Assignment } from '../types';
+import type { ConstraintContext } from '../constraint.interface';
+import type { Assignment } from '../../types';
 
 describe('CourseOverlapConstraint', () => {
   const constraint = new CourseOverlapConstraint();

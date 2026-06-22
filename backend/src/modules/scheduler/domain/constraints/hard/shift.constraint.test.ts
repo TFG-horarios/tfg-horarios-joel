@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { ShiftConstraint } from './shift.constraint';
-import type { ConstraintContext } from './constraint.interface';
+import type { ConstraintContext } from '../constraint.interface';
 
 describe('ShiftConstraint', () => {
   const constraint = new ShiftConstraint();

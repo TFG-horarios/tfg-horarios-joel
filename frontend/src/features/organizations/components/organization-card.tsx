@@ -52,7 +52,7 @@ export function OrganizationCard({
         <h3
           className={cn(
             'text-xl font-semibold transition-colors line-clamp-3 text-center',
-            (canEdit || canDelete) ? 'pr-14' : 'pr-10'
+            canEdit || canDelete ? 'pr-14' : 'pr-10'
           )}
           title={organization.name}
         >

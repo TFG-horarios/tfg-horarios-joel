@@ -3,7 +3,7 @@ import type {
   ConstraintContext,
   PenaltyResult,
   ConflictDetail,
-} from './constraint.interface';
+} from '../constraint.interface';
 
 export class GroupOverlapConstraint implements IScheduleConstraint {
   calculatePenalty(context: ConstraintContext): PenaltyResult {

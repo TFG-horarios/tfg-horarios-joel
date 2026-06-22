@@ -97,12 +97,31 @@ export class InitialSolution {
           );
         });
 
-        const classroomsToSearch =
+        let classroomsToSearch =
           compatibleClassrooms.length > 0
             ? compatibleClassrooms
             : this.availableClassrooms.filter(
                 (id) => this.classroomsCache[id]?.type === requiredType
               );
+
+        if (group.groupType === 'practices') {
+          const fallbackRooms = this.availableClassrooms.filter((id) => {
+            const cls = this.classroomsCache[id];
+            return (
+              cls &&
+              cls.type === 'theory' &&
+              cls.capacity >= group.numberOfStudents
+            );
+          });
+          const allTheoryRooms = this.availableClassrooms.filter(
+            (id) => this.classroomsCache[id]?.type === 'theory'
+          );
+
+          const theoryRoomsToAppend =
+            fallbackRooms.length > 0 ? fallbackRooms : allTheoryRooms;
+
+          classroomsToSearch = [...classroomsToSearch, ...theoryRoomsToAppend];
+        }
 
         const startLimit = group.shift === 'morning' ? 0 : this.maxMorningSlots;
         const endLimit =

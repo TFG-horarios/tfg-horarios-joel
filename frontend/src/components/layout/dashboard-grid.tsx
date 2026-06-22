@@ -38,18 +38,12 @@ export function DashboardGrid({
               {countLabel}
             </span>
 
-            {actionButton && (
-              <div>
-                {actionButton}
-              </div>
-            )}
+            {actionButton && <div>{actionButton}</div>}
           </div>
         </div>
 
         {actionButton && (
-          <div className="hidden sm:block shrink-0">
-            {actionButton}
-          </div>
+          <div className="hidden sm:block shrink-0">{actionButton}</div>
         )}
       </div>
 

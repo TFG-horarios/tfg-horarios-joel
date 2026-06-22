@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { RoomCapacityConstraint } from './room-capacity.constraint';
-import type { ConstraintContext } from './constraint.interface';
+import type { ConstraintContext } from '../constraint.interface';
 
 describe('RoomCapacityConstraint', () => {
   const constraint = new RoomCapacityConstraint();

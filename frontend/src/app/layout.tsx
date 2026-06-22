@@ -41,7 +41,11 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="antialiased text-foreground">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ThemeProvider
