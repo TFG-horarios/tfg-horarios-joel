@@ -247,7 +247,8 @@ export class GenerateScheduleUseCase {
         maxMorningSlots,
         maxAfternoonSlots,
         slotDuration,
-        uniqueLockedAssignments
+        uniqueLockedAssignments,
+        scope.optimizations
       );
 
       const inheritedAssignments = uniqueLockedAssignments.filter((l) =>

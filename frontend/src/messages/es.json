@@ -712,6 +712,12 @@
         "generateError": "No se pudieron generar los horarios.",
         "updateSuccess": "Aula actualizada correctamente."
       },
+      "optimizations": {
+        "roomType": "Adecuar los grupos a aulas adecuadas",
+        "lowerFloor": "Preferir aulas en plantas inferiores",
+        "classroomConsolidation": "Menos aulas con más grupos",
+        "studentGaps": "Minimizar huecos entre clases"
+      },
       "form": {
         "academicYear": "Año Académico",
         "period": "Período",
@@ -722,6 +728,8 @@
         "itinerariesPlaceholder": "Todos los itinerarios",
         "courseYears": "Cursos seleccionados",
         "courseYearsPlaceholder": "Todos los cursos",
+        "optimizations": "Optimizaciones de horario",
+        "optimizationsPlaceholder": "Seleccionar optimizaciones...",
         "submit": "Generar",
         "overwriteTitle": "¿Generar nuevos horarios?",
         "overwriteWarning": "¡Atención! Si ya existen horarios generados para estos criterios, sus huecos se sobrescribirán y perderás cualquier modificación manual que hayas hecho. ¿Estás seguro de que quieres continuar?",

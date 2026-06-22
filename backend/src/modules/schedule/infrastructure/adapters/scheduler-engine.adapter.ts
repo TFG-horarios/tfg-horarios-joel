@@ -14,7 +14,8 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
     maxMorningSlots: number,
     maxAfternoonSlots: number,
     slotDuration: number,
-    lockedAssignments?: ScheduleEngineAssignment[]
+    lockedAssignments?: ScheduleEngineAssignment[],
+    optimizations?: string[]
   ): Promise<ScheduleEngineSolution> {
     return new Promise((resolve, reject) => {
       const workerUrl = new URL(
@@ -47,6 +48,7 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
         maxAfternoonSlots,
         slotDuration,
         lockedAssignments: lockedAssignments || [],
+        optimizations,
       });
     });
   }

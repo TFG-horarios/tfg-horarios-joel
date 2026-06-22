@@ -711,6 +711,12 @@
         "generateError": "Schedules could not be generated.",
         "updateSuccess": "Classroom updated successfully."
       },
+      "optimizations": {
+        "roomType": "Classroom type matching",
+        "lowerFloor": "Lower floor preference",
+        "classroomConsolidation": "Fewer classrooms with more groups instead of more classrooms with fewer groups",
+        "studentGaps": "Minimize schedule gaps"
+      },
       "form": {
         "academicYear": "Academic Year",
         "period": "Period",
@@ -721,6 +727,8 @@
         "itinerariesPlaceholder": "All itineraries",
         "courseYears": "Selected Course Years",
         "courseYearsPlaceholder": "All course years",
+        "optimizations": "Schedule Optimizations",
+        "optimizationsPlaceholder": "Select optimizations...",
         "submit": "Generate",
         "overwriteTitle": "Generate new schedules?",
         "overwriteWarning": "Warning! If generated schedules already exist for these criteria, their slots will be overwritten and you will lose any manual modifications you have made. Are you sure you want to continue?",

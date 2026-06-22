@@ -70,6 +70,7 @@ export interface IScheduleEngineProvider {
     maxMorningSlots: number,
     maxAfternoonSlots: number,
     slotDuration: number,
-    lockedAssignments?: ScheduleEngineAssignment[]
+    lockedAssignments?: ScheduleEngineAssignment[],
+    optimizations?: string[]
   ): Promise<ScheduleEngineSolution>;
 }

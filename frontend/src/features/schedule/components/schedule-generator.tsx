@@ -28,7 +28,7 @@ import {
   generateSchedulesAction,
   checkScheduleOverwriteAction,
 } from '@/features/schedule/actions';
-import type { DegreeDTO, SubjectDTO, ScheduleDTO } from '@tfg-horarios/shared';
+import { OPTIMIZATIONS, type DegreeDTO, type SubjectDTO, type ScheduleDTO } from '@tfg-horarios/shared';
 import { Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -66,6 +66,7 @@ export function ScheduleGenerator({
   const [periods, setPeriods] = useState<string[]>([]);
   const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
   const [selectedCourseYears, setSelectedCourseYears] = useState<string[]>([]);
+  const [selectedOptimizations, setSelectedOptimizations] = useState<string[]>([...OPTIMIZATIONS]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -86,6 +87,7 @@ export function ScheduleGenerator({
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
             : undefined,
+        optimizations: selectedOptimizations as typeof OPTIMIZATIONS[number][],
       });
 
       if (!result.success) {
@@ -118,6 +120,7 @@ export function ScheduleGenerator({
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
             : undefined,
+        optimizations: selectedOptimizations as typeof OPTIMIZATIONS[number][],
       });
       if (result.success && result.data && result.data.length > 0) {
         setOverwrittenSchedules(result.data);
@@ -156,6 +159,11 @@ export function ScheduleGenerator({
   const courseYearOptions = availableCourseYears.map((y) => ({
     label: `${t('courseYear')} ${y}`,
     value: String(y),
+  }));
+
+  const optimizationOptions = OPTIMIZATIONS.map((opt) => ({
+    label: t(`optimizations.${opt}`),
+    value: opt,
   }));
 
   return (
@@ -226,6 +234,16 @@ export function ScheduleGenerator({
                     selected={selectedCourseYears}
                     onChange={setSelectedCourseYears}
                     placeholder={t('form.courseYearsPlaceholder')}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="optimizations">{t('form.optimizations')}</Label>
+                  <MultiSelect
+                    options={optimizationOptions}
+                    selected={selectedOptimizations}
+                    onChange={setSelectedOptimizations}
+                    placeholder={t('form.optimizationsPlaceholder')}
                   />
                 </div>
               </div>
