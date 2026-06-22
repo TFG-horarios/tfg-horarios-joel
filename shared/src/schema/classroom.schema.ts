@@ -13,6 +13,7 @@ export const ClassroomSchema = z
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174001' }),
     name: z.string().min(2).max(100).openapi({ example: 'Aula 1.1' }),
     capacity: z.number().int().positive().openapi({ example: 60 }),
+    floor: z.number().int().openapi({ example: 1 }),
     type: z.enum(CLASSROOM_TYPES).openapi({ example: 'lab' }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
@@ -45,6 +46,7 @@ export const SaveClassroomBodySchema = z
   .object({
     name: z.string().min(2).max(100).openapi({ example: 'Aula 1.1' }),
     capacity: z.coerce.number().int().positive().openapi({ example: 60 }),
+    floor: z.coerce.number().int().openapi({ example: 1 }),
     type: z.enum(CLASSROOM_TYPES).openapi({ example: 'lab' }),
   })
   .openapi('SaveClassroom');

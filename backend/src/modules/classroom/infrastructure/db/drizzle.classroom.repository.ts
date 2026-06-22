@@ -24,6 +24,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
       organizationId: row.organizationId,
       name: row.name,
       capacity: row.capacity,
+      floor: row.floor,
       type: row.type,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -37,6 +38,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
       organizationId: classroom.organizationId,
       name: classroom.name,
       capacity: classroom.capacity,
+      floor: classroom.floor,
       type: classroom.type,
       createdAt: classroom.createdAt,
       updatedAt: classroom.updatedAt,
@@ -178,6 +180,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
         .set({
           name: rawData.name,
           capacity: rawData.capacity,
+          floor: rawData.floor,
           type: rawData.type,
           updatedAt: new Date(),
         })

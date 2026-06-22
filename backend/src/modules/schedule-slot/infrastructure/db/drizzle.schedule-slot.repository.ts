@@ -5,6 +5,7 @@ import {
   isNull,
   count,
   ilike,
+  asc,
   type SQL,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
@@ -12,6 +13,7 @@ import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
   scheduleSlotsTable,
+  scheduleSlotInclusionsTable,
   type DrizzleScheduleSlot,
   type NewDrizzleScheduleSlot,
 } from './drizzle.schedule-slot.schema';
@@ -69,11 +71,35 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
   }
 
   async findByScheduleId(scheduleId: string): Promise<ScheduleSlot[]> {
-    const rows = await this.database
+    const ownRows = await this.database
       .select()
       .from(scheduleSlotsTable)
-      .where(eq(scheduleSlotsTable.scheduleId, scheduleId));
-    return rows.map((row) => this.mapToDomain(row));
+      .where(eq(scheduleSlotsTable.scheduleId, scheduleId))
+      .orderBy(asc(scheduleSlotsTable.createdAt));
+
+    const includedRows = await this.database
+      .select({
+        slot: scheduleSlotsTable,
+        conflicts: scheduleSlotInclusionsTable.conflicts,
+      })
+      .from(scheduleSlotInclusionsTable)
+      .innerJoin(
+        scheduleSlotsTable,
+        eq(scheduleSlotInclusionsTable.slotId, scheduleSlotsTable.id)
+      )
+      .where(eq(scheduleSlotInclusionsTable.scheduleId, scheduleId))
+      .orderBy(asc(scheduleSlotInclusionsTable.createdAt));
+
+    const ownSlots = ownRows.map((row) => this.mapToDomain(row));
+    const includedSlots = includedRows.map((row) =>
+      this.mapToDomain({
+        ...row.slot,
+        scheduleId,
+        conflicts: row.conflicts,
+      }).asScheduleView(scheduleId, row.slot.scheduleId, row.conflicts)
+    );
+
+    return [...ownSlots, ...includedSlots];
   }
 
   async findActiveClassroomConfigurationsPaginated(
@@ -269,6 +295,22 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     return rows.map((r) => this.mapToDomain(r.slot));
   }
 
+  async findScheduleIdsIncludingSlot(slotId: string): Promise<string[]> {
+    const rows = await this.database
+      .select({ scheduleId: scheduleSlotInclusionsTable.scheduleId })
+      .from(scheduleSlotInclusionsTable)
+      .where(eq(scheduleSlotInclusionsTable.slotId, slotId));
+
+    return rows.map((r) => r.scheduleId);
+  }
+
+  async clearInclusionConflictsForSlot(slotId: string): Promise<void> {
+    await this.database
+      .update(scheduleSlotInclusionsTable)
+      .set({ conflicts: [], updatedAt: new Date() })
+      .where(eq(scheduleSlotInclusionsTable.slotId, slotId));
+  }
+
   async create(slot: ScheduleSlot): Promise<void> {
     try {
       await this.database
@@ -312,6 +354,32 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
       }
       throw error;
     }
+  }
+
+  async updateConflicts(slot: ScheduleSlot): Promise<void> {
+    if (slot.isSharedCommon) {
+      await this.database
+        .update(scheduleSlotInclusionsTable)
+        .set({
+          conflicts: slot.conflicts,
+          updatedAt: slot.updatedAt,
+        })
+        .where(
+          and(
+            eq(scheduleSlotInclusionsTable.scheduleId, slot.scheduleId),
+            eq(scheduleSlotInclusionsTable.slotId, slot.id)
+          )
+        );
+      return;
+    }
+
+    await this.database
+      .update(scheduleSlotsTable)
+      .set({
+        conflicts: slot.conflicts,
+        updatedAt: slot.updatedAt,
+      })
+      .where(eq(scheduleSlotsTable.id, slot.id));
   }
 
   async delete(id: string): Promise<void> {

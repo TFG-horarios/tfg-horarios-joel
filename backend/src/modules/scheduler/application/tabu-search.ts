@@ -20,10 +20,13 @@ interface TabuMove {
 type MoveAttribute = TabuMove['attribute'];
 
 export class TabuSearchEngine {
-  // TODO: Buscar la mejor combinación de hiperparámetros
-  private readonly MAX_ITERATIONS = 5000;
-  private readonly NEIGHBORHOOD_SIZE = 150;
+  private readonly MAX_ITERATIONS = 1000;
+  private readonly NEIGHBORHOOD_SIZE = 60;
   private readonly TABU_TENURE = 20;
+  private readonly MAX_STAGNANT_ITERATIONS = 200;
+  private readonly MAX_INITIAL_REPAIR_PASSES = 12;
+  private readonly MAX_REPAIR_TARGETS_PER_PASS = 8;
+  private readonly MAX_REPAIR_CLASSROOMS = 8;
 
   constructor(
     private readonly penaltyCalculator: PenaltyCalculator,
@@ -55,9 +58,11 @@ export class TabuSearchEngine {
 
     const tabuList: TabuMove[] = [];
     let i = 0;
+    let stagnantIterations = 0;
 
     while (
       i < this.MAX_ITERATIONS &&
+      stagnantIterations < this.MAX_STAGNANT_ITERATIONS &&
       bestGlobalSolution.penalty > 0 &&
       currentSolution.assignments.length > 0
     ) {
@@ -78,10 +83,7 @@ export class TabuSearchEngine {
         if (original.dayOfWeek === null || original.slotIndex === null)
           continue;
 
-        const moveAttribute = this.pickMoveAttribute(
-          original,
-          currentSolution
-        );
+        const moveAttribute = this.pickMoveAttribute(original, currentSolution);
         const mutated = { ...original };
         let tabuAttribute = moveAttribute;
         let forbiddenVal: string | number = '';
@@ -112,10 +114,15 @@ export class TabuSearchEngine {
             forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}`;
           }
         }
-        
+
         if (moveAttribute === 'room' || moveAttribute === 'both') {
-          const requiredType =
-            ['practices', 'reduced_practices', 'tutoring'].includes(original.groupType) ? 'lab' : 'theory';
+          const requiredType = [
+            'practices',
+            'reduced_practices',
+            'tutoring',
+          ].includes(original.groupType)
+            ? 'lab'
+            : 'theory';
           const compatibleClassrooms = this.availableClassrooms.filter(
             (id) => this.classroomsCache[id]?.type === requiredType
           );
@@ -124,7 +131,11 @@ export class TabuSearchEngine {
               ? compatibleClassrooms
               : this.availableClassrooms;
 
-          if (['practices', 'reduced_practices', 'tutoring'].includes(original.groupType)) {
+          if (
+            ['practices', 'reduced_practices', 'tutoring'].includes(
+              original.groupType
+            )
+          ) {
             const theoryRooms = this.availableClassrooms.filter(
               (id) => this.classroomsCache[id]?.type === 'theory'
             );
@@ -144,7 +155,7 @@ export class TabuSearchEngine {
             classroomsToSearch.length
           );
           mutated.classroomId = classroomsToSearch[classroomIndex]!;
-          
+
           if (moveAttribute === 'room') {
             tabuAttribute = 'room';
             forbiddenVal = original.classroomId ?? '';
@@ -163,6 +174,17 @@ export class TabuSearchEngine {
           lockedAssignments
         );
 
+        const introducesRoomOverlap = penalties.conflicts.some(
+          (conflict) =>
+            conflict.type === 'ROOM_OVERLAP' &&
+            (conflict.assignmentId === mutated.id ||
+              conflict.subjectGroupId === mutated.subjectGroupId)
+        );
+        if (introducesRoomOverlap) {
+          currentSolution.assignments[targetIndex] = original;
+          continue;
+        }
+
         const neighbor: Solution = {
           assignments: currentSolution.assignments,
           penalty: penalties.totalPenalty,
@@ -170,21 +192,24 @@ export class TabuSearchEngine {
           conflicts: penalties.conflicts,
         };
 
-        const isTabu = tabuList.some(
-          (t) => {
-            if (t.assignmentId !== mutated.id) return false;
-            if (t.attribute === 'time' && tabuAttribute === 'time') {
-              return `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue;
-            }
-            if (t.attribute === 'room' && tabuAttribute === 'room') {
-              return mutated.classroomId === t.forbiddenValue;
-            }
-            if (t.attribute === 'both' && tabuAttribute === 'both') {
-              return `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` === t.forbiddenValue;
-            }
-            return false;
+        const isTabu = tabuList.some((t) => {
+          if (t.assignmentId !== mutated.id) return false;
+          if (t.attribute === 'time' && tabuAttribute === 'time') {
+            return (
+              `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue
+            );
           }
-        );
+          if (t.attribute === 'room' && tabuAttribute === 'room') {
+            return mutated.classroomId === t.forbiddenValue;
+          }
+          if (t.attribute === 'both' && tabuAttribute === 'both') {
+            return (
+              `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` ===
+              t.forbiddenValue
+            );
+          }
+          return false;
+        });
 
         const isTabuButBestMove =
           isTabu && neighbor.penalty < bestGlobalSolution.penalty;
@@ -215,10 +240,25 @@ export class TabuSearchEngine {
 
         if (currentSolution.penalty < bestGlobalSolution.penalty) {
           bestGlobalSolution = currentSolution;
+          stagnantIterations = 0;
+        } else {
+          stagnantIterations++;
         }
+      } else {
+        stagnantIterations++;
       }
 
       ++i;
+    }
+
+    if (bestGlobalSolution.penalty > 0) {
+      const repairedSolution = this.improveConflictedAssignments(
+        bestGlobalSolution,
+        lockedAssignments
+      );
+      if (repairedSolution.penalty < bestGlobalSolution.penalty) {
+        bestGlobalSolution = repairedSolution;
+      }
     }
 
     return bestGlobalSolution;
@@ -266,7 +306,9 @@ export class TabuSearchEngine {
       .filter((index): index is number => index !== null);
 
     if (conflictingIndexes.length > 0 && this.random.random() < 0.85) {
-      return conflictingIndexes[this.random.randomInt(conflictingIndexes.length)]!;
+      return conflictingIndexes[
+        this.random.randomInt(conflictingIndexes.length)
+      ]!;
     }
 
     return this.random.randomInt(assignments.length);
@@ -297,8 +339,7 @@ export class TabuSearchEngine {
     if (
       conflicts.some(
         (conflict) =>
-          conflict.type === 'ROOM_OVERLAP' ||
-          conflict.type === 'ROOM_CAPACITY'
+          conflict.type === 'ROOM_OVERLAP' || conflict.type === 'ROOM_CAPACITY'
       )
     ) {
       return this.random.random() < 0.75 ? 'room' : 'both';
@@ -320,11 +361,12 @@ export class TabuSearchEngine {
       conflicts: solution.conflicts ?? [],
     };
 
-    for (
-      let pass = 0;
-      pass < current.assignments.length && current.penalty > 0;
-      pass++
-    ) {
+    const maxPasses = Math.min(
+      current.assignments.length,
+      this.MAX_INITIAL_REPAIR_PASSES
+    );
+
+    for (let pass = 0; pass < maxPasses && current.penalty > 0; pass++) {
       const conflictAssignmentIds = this.getConflictAssignmentIds(current);
       const targetIndexes = current.assignments
         .map((assignment, index) =>
@@ -338,9 +380,10 @@ export class TabuSearchEngine {
             return assignmentA.isCommon ? -1 : 1;
           }
           return 0;
-        });
+        })
+        .slice(0, this.MAX_REPAIR_TARGETS_PER_PASS);
 
-      let bestCandidate: Solution | null = null;
+      let improved = false;
 
       for (const targetIndex of targetIndexes) {
         const candidate = this.findBestRelocation(
@@ -349,17 +392,14 @@ export class TabuSearchEngine {
           lockedAssignments
         );
 
-        if (
-          candidate &&
-          candidate.penalty < current.penalty &&
-          (!bestCandidate || candidate.penalty < bestCandidate.penalty)
-        ) {
-          bestCandidate = candidate;
+        if (candidate && candidate.penalty < current.penalty) {
+          current = candidate;
+          improved = true;
+          break;
         }
       }
 
-      if (!bestCandidate) break;
-      current = bestCandidate;
+      if (!improved) break;
     }
 
     return current;
@@ -373,16 +413,21 @@ export class TabuSearchEngine {
     const original = solution.assignments[targetIndex];
     if (!original) return null;
 
-    const classroomsToSearch = this.getClassroomsForAssignment(original);
+    const allClassrooms = this.getClassroomsForAssignment(original);
+    const fittingClassrooms = allClassrooms.filter(
+      (classroomId) =>
+        (this.classroomsCache[classroomId]?.capacity ?? 0) >=
+        original.numberOfStudents
+    );
+    const classroomsToSearch = (
+      fittingClassrooms.length > 0 ? fittingClassrooms : allClassrooms
+    ).slice(0, this.MAX_REPAIR_CLASSROOMS);
     if (classroomsToSearch.length === 0) return null;
 
     const spannedSlots = Math.ceil(original.duration);
-    const startLimit =
-      original.shift === 'morning' ? 0 : this.maxMorningSlots;
+    const startLimit = original.shift === 'morning' ? 0 : this.maxMorningSlots;
     const endLimit =
-      original.shift === 'morning'
-        ? this.maxMorningSlots
-        : this.maxSlotsPerDay;
+      original.shift === 'morning' ? this.maxMorningSlots : this.maxSlotsPerDay;
 
     let bestSolution: Solution | null = null;
 
@@ -414,6 +459,14 @@ export class TabuSearchEngine {
             lockedAssignments
           );
 
+          const introducesRoomOverlap = penalties.conflicts.some(
+            (conflict) =>
+              conflict.type === 'ROOM_OVERLAP' &&
+              (conflict.assignmentId === original.id ||
+                conflict.subjectGroupId === original.subjectGroupId)
+          );
+          if (introducesRoomOverlap) continue;
+
           if (!bestSolution || penalties.totalPenalty < bestSolution.penalty) {
             bestSolution = {
               assignments,
@@ -430,12 +483,13 @@ export class TabuSearchEngine {
   }
 
   private getClassroomsForAssignment(assignment: Assignment): string[] {
-    const requiredType =
-      ['practices', 'reduced_practices', 'tutoring'].includes(
-        assignment.groupType
-      )
-        ? 'lab'
-        : 'theory';
+    const requiredType = [
+      'practices',
+      'reduced_practices',
+      'tutoring',
+    ].includes(assignment.groupType)
+      ? 'lab'
+      : 'theory';
     const compatibleClassrooms = this.availableClassrooms.filter(
       (id) => this.classroomsCache[id]?.type === requiredType
     );

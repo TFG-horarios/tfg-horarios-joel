@@ -22,6 +22,7 @@ export const classroomsTable = pgTable(
       .references(() => organizationsTable.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     capacity: integer('capacity').notNull(),
+    floor: integer('floor').notNull().default(0),
     type: classroomTypeEnum('type').notNull().default('theory'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')

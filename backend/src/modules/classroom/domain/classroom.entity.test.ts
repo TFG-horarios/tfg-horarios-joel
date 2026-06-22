@@ -10,6 +10,7 @@ describe('Classroom', () => {
     organizationId: 'org-1',
     name: 'Physics Lab',
     capacity: 30,
+    floor: 1,
     type: 'lab',
   };
 
@@ -18,6 +19,7 @@ describe('Classroom', () => {
     expect(classroom.organizationId).toBe(baseProps.organizationId);
     expect(classroom.name).toBe(baseProps.name);
     expect(classroom.capacity).toBe(baseProps.capacity);
+    expect(classroom.floor).toBe(baseProps.floor);
     expect(classroom.type).toBe(baseProps.type);
     expect(classroom.id).toBeString();
     expect(classroom.id.length).toBeGreaterThan(0);
@@ -32,6 +34,7 @@ describe('Classroom', () => {
       organizationId: 'org-1',
       name: 'Theory Room',
       capacity: 40,
+      floor: 0,
       type: 'theory',
       createdAt: new Date('2025-01-01T10:00:00.000Z'),
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
@@ -42,6 +45,7 @@ describe('Classroom', () => {
     expect(classroom.organizationId).toBe(persistedProps.organizationId);
     expect(classroom.name).toBe(persistedProps.name);
     expect(classroom.capacity).toBe(persistedProps.capacity);
+    expect(classroom.floor).toBe(persistedProps.floor);
     expect(classroom.type).toBe(persistedProps.type);
     expect(classroom.createdAt).toBe(persistedProps.createdAt);
     expect(classroom.updatedAt).toBe(persistedProps.updatedAt);
@@ -54,15 +58,17 @@ describe('Classroom', () => {
       organizationId: 'org-1',
       name: 'Old Name',
       capacity: 20,
+      floor: 0,
       type: 'theory',
       createdAt: new Date('2025-01-01T10:00:00.000Z'),
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
     const previousUpdatedAt = classroom.updatedAt;
-    classroom.update('New Name', 35, 'lab');
+    classroom.update('New Name', 35, 2, 'lab');
     expect(classroom.name).toBe('New Name');
     expect(classroom.capacity).toBe(35);
+    expect(classroom.floor).toBe(2);
     expect(classroom.type).toBe('lab');
     expect(classroom.updatedAt).not.toBe(previousUpdatedAt);
     expect(classroom.updatedAt.getTime()).toBeGreaterThanOrEqual(
@@ -94,12 +100,13 @@ describe('Classroom', () => {
       organizationId: 'org-1',
       name: 'Old Name',
       capacity: 20,
+      floor: 0,
       type: 'theory',
       createdAt: new Date('2025-01-01T10:00:00.000Z'),
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
-    expect(() => classroom.update('New Name', 0, 'lab')).toThrow(
+    expect(() => classroom.update('New Name', 0, 1, 'lab')).toThrow(
       ValidationError
     );
   });
@@ -110,11 +117,23 @@ describe('Classroom', () => {
       organizationId: 'org-1',
       name: 'Old Name',
       capacity: 20,
+      floor: 0,
       type: 'theory',
       createdAt: new Date('2025-01-01T10:00:00.000Z'),
       updatedAt: new Date('2025-01-02T10:00:00.000Z'),
       deletedAt: null,
     });
-    expect(() => classroom.update('   ', 10, 'lab')).toThrow(ValidationError);
+    expect(() => classroom.update('   ', 10, 1, 'lab')).toThrow(
+      ValidationError
+    );
+  });
+
+  test('throws when floor is not an integer', () => {
+    expect(() =>
+      Classroom.create({
+        ...baseProps,
+        floor: 1.5,
+      })
+    ).toThrow(ValidationError);
   });
 });

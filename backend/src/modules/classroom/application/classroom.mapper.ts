@@ -8,6 +8,7 @@ export class ClassroomMapper {
       organizationId: classroom.organizationId,
       name: classroom.name,
       capacity: classroom.capacity,
+      floor: classroom.floor,
       type: classroom.type,
       createdAt: classroom.createdAt.toISOString(),
       updatedAt: classroom.updatedAt.toISOString(),

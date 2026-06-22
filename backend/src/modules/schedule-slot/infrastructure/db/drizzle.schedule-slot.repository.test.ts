@@ -1,6 +1,8 @@
 import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleScheduleSlotRepository } from './drizzle.schedule-slot.repository';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
+import { Schedule } from '@/modules/schedule/domain/schedule.entity';
 import { ConflictError } from '@/core/errors/app.error';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
 import {
@@ -10,6 +12,8 @@ import {
   testScheduleId,
   testOrgId,
   testAcademicYearId,
+  testDegreeId,
+  testItineraryId,
 } from '@/tests/seed-db';
 
 describe('DrizzleScheduleSlotRepository Integration', () => {
@@ -129,5 +133,58 @@ describe('DrizzleScheduleSlotRepository Integration', () => {
     );
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]?.id).toBe(slot.id);
+  });
+
+  test('should compose itinerary schedules with canonical common slots', async () => {
+    const commonSlot = createValidSlot();
+    await repository.create(commonSlot);
+
+    const itinerarySchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      itineraryId: testItineraryId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 1,
+      period: 1,
+    });
+    const scheduleRepository = new DrizzleScheduleRepository(testDb);
+    await scheduleRepository.createSchedulesWithSlots([
+      {
+        schedule: itinerarySchedule,
+        slots: [],
+        inclusions: [
+          {
+            scheduleId: itinerarySchedule.id,
+            slotId: commonSlot.id,
+            conflicts: [],
+          },
+        ],
+      },
+    ]);
+
+    const slots = await repository.findByScheduleId(itinerarySchedule.id);
+
+    expect(slots).toHaveLength(1);
+    expect(slots[0]?.id).toBe(commonSlot.id);
+    expect(slots[0]?.scheduleId).toBe(itinerarySchedule.id);
+    expect(slots[0]?.ownerScheduleId).toBe(testScheduleId);
+    expect(slots[0]?.isSharedCommon).toBe(true);
+
+    const includedSlot = slots[0]!;
+    includedSlot.updateConflicts([
+      { type: 'COURSE_OVERLAP_THEORY', message: 'ERR_OVERLAP_THEORY' },
+    ]);
+    await repository.updateConflicts(includedSlot);
+
+    const refreshedIncludedSlot = (
+      await repository.findByScheduleId(itinerarySchedule.id)
+    )[0];
+    const canonicalSlot = await repository.findById(commonSlot.id);
+
+    expect(refreshedIncludedSlot?.conflicts).toEqual([
+      { type: 'COURSE_OVERLAP_THEORY', message: 'ERR_OVERLAP_THEORY' },
+    ]);
+    expect(canonicalSlot?.conflicts).toEqual([]);
   });
 });

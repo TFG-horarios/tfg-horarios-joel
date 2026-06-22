@@ -145,6 +145,8 @@ describe('CourseOverlapConstraint', () => {
     ]);
     const result = constraint.calculatePenalty(ctx);
     expect(result.penalty).toBeGreaterThan(0);
-    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_DIFFERENT_GROUP_TYPES');
+    expect(result.conflicts[0]?.type).toBe(
+      'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES'
+    );
   });
 });

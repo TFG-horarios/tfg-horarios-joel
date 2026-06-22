@@ -6,6 +6,7 @@ export interface ClassroomProps {
   organizationId: string;
   name: string;
   capacity: number;
+  floor: number;
   type: ClassroomType;
   createdAt: Date;
   updatedAt: Date;
@@ -20,6 +21,10 @@ export class Classroom {
   ): Classroom {
     if (props.capacity <= 0) {
       throw new ValidationError('Capacity must be a positive integer');
+    }
+
+    if (!Number.isInteger(props.floor)) {
+      throw new ValidationError('Floor must be an integer');
     }
 
     if (props.name.trim().length === 0) {
@@ -39,16 +44,25 @@ export class Classroom {
     return new Classroom(props);
   }
 
-  public update(name: string, capacity: number, type: ClassroomType): void {
+  public update(
+    name: string,
+    capacity: number,
+    floor: number,
+    type: ClassroomType
+  ): void {
     if (capacity <= 0) {
       throw new ValidationError('Capacity must be a positive integer');
     }
     if (name.trim().length === 0) {
       throw new ValidationError('Name cannot be empty');
     }
+    if (!Number.isInteger(floor)) {
+      throw new ValidationError('Floor must be an integer');
+    }
 
     this.props.name = name;
     this.props.capacity = capacity;
+    this.props.floor = floor;
     this.props.type = type;
     this.props.updatedAt = new Date();
   }
@@ -67,6 +81,10 @@ export class Classroom {
 
   get capacity() {
     return this.props.capacity;
+  }
+
+  get floor() {
+    return this.props.floor;
   }
 
   get type() {

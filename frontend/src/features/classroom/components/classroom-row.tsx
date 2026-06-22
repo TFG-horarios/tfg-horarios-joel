@@ -25,6 +25,7 @@ export const ClassroomRow = memo(function ClassroomRow({
             ? translations['type.theory']
             : translations['type.lab']}
         </TableCell>
+        <TableCell>{classroom.floor}</TableCell>
         <TableCell
           className={!canEdit && !canDelete ? 'text-right' : undefined}
         >

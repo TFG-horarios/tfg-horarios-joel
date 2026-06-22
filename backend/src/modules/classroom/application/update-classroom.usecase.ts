@@ -36,7 +36,7 @@ export class UpdateClassroomUseCase {
       throw new NotFoundError('Classroom', classroomId);
     }
 
-    classroom.update(dto.name, dto.capacity, dto.type);
+    classroom.update(dto.name, dto.capacity, dto.floor, dto.type);
 
     await this.classroomRepository.update(classroom);
     return ClassroomMapper.toDTO(classroom);

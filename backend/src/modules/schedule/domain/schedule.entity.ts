@@ -9,6 +9,7 @@ export interface ScheduleProps {
   shift: Shift;
   courseYear: number;
   period: number;
+  isCanonicalCommon?: boolean;
   conflicts: number;
   status: 'draft' | 'published';
   createdAt: Date;
@@ -30,6 +31,7 @@ export class Schedule {
     return new Schedule({
       ...props,
       id: crypto.randomUUID(),
+      isCanonicalCommon: props.isCanonicalCommon ?? false,
       conflicts: props.conflicts ?? 0,
       status: props.status ?? 'draft',
       createdAt: new Date(),
@@ -56,6 +58,11 @@ export class Schedule {
     this.props.updatedAt = new Date();
   }
 
+  public setCanonicalCommon(value: boolean): void {
+    this.props.isCanonicalCommon = value;
+    this.props.updatedAt = new Date();
+  }
+
   get id() {
     return this.props.id;
   }
@@ -79,6 +86,9 @@ export class Schedule {
   }
   get period() {
     return this.props.period;
+  }
+  get isCanonicalCommon() {
+    return this.props.isCanonicalCommon ?? false;
   }
   get conflicts() {
     return this.props.conflicts;

@@ -7,6 +7,7 @@ import {
   type SQL,
   notInArray,
   gt,
+  sql,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
@@ -17,9 +18,11 @@ import {
   type NewDrizzleSchedule,
 } from './drizzle.schedule.schema';
 import { scheduleSlotsTable } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
+import { scheduleSlotInclusionsTable } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
 import type {
   IScheduleRepository,
   CreateScheduleSlotInput,
+  CreateScheduleSlotInclusionInput,
 } from '../../domain/schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
 import type {
@@ -46,6 +49,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       shift: row.shift,
       courseYear: row.courseYear,
       period: row.period,
+      isCanonicalCommon: row.isCanonicalCommon,
       conflicts: row.conflicts,
       status: row.status,
       createdAt: row.createdAt,
@@ -63,6 +67,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       shift: domain.shift,
       courseYear: domain.courseYear,
       period: domain.period,
+      isCanonicalCommon: domain.isCanonicalCommon,
       conflicts: domain.conflicts,
       status: domain.status,
       createdAt: domain.createdAt,
@@ -131,7 +136,12 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     const rows = await this.database
       .select()
       .from(schedulesTable)
-      .where(eq(schedulesTable.organizationId, organizationId))
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          eq(schedulesTable.isCanonicalCommon, false)
+        )
+      )
       .orderBy(desc(schedulesTable.createdAt));
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -142,6 +152,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   ): Promise<PaginatedResponse<Schedule>> {
     const conditions: SQL[] = [
       eq(schedulesTable.organizationId, organizationId),
+      eq(schedulesTable.isCanonicalCommon, false),
     ];
 
     if (filters?.academicYearId) {
@@ -231,6 +242,8 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .update(schedulesTable)
       .set({
         status: rawData.status,
+        conflicts: rawData.conflicts,
+        isCanonicalCommon: rawData.isCanonicalCommon,
         updatedAt: new Date(),
       })
       .where(
@@ -244,7 +257,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   private mapSlotToPersistence(domain: CreateScheduleSlotInput) {
     const now = new Date();
     return {
-      id: crypto.randomUUID(),
+      id: domain.id ?? crypto.randomUUID(),
       scheduleId: domain.scheduleId,
       subjectGroupId: domain.subjectGroupId,
       classroomId: domain.classroomId,
@@ -257,10 +270,27 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     };
   }
 
+  private mapInclusionToPersistence(domain: CreateScheduleSlotInclusionInput) {
+    const now = new Date();
+    return {
+      id: crypto.randomUUID(),
+      scheduleId: domain.scheduleId,
+      slotId: domain.slotId,
+      conflicts: domain.conflicts,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
   async createSchedulesWithSlots(
-    items: { schedule: Schedule; slots: CreateScheduleSlotInput[] }[]
+    items: {
+      schedule: Schedule;
+      slots: CreateScheduleSlotInput[];
+      inclusions?: CreateScheduleSlotInclusionInput[];
+    }[],
+    additionalInclusions: CreateScheduleSlotInclusionInput[] = []
   ): Promise<void> {
-    if (items.length === 0) return;
+    if (items.length === 0 && additionalInclusions.length === 0) return;
 
     try {
       await this.database.transaction(async (tx) => {
@@ -281,21 +311,69 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
               .set({
                 status: item.schedule.status,
                 conflicts: item.schedule.conflicts,
+                isCanonicalCommon: item.schedule.isCanonicalCommon,
                 updatedAt: new Date(),
               })
               .where(eq(schedulesTable.id, item.schedule.id));
 
             await tx
+              .delete(scheduleSlotInclusionsTable)
+              .where(
+                eq(scheduleSlotInclusionsTable.scheduleId, item.schedule.id)
+              );
+
+            await tx
               .delete(scheduleSlotsTable)
               .where(eq(scheduleSlotsTable.scheduleId, item.schedule.id));
           }
+        }
 
+        for (const item of items) {
           if (item.slots.length > 0) {
             const valuesToInsert = item.slots.map((s) =>
               this.mapSlotToPersistence(s)
             );
             await tx.insert(scheduleSlotsTable).values(valuesToInsert);
           }
+        }
+
+        const inclusions = [
+          ...items.flatMap((item) => item.inclusions ?? []),
+          ...additionalInclusions,
+        ];
+        if (inclusions.length > 0) {
+          await tx
+            .insert(scheduleSlotInclusionsTable)
+            .values(inclusions.map((i) => this.mapInclusionToPersistence(i)));
+        }
+
+        const affectedScheduleIds = [
+          ...new Set([
+            ...items.map((item) => item.schedule.id),
+            ...inclusions.map((inclusion) => inclusion.scheduleId),
+          ]),
+        ];
+
+        for (const scheduleId of affectedScheduleIds) {
+          await tx
+            .update(schedulesTable)
+            .set({
+              conflicts: sql<number>`
+                COALESCE((
+                  SELECT SUM(jsonb_array_length(${scheduleSlotsTable.conflicts}))
+                  FROM ${scheduleSlotsTable}
+                  WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
+                ), 0)
+                +
+                COALESCE((
+                  SELECT SUM(jsonb_array_length(${scheduleSlotInclusionsTable.conflicts}))
+                  FROM ${scheduleSlotInclusionsTable}
+                  WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
+                ), 0)
+              `,
+              updatedAt: new Date(),
+            })
+            .where(eq(schedulesTable.id, scheduleId));
         }
       });
     } catch (error: unknown) {

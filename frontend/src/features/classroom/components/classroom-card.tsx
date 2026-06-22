@@ -7,7 +7,7 @@ import { deleteClassroomAction } from '@/features/classroom/actions';
 import { toast } from 'sonner';
 import { ClassroomFormModal } from './classroom-form-modal';
 import type { ClassroomDTO } from '@tfg-horarios/shared';
-import { Users } from 'lucide-react';
+import { Building2, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface ClassroomCardProps {
@@ -84,6 +84,15 @@ export const ClassroomCard = memo(function ClassroomCard({
           </div>
 
           <div className="mt-auto pt-4 flex flex-wrap gap-2 justify-center">
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
+              title={translations.floor || 'Floor'}
+            >
+              <Building2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span>
+                {translations.floor || 'Planta'} {classroom.floor}
+              </span>
+            </div>
             <div
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
               title={translations.capacity || 'Capacity'}

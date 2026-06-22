@@ -1,5 +1,5 @@
 {
-  "id": "d200eb09-dfc1-46bb-b702-2d5456306eb0",
+  "id": "d7c3c1e1-4058-421c-bd89-ac55b6101a15",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -132,6 +132,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "floor": {
+          "name": "floor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "type": {
           "name": "type",
@@ -700,6 +707,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "is_canonical_common": {
+          "name": "is_canonical_common",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "conflicts": {
           "name": "conflicts",
           "type": "integer",
@@ -993,6 +1007,108 @@
           "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.schedule_slot_inclusion": {
+      "name": "schedule_slot_inclusion",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "schedule_id": {
+          "name": "schedule_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_id": {
+          "name": "slot_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conflicts": {
+          "name": "conflicts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "schedule_slot_inclusion_unique_idx": {
+          "name": "schedule_slot_inclusion_unique_idx",
+          "columns": [
+            {
+              "expression": "schedule_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "slot_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "schedule_slot_inclusion_schedule_id_schedule_id_fk": {
+          "name": "schedule_slot_inclusion_schedule_id_schedule_id_fk",
+          "tableFrom": "schedule_slot_inclusion",
+          "tableTo": "schedule",
+          "columnsFrom": [
+            "schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_slot_inclusion_slot_id_schedule_slot_id_fk": {
+          "name": "schedule_slot_inclusion_slot_id_schedule_slot_id_fk",
+          "tableFrom": "schedule_slot_inclusion",
+          "tableTo": "schedule_slot",
+          "columnsFrom": [
+            "slot_id"
           ],
           "columnsTo": [
             "id"

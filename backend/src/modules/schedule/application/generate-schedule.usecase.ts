@@ -59,7 +59,44 @@ export class GenerateScheduleUseCase {
       };
     }
 
-    const generateForPeriod = async (period: number) => {
+    type PersistedScheduleItem = Omit<
+      Parameters<IScheduleRepository['createSchedulesWithSlots']>[0][number],
+      'inclusions'
+    > & {
+      inclusions: NonNullable<
+        Parameters<
+          IScheduleRepository['createSchedulesWithSlots']
+        >[0][number]['inclusions']
+      >;
+      baseKey: string;
+      itineraryId: string | null;
+    };
+    type ScheduleSlotInclusion = NonNullable<
+      Parameters<IScheduleRepository['createSchedulesWithSlots']>[1]
+    >[number];
+    type ReservationSlot = {
+      classroomId: string;
+      dayOfWeek: number;
+      slotIndex: number;
+      duration: number;
+    };
+    type PeriodGenerationResult = {
+      schedulesToPersist: PersistedScheduleItem[];
+      additionalInclusions: ScheduleSlotInclusion[];
+      generatedSchedules: Schedule[];
+      reservationSlots: ReservationSlot[];
+    };
+
+    const emptyPeriodResult = (): PeriodGenerationResult => ({
+      schedulesToPersist: [],
+      additionalInclusions: [],
+      generatedSchedules: [],
+      reservationSlots: [],
+    });
+
+    const generateForPeriod = async (
+      period: number
+    ): Promise<PeriodGenerationResult> => {
       const groupsData = await this.dataProvider.getGroupsInScope(
         organizationId,
         period,
@@ -68,7 +105,7 @@ export class GenerateScheduleUseCase {
         scope.courseYears
       );
 
-      if (groupsData.length === 0) return [];
+      if (groupsData.length === 0) return emptyPeriodResult();
 
       const academicYearConstraints =
         await this.dataProvider.getAcademicYearConstraints(
@@ -116,6 +153,10 @@ export class GenerateScheduleUseCase {
         if (!itineraries || itineraries.size === 0) {
           scopeKeysToGenerate.add(`${baseKey}_common`);
         } else {
+          if (group.isCommon) {
+            scopeKeysToGenerate.add(`${baseKey}_common`);
+          }
+
           if (group.isCommon) {
             for (const itinId of itineraries) {
               scopeKeysToGenerate.add(`${baseKey}_${itinId}`);
@@ -228,6 +269,23 @@ export class GenerateScheduleUseCase {
         }
       >();
 
+      for (const scopeKey of scopeKeysToGenerate) {
+        const parts = scopeKey.split('_');
+        const degreeId = parts[0] || '';
+        const courseYear = parseInt(parts[1] || '0', 10);
+        const shift = (parts[2] || 'morning') as Shift;
+        const itineraryId =
+          parts[3] === 'common' ? null : parts.slice(3).join('_');
+
+        scopeAssignments.set(scopeKey, {
+          degreeId,
+          itineraryId,
+          courseYear,
+          shift,
+          assignments: [],
+        });
+      }
+
       for (const assignment of solution.assignments) {
         const group = groupsData.find(
           (r) => r.subjectGroupId === assignment.subjectGroupId
@@ -251,19 +309,17 @@ export class GenerateScheduleUseCase {
           scopeAssignments.get(key)!.assignments.push(assignment);
         } else {
           if (group.isCommon) {
-            for (const itinId of itineraries) {
-              const key = `${baseKey}_${itinId}`;
-              if (!scopeAssignments.has(key)) {
-                scopeAssignments.set(key, {
-                  degreeId: assignment.degreeId,
-                  itineraryId: itinId,
-                  courseYear: assignment.courseYear,
-                  shift: assignment.shift,
-                  assignments: [],
-                });
-              }
-              scopeAssignments.get(key)!.assignments.push(assignment);
+            const key = `${baseKey}_common`;
+            if (!scopeAssignments.has(key)) {
+              scopeAssignments.set(key, {
+                degreeId: assignment.degreeId,
+                itineraryId: null,
+                courseYear: assignment.courseYear,
+                shift: assignment.shift,
+                assignments: [],
+              });
             }
+            scopeAssignments.get(key)!.assignments.push(assignment);
           } else if (group.itineraryId) {
             const key = `${baseKey}_${group.itineraryId}`;
             if (!scopeAssignments.has(key)) {
@@ -280,15 +336,49 @@ export class GenerateScheduleUseCase {
         }
       }
 
-      const schedulesToPersist: {
-        schedule: Schedule;
-        slots: Parameters<
-          IScheduleRepository['createSchedulesWithSlots']
-        >[0][0]['slots'];
-      }[] = [];
+      const schedulesToPersist: PersistedScheduleItem[] = [];
       const generatedSchedules: Schedule[] = [];
+      const commonSlotIdsByAssignmentId = new Map<string, string>();
 
-      for (const [, sData] of scopeAssignments.entries()) {
+      const filterAssignmentConflicts = (
+        asm: (typeof solution.assignments)[number],
+        scopeSubjectGroupIds: Set<string>
+      ) =>
+        asm.conflicts?.filter((c) => {
+          if (c.type.startsWith('COURSE_OVERLAP') && c.relatedSubjectGroupIds) {
+            return c.relatedSubjectGroupIds.some((id) =>
+              scopeSubjectGroupIds.has(id)
+            );
+          }
+          return true;
+        }) || [];
+
+      const orderedScopeEntries = [...scopeAssignments.entries()].sort(
+        ([keyA], [keyB]) => {
+          const aIsCommon = keyA.endsWith('_common');
+          const bIsCommon = keyB.endsWith('_common');
+          if (aIsCommon !== bIsCommon) return aIsCommon ? -1 : 1;
+          return keyA.localeCompare(keyB);
+        }
+      );
+
+      for (const [, sData] of orderedScopeEntries) {
+        const baseKey = `${sData.degreeId}_${sData.courseYear}_${sData.shift}`;
+        const isCanonicalCommon =
+          sData.itineraryId === null &&
+          (itinerariesPerDegreeYearShift.get(baseKey)?.size ?? 0) > 0;
+        const commonAssignments =
+          sData.itineraryId !== null
+            ? (scopeAssignments.get(`${baseKey}_common`)?.assignments ?? [])
+            : [];
+        const compositeAssignments = [
+          ...sData.assignments,
+          ...commonAssignments,
+        ];
+        const scopeSubjectGroupIds = new Set(
+          compositeAssignments.map((a) => a.subjectGroupId)
+        );
+
         const existingSchedule = await this.scheduleRepository.findByScope(
           organizationId,
           sData.degreeId,
@@ -299,23 +389,12 @@ export class GenerateScheduleUseCase {
           sData.shift
         );
 
-        const scopeSubjectGroupIds = new Set(
-          sData.assignments.map((a) => a.subjectGroupId)
-        );
         const scopeAssignmentsWithFilteredConflicts = sData.assignments.map(
           (asm) => {
-            const filteredConflicts =
-              asm.conflicts?.filter((c) => {
-                if (
-                  c.type.startsWith('COURSE_OVERLAP') &&
-                  c.relatedSubjectGroupIds
-                ) {
-                  return c.relatedSubjectGroupIds.some((id) =>
-                    scopeSubjectGroupIds.has(id)
-                  );
-                }
-                return true;
-              }) || [];
+            const filteredConflicts = filterAssignmentConflicts(
+              asm,
+              scopeSubjectGroupIds
+            );
             return { ...asm, conflicts: filteredConflicts };
           }
         );
@@ -336,64 +415,196 @@ export class GenerateScheduleUseCase {
             courseYear: sData.courseYear,
             period: period,
             shift: sData.shift,
+            isCanonicalCommon,
             status: 'draft',
             conflicts: scheduleConflictsCount,
           });
 
+        schedule.setCanonicalCommon(isCanonicalCommon);
         if (existingSchedule) {
           schedule.markAsDraft();
           schedule.updateConflicts(scheduleConflictsCount);
         }
 
-        const slots = scopeAssignmentsWithFilteredConflicts.map((asm) => ({
-          scheduleId: schedule.id,
-          subjectGroupId: asm.subjectGroupId,
-          classroomId: asm.classroomId,
-          dayOfWeek: asm.dayOfWeek,
-          slotIndex: asm.slotIndex,
-          duration: asm.duration,
-          conflicts: asm.conflicts,
-        }));
+        const slots = scopeAssignmentsWithFilteredConflicts.map((asm) => {
+          const id = crypto.randomUUID();
+          if (asm.isCommon) {
+            commonSlotIdsByAssignmentId.set(asm.id, id);
+          }
 
-        schedulesToPersist.push({ schedule, slots });
-        generatedSchedules.push(schedule);
-      }
+          return {
+            id,
+            scheduleId: schedule.id,
+            subjectGroupId: asm.subjectGroupId,
+            classroomId: asm.classroomId,
+            dayOfWeek: asm.dayOfWeek,
+            slotIndex: asm.slotIndex,
+            duration: asm.duration,
+            conflicts: asm.conflicts,
+          };
+        });
 
-      if (schedulesToPersist.length > 0) {
-        await this.scheduleRepository.createSchedulesWithSlots(
-          schedulesToPersist
-        );
-
-        const allGeneratedSlots = schedulesToPersist
-          .flatMap((s) => s.slots)
-          .filter(
-            (s) =>
-              s.classroomId !== null &&
-              s.dayOfWeek !== null &&
-              s.slotIndex !== null
-          );
-        if (allGeneratedSlots.length > 0) {
-          const slotsToReject = allGeneratedSlots.map((s) => ({
-            classroomId: s.classroomId as string,
-            dayOfWeek: s.dayOfWeek as number,
-            slotIndex: s.slotIndex as number,
-            duration: s.duration,
-          }));
-          await this.dataProvider.rejectConflictingReservationsBatch(
-            organizationId,
-            slotsToReject
-          );
+        schedulesToPersist.push({
+          schedule,
+          slots,
+          inclusions: [],
+          baseKey,
+          itineraryId: sData.itineraryId,
+        });
+        if (!isCanonicalCommon) {
+          generatedSchedules.push(schedule);
         }
       }
 
-      return generatedSchedules;
+      for (const item of schedulesToPersist) {
+        if (item.itineraryId === null) continue;
+
+        const commonAssignments =
+          scopeAssignments.get(`${item.baseKey}_common`)?.assignments ?? [];
+        if (commonAssignments.length === 0) continue;
+
+        const ownAssignments =
+          scopeAssignments.get(`${item.baseKey}_${item.itineraryId}`)
+            ?.assignments ?? [];
+        const scopeSubjectGroupIds = new Set(
+          [...ownAssignments, ...commonAssignments].map(
+            (assignment) => assignment.subjectGroupId
+          )
+        );
+
+        for (const commonAssignment of commonAssignments) {
+          const slotId = commonSlotIdsByAssignmentId.get(commonAssignment.id);
+          if (!slotId) continue;
+
+          item.inclusions.push({
+            scheduleId: item.schedule.id,
+            slotId,
+            conflicts: filterAssignmentConflicts(
+              commonAssignment,
+              scopeSubjectGroupIds
+            ),
+          });
+        }
+
+        const conflictsCount =
+          item.slots.reduce((acc, slot) => acc + slot.conflicts.length, 0) +
+          item.inclusions.reduce(
+            (acc, inclusion) => acc + inclusion.conflicts.length,
+            0
+          );
+        item.schedule.updateConflicts(conflictsCount);
+      }
+
+      const persistedScheduleIds = new Set(
+        schedulesToPersist.map((item) => item.schedule.id)
+      );
+      const additionalInclusions: ScheduleSlotInclusion[] = [];
+      const existingSchedules =
+        (await this.scheduleRepository.findAll(organizationId)) ?? [];
+
+      for (const existingSchedule of existingSchedules) {
+        if (
+          existingSchedule.itineraryId === null ||
+          existingSchedule.academicYearId !== scope.academicYearId ||
+          existingSchedule.period !== period ||
+          persistedScheduleIds.has(existingSchedule.id)
+        ) {
+          continue;
+        }
+
+        const baseKey = `${existingSchedule.degreeId}_${existingSchedule.courseYear}_${existingSchedule.shift}`;
+        const commonAssignments =
+          scopeAssignments.get(`${baseKey}_common`)?.assignments ?? [];
+        if (commonAssignments.length === 0) continue;
+
+        const scopeSubjectGroupIds = new Set([
+          ...commonAssignments.map((assignment) => assignment.subjectGroupId),
+          ...uniqueLockedAssignments
+            .filter(
+              (assignment) =>
+                assignment.degreeId === existingSchedule.degreeId &&
+                assignment.courseYear === existingSchedule.courseYear &&
+                assignment.shift === existingSchedule.shift &&
+                assignment.itineraryId === existingSchedule.itineraryId
+            )
+            .map((assignment) => assignment.subjectGroupId),
+        ]);
+
+        for (const commonAssignment of commonAssignments) {
+          const slotId = commonSlotIdsByAssignmentId.get(commonAssignment.id);
+          if (!slotId) continue;
+
+          additionalInclusions.push({
+            scheduleId: existingSchedule.id,
+            slotId,
+            conflicts: filterAssignmentConflicts(
+              commonAssignment,
+              scopeSubjectGroupIds
+            ),
+          });
+        }
+      }
+
+      const reservationSlots = schedulesToPersist
+        .flatMap((schedule) => schedule.slots)
+        .filter(
+          (slot) =>
+            slot.classroomId !== null &&
+            slot.dayOfWeek !== null &&
+            slot.slotIndex !== null
+        )
+        .map((slot) => ({
+          classroomId: slot.classroomId as string,
+          dayOfWeek: slot.dayOfWeek as number,
+          slotIndex: slot.slotIndex as number,
+          duration: slot.duration,
+        }));
+
+      return {
+        schedulesToPersist,
+        additionalInclusions,
+        generatedSchedules,
+        reservationSlots,
+      };
     };
 
     const results = await Promise.all(
       scope.periods.map((period) => generateForPeriod(period))
     );
 
-    const allSchedules = results.flat();
-    return allSchedules.map((s) => ScheduleMapper.toDTO(s));
+    const schedulesToPersist = results.flatMap(
+      (result) => result.schedulesToPersist
+    );
+    const additionalInclusions = results.flatMap(
+      (result) => result.additionalInclusions
+    );
+
+    if (schedulesToPersist.length > 0) {
+      await this.scheduleRepository.createSchedulesWithSlots(
+        schedulesToPersist,
+        additionalInclusions
+      );
+    }
+
+    const reservationSlots = results.flatMap(
+      (result) => result.reservationSlots
+    );
+    if (reservationSlots.length > 0) {
+      try {
+        await this.dataProvider.rejectConflictingReservationsBatch(
+          organizationId,
+          reservationSlots
+        );
+      } catch (error) {
+        console.error(
+          'Schedules were generated, but conflicting reservations could not be rejected.',
+          error
+        );
+      }
+    }
+
+    return results
+      .flatMap((result) => result.generatedSchedules)
+      .map((schedule) => ScheduleMapper.toDTO(schedule));
   }
 }

@@ -27,16 +27,17 @@ describe('CreateClassroomUseCase', () => {
 
   test('should create a classroom successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
-    const dto = { name: 'Lab A', capacity: 20, type: 'lab' as const };
+    const dto = { name: 'Lab A', capacity: 20, floor: 1, type: 'lab' as const };
     const result = await useCase.execute('org-1', 'user-1', dto);
     expect(result.name).toBe('Lab A');
+    expect(result.floor).toBe(1);
     expect(result.organizationId).toBe('org-1');
     expect(repositoryMock.create).toHaveBeenCalled();
   });
 
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-    const dto = { name: 'Lab A', capacity: 20, type: 'lab' as const };
+    const dto = { name: 'Lab A', capacity: 20, floor: 1, type: 'lab' as const };
     expect(useCase.execute('org-1', 'user-1', dto)).rejects.toThrow(
       ForbiddenError
     );

@@ -108,7 +108,7 @@
     "bulkUploaders": {
       "classrooms": {
         "title": "Import classrooms",
-        "description": "Upload a CSV file with classrooms. Columns: name, capacity, type.",
+        "description": "Upload a CSV file with classrooms. Columns: name, capacity, floor, type.",
         "duplicate": "The classroom {name} already exists. It will be skipped."
       },
       "degrees": {
@@ -326,6 +326,10 @@
           "label": "Capacity",
           "placeholder": "e.g. 60"
         },
+        "floor": {
+          "label": "Floor",
+          "placeholder": "e.g. 1"
+        },
         "type": {
           "label": "Room type",
           "placeholder": "Select a type"
@@ -340,6 +344,7 @@
         "lab": "Lab"
       },
       "capacity": "Capacity",
+      "floor": "Floor",
       "searchLabel": "Search by name",
       "searchPlaceholder": "Search classrooms...",
       "typeFilterLabel": "Type",
@@ -703,6 +708,7 @@
         "publishSuccess": "Schedule published successfully.",
         "unpublishSuccess": "Schedule reverted to draft successfully.",
         "generateSuccess": "Schedules generated successfully.",
+        "generateError": "Schedules could not be generated.",
         "updateSuccess": "Classroom updated successfully."
       },
       "form": {

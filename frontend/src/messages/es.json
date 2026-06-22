@@ -108,7 +108,7 @@
     "bulkUploaders": {
       "classrooms": {
         "title": "Importar aulas",
-        "description": "Sube un archivo CSV con las aulas. Columnas: name, capacity, type.",
+        "description": "Sube un archivo CSV con las aulas. Columnas: name, capacity, floor, type.",
         "duplicate": "El aula {name} ya existe. Se ignorará."
       },
       "degrees": {
@@ -326,6 +326,10 @@
           "label": "Capacidad",
           "placeholder": "Ej. 60"
         },
+        "floor": {
+          "label": "Planta",
+          "placeholder": "Ej. 1"
+        },
         "type": {
           "label": "Tipo de aula",
           "placeholder": "Selecciona un tipo"
@@ -340,6 +344,7 @@
         "lab": "Laboratorio"
       },
       "capacity": "Capacidad",
+      "floor": "Planta",
       "searchLabel": "Buscar por nombre",
       "searchPlaceholder": "Buscar aulas...",
       "typeFilterLabel": "Tipo",
@@ -704,6 +709,7 @@
         "publishSuccess": "Horario publicado correctamente.",
         "unpublishSuccess": "Horario despublicado correctamente.",
         "generateSuccess": "Horarios generados correctamente.",
+        "generateError": "No se pudieron generar los horarios.",
         "updateSuccess": "Aula actualizada correctamente."
       },
       "form": {

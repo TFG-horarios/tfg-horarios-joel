@@ -5,6 +5,7 @@ import {
   timestamp,
   pgEnum,
   uniqueIndex,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
 import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
@@ -37,6 +38,7 @@ export const schedulesTable = pgTable(
     shift: shiftEnum('shift').notNull(),
     courseYear: integer('course_year').notNull(),
     period: integer('period').notNull(),
+    isCanonicalCommon: boolean('is_canonical_common').notNull().default(false),
     conflicts: integer('conflicts').notNull().default(0),
     status: scheduleStatusEnum('status').notNull().default('draft'),
     createdAt: timestamp('created_at').notNull().defaultNow(),

@@ -29,7 +29,7 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
           for (let j = i + 1; j < classesAtThisTime.length; j++) {
             const a = classesAtThisTime[i]!;
             const b = classesAtThisTime[j]!;
-            
+
             if (
               a.degreeId !== b.degreeId ||
               a.courseYear !== b.courseYear ||
@@ -44,8 +44,16 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
             if (conflict) {
               const isATheory = a.groupType === 'theory';
               const isBTheory = b.groupType === 'theory';
-              const isASingleGroup = a.groupType !== 'theory' && groupCountsPerSubjectType.get(`${a.subjectId}-${a.shift}-${a.groupType}`)?.size === 1;
-              const isBSingleGroup = b.groupType !== 'theory' && groupCountsPerSubjectType.get(`${b.subjectId}-${b.shift}-${b.groupType}`)?.size === 1;
+              const isASingleGroup =
+                a.groupType !== 'theory' &&
+                groupCountsPerSubjectType.get(
+                  `${a.subjectId}-${a.shift}-${a.groupType}`
+                )?.size === 1;
+              const isBSingleGroup =
+                b.groupType !== 'theory' &&
+                groupCountsPerSubjectType.get(
+                  `${b.subjectId}-${b.shift}-${b.groupType}`
+                )?.size === 1;
 
               const addConflict = (type: ConflictDetail['type']) => {
                 penalty += 1000;

@@ -14,10 +14,20 @@ export class RoomTypeConstraint implements IScheduleConstraint {
       if (assignment.classroomId) {
         const cls = context.classroomsCache[assignment.classroomId];
         if (cls) {
-          if (['practices', 'reduced_practices', 'tutoring'].includes(assignment.groupType) && cls.type !== 'lab') {
+          if (
+            ['practices', 'reduced_practices', 'tutoring'].includes(
+              assignment.groupType
+            ) &&
+            cls.type !== 'lab'
+          ) {
             penalty += 10;
           }
-          if (!['practices', 'reduced_practices', 'tutoring'].includes(assignment.groupType) && cls.type === 'lab') {
+          if (
+            !['practices', 'reduced_practices', 'tutoring'].includes(
+              assignment.groupType
+            ) &&
+            cls.type === 'lab'
+          ) {
             penalty += 10;
           }
         }

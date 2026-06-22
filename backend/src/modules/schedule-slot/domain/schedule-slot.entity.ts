@@ -9,6 +9,8 @@ export interface ScheduleSlotProps {
   slotIndex: number | null;
   duration: number;
   conflicts: ScheduleConflictDetailDTO[];
+  isSharedCommon?: boolean;
+  ownerScheduleId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +44,8 @@ export class ScheduleSlot {
       slotIndex: props.slotIndex ?? null,
       duration: props.duration ?? 1,
       conflicts: props.conflicts ?? [],
+      isSharedCommon: props.isSharedCommon ?? false,
+      ownerScheduleId: props.ownerScheduleId,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -68,6 +72,20 @@ export class ScheduleSlot {
     this.props.updatedAt = new Date();
   }
 
+  public asScheduleView(
+    scheduleId: string,
+    ownerScheduleId: string,
+    conflicts: ScheduleConflictDetailDTO[] = this.props.conflicts
+  ): ScheduleSlot {
+    return ScheduleSlot.reconstitute({
+      ...this.props,
+      scheduleId,
+      conflicts,
+      isSharedCommon: true,
+      ownerScheduleId,
+    });
+  }
+
   get id() {
     return this.props.id;
   }
@@ -91,6 +109,12 @@ export class ScheduleSlot {
   }
   get conflicts() {
     return this.props.conflicts;
+  }
+  get isSharedCommon() {
+    return this.props.isSharedCommon ?? false;
+  }
+  get ownerScheduleId() {
+    return this.props.ownerScheduleId;
   }
   get createdAt() {
     return this.props.createdAt;

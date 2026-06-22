@@ -47,7 +47,6 @@ import {
   Download,
   Loader2,
   Archive,
-  ArchiveRestore,
 } from 'lucide-react';
 import { toast } from 'sonner';
 

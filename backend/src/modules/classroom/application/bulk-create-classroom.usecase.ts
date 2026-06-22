@@ -48,6 +48,7 @@ export class BulkCreateClassroomsUseCase {
         organizationId,
         name: dto.name,
         capacity: dto.capacity,
+        floor: dto.floor,
         type: dto.type ?? 'theory',
       })
     );

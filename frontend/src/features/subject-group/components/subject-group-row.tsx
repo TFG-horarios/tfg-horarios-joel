@@ -60,7 +60,9 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
         <TableCell>{group.weeklyHours}h</TableCell>
         <TableCell>{group.numberOfStudents}</TableCell>
         <TableCell className="capitalize">{shiftLabel}</TableCell>
-        <TableCell>{subject?.courseYear ? `${subject.courseYear}º` : '-'}</TableCell>
+        <TableCell>
+          {subject?.courseYear ? `${subject.courseYear}º` : '-'}
+        </TableCell>
         <TableCell>{degree?.code ?? '-'}</TableCell>
         <TableCell className={cn(!canEdit && !canDelete && 'text-right')}>
           {itineraryCode}

@@ -91,6 +91,7 @@ export default async function OrganizationClassroomsPage({
     'type.theory': t('type.theory'),
     'type.lab': t('type.lab'),
     capacity: t('capacity'),
+    floor: t('floor'),
     empty: t('empty'),
   };
 
@@ -160,6 +161,7 @@ export default async function OrganizationClassroomsPage({
           tableHeaders={[
             'Nombre',
             'Tipo',
+            t('floor'),
             'Capacidad',
             ...(canEdit || canDelete ? ['Acciones'] : []),
           ]}

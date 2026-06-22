@@ -41,6 +41,7 @@ export function ClassroomForm({
     defaultValues: {
       name: defaultValues?.name ?? '',
       capacity: defaultValues?.capacity ?? 0,
+      floor: defaultValues?.floor ?? 0,
       type: defaultValues?.type ?? 'theory',
     },
     onSuccess,
@@ -61,6 +62,14 @@ export function ClassroomForm({
           min="1"
           label={t('capacity.label')}
           placeholder={t('capacity.placeholder')}
+        />
+
+        <FormInput
+          name="floor"
+          type="number"
+          step="1"
+          label={t('floor.label')}
+          placeholder={t('floor.placeholder')}
         />
 
         <FormSelect

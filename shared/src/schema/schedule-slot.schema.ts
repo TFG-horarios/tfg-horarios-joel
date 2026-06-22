@@ -57,6 +57,10 @@ export const ScheduleSlotSchema = z
       .array(ScheduleConflictDetailSchema)
       .default([])
       .openapi({ example: [] }),
+    isSharedCommon: z.boolean().optional().openapi({ example: true }),
+    ownerScheduleId: z.uuid().optional().openapi({
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
   })

@@ -2,7 +2,15 @@
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import { cn } from '@/lib/utils';
-import { Clock, Users, Sun, Moon, GraduationCap, Map, CalendarDays } from 'lucide-react';
+import {
+  Clock,
+  Users,
+  Sun,
+  Moon,
+  GraduationCap,
+  Map,
+  CalendarDays,
+} from 'lucide-react';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
 import { toast } from 'sonner';

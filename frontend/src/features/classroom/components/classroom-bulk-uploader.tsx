@@ -35,11 +35,12 @@ export function ClassroomBulkUploader({
     <GenericBulkUploader<SaveClassroomDTO>
       title={t('title')}
       description={t('description')}
-      expectedColumns={['name', 'capacity', 'type']}
+      expectedColumns={['name', 'capacity', 'floor', 'type']}
       schema={SaveClassroomBodySchema}
       rowTransformer={(row) => ({
         name: (row.name || '').trim(),
         capacity: Number(row.capacity || 0),
+        floor: Number(row.floor || 0),
         type: (row.type || 'theory').trim().toLowerCase() as 'theory' | 'lab',
       })}
       onAnalyze={async (validData) => {

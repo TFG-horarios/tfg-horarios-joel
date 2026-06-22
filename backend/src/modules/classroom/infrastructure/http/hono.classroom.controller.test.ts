@@ -70,6 +70,7 @@ describe('HonoClassroomController Integration', () => {
   const validBody = {
     name: 'A-101',
     capacity: 30,
+    floor: 1,
     type: 'theory',
   };
 

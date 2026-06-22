@@ -48,5 +48,37 @@ export const scheduleSlotsTable = pgTable(
   ]
 );
 
+export const scheduleSlotInclusionsTable = pgTable(
+  'schedule_slot_inclusion',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    scheduleId: uuid('schedule_id')
+      .notNull()
+      .references(() => schedulesTable.id, { onDelete: 'cascade' }),
+    slotId: uuid('slot_id')
+      .notNull()
+      .references(() => scheduleSlotsTable.id, { onDelete: 'cascade' }),
+    conflicts: jsonb('conflicts')
+      .$type<ScheduleConflictDetailDTO[]>()
+      .default([])
+      .notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at')
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex('schedule_slot_inclusion_unique_idx').on(
+      table.scheduleId,
+      table.slotId
+    ),
+  ]
+);
+
 export type DrizzleScheduleSlot = typeof scheduleSlotsTable.$inferSelect;
 export type NewDrizzleScheduleSlot = typeof scheduleSlotsTable.$inferInsert;
+export type DrizzleScheduleSlotInclusion =
+  typeof scheduleSlotInclusionsTable.$inferSelect;
+export type NewDrizzleScheduleSlotInclusion =
+  typeof scheduleSlotInclusionsTable.$inferInsert;

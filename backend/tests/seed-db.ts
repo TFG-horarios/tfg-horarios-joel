@@ -149,6 +149,7 @@ export const seedTestDb = async (db: TestDbConnection) => {
     organizationId: testOrgId,
     name: 'SEED-A-101',
     capacity: 50,
+    floor: 0,
     type: 'theory',
     createdAt: now,
     updatedAt: now,

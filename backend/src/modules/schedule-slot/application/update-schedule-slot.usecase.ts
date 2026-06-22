@@ -65,15 +65,14 @@ export class UpdateScheduleSlotUseCase {
     let linkedSlots = [slot];
 
     if (isCommon) {
-      linkedSlots = await this.scheduleSlotRepository.findLinkedSlots(
-        slot.subjectGroupId,
-        scheduleContext.academicYearId,
-        scheduleContext.shift,
-        slot.classroomId,
-        slot.dayOfWeek,
-        slot.slotIndex,
-        slot.duration
-      );
+      const includedScheduleIds =
+        await this.scheduleSlotRepository.findScheduleIdsIncludingSlot(slot.id);
+      linkedSlots = [
+        slot,
+        ...includedScheduleIds.map((scheduleId) =>
+          slot.asScheduleView(scheduleId, slot.scheduleId)
+        ),
+      ];
     }
 
     for (const linkedSlot of linkedSlots) {
@@ -86,31 +85,30 @@ export class UpdateScheduleSlotUseCase {
       );
     }
 
-    for (const linkedSlot of linkedSlots) {
-      linkedSlot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
-      await this.scheduleSlotRepository.update(linkedSlot);
-
-      if (classroomId !== null && dayOfWeek !== null && slotIndex !== null) {
-        await this.dataProvider.rejectConflictingReservations(
-          organizationId,
-          classroomId,
-          dayOfWeek,
-          slotIndex,
-          linkedSlot.duration
-        );
-      }
+    slot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
+    await this.scheduleSlotRepository.update(slot);
+    if (isCommon) {
+      await this.scheduleSlotRepository.clearInclusionConflictsForSlot(slot.id);
     }
 
-    if (dayOfWeek === null || slotIndex === null) {
-      await this.dataProvider.unpublishSchedule(
-        slot.scheduleId,
-        organizationId
+    if (classroomId !== null && dayOfWeek !== null && slotIndex !== null) {
+      await this.dataProvider.rejectConflictingReservations(
+        organizationId,
+        classroomId,
+        dayOfWeek,
+        slotIndex,
+        slot.duration
       );
     }
 
-    const allSlots = await this.scheduleSlotRepository.findByScheduleId(
-      slot.scheduleId
-    );
+    if (dayOfWeek === null || slotIndex === null) {
+      for (const linkedSlot of linkedSlots) {
+        await this.dataProvider.unpublishSchedule(
+          linkedSlot.scheduleId,
+          organizationId
+        );
+      }
+    }
 
     const mapErrorToConflictType = (err: string): ScheduleConflictType => {
       switch (err) {
@@ -118,8 +116,16 @@ export class UpdateScheduleSlotUseCase {
           return 'ROOM_CAPACITY';
         case 'ERR_ROOM_OVERLAP':
           return 'ROOM_OVERLAP';
+        case 'ERR_OVERLAP_COMMON_ITINERARY':
+          return 'COURSE_OVERLAP_COMMON_ITINERARY';
+        case 'ERR_OVERLAP_THEORY':
+          return 'COURSE_OVERLAP_THEORY';
+        case 'ERR_OVERLAP_SINGLE_GROUP':
+          return 'COURSE_OVERLAP_SINGLE_GROUP';
+        case 'ERR_OVERLAP_DIFFERENT_GROUP_TYPES':
+          return 'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES';
         case 'ERR_OVERLAP_SAME_SUBJECT':
-          return 'COURSE_OVERLAP';
+          return 'COURSE_OVERLAP_SAME_SUBJECT';
         case 'ERR_SHIFT_MORNING':
           return 'SHIFT_MORNING';
         case 'ERR_SHIFT_AFTERNOON':
@@ -131,38 +137,52 @@ export class UpdateScheduleSlotUseCase {
       }
     };
 
-    for (const s of allSlots) {
-      if (linkedSlots.some((ls) => ls.id === s.id)) continue;
-      if (s.conflicts.length === 0) continue;
+    const affectedScheduleIds = [
+      ...new Set(linkedSlots.map((linkedSlot) => linkedSlot.scheduleId)),
+    ];
 
-      try {
-        await this.validationProvider.validateMove(
-          organizationId,
-          s,
-          s.classroomId,
-          s.dayOfWeek,
-          s.slotIndex
-        );
-        s.updateConflicts([]);
-        await this.scheduleSlotRepository.update(s);
-      } catch (err) {
-        if (err instanceof Error && err.name === 'ConflictError') {
-          const newConflicts = err.message.split('\n').map((msg) => ({
-            type: mapErrorToConflictType(msg),
-            message: msg,
-          }));
-          s.updateConflicts(newConflicts);
-          await this.scheduleSlotRepository.update(s);
+    for (const scheduleId of affectedScheduleIds) {
+      const allSlots =
+        await this.scheduleSlotRepository.findByScheduleId(scheduleId);
+
+      for (const s of allSlots) {
+        try {
+          await this.validationProvider.validateMove(
+            organizationId,
+            s,
+            s.classroomId,
+            s.dayOfWeek,
+            s.slotIndex
+          );
+          if (s.conflicts.length === 0) continue;
+          s.updateConflicts([]);
+          await this.scheduleSlotRepository.updateConflicts(s);
+        } catch (err) {
+          if (err instanceof Error && err.name === 'ConflictError') {
+            const newConflicts = err.message.split('\n').map((msg) => ({
+              type: mapErrorToConflictType(msg),
+              message: msg,
+            }));
+            s.updateConflicts(newConflicts);
+            await this.scheduleSlotRepository.updateConflicts(s);
+          } else {
+            throw err;
+          }
         }
       }
-    }
 
-    const totalConflicts = allSlots.reduce((acc, s) => acc + s.conflicts.length, 0);
-    await this.dataProvider.updateScheduleConflictsCount(
-      slot.scheduleId,
-      organizationId,
-      totalConflicts
-    );
+      const refreshedSlots =
+        await this.scheduleSlotRepository.findByScheduleId(scheduleId);
+      const totalConflicts = refreshedSlots.reduce(
+        (acc, s) => acc + s.conflicts.length,
+        0
+      );
+      await this.dataProvider.updateScheduleConflictsCount(
+        scheduleId,
+        organizationId,
+        totalConflicts
+      );
+    }
 
     return ScheduleSlotMapper.toDTO(slot);
   }

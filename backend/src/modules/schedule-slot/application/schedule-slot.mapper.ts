@@ -12,6 +12,8 @@ export class ScheduleSlotMapper {
       slotIndex: slot.slotIndex ?? null,
       duration: slot.duration,
       conflicts: slot.conflicts,
+      isSharedCommon: slot.isSharedCommon || undefined,
+      ownerScheduleId: slot.ownerScheduleId,
       createdAt: slot.createdAt.toISOString(),
       updatedAt: slot.updatedAt.toISOString(),
     };

@@ -28,8 +28,8 @@ describe('ReplaceClassroomsUseCase', () => {
   test('should replace classrooms successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const dtos = [
-      { name: 'Room 1', capacity: 30, type: 'theory' as const },
-      { name: 'Room 2', capacity: 20, type: 'lab' as const },
+      { name: 'Room 1', capacity: 30, floor: 0, type: 'theory' as const },
+      { name: 'Room 2', capacity: 20, floor: 1, type: 'lab' as const },
     ];
     const result = await useCase.execute('org-1', 'user-1', dtos);
     expect(result).toHaveLength(2);
@@ -42,7 +42,7 @@ describe('ReplaceClassroomsUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
     expect(
       useCase.execute('org-1', 'user-1', [
-        { name: 'A', capacity: 10, type: 'theory' as const },
+        { name: 'A', capacity: 10, floor: 0, type: 'theory' as const },
       ])
     ).rejects.toThrow(ForbiddenError);
   });
@@ -50,8 +50,8 @@ describe('ReplaceClassroomsUseCase', () => {
   test('should throw ValidationError if request contains duplicate names', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     const dtos = [
-      { name: 'Room 1', capacity: 30, type: 'theory' as const },
-      { name: 'Room 1', capacity: 20, type: 'lab' as const },
+      { name: 'Room 1', capacity: 30, floor: 0, type: 'theory' as const },
+      { name: 'Room 1', capacity: 20, floor: 1, type: 'lab' as const },
     ];
     expect(useCase.execute('org-1', 'user-1', dtos)).rejects.toThrow(
       ValidationError

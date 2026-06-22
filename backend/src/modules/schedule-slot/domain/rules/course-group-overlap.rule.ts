@@ -38,10 +38,16 @@ export class CourseGroupOverlapRule implements IMoveValidationRule {
             const isATheory = context.movingAssignment.groupType === 'theory';
             const isBTheory = other.groupType === 'theory';
 
-            const isASingleGroup = context.movingAssignment.groupType !== 'theory' && groupCountsPerSubjectType.get(
+            const isASingleGroup =
+              context.movingAssignment.groupType !== 'theory' &&
+              groupCountsPerSubjectType.get(
                 `${context.movingAssignment.subjectId}-${context.movingAssignment.shift}-${context.movingAssignment.groupType}`
               )?.size === 1;
-            const isBSingleGroup = other.groupType !== 'theory' && groupCountsPerSubjectType.get(`${other.subjectId}-${other.shift}-${other.groupType}`)?.size === 1;
+            const isBSingleGroup =
+              other.groupType !== 'theory' &&
+              groupCountsPerSubjectType.get(
+                `${other.subjectId}-${other.shift}-${other.groupType}`
+              )?.size === 1;
 
             if (context.movingAssignment.isCommon !== other.isCommon) {
               throw new ConflictError('ERR_OVERLAP_COMMON_ITINERARY');

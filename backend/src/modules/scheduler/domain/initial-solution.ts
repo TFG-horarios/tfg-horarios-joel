@@ -36,8 +36,20 @@ export class InitialSolution {
         return a.isCommon ? -1 : 1;
       }
 
-      const isAPractices = ['practices', 'reduced_practices', 'tutoring'].includes(a.groupType) ? 1 : 0;
-      const isBPractices = ['practices', 'reduced_practices', 'tutoring'].includes(b.groupType) ? 1 : 0;
+      const isAPractices = [
+        'practices',
+        'reduced_practices',
+        'tutoring',
+      ].includes(a.groupType)
+        ? 1
+        : 0;
+      const isBPractices = [
+        'practices',
+        'reduced_practices',
+        'tutoring',
+      ].includes(b.groupType)
+        ? 1
+        : 0;
       if (isAPractices !== isBPractices) return isBPractices - isAPractices;
 
       return b.numberOfStudents - a.numberOfStudents;
@@ -87,7 +99,13 @@ export class InitialSolution {
         } | null = null;
         let minPenalty = Infinity;
 
-        const requiredType = ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType) ? 'lab' : 'theory';
+        const requiredType = [
+          'practices',
+          'reduced_practices',
+          'tutoring',
+        ].includes(group.groupType)
+          ? 'lab'
+          : 'theory';
 
         const compatibleClassrooms = this.availableClassrooms.filter((id) => {
           const cls = this.classroomsCache[id];
@@ -105,7 +123,11 @@ export class InitialSolution {
                 (id) => this.classroomsCache[id]?.type === requiredType
               );
 
-        if (['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)) {
+        if (
+          ['practices', 'reduced_practices', 'tutoring'].includes(
+            group.groupType
+          )
+        ) {
           const fallbackRooms = this.availableClassrooms.filter((id) => {
             const cls = this.classroomsCache[id];
             return (

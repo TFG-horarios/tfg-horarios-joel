@@ -6,6 +6,7 @@ import {
   seedTestDb,
   testOrgId,
   testDegreeId,
+  testItineraryId,
   testSubjectId,
   testSubjectGroupId,
   testClassroomId,
@@ -161,6 +162,74 @@ describe('DrizzleScheduleRepository Integration', () => {
     await repository.createSchedulesWithSlots([{ schedule, slots }]);
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
+  });
+
+  test('should hide canonical common schedules from user-facing lists', async () => {
+    const commonSchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 3,
+      period: 2,
+      itineraryId: null,
+      isCanonicalCommon: true,
+    });
+    const itinerarySchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 3,
+      period: 2,
+      itineraryId: testItineraryId,
+    });
+    const commonSlotId = crypto.randomUUID();
+
+    await repository.createSchedulesWithSlots([
+      {
+        schedule: commonSchedule,
+        slots: [
+          {
+            id: commonSlotId,
+            scheduleId: commonSchedule.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: testClassroomId,
+            dayOfWeek: 1,
+            slotIndex: 1,
+            duration: 1,
+            conflicts: [],
+          },
+        ],
+      },
+      {
+        schedule: itinerarySchedule,
+        slots: [],
+        inclusions: [
+          {
+            scheduleId: itinerarySchedule.id,
+            slotId: commonSlotId,
+            conflicts: [],
+          },
+        ],
+      },
+    ]);
+
+    const all = await repository.findAll(testOrgId);
+    const paginated = await repository.findPaginated(testOrgId);
+
+    expect(all.some((schedule) => schedule.id === commonSchedule.id)).toBe(
+      false
+    );
+    expect(
+      paginated.data.some((schedule) => schedule.id === commonSchedule.id)
+    ).toBe(false);
+    expect(
+      paginated.data.some((schedule) => schedule.id === itinerarySchedule.id)
+    ).toBe(true);
+    expect(
+      await repository.findById(commonSchedule.id, testOrgId)
+    ).not.toBeNull();
   });
 
   test('should find distinct academic years', async () => {

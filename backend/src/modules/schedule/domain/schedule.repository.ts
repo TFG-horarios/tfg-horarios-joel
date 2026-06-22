@@ -8,12 +8,19 @@ import type {
 import type { ScheduleEngineAssignment } from './schedule-engine.provider';
 
 export interface CreateScheduleSlotInput {
+  id?: string;
   scheduleId: string;
   subjectGroupId: string;
   classroomId: string | null;
   dayOfWeek: number | null;
   slotIndex: number | null;
   duration: number;
+  conflicts: ScheduleConflictDetailDTO[];
+}
+
+export interface CreateScheduleSlotInclusionInput {
+  scheduleId: string;
+  slotId: string;
   conflicts: ScheduleConflictDetailDTO[];
 }
 
@@ -37,7 +44,12 @@ export interface IScheduleRepository {
   create(schedule: Schedule): Promise<void>;
   update(schedule: Schedule): Promise<void>;
   createSchedulesWithSlots(
-    items: { schedule: Schedule; slots: CreateScheduleSlotInput[] }[]
+    items: {
+      schedule: Schedule;
+      slots: CreateScheduleSlotInput[];
+      inclusions?: CreateScheduleSlotInclusionInput[];
+    }[],
+    additionalInclusions?: CreateScheduleSlotInclusionInput[]
   ): Promise<void>;
   findLockedAssignments(
     organizationId: string,

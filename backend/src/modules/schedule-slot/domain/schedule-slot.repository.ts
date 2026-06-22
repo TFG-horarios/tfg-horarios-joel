@@ -34,8 +34,11 @@ export interface IScheduleSlotRepository {
     originalSlotIndex: number | null,
     duration: number
   ): Promise<ScheduleSlot[]>;
+  findScheduleIdsIncludingSlot(slotId: string): Promise<string[]>;
+  clearInclusionConflictsForSlot(slotId: string): Promise<void>;
   create(slot: ScheduleSlot): Promise<void>;
   createMany(slots: ScheduleSlot[]): Promise<void>;
   update(slot: ScheduleSlot): Promise<void>;
+  updateConflicts(slot: ScheduleSlot): Promise<void>;
   delete(id: string): Promise<void>;
 }

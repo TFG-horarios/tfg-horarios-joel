@@ -33,16 +33,23 @@ describe('UpdateClassroomUseCase', () => {
       organizationId: 'org-1',
       name: 'Old Lab',
       capacity: 30,
+      floor: 0,
       type: 'lab',
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
     });
     repositoryMock.findById.mockResolvedValueOnce(classroom);
-    const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
+    const dto = {
+      name: 'New Lab',
+      capacity: 40,
+      floor: 2,
+      type: 'theory' as const,
+    };
     const result = await useCase.execute('org-1', 'classroom-1', 'user-1', dto);
     expect(result.name).toBe('New Lab');
     expect(result.capacity).toBe(40);
+    expect(result.floor).toBe(2);
     expect(result.type).toBe('theory');
     expect(repositoryMock.update).toHaveBeenCalledWith(classroom);
   });
@@ -50,7 +57,12 @@ describe('UpdateClassroomUseCase', () => {
   test('should throw NotFoundError if classroom does not exist', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(null);
-    const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
+    const dto = {
+      name: 'New Lab',
+      capacity: 40,
+      floor: 2,
+      type: 'theory' as const,
+    };
     expect(
       useCase.execute('org-1', 'classroom-1', 'user-1', dto)
     ).rejects.toThrow(NotFoundError);
@@ -58,7 +70,12 @@ describe('UpdateClassroomUseCase', () => {
 
   test('should throw ForbiddenError if user lacks permission', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
-    const dto = { name: 'New Lab', capacity: 40, type: 'theory' as const };
+    const dto = {
+      name: 'New Lab',
+      capacity: 40,
+      floor: 2,
+      type: 'theory' as const,
+    };
     expect(
       useCase.execute('org-1', 'classroom-1', 'user-1', dto)
     ).rejects.toThrow(ForbiddenError);

@@ -23,6 +23,7 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'A-101',
       capacity: 30,
+      floor: 1,
       type: 'theory',
     });
 
@@ -34,6 +35,7 @@ describe('DrizzleClassroomRepository Integration', () => {
     expect(foundClassroom?.id).toBe(classroom.id);
     expect(foundClassroom?.name).toBe('A-101');
     expect(foundClassroom?.capacity).toBe(30);
+    expect(foundClassroom?.floor).toBe(1);
   });
 
   test('should return null if classroom not found by ID', async () => {
@@ -59,12 +61,14 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'C1',
       capacity: 30,
+      floor: 0,
       type: 'theory',
     });
     const classroom2 = Classroom.create({
       organizationId: testOrgId,
       name: 'C2',
       capacity: 20,
+      floor: 1,
       type: 'lab',
     });
     await repository.createMany([classroom1, classroom2]);
@@ -79,18 +83,21 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'Theory Room A',
       capacity: 50,
+      floor: 0,
       type: 'theory',
     });
     const classroom2 = Classroom.create({
       organizationId: testOrgId,
       name: 'Lab Room B',
       capacity: 20,
+      floor: 1,
       type: 'lab',
     });
     const classroom3 = Classroom.create({
       organizationId: testOrgId,
       name: 'Theory Room C',
       capacity: 100,
+      floor: 2,
       type: 'theory',
     });
     await repository.createMany([classroom1, classroom2, classroom3]);
@@ -131,12 +138,14 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'ID-1',
       capacity: 30,
+      floor: 0,
       type: 'theory',
     });
     const classroom2 = Classroom.create({
       organizationId: testOrgId,
       name: 'ID-2',
       capacity: 20,
+      floor: 1,
       type: 'lab',
     });
     await repository.createMany([classroom1, classroom2]);
@@ -152,6 +161,7 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'A-101',
       capacity: 40,
+      floor: 2,
       type: 'lab',
     });
     await expect(repository.create(classroomDuplicate)).rejects.toThrow(
@@ -162,11 +172,12 @@ describe('DrizzleClassroomRepository Integration', () => {
   test('should update a classroom successfully', async () => {
     const classroom = createValidClassroom();
     await repository.create(classroom);
-    classroom.update('B-202', 50, 'lab');
+    classroom.update('B-202', 50, 2, 'lab');
     await repository.update(classroom);
     const updatedClassroom = await repository.findById(classroom.id, testOrgId);
     expect(updatedClassroom?.name).toBe('B-202');
     expect(updatedClassroom?.capacity).toBe(50);
+    expect(updatedClassroom?.floor).toBe(2);
     expect(updatedClassroom?.type).toBe('lab');
   });
 
@@ -186,6 +197,7 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'A-102',
       capacity: 30,
+      floor: 1,
       type: 'theory',
     });
     await repository.createMany([classroom1, classroom2]);
@@ -203,6 +215,7 @@ describe('DrizzleClassroomRepository Integration', () => {
       organizationId: testOrgId,
       name: 'R-999',
       capacity: 50,
+      floor: -1,
       type: 'theory',
     });
     await repository.replace([newClassroom], testOrgId);

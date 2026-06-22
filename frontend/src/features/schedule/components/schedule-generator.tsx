@@ -30,6 +30,7 @@ import {
 } from '@/features/schedule/actions';
 import type { DegreeDTO, SubjectDTO, ScheduleDTO } from '@tfg-horarios/shared';
 import { Loader2, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Tooltip,
   TooltipContent,
@@ -91,10 +92,14 @@ export function ScheduleGenerator({
         throw new Error(result.message);
       }
 
+      toast.success(t('actions.generateSuccess'));
       setIsOpen(false);
       router.refresh();
     } catch (err) {
       console.error(err);
+      toast.error(
+        err instanceof Error ? err.message : t('actions.generateError')
+      );
     } finally {
       setIsGenerating(false);
     }

@@ -30,6 +30,7 @@ describe('GetClassroomUseCase', () => {
       organizationId: 'org-1',
       name: 'Lab 1',
       capacity: 30,
+      floor: 1,
       type: 'lab',
       createdAt: new Date(),
       updatedAt: new Date(),

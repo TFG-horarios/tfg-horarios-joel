@@ -14,6 +14,9 @@ describe('ScheduleSlotValidationAdapter', () => {
     update: mock(),
     delete: mock(),
     findLinkedSlots: mock(),
+    findScheduleIdsIncludingSlot: mock(),
+    clearInclusionConflictsForSlot: mock(),
+    updateConflicts: mock(),
   };
 
   const scheduleRepositoryMock = {
