@@ -3,6 +3,7 @@ import { PenaltyCalculator } from '../../domain/penalty-calculator';
 import { RoomTypeConstraint } from '../../domain/constraints/soft/room-type.constraint';
 import { LowerFloorConstraint } from '../../domain/constraints/soft/lower-floor.constraint';
 import { ClassroomConsolidationConstraint } from '../../domain/constraints/soft/classroom-consolidation.constraint';
+import { StudentGapsConstraint } from '../../domain/constraints/soft/student-gaps.constraint';
 import { RoomOverlapConstraint } from '../../domain/constraints/hard/room-overlap.constraint';
 import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
@@ -70,6 +71,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new RoomTypeConstraint(),
       new LowerFloorConstraint(),
       new ClassroomConsolidationConstraint(),
+      new StudentGapsConstraint(),
     ];
 
     const penaltyCalculator = new PenaltyCalculator(
