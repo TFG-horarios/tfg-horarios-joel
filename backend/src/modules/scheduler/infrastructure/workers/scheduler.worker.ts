@@ -4,6 +4,7 @@ import { RoomTypeConstraint } from '../../domain/constraints/soft/room-type.cons
 import { LowerFloorConstraint } from '../../domain/constraints/soft/lower-floor.constraint';
 import { ClassroomConsolidationConstraint } from '../../domain/constraints/soft/classroom-consolidation.constraint';
 import { StudentGapsConstraint } from '../../domain/constraints/soft/student-gaps.constraint';
+import { SubjectDistributionConstraint } from '../../domain/constraints/soft/subject-distribution.constraint';
 import { RoomOverlapConstraint } from '../../domain/constraints/hard/room-overlap.constraint';
 import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
@@ -72,6 +73,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new LowerFloorConstraint(),
       new ClassroomConsolidationConstraint(),
       new StudentGapsConstraint(),
+      new SubjectDistributionConstraint(),
     ];
 
     const penaltyCalculator = new PenaltyCalculator(

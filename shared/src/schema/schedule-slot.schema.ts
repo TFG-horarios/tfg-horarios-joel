@@ -1,6 +1,5 @@
 import { z } from '@hono/zod-openapi';
 
-// TODO: Añadir todas las restricciones duras para el manejo de conflictos
 export const ScheduleConflictTypeSchema = z.enum([
   'ROOM_OVERLAP',
   'COURSE_OVERLAP',
