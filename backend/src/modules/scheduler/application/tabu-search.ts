@@ -91,7 +91,7 @@ export class TabuSearchEngine {
           forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}`;
         } else {
           const requiredType =
-            original.groupType === 'practices' ? 'lab' : 'theory';
+            ['practices', 'reduced_practices', 'tutoring'].includes(original.groupType) ? 'lab' : 'theory';
           const compatibleClassrooms = this.availableClassrooms.filter(
             (id) => this.classroomsCache[id]?.type === requiredType
           );
@@ -100,12 +100,19 @@ export class TabuSearchEngine {
               ? compatibleClassrooms
               : this.availableClassrooms;
 
-          if (original.groupType === 'practices') {
+          if (['practices', 'reduced_practices', 'tutoring'].includes(original.groupType)) {
             const theoryRooms = this.availableClassrooms.filter(
               (id) => this.classroomsCache[id]?.type === 'theory'
             );
             classroomsToSearch = Array.from(
               new Set([...classroomsToSearch, ...theoryRooms])
+            );
+          } else {
+            const labRooms = this.availableClassrooms.filter(
+              (id) => this.classroomsCache[id]?.type === 'lab'
+            );
+            classroomsToSearch = Array.from(
+              new Set([...classroomsToSearch, ...labRooms])
             );
           }
 

@@ -35,8 +35,8 @@ export class InitialSolution {
         return a.isCommon ? -1 : 1;
       }
 
-      const isAPractices = a.groupType === 'practices' ? 1 : 0;
-      const isBPractices = b.groupType === 'practices' ? 1 : 0;
+      const isAPractices = ['practices', 'reduced_practices', 'tutoring'].includes(a.groupType) ? 1 : 0;
+      const isBPractices = ['practices', 'reduced_practices', 'tutoring'].includes(b.groupType) ? 1 : 0;
       if (isAPractices !== isBPractices) return isBPractices - isAPractices;
 
       return b.numberOfStudents - a.numberOfStudents;
@@ -86,7 +86,7 @@ export class InitialSolution {
         } | null = null;
         let minPenalty = Infinity;
 
-        const requiredType = group.groupType === 'practices' ? 'lab' : 'theory';
+        const requiredType = ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType) ? 'lab' : 'theory';
 
         const compatibleClassrooms = this.availableClassrooms.filter((id) => {
           const cls = this.classroomsCache[id];
@@ -104,7 +104,7 @@ export class InitialSolution {
                 (id) => this.classroomsCache[id]?.type === requiredType
               );
 
-        if (group.groupType === 'practices') {
+        if (['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)) {
           const fallbackRooms = this.availableClassrooms.filter((id) => {
             const cls = this.classroomsCache[id];
             return (
@@ -121,6 +121,31 @@ export class InitialSolution {
             fallbackRooms.length > 0 ? fallbackRooms : allTheoryRooms;
 
           classroomsToSearch = [...classroomsToSearch, ...theoryRoomsToAppend];
+        } else {
+          const fallbackRooms = this.availableClassrooms.filter((id) => {
+            const cls = this.classroomsCache[id];
+            return (
+              cls &&
+              cls.type === 'lab' &&
+              cls.capacity >= group.numberOfStudents
+            );
+          });
+          const allLabRooms = this.availableClassrooms.filter(
+            (id) => this.classroomsCache[id]?.type === 'lab'
+          );
+
+          const labRoomsToAppend =
+            fallbackRooms.length > 0 ? fallbackRooms : allLabRooms;
+
+          classroomsToSearch = [...classroomsToSearch, ...labRoomsToAppend];
+        }
+
+        if (group.groupType === 'reduced_practices') {
+          classroomsToSearch.sort((a, b) => {
+            const capA = this.classroomsCache[a]?.capacity || 0;
+            const capB = this.classroomsCache[b]?.capacity || 0;
+            return capA - capB;
+          });
         }
 
         const startLimit = group.shift === 'morning' ? 0 : this.maxMorningSlots;
