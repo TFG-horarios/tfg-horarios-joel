@@ -1,6 +1,8 @@
 import { describe, expect, test, mock } from 'bun:test';
 import { InitialSolution, type GroupInitialData } from './initial-solution';
 import { PenaltyCalculator } from './penalty-calculator';
+import { CourseOverlapConstraint } from './constraints/hard/course-overlap.constraint';
+import { RoomOverlapConstraint } from './constraints/hard/room-overlap.constraint';
 
 describe('InitialSolution', () => {
   const penaltyCalculator = new PenaltyCalculator([], [], {}, 6, 12);
@@ -68,5 +70,95 @@ describe('InitialSolution', () => {
     ];
     const result = initialEmpty.generate(groups);
     expect(result.assignments[0]?.classroomId).toBeNull();
+  });
+
+  test('compacts different itineraries into shared cells outside common classes', () => {
+    const compactClassrooms = {
+      'c-1': { type: 'theory' as const, capacity: 40 },
+      'c-2': { type: 'theory' as const, capacity: 40 },
+    };
+    const calculator = new PenaltyCalculator(
+      [new RoomOverlapConstraint(), new CourseOverlapConstraint()],
+      [],
+      compactClassrooms,
+      4,
+      4
+    );
+    const generator = new InitialSolution(
+      calculator,
+      Object.keys(compactClassrooms),
+      compactClassrooms,
+      4,
+      4,
+      60,
+      [1]
+    );
+    const common = {
+      isCommon: true,
+      itineraryName: null,
+      itineraryId: null,
+    };
+    const groups: GroupInitialData[] = [
+      {
+        subjectGroupId: 'common-group',
+        subjectId: 'common-subject',
+        groupType: 'theory',
+        numberOfStudents: 30,
+        shift: 'morning',
+        weeklyHours: 2,
+        degreeId: 'degree-1',
+        courseYear: 4,
+        ...common,
+      },
+      {
+        subjectGroupId: 'group-a',
+        subjectId: 'subject-a',
+        groupType: 'theory',
+        isCommon: false,
+        itineraryName: 'Itinerary A',
+        itineraryId: 'itinerary-a',
+        numberOfStudents: 30,
+        shift: 'morning',
+        weeklyHours: 2,
+        degreeId: 'degree-1',
+        courseYear: 4,
+      },
+      {
+        subjectGroupId: 'group-b',
+        subjectId: 'subject-b',
+        groupType: 'theory',
+        isCommon: false,
+        itineraryName: 'Itinerary B',
+        itineraryId: 'itinerary-b',
+        numberOfStudents: 30,
+        shift: 'morning',
+        weeklyHours: 2,
+        degreeId: 'degree-1',
+        courseYear: 4,
+      },
+    ];
+
+    const result = generator.generate(groups);
+    const commonCells = new Set(
+      result.assignments
+        .filter((assignment) => assignment.isCommon)
+        .map((assignment) => assignment.slotIndex)
+    );
+    const itineraryACells = new Set(
+      result.assignments
+        .filter((assignment) => assignment.itineraryId === 'itinerary-a')
+        .map((assignment) => assignment.slotIndex)
+    );
+    const itineraryBCells = new Set(
+      result.assignments
+        .filter((assignment) => assignment.itineraryId === 'itinerary-b')
+        .map((assignment) => assignment.slotIndex)
+    );
+
+    expect(result.hardPenalty).toBe(0);
+    expect(itineraryACells).toEqual(itineraryBCells);
+    expect([...itineraryACells].every((cell) => !commonCells.has(cell))).toBe(
+      true
+    );
   });
 });

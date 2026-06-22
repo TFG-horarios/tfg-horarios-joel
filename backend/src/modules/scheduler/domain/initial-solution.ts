@@ -31,28 +31,32 @@ export class InitialSolution {
     groups: GroupInitialData[],
     lockedAssignments: Assignment[] = []
   ): Solution {
+    const groupCountsPerSubjectType = new Map<string, Set<string>>();
+    for (const group of groups) {
+      const key = `${group.subjectId}-${group.shift}-${group.groupType}`;
+      const groupIds = groupCountsPerSubjectType.get(key) ?? new Set<string>();
+      groupIds.add(group.subjectGroupId);
+      groupCountsPerSubjectType.set(key, groupIds);
+    }
+
+    const rigidity = (group: GroupInitialData) => {
+      if (group.groupType === 'theory') return 3;
+      const key = `${group.subjectId}-${group.shift}-${group.groupType}`;
+      if (groupCountsPerSubjectType.get(key)?.size === 1) return 2;
+      return 1;
+    };
+
     const sortedGroups = [...groups].sort((a, b) => {
       if (a.isCommon !== b.isCommon) {
         return a.isCommon ? -1 : 1;
       }
 
-      const isAPractices = [
-        'practices',
-        'reduced_practices',
-        'tutoring',
-      ].includes(a.groupType)
-        ? 1
-        : 0;
-      const isBPractices = [
-        'practices',
-        'reduced_practices',
-        'tutoring',
-      ].includes(b.groupType)
-        ? 1
-        : 0;
-      if (isAPractices !== isBPractices) return isBPractices - isAPractices;
+      const rigidityDifference = rigidity(b) - rigidity(a);
+      if (rigidityDifference !== 0) return rigidityDifference;
 
-      return b.numberOfStudents - a.numberOfStudents;
+      return (
+        b.numberOfStudents - a.numberOfStudents || b.weeklyHours - a.weeklyHours
+      );
     });
 
     const assignments: Assignment[] = [];
@@ -178,62 +182,131 @@ export class InitialSolution {
             : this.maxSlotsPerDay;
 
         const spannedSlots = Math.ceil(sessionDuration);
+        const baselinePenalty = this.penaltyCalculator.calculatePenalty(
+          assignments,
+          lockedAssignments
+        );
+        const timeCandidates = this.days.flatMap((day) =>
+          Array.from(
+            { length: Math.max(0, endLimit - startLimit - spannedSlots + 1) },
+            (_, index) => ({ day, slot: startLimit + index })
+          )
+        );
 
-        for (const roomId of classroomsToSearch) {
-          for (const day of this.days) {
-            for (
-              let slot = startLimit;
-              slot <= endLimit - spannedSlots;
-              slot++
+        const overlappingAssignments = (day: number, slot: number) =>
+          assignments.filter((assignment) => {
+            if (
+              assignment.dayOfWeek !== day ||
+              assignment.slotIndex === null ||
+              assignment.degreeId !== group.degreeId ||
+              assignment.courseYear !== group.courseYear ||
+              assignment.shift !== group.shift
             ) {
-              let isOccupied = false;
-              for (let d = 0; d < spannedSlots; d++) {
-                if (occupiedClassrooms.has(`${roomId}_${day}_${slot + d}`)) {
-                  isOccupied = true;
-                  break;
-                }
-              }
-              if (isOccupied) continue;
+              return false;
+            }
 
-              const tempAssignment: Assignment = {
-                id: `${group.subjectGroupId}_${h}`,
-                subjectGroupId: group.subjectGroupId,
-                subjectId: group.subjectId,
-                shift: group.shift,
-                groupType: group.groupType,
-                isCommon: group.isCommon,
-                itineraryName: group.itineraryName ?? null,
-                itineraryId: group.itineraryId ?? null,
-                numberOfStudents: group.numberOfStudents,
-                degreeId: group.degreeId,
-                courseYear: group.courseYear,
+            const assignmentEnd =
+              assignment.slotIndex + Math.ceil(assignment.duration) - 1;
+            const candidateEnd = slot + spannedSlots - 1;
+            return (
+              slot <= assignmentEnd && candidateEnd >= assignment.slotIndex
+            );
+          });
+
+        timeCandidates.sort((a, b) => {
+          const assignmentsAtA = overlappingAssignments(a.day, a.slot);
+          const assignmentsAtB = overlappingAssignments(b.day, b.slot);
+
+          if (group.isCommon) {
+            const specificAtA = assignmentsAtA.filter(
+              (assignment) => !assignment.isCommon
+            ).length;
+            const specificAtB = assignmentsAtB.filter(
+              (assignment) => !assignment.isCommon
+            ).length;
+            return (
+              specificAtA - specificAtB ||
+              assignmentsAtA.length - assignmentsAtB.length ||
+              a.day - b.day ||
+              a.slot - b.slot
+            );
+          }
+
+          const commonAtA = assignmentsAtA.filter(
+            (assignment) => assignment.isCommon
+          ).length;
+          const commonAtB = assignmentsAtB.filter(
+            (assignment) => assignment.isCommon
+          ).length;
+          const otherItineraryAtA = assignmentsAtA.filter(
+            (assignment) =>
+              !assignment.isCommon &&
+              assignment.itineraryId !== group.itineraryId
+          ).length;
+          const otherItineraryAtB = assignmentsAtB.filter(
+            (assignment) =>
+              !assignment.isCommon &&
+              assignment.itineraryId !== group.itineraryId
+          ).length;
+
+          return (
+            commonAtA - commonAtB ||
+            otherItineraryAtB - otherItineraryAtA ||
+            assignmentsAtB.length - assignmentsAtA.length ||
+            a.day - b.day ||
+            a.slot - b.slot
+          );
+        });
+
+        candidateSearch: for (const { day, slot } of timeCandidates) {
+          for (const roomId of classroomsToSearch) {
+            let isOccupied = false;
+            for (let d = 0; d < spannedSlots; d++) {
+              if (occupiedClassrooms.has(`${roomId}_${day}_${slot + d}`)) {
+                isOccupied = true;
+                break;
+              }
+            }
+            if (isOccupied) continue;
+
+            const tempAssignment: Assignment = {
+              id: `${group.subjectGroupId}_${h}`,
+              subjectGroupId: group.subjectGroupId,
+              subjectId: group.subjectId,
+              shift: group.shift,
+              groupType: group.groupType,
+              isCommon: group.isCommon,
+              itineraryName: group.itineraryName ?? null,
+              itineraryId: group.itineraryId ?? null,
+              numberOfStudents: group.numberOfStudents,
+              degreeId: group.degreeId,
+              courseYear: group.courseYear,
+              classroomId: roomId,
+              dayOfWeek: day,
+              slotIndex: slot,
+              duration: sessionDuration,
+            };
+
+            assignments.push(tempAssignment);
+            const currentPenalty = this.penaltyCalculator.calculatePenalty(
+              assignments,
+              lockedAssignments
+            );
+            assignments.pop();
+
+            if (currentPenalty < minPenalty) {
+              minPenalty = currentPenalty;
+              bestPlacement = {
                 classroomId: roomId,
                 dayOfWeek: day,
                 slotIndex: slot,
-                duration: sessionDuration,
               };
-
-              assignments.push(tempAssignment);
-              const currentPenalty = this.penaltyCalculator.calculatePenalty(
-                assignments,
-                lockedAssignments
-              );
-              assignments.pop();
-
-              if (currentPenalty < minPenalty) {
-                minPenalty = currentPenalty;
-                bestPlacement = {
-                  classroomId: roomId,
-                  dayOfWeek: day,
-                  slotIndex: slot,
-                };
-              }
-
-              if (currentPenalty === 0) break;
             }
-            if (minPenalty === 0 && bestPlacement) break;
+
+            if (currentPenalty <= baselinePenalty) {
+              break candidateSearch;
+            }
           }
-          if (minPenalty === 0 && bestPlacement) break;
         }
 
         if (bestPlacement) {
