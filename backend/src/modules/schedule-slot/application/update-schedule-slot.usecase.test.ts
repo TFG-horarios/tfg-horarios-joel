@@ -21,6 +21,7 @@ describe('UpdateScheduleSlotUseCase', () => {
     isGroupCommon: mock(),
     unpublishSchedule: mock(),
     rejectConflictingReservations: mock(),
+    updateScheduleConflictsCount: mock(),
   };
 
   const memberProviderMock = {

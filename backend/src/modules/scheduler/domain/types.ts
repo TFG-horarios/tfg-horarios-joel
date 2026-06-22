@@ -9,6 +9,7 @@ export interface Assignment {
   groupType: GroupType;
   isCommon: boolean;
   itineraryName: string | null;
+  itineraryId?: string | null;
   numberOfStudents: number;
   degreeId: string;
   courseYear: number;

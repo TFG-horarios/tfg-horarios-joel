@@ -66,28 +66,14 @@ export function ScheduleGenerator({
   const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
   const [selectedCourseYears, setSelectedCourseYears] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [statusStep, setStatusStep] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [overwrittenSchedules, setOverwrittenSchedules] = useState<
     ScheduleDTO[]
   >([]);
 
-  const steps = [
-    t('generator.steps.0'),
-    t('generator.steps.1'),
-    t('generator.steps.2'),
-    t('generator.steps.3'),
-    t('generator.steps.4'),
-  ];
-
   const handleGenerate = async () => {
     setIsGenerating(true);
-    setStatusStep(0);
-
-    const interval = setInterval(() => {
-      setStatusStep((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
-    }, 1000);
 
     try {
       const result = await generateSchedulesAction(organizationId, {
@@ -105,11 +91,9 @@ export function ScheduleGenerator({
         throw new Error(result.message);
       }
 
-      clearInterval(interval);
       setIsOpen(false);
       router.refresh();
     } catch (err) {
-      clearInterval(interval);
       console.error(err);
     } finally {
       setIsGenerating(false);
@@ -200,19 +184,11 @@ export function ScheduleGenerator({
               <Loader2 className="size-10 text-primary animate-spin" />
               <div className="text-center space-y-1">
                 <p className="text-sm font-semibold text-foreground animate-pulse">
-                  {steps[statusStep]}
+                  {t('actions.generating')}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {t('generator.takesAWhile')}
                 </p>
-              </div>
-              <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all duration-1000 ease-out"
-                  style={{
-                    width: `${((statusStep + 1) / steps.length) * 100}%`,
-                  }}
-                />
               </div>
             </div>
           ) : (

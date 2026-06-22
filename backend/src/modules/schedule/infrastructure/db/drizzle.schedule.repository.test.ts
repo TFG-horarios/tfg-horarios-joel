@@ -6,6 +6,7 @@ import {
   seedTestDb,
   testOrgId,
   testDegreeId,
+  testSubjectId,
   testSubjectGroupId,
   testClassroomId,
   testAcademicYearId,
@@ -192,6 +193,10 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(locked.length).toBeGreaterThan(0);
     expect(locked[0]?.subjectGroupId).toBe(testSubjectGroupId);
     expect(locked[0]?.isLocked).toBe(true);
+    expect(locked[0]?.subjectId).toBe(testSubjectId);
+    expect(locked[0]?.isCommon).toBe(true);
+    expect(locked[0]?.groupType).toBe('practices');
+    expect(locked[0]?.numberOfStudents).toBe(50);
 
     const lockedExcluded = await repository.findLockedAssignments(
       testOrgId,

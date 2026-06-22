@@ -86,6 +86,103 @@ describe('GenerateScheduleUseCase', () => {
     expect(repositoryMock.createSchedulesWithSlots).toHaveBeenCalled();
   });
 
+  test('should not lock common assignments that belong to the generation scope', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
+    dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
+      { id: 'c-1', capacity: 30, type: 'THEORY' },
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
+      {
+        subjectGroupId: 'sg-common',
+        degreeId: 'deg-1',
+        courseYear: 1,
+        shift: 'morning',
+        isCommon: true,
+      },
+    ]);
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
+    repositoryMock.findByScope.mockResolvedValue(null);
+    repositoryMock.findLockedAssignments.mockResolvedValueOnce([
+      {
+        id: 'locked-1',
+        subjectGroupId: 'sg-common',
+        subjectId: 'sub-common',
+        degreeId: 'deg-1',
+        courseYear: 1,
+        shift: 'morning',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 30,
+        classroomId: 'c-1',
+        dayOfWeek: 1,
+        slotIndex: 0,
+        duration: 1,
+        isLocked: true,
+      },
+      {
+        id: 'locked-2',
+        subjectGroupId: 'sg-common',
+        subjectId: 'sub-common',
+        degreeId: 'deg-1',
+        courseYear: 1,
+        shift: 'morning',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 30,
+        classroomId: 'c-1',
+        dayOfWeek: 1,
+        slotIndex: 0,
+        duration: 1,
+        isLocked: true,
+      },
+    ]);
+    engineProviderMock.runGeneration.mockResolvedValueOnce({
+      assignments: [
+        {
+          id: 'generated-common',
+          subjectGroupId: 'sg-common',
+          subjectId: 'sub-common',
+          degreeId: 'deg-1',
+          courseYear: 1,
+          shift: 'morning',
+          groupType: 'theory',
+          isCommon: true,
+          itineraryName: null,
+          numberOfStudents: 30,
+          classroomId: 'c-1',
+          dayOfWeek: 2,
+          slotIndex: 1,
+          duration: 1,
+          conflicts: [],
+        },
+      ],
+      penalty: 0,
+      hardPenalty: 0,
+    });
+
+    await useCase.execute('org-1', 'user-1', {
+      academicYearId: 'ay-1',
+      periods: [1],
+    });
+
+    const runGenerationCall = engineProviderMock.runGeneration.mock.calls.at(-1);
+    expect(runGenerationCall?.[0]).toHaveLength(1);
+    expect(runGenerationCall?.[6]).toHaveLength(0);
+
+    const persistCall =
+      repositoryMock.createSchedulesWithSlots.mock.calls.at(-1);
+    expect(persistCall?.[0][0].slots).toHaveLength(1);
+  });
+
   test('should return empty if no target degrees', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce([]);

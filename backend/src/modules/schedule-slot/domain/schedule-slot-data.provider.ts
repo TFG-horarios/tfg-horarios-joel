@@ -23,4 +23,9 @@ export interface IScheduleSlotDataProvider {
     slotIndex: number,
     duration: number
   ): Promise<void>;
+  updateScheduleConflictsCount(
+    scheduleId: string,
+    organizationId: string,
+    conflictsCount: number
+  ): Promise<void>;
 }

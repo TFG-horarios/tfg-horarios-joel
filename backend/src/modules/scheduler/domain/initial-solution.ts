@@ -8,6 +8,7 @@ export interface GroupInitialData {
   groupType: GroupType;
   isCommon: boolean;
   itineraryName?: string | null;
+  itineraryId?: string | null;
   numberOfStudents: number;
   shift: Shift;
   weeklyHours: number;
@@ -180,6 +181,7 @@ export class InitialSolution {
                 groupType: group.groupType,
                 isCommon: group.isCommon,
                 itineraryName: group.itineraryName ?? null,
+                itineraryId: group.itineraryId ?? null,
                 numberOfStudents: group.numberOfStudents,
                 degreeId: group.degreeId,
                 courseYear: group.courseYear,
@@ -227,6 +229,7 @@ export class InitialSolution {
             groupType: group.groupType,
             isCommon: group.isCommon,
             itineraryName: group.itineraryName ?? null,
+            itineraryId: group.itineraryId ?? null,
             numberOfStudents: group.numberOfStudents,
             degreeId: group.degreeId,
             courseYear: group.courseYear,
@@ -244,6 +247,7 @@ export class InitialSolution {
             groupType: group.groupType,
             isCommon: group.isCommon,
             itineraryName: group.itineraryName ?? null,
+            itineraryId: group.itineraryId ?? null,
             numberOfStudents: group.numberOfStudents,
             degreeId: group.degreeId,
             courseYear: group.courseYear,

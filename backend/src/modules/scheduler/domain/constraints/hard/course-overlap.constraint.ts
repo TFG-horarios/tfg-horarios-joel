@@ -30,6 +30,14 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
             const a = classesAtThisTime[i]!;
             const b = classesAtThisTime[j]!;
             
+            if (
+              a.degreeId !== b.degreeId ||
+              a.courseYear !== b.courseYear ||
+              a.shift !== b.shift
+            ) {
+              continue;
+            }
+
             const conflict =
               a.isCommon || b.isCommon || a.itineraryName === b.itineraryName;
 

@@ -2,7 +2,7 @@
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import { cn } from '@/lib/utils';
-import { Clock, Users, Sun, Moon, GraduationCap, Map } from 'lucide-react';
+import { Clock, Users, Sun, Moon, GraduationCap, Map, CalendarDays } from 'lucide-react';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
 import { toast } from 'sonner';
@@ -120,6 +120,14 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
                 {itinerary ? itinerary.code : translations.common}
               </span>
             </div>
+            {subject?.courseYear && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">
+                  {subject.courseYear}º {translations.course}
+                </span>
+              </div>
+            )}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
               <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">{group.weeklyHours}h</span>

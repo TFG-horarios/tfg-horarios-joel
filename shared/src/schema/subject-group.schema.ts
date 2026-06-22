@@ -68,8 +68,8 @@ export const SubjectGroupListQuerySchema = PaginationQuerySchema.extend({
   groupType: z.enum(GROUP_TYPES).optional(),
   degreeId: z.string().optional(),
   itineraryId: z.string().optional(),
-  term: z.number().int().min(1).max(2).optional(),
-  year: z.number().int().min(1).max(6).optional(),
+  term: z.coerce.number().int().min(1).max(2).optional(),
+  year: z.coerce.number().int().min(1).max(6).optional(),
 });
 
 export const SaveSubjectGroupBodySchema = z

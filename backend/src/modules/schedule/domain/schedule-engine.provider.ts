@@ -43,6 +43,7 @@ export interface ScheduleEngineAssignment {
   groupType: GroupType;
   isCommon: boolean;
   itineraryName: string | null;
+  itineraryId?: string | null;
   numberOfStudents: number;
   degreeId: string;
   courseYear: number;

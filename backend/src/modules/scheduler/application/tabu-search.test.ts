@@ -4,6 +4,7 @@ import { PenaltyCalculator } from '../domain/penalty-calculator';
 import { InitialSolution } from '../domain/initial-solution';
 import type { IRandomGenerator } from '../domain/random-generator';
 import type { Solution } from '../domain/types';
+import { CourseOverlapConstraint } from '../domain/constraints/hard/course-overlap.constraint';
 
 describe('TabuSearchEngine', () => {
   const penaltyCalculator = new PenaltyCalculator([], [], {}, 12, 12);
@@ -83,5 +84,88 @@ describe('TabuSearchEngine', () => {
     });
     const result = engine.run([]);
     expect(result.penalty).toBe(50);
+  });
+
+  test('repairs common course overlaps before tabu iterations', () => {
+    const calculator = new PenaltyCalculator(
+      [new CourseOverlapConstraint()],
+      [],
+      {},
+      3,
+      6
+    );
+    const initialSolutionGen = new InitialSolution(
+      calculator,
+      ['c-1'],
+      {},
+      6,
+      3,
+      60
+    );
+    const initialSolution: Solution = {
+      assignments: [
+        {
+          id: 'common-1',
+          classroomId: 'c-1',
+          dayOfWeek: 1,
+          slotIndex: 0,
+          subjectGroupId: 'sg-common',
+          subjectId: 'sub-common',
+          shift: 'morning',
+          isCommon: true,
+          itineraryName: null,
+          numberOfStudents: 30,
+          degreeId: 'deg-1',
+          courseYear: 1,
+          groupType: 'theory',
+          duration: 1,
+        },
+        {
+          id: 'itinerary-1',
+          classroomId: 'c-1',
+          dayOfWeek: 1,
+          slotIndex: 0,
+          subjectGroupId: 'sg-itinerary',
+          subjectId: 'sub-itinerary',
+          shift: 'morning',
+          isCommon: false,
+          itineraryName: 'Itinerary A',
+          numberOfStudents: 30,
+          degreeId: 'deg-1',
+          courseYear: 1,
+          groupType: 'theory',
+          duration: 1,
+        },
+      ],
+      penalty: 2000,
+      hardPenalty: 2000,
+      conflicts: [
+        {
+          type: 'COURSE_OVERLAP_COMMON_ITINERARY',
+          subjectGroupId: 'sg-common',
+          assignmentId: 'common-1',
+          relatedSubjectGroupIds: ['sg-itinerary'],
+        },
+      ],
+    };
+    spyOn(initialSolutionGen, 'generate').mockReturnValueOnce(initialSolution);
+
+    const repairEngine = new TabuSearchEngine(
+      calculator,
+      initialSolutionGen,
+      ['c-1'],
+      {},
+      3,
+      6,
+      randomGen
+    );
+
+    const result = repairEngine.run([]);
+    const commonAssignment = result.assignments.find(
+      (assignment) => assignment.id === 'common-1'
+    );
+
+    expect(result.penalty).toBe(0);
+    expect(commonAssignment?.slotIndex).not.toBe(0);
   });
 });

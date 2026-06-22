@@ -157,6 +157,13 @@ export class UpdateScheduleSlotUseCase {
       }
     }
 
+    const totalConflicts = allSlots.reduce((acc, s) => acc + s.conflicts.length, 0);
+    await this.dataProvider.updateScheduleConflictsCount(
+      slot.scheduleId,
+      organizationId,
+      totalConflicts
+    );
+
     return ScheduleSlotMapper.toDTO(slot);
   }
 }

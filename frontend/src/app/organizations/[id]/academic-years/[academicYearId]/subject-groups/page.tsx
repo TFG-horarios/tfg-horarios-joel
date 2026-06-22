@@ -82,6 +82,10 @@ export default async function OrganizationSubjectGroupsPage({
       typeof rawSearchParams.itineraryId === 'string'
         ? rawSearchParams.itineraryId
         : undefined,
+    year:
+      typeof rawSearchParams.year === 'string'
+        ? Number(rawSearchParams.year)
+        : undefined,
   };
 
   const t = await getTranslations('Organizations.subjectGroups');
@@ -139,6 +143,7 @@ export default async function OrganizationSubjectGroupsPage({
     itinerary: tSubjects('itineraryPlaceholder'),
     subject: tSubjects('label'),
     common: tSubjects('common'),
+    course: tSubjects('course'),
   };
 
   return (
@@ -193,6 +198,14 @@ export default async function OrganizationSubjectGroupsPage({
                 options={degrees.map((d) => ({ label: d.name, value: d.id }))}
               />
               <ResourceFilterSelect
+                paramKey="year"
+                placeholder={tSubjects('coursePlaceholder')}
+                options={[1, 2, 3, 4, 5, 6].map((c) => ({
+                  label: `${c}º`,
+                  value: c.toString(),
+                }))}
+              />
+              <ResourceFilterSelect
                 paramKey="itineraryId"
                 placeholder={t('itineraryPlaceholder')}
                 options={[
@@ -239,6 +252,7 @@ export default async function OrganizationSubjectGroupsPage({
             'Horas',
             translations.students,
             translations.shift,
+            translations.course,
             translations.degree,
             translations.itinerary,
             ...(canEdit || canDelete ? ['Acciones'] : []),

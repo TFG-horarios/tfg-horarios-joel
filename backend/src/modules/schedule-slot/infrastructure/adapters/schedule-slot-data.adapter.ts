@@ -118,4 +118,19 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
       }
     }
   }
+
+  async updateScheduleConflictsCount(
+    scheduleId: string,
+    organizationId: string,
+    conflictsCount: number
+  ): Promise<void> {
+    const schedule = await this.scheduleRepository.findById(
+      scheduleId,
+      organizationId
+    );
+    if (!schedule) return;
+
+    schedule.updateConflicts(conflictsCount);
+    await this.scheduleRepository.update(schedule);
+  }
 }

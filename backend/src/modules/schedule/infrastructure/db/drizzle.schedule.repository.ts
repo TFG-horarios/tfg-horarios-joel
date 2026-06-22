@@ -23,11 +23,15 @@ import type {
 } from '../../domain/schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
 import type {
+  GroupType,
   Shift,
   ScheduleListQueryDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { ScheduleEngineAssignment } from '../../domain/schedule-engine.provider';
+import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
+import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
+import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -276,6 +280,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
               .update(schedulesTable)
               .set({
                 status: item.schedule.status,
+                conflicts: item.schedule.conflicts,
                 updatedAt: new Date(),
               })
               .where(eq(schedulesTable.id, item.schedule.id));
@@ -323,6 +328,12 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .select({
         id: scheduleSlotsTable.id,
         subjectGroupId: scheduleSlotsTable.subjectGroupId,
+        subjectId: subjectGroupsTable.subjectId,
+        groupType: subjectGroupsTable.groupType,
+        isCommon: subjectsTable.isCommon,
+        itineraryName: itinerariesTable.name,
+        itineraryId: subjectsTable.itineraryId,
+        numberOfStudents: subjectGroupsTable.numberOfStudents,
         shift: schedulesTable.shift,
         degreeId: schedulesTable.degreeId,
         courseYear: schedulesTable.courseYear,
@@ -336,17 +347,30 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         scheduleSlotsTable,
         eq(schedulesTable.id, scheduleSlotsTable.scheduleId)
       )
+      .innerJoin(
+        subjectGroupsTable,
+        eq(scheduleSlotsTable.subjectGroupId, subjectGroupsTable.id)
+      )
+      .innerJoin(
+        subjectsTable,
+        eq(subjectGroupsTable.subjectId, subjectsTable.id)
+      )
+      .leftJoin(
+        itinerariesTable,
+        eq(subjectsTable.itineraryId, itinerariesTable.id)
+      )
       .where(and(...conditions));
 
-    return rows.map((r) => ({
+    const assignments = rows.map((r) => ({
       id: r.id,
       subjectGroupId: r.subjectGroupId,
-      subjectId: 'locked',
+      subjectId: r.subjectId,
       shift: r.shift as Shift,
-      groupType: 'theory',
-      isCommon: false,
-      itineraryName: null,
-      numberOfStudents: 0,
+      groupType: r.groupType as GroupType,
+      isCommon: r.isCommon,
+      itineraryName: r.itineraryName,
+      itineraryId: r.itineraryId,
+      numberOfStudents: r.numberOfStudents,
       degreeId: r.degreeId,
       courseYear: r.courseYear,
       classroomId: r.classroomId,
@@ -355,6 +379,22 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       duration: r.duration,
       isLocked: true,
     }));
+
+    return [
+      ...new Map(
+        assignments.map((a) => {
+          const key = [
+            a.subjectGroupId,
+            a.classroomId ?? 'none',
+            a.dayOfWeek ?? 'none',
+            a.slotIndex ?? 'none',
+            a.duration,
+          ].join(':');
+
+          return [key, a];
+        })
+      ).values(),
+    ];
   }
 
   async delete(id: string, organizationId: string): Promise<void> {

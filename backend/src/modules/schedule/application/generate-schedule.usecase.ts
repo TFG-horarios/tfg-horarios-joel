@@ -157,14 +157,41 @@ export class GenerateScheduleUseCase {
           existingScheduleIdsToOverwrite
         );
 
-      for (const locked of lockedAssignments) {
+      const commonSubjectGroupIdsInScope = new Set(
+        groupsData
+          .filter((group) => group.isCommon)
+          .map((group) => group.subjectGroupId)
+      );
+
+      const effectiveLockedAssignments = lockedAssignments.filter(
+        (assignment) =>
+          !commonSubjectGroupIdsInScope.has(assignment.subjectGroupId)
+      );
+
+      for (const locked of effectiveLockedAssignments) {
         if (locked.shift === 'afternoon' && locked.slotIndex !== null) {
           locked.slotIndex += maxMorningSlots;
         }
       }
 
+      const uniqueLockedAssignments = [
+        ...new Map(
+          effectiveLockedAssignments.map((assignment) => {
+            const key = [
+              assignment.subjectGroupId,
+              assignment.classroomId ?? 'none',
+              assignment.dayOfWeek ?? 'none',
+              assignment.slotIndex ?? 'none',
+              assignment.duration,
+            ].join(':');
+
+            return [key, assignment];
+          })
+        ).values(),
+      ];
+
       const alreadyLockedGroupIds = new Set(
-        lockedAssignments.map((l) => l.subjectGroupId)
+        uniqueLockedAssignments.map((l) => l.subjectGroupId)
       );
 
       const groupsToGenerate = groupsData.filter(
@@ -178,10 +205,10 @@ export class GenerateScheduleUseCase {
         maxMorningSlots,
         maxAfternoonSlots,
         slotDuration,
-        lockedAssignments
+        uniqueLockedAssignments
       );
 
-      const inheritedAssignments = lockedAssignments.filter((l) =>
+      const inheritedAssignments = uniqueLockedAssignments.filter((l) =>
         groupsData.some((g) => g.subjectGroupId === l.subjectGroupId)
       );
 
@@ -279,7 +306,10 @@ export class GenerateScheduleUseCase {
           (asm) => {
             const filteredConflicts =
               asm.conflicts?.filter((c) => {
-                if (c.type === 'COURSE_OVERLAP' && c.relatedSubjectGroupIds) {
+                if (
+                  c.type.startsWith('COURSE_OVERLAP') &&
+                  c.relatedSubjectGroupIds
+                ) {
                   return c.relatedSubjectGroupIds.some((id) =>
                     scopeSubjectGroupIds.has(id)
                   );
