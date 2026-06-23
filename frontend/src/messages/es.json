@@ -701,7 +701,7 @@
           "3": "Ejecutando metaheurística Tabu Search...",
           "4": "Guardando horarios generados..."
         },
-        "takesAWhile": "Esto tomará unos segundos"
+        "takesAWhile": "Esta acción puede tardar varios minutos."
       },
       "actions": {
         "publish": "Publicar",

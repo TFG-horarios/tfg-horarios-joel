@@ -700,7 +700,7 @@
           "3": "Running Tabu Search metaheuristics...",
           "4": "Persisting generated schedules..."
         },
-        "takesAWhile": "This takes a few seconds"
+        "takesAWhile": "This action may take a few minutes."
       },
       "actions": {
         "publish": "Publish",

@@ -13,6 +13,7 @@ describe('InitialSolution', () => {
       name: 'A',
       type: 'theory' as const,
       capacity: 40,
+      floor: 1,
       organizationId: 'org-1',
     },
   };
@@ -74,8 +75,8 @@ describe('InitialSolution', () => {
 
   test('compacts different itineraries into shared cells outside common classes', () => {
     const compactClassrooms = {
-      'c-1': { type: 'theory' as const, capacity: 40 },
-      'c-2': { type: 'theory' as const, capacity: 40 },
+      'c-1': { type: 'theory' as const, capacity: 40, floor: 1 },
+      'c-2': { type: 'theory' as const, capacity: 40, floor: 1 },
     };
     const calculator = new PenaltyCalculator(
       [new RoomOverlapConstraint(), new CourseOverlapConstraint()],

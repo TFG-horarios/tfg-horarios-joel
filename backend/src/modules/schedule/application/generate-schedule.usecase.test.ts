@@ -468,9 +468,9 @@ describe('GenerateScheduleUseCase', () => {
               type: 'ROOM_OVERLAP',
               message: 'Conflict',
               severity: 'high',
-            }
+            },
           ],
-        }
+        },
       ],
       penalty: 1000,
       hardPenalty: 1000,

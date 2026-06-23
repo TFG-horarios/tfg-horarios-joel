@@ -10,9 +10,7 @@ describe('LowerFloorConstraint', () => {
       classroomsCache: {
         c1: { capacity: 30, type: 'theory', floor: 0 },
       },
-      assignments: [
-        { classroomId: 'c1' },
-      ],
+      assignments: [{ classroomId: 'c1' }],
     } as unknown as ConstraintContext;
 
     const result = constraint.calculatePenalty(context);

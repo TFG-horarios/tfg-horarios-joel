@@ -22,9 +22,7 @@ describe('ClassroomConsolidationConstraint', () => {
 
   test('should return 0 penalty if no classrooms are assigned', () => {
     const context = {
-      assignments: [
-        { classroomId: null },
-      ],
+      assignments: [{ classroomId: null }],
     } as unknown as ConstraintContext;
 
     const result = constraint.calculatePenalty(context);

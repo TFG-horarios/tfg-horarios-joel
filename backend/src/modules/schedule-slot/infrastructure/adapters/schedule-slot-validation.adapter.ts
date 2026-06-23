@@ -90,7 +90,11 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       await this.dataProvider.getAvailableClassrooms(organizationId);
     const classroomsCache: ClassroomMap = {};
     for (const c of availableClassrooms) {
-      classroomsCache[c.id] = { capacity: c.capacity, type: c.type, floor: c.floor };
+      classroomsCache[c.id] = {
+        capacity: c.capacity,
+        type: c.type,
+        floor: c.floor,
+      };
     }
 
     const assignments: Assignment[] = [];

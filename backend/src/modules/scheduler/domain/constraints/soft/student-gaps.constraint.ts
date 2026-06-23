@@ -33,7 +33,8 @@ export class StudentGapsConstraint implements IScheduleConstraint {
         }
       }
 
-      const cohortItineraries = itineraries.size > 0 ? Array.from(itineraries) : [null];
+      const cohortItineraries =
+        itineraries.size > 0 ? Array.from(itineraries) : [null];
 
       for (const itineraryName of cohortItineraries) {
         const cohortAssignments = assignments.filter(
@@ -71,7 +72,7 @@ export class StudentGapsConstraint implements IScheduleConstraint {
           if (activeSlots.size > 0) {
             const totalSpan = maxSlot - minSlot + 1;
             const gaps = totalSpan - activeSlots.size;
-            
+
             if (gaps > 0) {
               penalty += gaps * 10;
             }

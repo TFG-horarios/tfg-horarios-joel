@@ -30,7 +30,7 @@ describe('RoomTypeConstraint', () => {
         } as Assignment,
       ],
       {
-        'lab-1': { type: 'lab', capacity: 30 },
+        'lab-1': { type: 'lab', capacity: 30, floor: 1 },
       }
     );
     const result = constraint.calculatePenalty(ctx);
@@ -48,7 +48,7 @@ describe('RoomTypeConstraint', () => {
         } as Assignment,
       ],
       {
-        'theory-1': { type: 'theory', capacity: 30 },
+        'theory-1': { type: 'theory', capacity: 30, floor: 1 },
       }
     );
     const result = constraint.calculatePenalty(ctx);
@@ -66,7 +66,7 @@ describe('RoomTypeConstraint', () => {
         } as Assignment,
       ],
       {
-        'theory-1': { type: 'theory', capacity: 30 },
+        'theory-1': { type: 'theory', capacity: 30, floor: 1 },
       }
     );
     const result = constraint.calculatePenalty(ctx);
@@ -84,7 +84,7 @@ describe('RoomTypeConstraint', () => {
         } as Assignment,
       ],
       {
-        'lab-1': { type: 'lab', capacity: 30 },
+        'lab-1': { type: 'lab', capacity: 30, floor: 1 },
       }
     );
     const result = constraint.calculatePenalty(ctx);
@@ -107,8 +107,8 @@ describe('RoomTypeConstraint', () => {
         } as Assignment,
       ],
       {
-        'theory-1': { type: 'theory', capacity: 30 },
-        'lab-1': { type: 'lab', capacity: 30 },
+        'theory-1': { type: 'theory', capacity: 30, floor: 1 },
+        'lab-1': { type: 'lab', capacity: 30, floor: 2 },
       }
     );
     const result = constraint.calculatePenalty(ctx);

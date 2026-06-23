@@ -24,7 +24,7 @@ describe('StudentGapsConstraint', () => {
       duration,
       isCommon,
       itineraryName,
-    } as Assignment);
+    }) as Assignment;
 
   test('should return 0 penalty if schedule is compact', () => {
     const context = {

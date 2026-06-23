@@ -69,6 +69,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new CourseOverlapConstraint(),
     ];
 
+    // TODO: Añadir soft constraints
     const softConstraints = [];
     if (!optimizations || optimizations.includes('roomType')) {
       softConstraints.push(new RoomTypeConstraint());
@@ -101,18 +102,16 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       [1, 2, 3, 4, 5]
     );
 
-    const solution = runMultiStartTabuSearch(
-      buildSeeds(),
-      (seed) =>
-        new TabuSearchEngine(
-          penaltyCalculator,
-          initialSolutionGen,
-          orderedClassrooms,
-          classroomsCache,
-          maxMorningSlots,
-          maxSlotsPerDay,
-          new LCGGenerator(seed)
-        ).run(groupsData, orderedLockedAssignments)
+    const solution = runMultiStartTabuSearch(buildSeeds(), (seed) =>
+      new TabuSearchEngine(
+        penaltyCalculator,
+        initialSolutionGen,
+        orderedClassrooms,
+        classroomsCache,
+        maxMorningSlots,
+        maxSlotsPerDay,
+        new LCGGenerator(seed)
+      ).run(groupsData, orderedLockedAssignments)
     );
 
     const assignmentsMap = new Map<string, ScheduleEngineAssignment>();

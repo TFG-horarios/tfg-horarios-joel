@@ -42,12 +42,7 @@ import {
   unpublishScheduleAction,
   updateScheduleSlotAction,
 } from '@/features/schedule/actions';
-import {
-  Calendar,
-  Download,
-  Loader2,
-  Archive,
-} from 'lucide-react';
+import { Calendar, Download, Loader2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SchedulePlannerProps = {
