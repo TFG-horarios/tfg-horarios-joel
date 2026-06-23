@@ -105,7 +105,7 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const jsDay = reservationDate.getUTCDay();
+    const jsDay = reservationDate.getDay();
     const systemDayOfWeek = jsDay === 0 ? 7 : jsDay;
 
     const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
