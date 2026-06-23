@@ -35,6 +35,7 @@ describe('ListSubjectGroupsUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     });
     repositoryMock.findPaginated.mockResolvedValueOnce({
       data: [group],

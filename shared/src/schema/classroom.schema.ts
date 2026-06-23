@@ -2,7 +2,7 @@ import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
 import { SHIFT_TYPES } from './subject.schema';
 
-export const CLASSROOM_TYPES = ['theory', 'lab'] as const;
+export const CLASSROOM_TYPES = ['theory', 'lab', 'computer_lab'] as const;
 export type ClassroomType = (typeof CLASSROOM_TYPES)[number];
 
 export const ClassroomSchema = z

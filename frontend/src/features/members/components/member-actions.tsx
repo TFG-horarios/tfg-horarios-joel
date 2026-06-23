@@ -35,7 +35,7 @@ export function MemberActions({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                className="size-9 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30"
+                className="size-9 cursor-pointer bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover"
                 aria-label={t('create')}
                 onClick={() => setIsCreateOpen(true)}
               >

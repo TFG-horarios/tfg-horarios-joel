@@ -79,6 +79,7 @@ export function ClassroomForm({
           options={[
             { label: t('typeOptions.theory'), value: 'theory' },
             { label: t('typeOptions.lab'), value: 'lab' },
+            { label: t('typeOptions.computer_lab'), value: 'computer_lab' },
           ]}
         />
 

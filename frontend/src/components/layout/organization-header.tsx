@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef, Fragment, type ReactNode } from 'react';
+import { useEffect, useState, useRef, Fragment, Suspense, type ReactNode } from 'react';
 import { LogOut, Search, Building2, User, X, ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
@@ -29,7 +29,7 @@ import { getOrganizationNameAction } from '@/features/organizations/actions';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
-export function OrganizationHeader() {
+function OrganizationHeaderInner() {
   const pathname = usePathname();
   const { user, isAuthenticated } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -123,7 +123,7 @@ export function OrganizationHeader() {
                   ? 'Buscar organización...'
                   : 'Buscar curso académico...'
               }
-              className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
+              className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
             />
           </div>
           {query && (
@@ -149,7 +149,7 @@ export function OrganizationHeader() {
           <Link
             href="/organizations"
             className={cn(
-              'rounded-lg px-3 pt-2 text-base font-extrabold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10 md:text-sm md:font-semibold'
+              'rounded-lg px-3 p-2 text-base font-extrabold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10 md:text-sm md:font-semibold'
             )}
           >
             {tBrand('brand')}
@@ -236,7 +236,7 @@ export function OrganizationHeader() {
                       ? 'Buscar organización...'
                       : 'Buscar curso académico...'
                   }
-                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
+                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -253,7 +253,7 @@ export function OrganizationHeader() {
                       <BreadcrumbLink asChild>
                         <Link
                           href="/organizations"
-                          className="flex items-center gap-1.5 transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+                          className="flex items-center gap-1.5 transition-colors hover:text-brand-purple-solid"
                         >
                           <Building2 className="size-4" />
                           <span className="hidden sm:inline">
@@ -311,13 +311,13 @@ export function OrganizationHeader() {
                           <BreadcrumbSeparator />
                           <BreadcrumbItem className="min-w-0">
                             {isLast ? (
-                              <BreadcrumbPage className="truncate font-medium text-purple-700 dark:text-purple-300">
+                              <BreadcrumbPage className="truncate font-medium text-brand-purple-solid">
                                 {label}
                               </BreadcrumbPage>
                             ) : segment === 'academic-years' ? (
                               <BreadcrumbLink
                                 asChild
-                                className="truncate transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+                                className="truncate transition-colors hover:text-brand-purple-solid"
                               >
                                 <Link href={`/organizations/${orgId}`}>
                                   {label}
@@ -326,7 +326,7 @@ export function OrganizationHeader() {
                             ) : (
                               <BreadcrumbLink
                                 asChild
-                                className="truncate transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+                                className="truncate transition-colors hover:text-brand-purple-solid"
                               >
                                 <Link href={href}>{label}</Link>
                               </BreadcrumbLink>
@@ -396,5 +396,13 @@ export function OrganizationHeader() {
         </div>
       </div>
     </header>
+  );
+}
+
+export function OrganizationHeader() {
+  return (
+    <Suspense fallback={<header className="relative rounded-3xl border border-border bg-white/70 p-2 h-[56px]"></header>}>
+      <OrganizationHeaderInner />
+    </Suspense>
   );
 }

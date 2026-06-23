@@ -9,6 +9,7 @@ import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint'
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
 import { GroupOverlapConstraint } from '../../domain/constraints/hard/group-overlap.constraint';
 import { CourseOverlapConstraint } from '../../domain/constraints/hard/course-overlap.constraint';
+import { ComputerLabConstraint } from '../../domain/constraints/hard/computer-lab.constraint';
 import { LCGGenerator } from '../../domain/random-generator';
 import { InitialSolution } from '../../domain/initial-solution';
 import {
@@ -65,6 +66,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new RoomOverlapConstraint(),
       new ShiftConstraint(),
       new RoomCapacityConstraint(),
+      new ComputerLabConstraint(),
       new GroupOverlapConstraint(),
       new CourseOverlapConstraint(),
     ];
@@ -102,16 +104,20 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       [1, 2, 3, 4, 5]
     );
 
-    const solution = runMultiStartTabuSearch(buildSeeds(), (seed) =>
-      new TabuSearchEngine(
-        penaltyCalculator,
-        initialSolutionGen,
-        orderedClassrooms,
-        classroomsCache,
-        maxMorningSlots,
-        maxSlotsPerDay,
-        new LCGGenerator(seed)
-      ).run(groupsData, orderedLockedAssignments)
+    const solution = runMultiStartTabuSearch(
+      buildSeeds(),
+      (seed) =>
+        new TabuSearchEngine(
+          penaltyCalculator,
+          initialSolutionGen,
+          orderedClassrooms,
+          classroomsCache,
+          maxMorningSlots,
+          maxSlotsPerDay,
+          new LCGGenerator(seed)
+        ),
+      groupsData,
+      orderedLockedAssignments
     );
 
     const assignmentsMap = new Map<string, ScheduleEngineAssignment>();

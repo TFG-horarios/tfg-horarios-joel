@@ -46,7 +46,7 @@ export function ResourceFilterInput({
     <Input
       type={type}
       placeholder={placeholder}
-      className="h-9 w-full lg:w-32"
+      className="h-9 w-full lg:w-40"
       value={value}
       onChange={handleChange}
     />

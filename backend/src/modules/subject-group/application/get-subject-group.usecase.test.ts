@@ -35,6 +35,7 @@ describe('GetSubjectGroupUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     });
     repositoryMock.findById.mockResolvedValueOnce(group);
     const result = await useCase.execute('org-1', 'grp-1', 'user-1');

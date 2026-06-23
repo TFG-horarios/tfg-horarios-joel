@@ -21,8 +21,8 @@ describe('ScheduleSlotAdapter', () => {
 
   test('hasUnassignedSlots should return true if any slot is unassigned', async () => {
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
-      { dayOfWeek: null, slotIndex: null },
-      { dayOfWeek: 1, slotIndex: 1 },
+      { classroomId: null, dayOfWeek: null, slotIndex: null },
+      { classroomId: 'c-1', dayOfWeek: 1, slotIndex: 1 },
     ]);
 
     const result = await adapter.hasUnassignedSlots('sch-1');
@@ -31,8 +31,8 @@ describe('ScheduleSlotAdapter', () => {
 
   test('hasUnassignedSlots should return false if all slots are assigned', async () => {
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
-      { dayOfWeek: 1, slotIndex: 1 },
-      { dayOfWeek: 2, slotIndex: 2 },
+      { classroomId: 'c-1', dayOfWeek: 1, slotIndex: 1 },
+      { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 2 },
     ]);
 
     const result = await adapter.hasUnassignedSlots('sch-1');
@@ -43,5 +43,13 @@ describe('ScheduleSlotAdapter', () => {
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([]);
     const result = await adapter.hasUnassignedSlots('sch-1');
     expect(result).toBe(false);
+  });
+
+  test('hasUnassignedSlots should return true if a classroom is missing', async () => {
+    scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
+      { classroomId: null, dayOfWeek: 1, slotIndex: 1 },
+    ]);
+
+    expect(await adapter.hasUnassignedSlots('sch-1')).toBe(true);
   });
 });

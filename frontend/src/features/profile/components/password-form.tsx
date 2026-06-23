@@ -57,7 +57,7 @@ export function PasswordForm() {
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40"
+          className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border"
         />
       </div>
 
@@ -68,7 +68,7 @@ export function PasswordForm() {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40"
+            className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border"
           />
         </div>
 
@@ -81,7 +81,7 @@ export function PasswordForm() {
             className={`flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
               showMatchError
                 ? 'border-red-500/50 focus:ring-red-500/40'
-                : 'border-border focus:ring-purple-400/40'
+                : 'border-border focus:ring-brand-purple-border'
             }`}
           />
           {showMatchError && (

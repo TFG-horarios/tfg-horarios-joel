@@ -12,6 +12,7 @@ describe('SubjectGroup', () => {
     groupNumber: 1,
     weeklyHours: 4,
     numberOfStudents: 30,
+      needsComputerLab: false,
   };
 
   test('creates a subject group successfully', () => {
@@ -59,6 +60,7 @@ describe('SubjectGroup', () => {
       groupNumber: 2,
       weeklyHours: 2,
       numberOfStudents: 15,
+      needsComputerLab: false,
     });
     expect(group.name).toBe('Practices 2');
     expect(group.groupType).toBe('practices');

@@ -62,7 +62,8 @@ export const createScheduleModule = (
     classroomRepository,
     subjectGroupRepository,
     academicYearRepository,
-    reservationRepository
+    reservationRepository,
+    createNotificationUseCase
   );
 
   const engineProvider = new SchedulerEngineAdapter();

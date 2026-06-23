@@ -51,6 +51,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       period: row.period,
       isCanonicalCommon: row.isCanonicalCommon,
       conflicts: row.conflicts,
+      unassigned: row.unassigned,
       status: row.status,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -69,6 +70,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       period: domain.period,
       isCanonicalCommon: domain.isCanonicalCommon,
       conflicts: domain.conflicts,
+      unassigned: domain.unassigned,
       status: domain.status,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
@@ -243,6 +245,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .set({
         status: rawData.status,
         conflicts: rawData.conflicts,
+        unassigned: rawData.unassigned,
         isCanonicalCommon: rawData.isCanonicalCommon,
         updatedAt: new Date(),
       })
@@ -250,6 +253,56 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         and(
           eq(schedulesTable.id, schedule.id),
           eq(schedulesTable.organizationId, schedule.organizationId)
+        )
+      );
+  }
+
+  async updateConflictsAndUnassignedCount(
+    scheduleId: string,
+    organizationId: string
+  ): Promise<void> {
+    await this.database
+      .update(schedulesTable)
+      .set({
+        conflicts: sql<number>`
+          COALESCE((
+            SELECT COUNT(*)
+            FROM ${scheduleSlotsTable} AS own_slot,
+              LATERAL jsonb_array_elements(own_slot.conflicts) AS conflict
+            WHERE own_slot.schedule_id = ${scheduleId}
+              AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
+          ), 0)
+          +
+          COALESCE((
+            SELECT COUNT(*)
+            FROM ${scheduleSlotInclusionsTable} AS included_slot,
+              LATERAL jsonb_array_elements(included_slot.conflicts) AS conflict
+            WHERE included_slot.schedule_id = ${scheduleId}
+              AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
+          ), 0)
+        `,
+        unassigned: sql<number>`
+          COALESCE((
+            SELECT COUNT(*)
+            FROM ${scheduleSlotsTable}
+            WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
+              AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
+          ), 0)
+          +
+          COALESCE((
+            SELECT COUNT(*)
+            FROM ${scheduleSlotInclusionsTable}
+            INNER JOIN ${scheduleSlotsTable} ON ${scheduleSlotInclusionsTable.slotId} = ${scheduleSlotsTable.id}
+            WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
+              AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
+          ), 0)
+        `,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(schedulesTable.id, scheduleId),
+          eq(schedulesTable.organizationId, organizationId)
         )
       );
   }
@@ -311,6 +364,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
               .set({
                 status: item.schedule.status,
                 conflicts: item.schedule.conflicts,
+                unassigned: item.schedule.unassigned,
                 isCanonicalCommon: item.schedule.isCanonicalCommon,
                 updatedAt: new Date(),
               })
@@ -360,15 +414,35 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
             .set({
               conflicts: sql<number>`
                 COALESCE((
-                  SELECT SUM(jsonb_array_length(${scheduleSlotsTable.conflicts}))
-                  FROM ${scheduleSlotsTable}
-                  WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
+                  SELECT COUNT(*)
+                  FROM ${scheduleSlotsTable} AS own_slot,
+                    LATERAL jsonb_array_elements(own_slot.conflicts) AS conflict
+                  WHERE own_slot.schedule_id = ${scheduleId}
+                    AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
                 ), 0)
                 +
                 COALESCE((
-                  SELECT SUM(jsonb_array_length(${scheduleSlotInclusionsTable.conflicts}))
+                  SELECT COUNT(*)
+                  FROM ${scheduleSlotInclusionsTable} AS included_slot,
+                    LATERAL jsonb_array_elements(included_slot.conflicts) AS conflict
+                  WHERE included_slot.schedule_id = ${scheduleId}
+                    AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
+                ), 0)
+              `,
+              unassigned: sql<number>`
+                COALESCE((
+                  SELECT COUNT(*)
+                  FROM ${scheduleSlotsTable}
+                  WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
+                    AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
+                ), 0)
+                +
+                COALESCE((
+                  SELECT COUNT(*)
                   FROM ${scheduleSlotInclusionsTable}
+                  INNER JOIN ${scheduleSlotsTable} ON ${scheduleSlotInclusionsTable.slotId} = ${scheduleSlotsTable.id}
                   WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
+                    AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
                 ), 0)
               `,
               updatedAt: new Date(),
@@ -412,6 +486,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         itineraryName: itinerariesTable.name,
         itineraryId: subjectsTable.itineraryId,
         numberOfStudents: subjectGroupsTable.numberOfStudents,
+        needsComputerLab: subjectGroupsTable.needsComputerLab,
         shift: schedulesTable.shift,
         degreeId: schedulesTable.degreeId,
         courseYear: schedulesTable.courseYear,
@@ -449,6 +524,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       itineraryName: r.itineraryName,
       itineraryId: r.itineraryId,
       numberOfStudents: r.numberOfStudents,
+      needsComputerLab: r.needsComputerLab,
       degreeId: r.degreeId,
       courseYear: r.courseYear,
       classroomId: r.classroomId,

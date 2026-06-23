@@ -1,6 +1,7 @@
 import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ScheduleDataAdapter } from './schedule-data.adapter';
 import { ClassroomReservation } from '@/modules/classroom-reservation/domain/classroom-reservation.entity';
+import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 describe('ScheduleDataAdapter', () => {
   const degreeRepositoryMock = {
@@ -61,13 +62,17 @@ describe('ScheduleDataAdapter', () => {
     hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
   };
+  const createNotificationUseCaseMock = {
+    execute: mock(),
+  } as unknown as CreateNotificationUseCase;
 
   const adapter = new ScheduleDataAdapter(
     degreeRepositoryMock,
     classroomRepositoryMock,
     subjectGroupRepositoryMock,
     academicYearRepositoryMock,
-    reservationRepositoryMock
+    reservationRepositoryMock,
+    createNotificationUseCaseMock
   );
 
   beforeEach(() => {
@@ -150,17 +155,28 @@ describe('ScheduleDataAdapter', () => {
     reservationRepositoryMock.findReservationsInDateRange.mockResolvedValue([
       reservation,
     ]);
+    academicYearRepositoryMock.findById.mockResolvedValue({
+      organizationId: 'org-1',
+      getMatchingPeriods: () => [1],
+    });
 
-    await adapter.rejectConflictingReservationsBatch('org-1', [
-      { classroomId: 'room-1', dayOfWeek: 3, slotIndex: 1, duration: 2 },
+    await adapter.rejectConflictingReservationsBatch('org-1', 'year-1', [
+      {
+        classroomId: 'room-1',
+        dayOfWeek: 3,
+        slotIndex: 1,
+        duration: 2,
+        period: 1,
+      },
     ]);
 
     expect(reservation.status).toBe('REJECTED');
     expect(reservationRepositoryMock.update).toHaveBeenCalledWith(reservation);
+    expect(createNotificationUseCaseMock.execute).toHaveBeenCalled();
   });
 
   test('rejectConflictingReservationsBatch should do nothing if no slots', async () => {
-    await adapter.rejectConflictingReservationsBatch('org-1', []);
+    await adapter.rejectConflictingReservationsBatch('org-1', 'year-1', []);
     expect(
       reservationRepositoryMock.findReservationsInDateRange
     ).not.toHaveBeenCalled();

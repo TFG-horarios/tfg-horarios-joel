@@ -10,6 +10,7 @@ export interface GroupInitialData {
   itineraryName?: string | null;
   itineraryId?: string | null;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   shift: Shift;
   weeklyHours: number;
   degreeId: string;
@@ -110,78 +111,9 @@ export class InitialSolution {
           slotIndex: number;
         } | null = null;
         let minPenalty = Infinity;
+        let minHardPenalty = Infinity;
 
-        const requiredType = [
-          'practices',
-          'reduced_practices',
-          'tutoring',
-        ].includes(group.groupType)
-          ? 'lab'
-          : 'theory';
-
-        const compatibleClassrooms = this.availableClassrooms.filter((id) => {
-          const cls = this.classroomsCache[id];
-          return (
-            cls &&
-            cls.type === requiredType &&
-            cls.capacity >= group.numberOfStudents
-          );
-        });
-
-        let classroomsToSearch =
-          compatibleClassrooms.length > 0
-            ? compatibleClassrooms
-            : this.availableClassrooms.filter(
-                (id) => this.classroomsCache[id]?.type === requiredType
-              );
-
-        if (
-          ['practices', 'reduced_practices', 'tutoring'].includes(
-            group.groupType
-          )
-        ) {
-          const fallbackRooms = this.availableClassrooms.filter((id) => {
-            const cls = this.classroomsCache[id];
-            return (
-              cls &&
-              cls.type === 'theory' &&
-              cls.capacity >= group.numberOfStudents
-            );
-          });
-          const allTheoryRooms = this.availableClassrooms.filter(
-            (id) => this.classroomsCache[id]?.type === 'theory'
-          );
-
-          const theoryRoomsToAppend =
-            fallbackRooms.length > 0 ? fallbackRooms : allTheoryRooms;
-
-          classroomsToSearch = [...classroomsToSearch, ...theoryRoomsToAppend];
-        } else {
-          const fallbackRooms = this.availableClassrooms.filter((id) => {
-            const cls = this.classroomsCache[id];
-            return (
-              cls &&
-              cls.type === 'lab' &&
-              cls.capacity >= group.numberOfStudents
-            );
-          });
-          const allLabRooms = this.availableClassrooms.filter(
-            (id) => this.classroomsCache[id]?.type === 'lab'
-          );
-
-          const labRoomsToAppend =
-            fallbackRooms.length > 0 ? fallbackRooms : allLabRooms;
-
-          classroomsToSearch = [...classroomsToSearch, ...labRoomsToAppend];
-        }
-
-        if (group.groupType === 'reduced_practices') {
-          classroomsToSearch.sort((a, b) => {
-            const capA = this.classroomsCache[a]?.capacity || 0;
-            const capB = this.classroomsCache[b]?.capacity || 0;
-            return capA - capB;
-          });
-        }
+        const classroomsToSearch = this.getClassroomsForGroup(group);
 
         const startLimit = group.shift === 'morning' ? 0 : this.maxMorningSlots;
         const endLimit =
@@ -190,7 +122,7 @@ export class InitialSolution {
             : this.maxSlotsPerDay;
 
         const spannedSlots = Math.ceil(sessionDuration);
-        const baselinePenalty = this.penaltyCalculator.calculatePenalty(
+        const baselinePenalty = this.penaltyCalculator.evaluateHard(
           assignments,
           lockedAssignments
         );
@@ -287,6 +219,7 @@ export class InitialSolution {
               itineraryName: group.itineraryName ?? null,
               itineraryId: group.itineraryId ?? null,
               numberOfStudents: group.numberOfStudents,
+              needsComputerLab: group.needsComputerLab,
               degreeId: group.degreeId,
               courseYear: group.courseYear,
               classroomId: roomId,
@@ -296,14 +229,14 @@ export class InitialSolution {
             };
 
             assignments.push(tempAssignment);
-            const currentPenalty = this.penaltyCalculator.calculatePenalty(
+            const currentPenalty = this.penaltyCalculator.evaluateHard(
               assignments,
               lockedAssignments
             );
             assignments.pop();
 
-            if (currentPenalty < minPenalty) {
-              minPenalty = currentPenalty;
+            if (currentPenalty.hardPenalty < minHardPenalty) {
+              minHardPenalty = currentPenalty.hardPenalty;
               bestPlacement = {
                 classroomId: roomId,
                 dayOfWeek: day,
@@ -311,7 +244,7 @@ export class InitialSolution {
               };
             }
 
-            if (currentPenalty <= baselinePenalty) {
+            if (currentPenalty.hardPenalty <= baselinePenalty.hardPenalty) {
               break candidateSearch;
             }
           }
@@ -334,6 +267,7 @@ export class InitialSolution {
             itineraryName: group.itineraryName ?? null,
             itineraryId: group.itineraryId ?? null,
             numberOfStudents: group.numberOfStudents,
+            needsComputerLab: group.needsComputerLab,
             degreeId: group.degreeId,
             courseYear: group.courseYear,
             classroomId: bestPlacement.classroomId,
@@ -352,6 +286,7 @@ export class InitialSolution {
             itineraryName: group.itineraryName ?? null,
             itineraryId: group.itineraryId ?? null,
             numberOfStudents: group.numberOfStudents,
+            needsComputerLab: group.needsComputerLab,
             degreeId: group.degreeId,
             courseYear: group.courseYear,
             classroomId: null,
@@ -363,15 +298,81 @@ export class InitialSolution {
       }
     }
 
-    const penalties = this.penaltyCalculator.evaluate(
+    const penalties = this.penaltyCalculator.evaluateHard(
       assignments,
       lockedAssignments
     );
     return {
       assignments,
-      penalty: penalties.totalPenalty,
+      unassigned: assignments.filter(
+        (assignment) =>
+          assignment.classroomId === null ||
+          assignment.dayOfWeek === null ||
+          assignment.slotIndex === null
+      ).length,
+      penalty: penalties.hardPenalty,
       hardPenalty: penalties.hardPenalty,
       conflicts: penalties.conflicts,
     };
+  }
+
+  private getClassroomsForGroup(group: GroupInitialData): string[] {
+    const requiredType = group.needsComputerLab
+      ? 'computer_lab'
+      : ['practices', 'reduced_practices', 'tutoring'].includes(
+            group.groupType
+          )
+        ? 'lab'
+        : 'theory';
+
+    const compatibleClassrooms = this.availableClassrooms.filter((id) => {
+      const cls = this.classroomsCache[id];
+      return (
+        cls &&
+        cls.type === requiredType &&
+        cls.capacity >= group.numberOfStudents
+      );
+    });
+
+    let classroomsToSearch = compatibleClassrooms;
+
+    if (
+      !group.needsComputerLab &&
+      ['practices', 'reduced_practices', 'tutoring'].includes(
+        group.groupType
+      )
+    ) {
+      const fallbackRooms = this.availableClassrooms.filter((id) => {
+        const cls = this.classroomsCache[id];
+        return (
+          cls &&
+          cls.type === 'theory' &&
+          cls.capacity >= group.numberOfStudents
+        );
+      });
+
+      classroomsToSearch = [...classroomsToSearch, ...fallbackRooms];
+    } else if (!group.needsComputerLab) {
+      const fallbackRooms = this.availableClassrooms.filter((id) => {
+        const cls = this.classroomsCache[id];
+        return (
+          cls &&
+          cls.type === 'lab' &&
+          cls.capacity >= group.numberOfStudents
+        );
+      });
+
+      classroomsToSearch = [...classroomsToSearch, ...fallbackRooms];
+    }
+
+    if (group.groupType === 'reduced_practices') {
+      classroomsToSearch.sort((a, b) => {
+        const capA = this.classroomsCache[a]?.capacity || 0;
+        const capB = this.classroomsCache[b]?.capacity || 0;
+        return capA - capB;
+      });
+    }
+
+    return classroomsToSearch;
   }
 }

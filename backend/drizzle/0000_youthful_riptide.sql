@@ -1,4 +1,4 @@
-CREATE TYPE "public"."classroom_type" AS ENUM('theory', 'lab');--> statement-breakpoint
+CREATE TYPE "public"."classroom_type" AS ENUM('theory', 'lab', 'computer_lab');--> statement-breakpoint
 CREATE TYPE "public"."shift" AS ENUM('morning', 'afternoon');--> statement-breakpoint
 CREATE TYPE "public"."group_type" AS ENUM('theory', 'problems', 'practices', 'reduced_practices', 'tutoring');--> statement-breakpoint
 CREATE TYPE "public"."schedule_status" AS ENUM('draft', 'published');--> statement-breakpoint
@@ -63,6 +63,7 @@ CREATE TABLE "subject_group" (
 	"group_number" integer NOT NULL,
 	"weekly_hours" numeric(4, 1) NOT NULL,
 	"number_of_students" integer NOT NULL,
+	"needs_computer_lab" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
@@ -90,6 +91,7 @@ CREATE TABLE "schedule" (
 	"period" integer NOT NULL,
 	"is_canonical_common" boolean DEFAULT false NOT NULL,
 	"conflicts" integer DEFAULT 0 NOT NULL,
+	"unassigned" integer DEFAULT 0 NOT NULL,
 	"status" "schedule_status" DEFAULT 'draft' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL

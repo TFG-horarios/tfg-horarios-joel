@@ -9,6 +9,7 @@ export interface ValidationAssignment {
   isCommon: boolean;
   itineraryName: string | null;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   duration: number;
   dayOfWeek: number | null;
   slotIndex: number | null;

@@ -66,6 +66,7 @@ export class UpdateSubjectGroupUseCase {
       groupNumber: dto.groupNumber,
       weeklyHours: dto.weeklyHours,
       numberOfStudents: dto.numberOfStudents,
+      needsComputerLab: dto.needsComputerLab,
     });
 
     await this.subjectGroupRepository.update(group);

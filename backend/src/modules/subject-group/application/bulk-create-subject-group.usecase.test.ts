@@ -37,6 +37,7 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+      needsComputerLab: false,
         subjectId: 'sub-1',
       },
     ];
@@ -54,6 +55,7 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+      needsComputerLab: false,
         subjectId: 'sub-1',
       },
       {
@@ -63,6 +65,7 @@ describe('BulkCreateSubjectGroupUseCase', () => {
         groupNumber: 1,
         weeklyHours: 4,
         numberOfStudents: 30,
+      needsComputerLab: false,
         subjectId: 'sub-1',
       },
     ];

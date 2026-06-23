@@ -8,6 +8,7 @@ import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
 import { toast } from 'sonner';
 import { SubjectGroupFormModal } from './subject-group-form-modal';
 import type { SubjectGroupCardProps } from './subject-group-card';
+import { Monitor } from 'lucide-react';
 
 export const SubjectGroupRow = memo(function SubjectGroupRow({
   item: group,
@@ -54,7 +55,21 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
         >
           {subject?.name ?? '-'}
         </TableCell>
-        <TableCell>{groupTypeLabel}</TableCell>
+        <TableCell>
+          {groupTypeLabel}
+        </TableCell>
+        <TableCell>
+          {group.needsComputerLab ? (
+            <span
+              title="Requiere aula de ordenadores"
+              className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold"
+            >
+              <Monitor className="w-4 h-4" /> Sí
+            </span>
+          ) : (
+            <span className="text-muted-foreground">No</span>
+          )}
+        </TableCell>
         <TableCell>{group.groupNumber}</TableCell>
         <TableCell className="font-medium">{group.name}</TableCell>
         <TableCell>{group.weeklyHours}h</TableCell>

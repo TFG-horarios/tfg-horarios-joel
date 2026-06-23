@@ -45,6 +45,11 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-purple-bg: var(--brand-purple-bg);
+  --color-brand-purple-hover: var(--brand-purple-hover);
+  --color-brand-purple-border: var(--brand-purple-border);
+  --color-brand-purple-solid: var(--brand-purple-solid);
 }
 
 :root {
@@ -81,6 +86,11 @@
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #000000;
   --glow-color: rgba(0, 0, 0, 0.03);
+  --brand-purple: #7e22ce;
+  --brand-purple-bg: rgba(168, 85, 247, 0.15);
+  --brand-purple-hover: rgba(168, 85, 247, 0.25);
+  --brand-purple-border: rgba(168, 85, 247, 0.40);
+  --brand-purple-solid: #9333ea;
 }
 
 .dark {
@@ -116,6 +126,11 @@
   --sidebar-border: #374151;
   --sidebar-ring: #ffffff;
   --glow-color: rgba(255, 255, 255, 0.05);
+  --brand-purple: #e9d5ff;
+  --brand-purple-bg: rgba(168, 85, 247, 0.20);
+  --brand-purple-hover: rgba(168, 85, 247, 0.30);
+  --brand-purple-border: rgba(168, 85, 247, 0.30);
+  --brand-purple-solid: #a855f7;
 }
 
 @layer base {
@@ -145,6 +160,17 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  form button[type="submit"] {
+    background-color: var(--brand-purple-bg) !important;
+    color: var(--brand-purple) !important;
+    border: 1px solid var(--brand-purple-border) !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  form button[type="submit"]:hover {
+    background-color: var(--brand-purple-hover) !important;
   }
 }
 

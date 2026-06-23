@@ -16,7 +16,12 @@ class MockWorker {
           this.onmessage({
             data: {
               type: 'SUCCESS',
-              payload: { assignments: [], penalty: 0, hardPenalty: 0 },
+              payload: {
+                assignments: [],
+                unassigned: 0,
+                penalty: 0,
+                hardPenalty: 0,
+              },
             },
           });
       }, 0);
@@ -50,7 +55,12 @@ describe('SchedulerEngineAdapter', () => {
       60,
       []
     );
-    expect(result).toEqual({ assignments: [], penalty: 0, hardPenalty: 0 });
+    expect(result).toEqual({
+      assignments: [],
+      unassigned: 0,
+      penalty: 0,
+      hardPenalty: 0,
+    });
   });
 
   test('should reject on onerror', async () => {

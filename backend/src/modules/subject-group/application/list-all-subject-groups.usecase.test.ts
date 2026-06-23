@@ -40,6 +40,7 @@ describe('ListAllSubjectGroupsUseCase', () => {
       groupNumber: 1,
       weeklyHours: 2.5,
       numberOfStudents: 30,
+      needsComputerLab: false,
       id: 'group-1',
       createdAt: new Date(),
       updatedAt: new Date(),

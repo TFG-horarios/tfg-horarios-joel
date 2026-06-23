@@ -26,7 +26,7 @@ export function DashboardGrid({
               {title}
             </h2>
 
-            <span className="hidden sm:flex items-center justify-center rounded-full border border-purple-500/40 bg-purple-500/15 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 whitespace-nowrap">
+            <span className="hidden sm:flex items-center justify-center rounded-full border border-brand-purple-border bg-brand-purple-bg px-2.5 py-0.5 text-xs font-medium text-brand-purple whitespace-nowrap">
               {countLabel}
             </span>
           </div>
@@ -34,7 +34,7 @@ export function DashboardGrid({
           <p className="text-muted-foreground">{description}</p>
 
           <div className="flex sm:hidden items-center justify-between w-full gap-3 pt-1">
-            <span className="flex items-center justify-center rounded-full border border-purple-500/40 bg-purple-500/15 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 whitespace-nowrap">
+            <span className="flex items-center justify-center rounded-full border border-brand-purple-border bg-brand-purple-bg px-2.5 py-0.5 text-xs font-medium text-brand-purple whitespace-nowrap">
               {countLabel}
             </span>
 

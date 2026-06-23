@@ -36,6 +36,7 @@ export function ClassroomActions({
       name: item.name,
       capacity: item.capacity,
       type: item.type,
+      floor: item.floor,
     }));
     downloadCsv(csvData, 'aulas');
   };

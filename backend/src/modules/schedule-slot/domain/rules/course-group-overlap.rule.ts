@@ -6,6 +6,7 @@ import type {
 
 export class CourseGroupOverlapRule implements IMoveValidationRule {
   validate(context: MoveValidationContext): void {
+    const errors = new Set<string>();
     const groupCountsPerSubjectType = new Map<string, Set<string>>();
     for (const assignment of context.assignments) {
       const key = `${assignment.subjectId}-${assignment.shift}-${assignment.groupType}`;
@@ -50,21 +51,25 @@ export class CourseGroupOverlapRule implements IMoveValidationRule {
               )?.size === 1;
 
             if (context.movingAssignment.isCommon !== other.isCommon) {
-              throw new ConflictError('ERR_OVERLAP_COMMON_ITINERARY');
+              errors.add('ERR_OVERLAP_COMMON_ITINERARY');
             } else if (isATheory || isBTheory) {
-              throw new ConflictError('ERR_OVERLAP_THEORY');
+              errors.add('ERR_OVERLAP_THEORY');
             } else if (isASingleGroup || isBSingleGroup) {
-              throw new ConflictError('ERR_OVERLAP_SINGLE_GROUP');
+              errors.add('ERR_OVERLAP_SINGLE_GROUP');
             } else if (context.movingAssignment.groupType !== other.groupType) {
-              throw new ConflictError('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
+              errors.add('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
             }
 
             if (context.movingAssignment.subjectId === other.subjectId) {
-              throw new ConflictError('ERR_OVERLAP_SAME_SUBJECT');
+              errors.add('ERR_OVERLAP_SAME_SUBJECT');
             }
           }
         }
       }
+    }
+
+    if (errors.size > 0) {
+      throw new ConflictError([...errors].join('\n'));
     }
   }
 }

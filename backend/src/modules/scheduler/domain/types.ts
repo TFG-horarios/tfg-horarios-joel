@@ -11,6 +11,7 @@ export interface Assignment {
   itineraryName: string | null;
   itineraryId?: string | null;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   degreeId: string;
   courseYear: number;
   classroomId: string | null;
@@ -23,6 +24,7 @@ export interface Assignment {
 
 export interface Solution {
   assignments: Assignment[];
+  unassigned: number;
   penalty: number;
   hardPenalty: number;
   conflicts: ConflictDetail[];

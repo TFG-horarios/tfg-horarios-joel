@@ -68,6 +68,8 @@ export function ItineraryForm({
               label: `${d.name} (${d.code})`,
               value: d.id,
             }))}
+            searchable={true}
+            searchPlaceholder={t('degreeId.placeholder')}
           />
         )}
 

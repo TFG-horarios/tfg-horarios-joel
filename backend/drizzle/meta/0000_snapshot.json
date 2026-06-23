@@ -1,5 +1,5 @@
 {
-  "id": "d7c3c1e1-4058-421c-bd89-ac55b6101a15",
+  "id": "847b1fe0-a69f-4d2c-bec7-18bee87efae4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -448,6 +448,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "needs_computer_lab": {
+          "name": "needs_computer_lab",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -716,6 +723,13 @@
         },
         "conflicts": {
           "name": "conflicts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "unassigned": {
+          "name": "unassigned",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -1762,7 +1776,8 @@
       "schema": "public",
       "values": [
         "theory",
-        "lab"
+        "lab",
+        "computer_lab"
       ]
     },
     "public.shift": {

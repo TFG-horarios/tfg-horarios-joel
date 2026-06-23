@@ -60,6 +60,7 @@ export class CreateSubjectGroupUseCase {
       groupNumber: dto.groupNumber,
       weeklyHours: dto.weeklyHours,
       numberOfStudents: dto.numberOfStudents,
+      needsComputerLab: dto.needsComputerLab,
     });
 
     await this.subjectGroupRepository.create(subjectGroup);

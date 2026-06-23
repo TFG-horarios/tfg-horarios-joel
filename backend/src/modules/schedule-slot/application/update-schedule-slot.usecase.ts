@@ -75,14 +75,19 @@ export class UpdateScheduleSlotUseCase {
       ];
     }
 
-    for (const linkedSlot of linkedSlots) {
-      await this.validationProvider.validateMove(
-        organizationId,
-        linkedSlot,
-        classroomId,
-        dayOfWeek,
-        slotIndex
-      );
+    const isCompletePlacement =
+      classroomId !== null && dayOfWeek !== null && slotIndex !== null;
+
+    if (isCompletePlacement) {
+      for (const linkedSlot of linkedSlots) {
+        await this.validationProvider.validateMove(
+          organizationId,
+          linkedSlot,
+          classroomId,
+          dayOfWeek,
+          slotIndex
+        );
+      }
     }
 
     slot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
@@ -94,6 +99,8 @@ export class UpdateScheduleSlotUseCase {
     if (classroomId !== null && dayOfWeek !== null && slotIndex !== null) {
       await this.dataProvider.rejectConflictingReservations(
         organizationId,
+        scheduleContext.academicYearId,
+        scheduleContext.period,
         classroomId,
         dayOfWeek,
         slotIndex,
@@ -101,7 +108,7 @@ export class UpdateScheduleSlotUseCase {
       );
     }
 
-    if (dayOfWeek === null || slotIndex === null) {
+    if (!isCompletePlacement) {
       for (const linkedSlot of linkedSlots) {
         await this.dataProvider.unpublishSchedule(
           linkedSlot.scheduleId,
@@ -114,6 +121,8 @@ export class UpdateScheduleSlotUseCase {
       switch (err) {
         case 'ERR_ROOM_CAPACITY':
           return 'ROOM_CAPACITY';
+        case 'ERR_COMPUTER_LAB_REQUIRED':
+          return 'ROOM_TYPE';
         case 'ERR_ROOM_OVERLAP':
           return 'ROOM_OVERLAP';
         case 'ERR_OVERLAP_COMMON_ITINERARY':
@@ -132,6 +141,12 @@ export class UpdateScheduleSlotUseCase {
           return 'SHIFT_AFTERNOON';
         case 'ERR_SHIFT_EXCEEDS_DAY':
           return 'SHIFT_EXCEEDS_DAY';
+        case 'ERR_UNASSIGNED_NO_ROOMS_OF_TYPE':
+          return 'UNASSIGNED_NO_ROOMS_OF_TYPE';
+        case 'ERR_UNASSIGNED_ROOM_CAPACITY':
+          return 'UNASSIGNED_ROOM_CAPACITY';
+        case 'ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS':
+          return 'UNASSIGNED_NO_COMPATIBLE_SLOTS';
         default:
           return 'UNASSIGNED';
       }
@@ -171,16 +186,9 @@ export class UpdateScheduleSlotUseCase {
         }
       }
 
-      const refreshedSlots =
-        await this.scheduleSlotRepository.findByScheduleId(scheduleId);
-      const totalConflicts = refreshedSlots.reduce(
-        (acc, s) => acc + s.conflicts.length,
-        0
-      );
-      await this.dataProvider.updateScheduleConflictsCount(
+      await this.dataProvider.updateScheduleConflictsAndUnassignedCount(
         scheduleId,
-        organizationId,
-        totalConflicts
+        organizationId
       );
     }
 

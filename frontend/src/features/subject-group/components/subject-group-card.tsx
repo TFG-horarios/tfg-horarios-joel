@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Map,
   CalendarDays,
+  Monitor,
 } from 'lucide-react';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
@@ -78,10 +79,10 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
       >
         <div className="flex flex-col h-full w-full">
           <div className="flex flex-wrap items-center gap-2 mb-2 justify-center">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-brand-purple-border bg-brand-purple-bg text-brand-purple">
               {subject?.code ?? '-'}
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-brand-purple-border bg-brand-purple-bg text-brand-purple">
               {group.groupType === 'theory'
                 ? 'TE'
                 : group.groupType === 'problems'
@@ -94,9 +95,18 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
                         ? 'TU'
                         : group.groupType || 'TE'}
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-brand-purple-border bg-brand-purple-bg text-brand-purple">
               {group.groupNumber}
             </span>
+            {group.needsComputerLab && (
+              <span 
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300" 
+                title="Aula de ordenadores"
+              >
+                <Monitor className="w-3 h-3 mr-1" />
+                PC
+              </span>
+            )}
           </div>
           <div className="flex flex-col flex-1 justify-center">
             <h3
@@ -154,6 +164,12 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
               <Users className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">
                 {group.numberOfStudents} {translations.students?.toLowerCase()}
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
+              <Monitor className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="truncate">
+                Aula PC: {group.needsComputerLab ? 'Sí' : 'No'}
               </span>
             </div>
           </div>

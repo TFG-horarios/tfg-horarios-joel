@@ -26,6 +26,7 @@ export const SubjectGroupSchema = z
     groupNumber: z.number().int().positive().openapi({ example: 1 }),
     weeklyHours: z.number().positive().openapi({ example: 2.5 }),
     numberOfStudents: z.number().int().nonnegative().openapi({ example: 50 }),
+    needsComputerLab: z.boolean().default(false).openapi({ example: false }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     deletedAt: z.iso.datetime().nullable().openapi({ example: null }),
@@ -70,6 +71,7 @@ export const SubjectGroupListQuerySchema = PaginationQuerySchema.extend({
   itineraryId: z.string().optional(),
   term: z.coerce.number().int().min(1).max(2).optional(),
   year: z.coerce.number().int().min(1).max(6).optional(),
+  needsComputerLab: z.enum(['true', 'false']).optional(),
 });
 
 export const SaveSubjectGroupBodySchema = z
@@ -84,6 +86,7 @@ export const SaveSubjectGroupBodySchema = z
       .int()
       .nonnegative()
       .openapi({ example: 50 }),
+    needsComputerLab: z.boolean().default(false).openapi({ example: false }),
   })
   .openapi('SaveSubjectGroup');
 

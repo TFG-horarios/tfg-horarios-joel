@@ -336,12 +336,25 @@
         },
         "typeOptions": {
           "theory": "Theory",
-          "lab": "Lab"
+          "lab": "Lab",
+          "computer_lab": "Computer Lab"
         }
+      },
+      "fields": {
+        "name": "Name",
+        "capacity": "Capacity",
+        "type": "Type",
+        "floor": "Floor"
+      },
+      "types": {
+        "theory": "Theory",
+        "lab": "Laboratory",
+        "computer_lab": "Computer Lab"
       },
       "type": {
         "theory": "Theory",
-        "lab": "Lab"
+        "lab": "Lab",
+        "computer_lab": "Computer Lab"
       },
       "capacity": "Capacity",
       "floor": "Floor",
@@ -560,6 +573,9 @@
         "numberOfStudents": {
           "label": "Number of students",
           "placeholder": "e.g. 40"
+        },
+        "needsComputerLab": {
+          "label": "Requires Computer Lab"
         }
       },
       "type": "Type",
@@ -663,6 +679,7 @@
         "editClassroom": "Edit classroom",
         "errors": {
           "ERR_ROOM_CAPACITY": "The selected classroom does not have enough capacity for this group.",
+          "ERR_COMPUTER_LAB_REQUIRED": "This group requires a computer lab.",
           "ERR_SHIFT_MORNING": "This subject must be taught within the morning shift.",
           "ERR_SHIFT_AFTERNOON": "This subject must be taught within the afternoon shift.",
           "ERR_SHIFT_EXCEEDS_DAY": "The duration exceeds the maximum allowed hours in the day.",
@@ -745,12 +762,17 @@
       "csv": {
         "headers": {
           "degreeName": "degree name",
-          "subjectCode": "subject code",
+          "subjectCode": "Subject Code",
           "subjectName": "subject name",
           "courseYear": "course year",
           "period": "period",
-          "shift": "shift",
-          "groupType": "group type",
+          "name": "Group Name",
+          "numberOfStudents": "Number of Students",
+          "weeklyHours": "Weekly Hours",
+          "groupType": "Group Type",
+          "shift": "Shift",
+          "groupNumber": "Group Number",
+          "needsComputerLab": "Needs Computer Lab?",
           "day": "day",
           "startTime": "start time",
           "endTime": "end time",
@@ -797,6 +819,15 @@
       "readOnlyDescription": "Only administrators can add, edit, or remove members.",
       "tableTitle": "Registered members",
       "tableDescription": "Review the current members and, if you have permissions, adjust their roles or remove them.",
+      "fields": {
+        "name": "Group Name",
+        "groupType": "Group Type",
+        "shift": "Shift",
+        "groupNumber": "Group Number",
+        "weeklyHours": "Weekly Hours",
+        "numberOfStudents": "Number of Students",
+        "needsComputerLab": "Needs Computer Lab?"
+      },
       "headers": {
         "name": "Name",
         "email": "Email",

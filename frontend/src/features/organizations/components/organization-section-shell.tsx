@@ -37,7 +37,7 @@ export function OrganizationSectionShell({
           </div>
           <div className="flex items-center gap-3">
             {typeof count === 'number' && (
-              <span className="inline-flex items-center rounded-full border border-purple-500/40 bg-purple-500/15 px-3 py-1 text-xs font-medium text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200">
+              <span className="inline-flex items-center rounded-full border border-brand-purple-border bg-brand-purple-bg px-3 py-1 text-xs font-medium text-brand-purple">
                 {count}
                 {countLabel ? ` ${countLabel}` : ''}
               </span>

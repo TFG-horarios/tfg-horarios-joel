@@ -61,6 +61,7 @@ describe('HonoSubjectGroupController Integration', () => {
     groupNumber: 1,
     weeklyHours: 2,
     numberOfStudents: 50,
+    needsComputerLab: false,
   };
 
   const orgId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';

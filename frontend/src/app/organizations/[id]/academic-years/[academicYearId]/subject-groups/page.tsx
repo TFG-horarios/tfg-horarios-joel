@@ -86,6 +86,12 @@ export default async function OrganizationSubjectGroupsPage({
       typeof rawSearchParams.year === 'string'
         ? Number(rawSearchParams.year)
         : undefined,
+    needsComputerLab:
+      typeof rawSearchParams.needsComputerLab === 'string' &&
+      (rawSearchParams.needsComputerLab === 'true' ||
+        rawSearchParams.needsComputerLab === 'false')
+        ? (rawSearchParams.needsComputerLab as 'true' | 'false')
+        : undefined,
   };
 
   const t = await getTranslations('Organizations.subjectGroups');
@@ -154,78 +160,89 @@ export default async function OrganizationSubjectGroupsPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-subject-groups"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-subject-groups"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
+        filters={
+          <>
+            <ResourceFilterSelect
+              paramKey="subjectId"
+              placeholder={t('subjectPlaceholder')}
+              options={subjects.map((s) => ({ label: s.name, value: s.id }))}
+              searchable={true}
             />
-          }
-          search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
-          filters={
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              <ResourceFilterSelect
-                paramKey="subjectId"
-                placeholder={t('subjectPlaceholder')}
-                options={subjects.map((s) => ({ label: s.name, value: s.id }))}
-              />
-              <ResourceFilterSelect
-                paramKey="groupType"
-                placeholder={t('type')}
-                options={[
-                  { label: t('typeOptions.theory'), value: 'theory' },
-                  { label: t('typeOptions.problems'), value: 'problems' },
-                  { label: t('typeOptions.practices'), value: 'practices' },
-                  {
-                    label: t('typeOptions.reduced_practices'),
-                    value: 'reduced_practices',
-                  },
-                  { label: t('typeOptions.tutoring'), value: 'tutoring' },
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="shift"
-                placeholder={t('shift')}
-                options={[
-                  { label: t('shiftOptions.morning'), value: 'morning' },
-                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="degreeId"
-                placeholder={t('degreePlaceholder')}
-                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
-              />
-              <ResourceFilterSelect
-                paramKey="year"
-                placeholder={tSubjects('coursePlaceholder')}
-                options={[1, 2, 3, 4, 5, 6].map((c) => ({
-                  label: `${c}º`,
-                  value: c.toString(),
-                }))}
-              />
-              <ResourceFilterSelect
-                paramKey="itineraryId"
-                placeholder={t('itineraryPlaceholder')}
-                options={[
-                  { label: t('itineraryOptions.common'), value: 'common' },
-                  ...itineraries.map((i) => ({ label: i.name, value: i.id })),
-                ]}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <SubjectGroupActions
-          organizationId={id}
-          subjects={subjects}
-          canCreate={canCreate}
-          canDeleteAll={canDeleteAll}
-          canImport={canImport}
-          canReplaceAll={canReplaceAll}
-        />
-      </div>
+            <ResourceFilterSelect
+              paramKey="groupType"
+              placeholder={t('type')}
+              options={[
+                { label: t('typeOptions.theory'), value: 'theory' },
+                { label: t('typeOptions.problems'), value: 'problems' },
+                { label: t('typeOptions.practices'), value: 'practices' },
+                {
+                  label: t('typeOptions.reduced_practices'),
+                  value: 'reduced_practices',
+                },
+                { label: t('typeOptions.tutoring'), value: 'tutoring' },
+              ]}
+            />
+            <ResourceFilterSelect
+              paramKey="shift"
+              placeholder={t('shift')}
+              options={[
+                { label: t('shiftOptions.morning'), value: 'morning' },
+                { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+              ]}
+            />
+            <ResourceFilterSelect
+              paramKey="degreeId"
+              placeholder={t('degreePlaceholder')}
+              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              searchable={true}
+            />
+            <ResourceFilterSelect
+              paramKey="year"
+              placeholder={tSubjects('coursePlaceholder')}
+              options={[1, 2, 3, 4, 5, 6].map((c) => ({
+                label: `${c}º`,
+                value: c.toString(),
+              }))}
+            />
+            <ResourceFilterSelect
+              paramKey="itineraryId"
+              placeholder={t('itineraryPlaceholder')}
+              options={[
+                { label: t('itineraryOptions.common'), value: 'common' },
+                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+              ]}
+              searchable={true}
+            />
+            <ResourceFilterSelect
+              paramKey="needsComputerLab"
+              placeholder="Aula PC"
+              options={[
+                { label: 'Sí', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+            />
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <SubjectGroupActions
+            organizationId={id}
+            subjects={subjects}
+            canCreate={canCreate}
+            canDeleteAll={canDeleteAll}
+            canImport={canImport}
+            canReplaceAll={canReplaceAll}
+          />
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}
@@ -247,6 +264,7 @@ export default async function OrganizationSubjectGroupsPage({
             'Cód. Asig.',
             translations.subject,
             translations.type,
+            'Aula PC',
             translations.number,
             'Nombre',
             'Horas',

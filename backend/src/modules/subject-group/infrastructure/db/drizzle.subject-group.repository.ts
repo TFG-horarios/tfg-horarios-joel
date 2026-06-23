@@ -45,6 +45,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       groupNumber: row.groupNumber,
       weeklyHours: Number(row.weeklyHours),
       numberOfStudents: row.numberOfStudents,
+      needsComputerLab: row.needsComputerLab,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
@@ -62,6 +63,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       groupNumber: domain.groupNumber,
       weeklyHours: domain.weeklyHours.toString(),
       numberOfStudents: domain.numberOfStudents,
+      needsComputerLab: domain.needsComputerLab,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
       deletedAt: domain.deletedAt,
@@ -119,6 +121,11 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     }
     if (filters?.groupType) {
       conditions.push(eq(subjectGroupsTable.groupType, filters.groupType));
+    }
+    if (filters?.needsComputerLab !== undefined) {
+      conditions.push(
+        eq(subjectGroupsTable.needsComputerLab, filters.needsComputerLab === 'true')
+      );
     }
 
     let countQuery = this.database
@@ -260,6 +267,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
           groupNumber: rawData.groupNumber,
           weeklyHours: rawData.weeklyHours,
           numberOfStudents: rawData.numberOfStudents,
+          needsComputerLab: rawData.needsComputerLab,
           updatedAt: new Date(),
         })
         .where(
@@ -374,6 +382,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
         groupNumber: subjectGroupsTable.groupNumber,
         weeklyHours: subjectGroupsTable.weeklyHours,
         numberOfStudents: subjectGroupsTable.numberOfStudents,
+        needsComputerLab: subjectGroupsTable.needsComputerLab,
         isCommon: subjectsTable.isCommon,
         itineraryName: itinerariesTable.name,
         itineraryId: subjectsTable.itineraryId,
@@ -399,6 +408,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       groupNumber: r.groupNumber,
       weeklyHours: Number(r.weeklyHours),
       numberOfStudents: r.numberOfStudents,
+      needsComputerLab: r.needsComputerLab,
       isCommon: r.isCommon,
       itineraryName: r.itineraryName,
       itineraryId: r.itineraryId,

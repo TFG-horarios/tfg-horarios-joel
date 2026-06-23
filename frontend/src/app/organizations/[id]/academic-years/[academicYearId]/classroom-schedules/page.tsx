@@ -130,39 +130,37 @@ export default async function OrganizationClassroomSchedulesPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-classroom-schedules"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-classroom-schedules"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={
+          <ResourceSearch
+            placeholder={t('searchPlaceholder') || 'Buscar aula...'}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterSelect
+              paramKey="shift"
+              placeholder={tStatus('shift')}
+              options={[
+                { label: t('shiftOptions.morning'), value: 'morning' },
+                { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+              ]}
             />
-          }
-          search={
-            <ResourceSearch
-              placeholder={t('searchPlaceholder') || 'Buscar aula...'}
+            <ResourceFilterSelect
+              paramKey="period"
+              placeholder={tStatus('period')}
+              options={periodOptions}
             />
-          }
-          filters={
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              <ResourceFilterSelect
-                paramKey="shift"
-                placeholder={tStatus('shift')}
-                options={[
-                  { label: t('shiftOptions.morning'), value: 'morning' },
-                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="period"
-                placeholder={tStatus('period')}
-                options={periodOptions}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-      </div>
+            <ResourceFilterClear />
+          </>
+        }
+      />
 
       <div className="mt-6">
         <ResourceLayout

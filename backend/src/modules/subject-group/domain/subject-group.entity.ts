@@ -11,6 +11,7 @@ export interface SubjectGroupProps {
   groupNumber: number;
   weeklyHours: number;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -59,6 +60,7 @@ export class SubjectGroup {
     this.props.groupNumber = props.groupNumber;
     this.props.weeklyHours = props.weeklyHours;
     this.props.numberOfStudents = props.numberOfStudents;
+    this.props.needsComputerLab = props.needsComputerLab;
     this.props.updatedAt = new Date();
   }
 
@@ -100,6 +102,9 @@ export class SubjectGroup {
   }
   get numberOfStudents() {
     return this.props.numberOfStudents;
+  }
+  get needsComputerLab() {
+    return this.props.needsComputerLab;
   }
   get createdAt() {
     return this.props.createdAt;

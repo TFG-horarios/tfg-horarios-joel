@@ -23,7 +23,9 @@ export const ClassroomRow = memo(function ClassroomRow({
         <TableCell className="capitalize text-muted-foreground">
           {classroom.type === 'theory'
             ? translations['type.theory']
-            : translations['type.lab']}
+            : classroom.type === 'computer_lab'
+              ? translations['type.computer_lab']
+              : translations['type.lab']}
         </TableCell>
         <TableCell>{classroom.floor}</TableCell>
         <TableCell

@@ -103,40 +103,41 @@ export default async function OrganizationItinerariesPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-itineraries"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-itineraries"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
+        filters={
+          <>
+            <ResourceFilterInput
+              paramKey="code"
+              type="text"
+              placeholder={t('codePlaceholder')}
             />
-          }
-          search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
-          filters={
-            <div className="flex gap-2 w-full lg:w-auto">
-              <ResourceFilterInput
-                paramKey="code"
-                type="text"
-                placeholder={t('codePlaceholder')}
-              />
-              <ResourceFilterSelect
-                paramKey="degreeId"
-                placeholder={t('degreePlaceholder')}
-                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <ItineraryActions
-          organizationId={id}
-          degrees={degrees}
-          canCreate={canCreate}
-          canDeleteAll={canDeleteAll}
-          canImport={canImport}
-          canReplaceAll={canReplaceAll}
-        />
-      </div>
+            <ResourceFilterSelect
+              paramKey="degreeId"
+              placeholder={t('degreePlaceholder')}
+              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              searchable={true}
+            />
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <ItineraryActions
+            organizationId={id}
+            degrees={degrees}
+            canCreate={canCreate}
+            canDeleteAll={canDeleteAll}
+            canImport={canImport}
+            canReplaceAll={canReplaceAll}
+          />
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

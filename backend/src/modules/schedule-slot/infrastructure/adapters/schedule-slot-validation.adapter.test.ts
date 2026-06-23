@@ -37,6 +37,7 @@ describe('ScheduleSlotValidationAdapter', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
 
@@ -165,5 +166,62 @@ describe('ScheduleSlotValidationAdapter', () => {
     await expect(
       adapter.validateMove('org-1', slot, 'c-2', 1, 0)
     ).rejects.toThrow(NotFoundError);
+  });
+
+  test('should detect afternoon overlaps using global slot indexes', async () => {
+    setupMocks();
+    const movingSlot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 1,
+      classroomId: 'c-1',
+      dayOfWeek: 2,
+      slotIndex: 7,
+    });
+    const existingSlot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-2',
+      duration: 1,
+      classroomId: 'c-2',
+      dayOfWeek: 1,
+      slotIndex: 6,
+    });
+    scheduleRepositoryMock.findById.mockResolvedValue({
+      id: 'sch-1',
+      academicYearId: 'ay-1',
+      period: 1,
+      degreeId: 'deg-1',
+      itineraryId: null,
+      courseYear: 1,
+      shift: 'afternoon',
+    });
+    scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
+      movingSlot,
+      existingSlot,
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValue([
+      {
+        subjectGroupId: 'sg-1',
+        subjectId: 's-1',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 20,
+        needsComputerLab: false,
+      },
+      {
+        subjectGroupId: 'sg-2',
+        subjectId: 's-2',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 20,
+        needsComputerLab: false,
+      },
+    ]);
+
+    await expect(
+      adapter.validateMove('org-1', movingSlot, 'c-1', 1, 6)
+    ).rejects.toThrow('ERR_OVERLAP_THEORY');
   });
 });

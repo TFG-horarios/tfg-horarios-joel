@@ -4,6 +4,7 @@ import { memo, type MouseEvent } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import {
   AlertTriangle,
+  HelpCircle,
   UploadCloud,
   Archive,
   FileDown,
@@ -221,6 +222,16 @@ export const ScheduleCard = memo(function ScheduleCard({
             >
               <AlertTriangle className="size-3" />
               {schedule.conflicts}
+            </span>
+          )}
+
+          {schedule.unassigned > 0 && (
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+              title={t('unassignedTooltip')}
+            >
+              <HelpCircle className="size-3" />
+              {schedule.unassigned}
             </span>
           )}
         </div>

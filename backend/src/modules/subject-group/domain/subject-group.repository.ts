@@ -15,6 +15,7 @@ export interface GroupWithSubjectAndItinerary {
   groupNumber: number;
   weeklyHours: number;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   isCommon: boolean;
   itineraryName: string | null;
   itineraryId: string | null;

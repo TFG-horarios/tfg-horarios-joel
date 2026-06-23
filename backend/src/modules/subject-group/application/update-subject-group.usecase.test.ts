@@ -38,6 +38,7 @@ describe('UpdateSubjectGroupUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     });
     repositoryMock.findById.mockResolvedValueOnce(group);
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce([
@@ -51,6 +52,7 @@ describe('UpdateSubjectGroupUseCase', () => {
       groupNumber: 2,
       weeklyHours: 2,
       numberOfStudents: 15,
+      needsComputerLab: false,
     };
     const result = await useCase.execute('org-1', 'grp-1', 'user-1', dto);
     expect(result.name).toBe('T2');
@@ -69,6 +71,7 @@ describe('UpdateSubjectGroupUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     });
     repositoryMock.findById.mockResolvedValueOnce(group);
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
@@ -79,6 +82,7 @@ describe('UpdateSubjectGroupUseCase', () => {
       groupNumber: 2,
       weeklyHours: 2,
       numberOfStudents: 15,
+      needsComputerLab: false,
     };
     expect(useCase.execute('org-1', 'grp-1', 'user-1', dto)).rejects.toThrow(
       ValidationError

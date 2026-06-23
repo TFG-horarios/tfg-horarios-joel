@@ -43,6 +43,10 @@ export interface IScheduleRepository {
   ): Promise<PaginatedResponse<Schedule>>;
   create(schedule: Schedule): Promise<void>;
   update(schedule: Schedule): Promise<void>;
+  updateConflictsAndUnassignedCount?(
+    scheduleId: string,
+    organizationId: string
+  ): Promise<void>;
   createSchedulesWithSlots(
     items: {
       schedule: Schedule;

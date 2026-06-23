@@ -182,88 +182,90 @@ export default async function OrganizationSchedulesPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-schedules"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-schedules"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterSelect
+              paramKey="degreeId"
+              placeholder={t('degreePlaceholder')}
+              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              searchable={true}
             />
-          }
-          filters={
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              <ResourceFilterSelect
-                paramKey="degreeId"
-                placeholder={t('degreePlaceholder')}
-                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
-              />
-              <ResourceFilterSelect
-                paramKey="itineraryId"
-                placeholder={t('itineraryPlaceholder')}
-                options={[
-                  { label: t('itineraryOptions.common'), value: 'common' },
-                  ...itineraries.map((i) => ({ label: i.name, value: i.id })),
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="shift"
-                placeholder={t('shift')}
-                options={[
-                  { label: t('shiftOptions.morning'), value: 'morning' },
-                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="courseYear"
-                placeholder={t('courseYear')}
-                options={[
-                  { label: '1º', value: '1' },
-                  { label: '2º', value: '2' },
-                  { label: '3º', value: '3' },
-                  { label: '4º', value: '4' },
-                  { label: '5º', value: '5' },
-                  { label: '6º', value: '6' },
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="period"
-                placeholder={t('period')}
-                options={periodOptions}
-              />
-              <ResourceFilterSelect
-                paramKey="status"
-                placeholder={t('statusLabel')}
-                options={[
-                  { label: t('draft'), value: 'draft' },
-                  { label: t('published'), value: 'published' },
-                ]}
-              />
-              {canSeeConflicts && (
-                <ResourceFilterSelect
-                  paramKey="hasConflicts"
-                  placeholder={t('conflictsLabel')}
-                  options={[
-                    { label: t('withConflicts'), value: 'true' },
-                    { label: t('withoutConflicts'), value: 'false' },
-                  ]}
-                />
-              )}
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        {canGenerate && (
-          <ResourceActions>
-            <ScheduleGenerator
-              organizationId={id}
-              periodType={currentAcademicYear?.periodType || 'semester'}
-              academicYearId={academicYearId}
-              degrees={degrees}
-              subjects={subjects}
+            <ResourceFilterSelect
+              paramKey="itineraryId"
+              placeholder={t('itineraryPlaceholder')}
+              options={[
+                { label: t('itineraryOptions.common'), value: 'common' },
+                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+              ]}
+              searchable={true}
             />
-          </ResourceActions>
-        )}
-      </div>
+            <ResourceFilterSelect
+              paramKey="shift"
+              placeholder={t('shift')}
+              options={[
+                { label: t('shiftOptions.morning'), value: 'morning' },
+                { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+              ]}
+            />
+            <ResourceFilterSelect
+              paramKey="courseYear"
+              placeholder={t('courseYear')}
+              options={[
+                { label: '1º', value: '1' },
+                { label: '2º', value: '2' },
+                { label: '3º', value: '3' },
+                { label: '4º', value: '4' },
+                { label: '5º', value: '5' },
+                { label: '6º', value: '6' },
+              ]}
+            />
+            <ResourceFilterSelect
+              paramKey="period"
+              placeholder={t('period')}
+              options={periodOptions}
+            />
+            <ResourceFilterSelect
+              paramKey="status"
+              placeholder={t('statusLabel')}
+              options={[
+                { label: t('draft'), value: 'draft' },
+                { label: t('published'), value: 'published' },
+              ]}
+            />
+            {canSeeConflicts && (
+              <ResourceFilterSelect
+                paramKey="hasConflicts"
+                placeholder={t('conflictsLabel')}
+                options={[
+                  { label: t('withConflicts'), value: 'true' },
+                  { label: t('withoutConflicts'), value: 'false' },
+                ]}
+              />
+            )}
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          canGenerate && (
+            <ResourceActions>
+              <ScheduleGenerator
+                organizationId={id}
+                periodType={currentAcademicYear?.periodType || 'semester'}
+                academicYearId={academicYearId}
+                degrees={degrees}
+                subjects={subjects}
+              />
+            </ResourceActions>
+          )
+        }
+      />
 
       <div className="mt-6">
         <ResourceLayout

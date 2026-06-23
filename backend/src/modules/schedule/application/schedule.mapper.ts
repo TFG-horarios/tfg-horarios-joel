@@ -13,6 +13,7 @@ export class ScheduleMapper {
       courseYear: schedule.courseYear,
       period: schedule.period,
       conflicts: schedule.conflicts,
+      unassigned: schedule.unassigned,
       status: schedule.status,
       createdAt: schedule.createdAt.toISOString(),
       updatedAt: schedule.updatedAt.toISOString(),

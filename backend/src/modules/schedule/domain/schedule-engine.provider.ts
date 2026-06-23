@@ -13,6 +13,7 @@ export interface ScheduleEngineGroupData {
   itineraryName?: string | null;
   itineraryId?: string | null;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   shift: Shift;
   weeklyHours: number;
   degreeId: string;
@@ -46,6 +47,7 @@ export interface ScheduleEngineAssignment {
   itineraryName: string | null;
   itineraryId?: string | null;
   numberOfStudents: number;
+  needsComputerLab: boolean;
   degreeId: string;
   courseYear: number;
   classroomId: string | null;
@@ -58,6 +60,7 @@ export interface ScheduleEngineAssignment {
 
 export interface ScheduleEngineSolution {
   assignments: ScheduleEngineAssignment[];
+  unassigned: number;
   penalty: number;
   hardPenalty: number;
 }

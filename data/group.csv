@@ -1,0 +1,420 @@
+subjectCode,name,numberOfStudents,weeklyHours,groupType,shift,groupNumber,needsComputerLab
+INFB,Informática Básica,100,2,theory,morning,1,false
+INFB,Informática Básica,50,1,problems,morning,101,false
+INFB,Informática Básica,50,1,problems,morning,102,false
+INFB,Informática Básica,20,1,practices,morning,101,true
+INFB,Informática Básica,20,1,practices,morning,102,true
+INFB,Informática Básica,20,1,practices,morning,103,true
+INFB,Informática Básica,20,1,practices,morning,104,true
+INFB,Informática Básica,20,1,practices,morning,105,true
+INFB,Informática Básica,100,2,theory,afternoon,2,false
+INFB,Informática Básica,50,1,problems,afternoon,201,false
+INFB,Informática Básica,50,1,problems,afternoon,202,false
+INFB,Informática Básica,20,1,practices,afternoon,201,true
+INFB,Informática Básica,20,1,practices,afternoon,202,true
+INFB,Informática Básica,20,1,practices,afternoon,203,true
+INFB,Informática Básica,20,1,practices,afternoon,204,true
+INFB,Informática Básica,20,1,practices,afternoon,205,true
+ALGB,Álgebra,100,2,theory,morning,1,false
+ALGB,Álgebra,50,1,problems,morning,101,false
+ALGB,Álgebra,50,1,problems,morning,102,false
+ALGB,Álgebra,25,1,practices,morning,101,false
+ALGB,Álgebra,25,1,practices,morning,102,false
+ALGB,Álgebra,25,1,practices,morning,103,false
+ALGB,Álgebra,25,1,practices,morning,104,false
+ALGB,Álgebra,100,2,theory,afternoon,2,false
+ALGB,Álgebra,50,1,problems,afternoon,201,false
+ALGB,Álgebra,50,1,problems,afternoon,202,false
+ALGB,Álgebra,34,1,practices,afternoon,201,false
+ALGB,Álgebra,33,1,practices,afternoon,202,false
+ALGB,Álgebra,33,1,practices,afternoon,203,false
+CALC,Cálculo,100,2,theory,morning,1,false
+CALC,Cálculo,50,1,problems,morning,101,false
+CALC,Cálculo,50,1,problems,morning,102,false
+CALC,Cálculo,25,1,practices,morning,101,false
+CALC,Cálculo,25,1,practices,morning,102,false
+CALC,Cálculo,25,1,practices,morning,103,false
+CALC,Cálculo,25,1,practices,morning,104,false
+CALC,Cálculo,100,2,theory,afternoon,2,false
+CALC,Cálculo,50,1,problems,afternoon,201,false
+CALC,Cálculo,50,1,problems,afternoon,202,false
+CALC,Cálculo,25,1,practices,afternoon,201,false
+CALC,Cálculo,25,1,practices,afternoon,202,false
+CALC,Cálculo,25,1,practices,afternoon,203,false
+CALC,Cálculo,25,1,practices,afternoon,204,false
+FFI,Fundamentos Físicos para la Ingeniería,100,2,theory,morning,1,false
+FFI,Fundamentos Físicos para la Ingeniería,50,2,problems,morning,101,false
+FFI,Fundamentos Físicos para la Ingeniería,50,2,problems,morning,102,false
+FFI,Fundamentos Físicos para la Ingeniería,100,2,theory,afternoon,2,false
+FFI,Fundamentos Físicos para la Ingeniería,50,2,problems,afternoon,201,false
+FFI,Fundamentos Físicos para la Ingeniería,50,2,problems,afternoon,202,false
+OGE,Organizaciones Empresariales,100,2,theory,morning,1,false
+OGE,Organizaciones Empresariales,50,2,problems,morning,101,false
+OGE,Organizaciones Empresariales,50,2,problems,morning,102,false
+OGE,Organizaciones Empresariales,100,2,theory,afternoon,2,false
+OGE,Organizaciones Empresariales,50,2,problems,afternoon,201,false
+OGE,Organizaciones Empresariales,50,2,problems,afternoon,202,false
+AYED,Algoritmos y Estructuras de Datos,100,2,theory,morning,1,false
+AYED,Algoritmos y Estructuras de Datos,50,1,problems,morning,101,false
+AYED,Algoritmos y Estructuras de Datos,50,1,problems,morning,102,false
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,morning,101,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,morning,102,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,morning,103,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,morning,104,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,morning,105,true
+AYED,Algoritmos y Estructuras de Datos,100,2,theory,afternoon,2,false
+AYED,Algoritmos y Estructuras de Datos,50,1,problems,afternoon,201,false
+AYED,Algoritmos y Estructuras de Datos,50,1,problems,afternoon,202,false
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,afternoon,201,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,afternoon,202,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,afternoon,203,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,afternoon,204,true
+AYED,Algoritmos y Estructuras de Datos,20,1,practices,afternoon,205,true
+PDC,Principios de Computadores,100,2,theory,morning,1,false
+PDC,Principios de Computadores,50,1,problems,morning,101,false
+PDC,Principios de Computadores,50,1,problems,morning,102,false
+PDC,Principios de Computadores,20,1,practices,morning,101,true
+PDC,Principios de Computadores,20,1,practices,morning,102,true
+PDC,Principios de Computadores,20,1,practices,morning,103,true
+PDC,Principios de Computadores,20,1,practices,morning,104,true
+PDC,Principios de Computadores,20,1,practices,morning,105,true
+PDC,Principios de Computadores,100,2,theory,afternoon,2,false
+PDC,Principios de Computadores,50,1,problems,afternoon,201,false
+PDC,Principios de Computadores,50,1,problems,afternoon,202,false
+PDC,Principios de Computadores,20,1,practices,afternoon,201,true
+PDC,Principios de Computadores,20,1,practices,afternoon,202,true
+PDC,Principios de Computadores,20,1,practices,afternoon,203,true
+PDC,Principios de Computadores,20,1,practices,afternoon,204,true
+PDC,Principios de Computadores,20,1,practices,afternoon,205,true
+OPTZ,Optimización,100,2,theory,morning,1,false
+OPTZ,Optimización,50,1,problems,morning,101,false
+OPTZ,Optimización,50,1,problems,morning,102,false
+OPTZ,Optimización,20,1,practices,morning,101,true
+OPTZ,Optimización,20,1,practices,morning,102,true
+OPTZ,Optimización,20,1,practices,morning,103,true
+OPTZ,Optimización,20,1,practices,morning,104,true
+OPTZ,Optimización,20,1,practices,morning,105,true
+OPTZ,Optimización,100,2,theory,afternoon,2,false
+OPTZ,Optimización,50,1,problems,afternoon,201,false
+OPTZ,Optimización,50,1,problems,afternoon,202,false
+OPTZ,Optimización,20,1,practices,afternoon,201,true
+OPTZ,Optimización,20,1,practices,afternoon,202,true
+OPTZ,Optimización,20,1,practices,afternoon,203,true
+OPTZ,Optimización,20,1,practices,afternoon,204,true
+OPTZ,Optimización,20,1,practices,afternoon,205,true
+SED,Sistemas Electrónicos Digitales,100,2,theory,morning,1,false
+SED,Sistemas Electrónicos Digitales,50,1,problems,morning,101,false
+SED,Sistemas Electrónicos Digitales,50,1,problems,morning,102,false
+SED,Sistemas Electrónicos Digitales,20,1,practices,morning,101,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,morning,102,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,morning,103,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,morning,104,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,morning,105,true
+SED,Sistemas Electrónicos Digitales,100,2,theory,afternoon,2,false
+SED,Sistemas Electrónicos Digitales,50,1,problems,afternoon,201,false
+SED,Sistemas Electrónicos Digitales,50,1,problems,afternoon,202,false
+SED,Sistemas Electrónicos Digitales,20,1,practices,afternoon,201,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,afternoon,202,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,afternoon,203,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,afternoon,204,true
+SED,Sistemas Electrónicos Digitales,20,1,practices,afternoon,205,true
+EGI,Expresión Gráfica en Ingeniería,100,2,theory,morning,1,false
+EGI,Expresión Gráfica en Ingeniería,50,1,problems,morning,101,false
+EGI,Expresión Gráfica en Ingeniería,50,1,problems,morning,102,false
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,morning,101,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,morning,102,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,morning,103,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,morning,104,true
+EGI,Expresión Gráfica en Ingeniería,100,2,theory,afternoon,2,false
+EGI,Expresión Gráfica en Ingeniería,50,1,problems,afternoon,201,false
+EGI,Expresión Gráfica en Ingeniería,50,1,problems,afternoon,202,false
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,afternoon,201,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,afternoon,202,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,afternoon,203,true
+EGI,Expresión Gráfica en Ingeniería,25,1,practices,afternoon,204,true
+EST,Estadística,75,2,theory,morning,1,false
+EST,Estadística,38,1,problems,morning,101,false
+EST,Estadística,37,1,problems,morning,102,false
+EST,Estadística,19,1,practices,morning,101,true
+EST,Estadística,19,1,practices,morning,102,true
+EST,Estadística,19,1,practices,morning,103,true
+EST,Estadística,18,1,practices,morning,104,true
+EST,Estadística,75,2,theory,afternoon,2,false
+EST,Estadística,38,1,problems,afternoon,201,false
+EST,Estadística,37,1,problems,afternoon,202,false
+EST,Estadística,19,1,practices,afternoon,201,true
+EST,Estadística,19,1,practices,afternoon,202,true
+EST,Estadística,19,1,practices,afternoon,203,true
+EST,Estadística,18,1,practices,afternoon,204,true
+CYA,Computabilidad y Algoritmia,75,2,theory,morning,1,false
+CYA,Computabilidad y Algoritmia,75,1,problems,morning,101,false
+CYA,Computabilidad y Algoritmia,13,1,practices,morning,101,true
+CYA,Computabilidad y Algoritmia,13,1,practices,morning,102,true
+CYA,Computabilidad y Algoritmia,13,1,practices,morning,103,true
+CYA,Computabilidad y Algoritmia,12,1,practices,morning,104,true
+CYA,Computabilidad y Algoritmia,12,1,practices,morning,105,true
+CYA,Computabilidad y Algoritmia,12,1,practices,morning,106,true
+CYA,Computabilidad y Algoritmia,75,2,theory,afternoon,2,false
+CYA,Computabilidad y Algoritmia,75,1,problems,afternoon,201,false
+CYA,Computabilidad y Algoritmia,13,1,practices,afternoon,201,true
+CYA,Computabilidad y Algoritmia,13,1,practices,afternoon,202,true
+CYA,Computabilidad y Algoritmia,13,1,practices,afternoon,203,true
+CYA,Computabilidad y Algoritmia,12,1,practices,afternoon,204,true
+CYA,Computabilidad y Algoritmia,12,1,practices,afternoon,205,true
+CYA,Computabilidad y Algoritmia,12,1,practices,afternoon,206,true
+EDC,Estructura de Computadores,75,2,theory,morning,1,false
+EDC,Estructura de Computadores,38,1,problems,morning,101,false
+EDC,Estructura de Computadores,37,1,problems,morning,102,false
+EDC,Estructura de Computadores,19,1,practices,morning,101,true
+EDC,Estructura de Computadores,19,1,practices,morning,102,true
+EDC,Estructura de Computadores,19,1,practices,morning,103,true
+EDC,Estructura de Computadores,18,1,practices,morning,104,true
+EDC,Estructura de Computadores,75,2,theory,afternoon,2,false
+EDC,Estructura de Computadores,38,1,problems,afternoon,201,false
+EDC,Estructura de Computadores,37,1,problems,afternoon,202,false
+EDC,Estructura de Computadores,19,1,practices,afternoon,201,true
+EDC,Estructura de Computadores,19,1,practices,afternoon,202,true
+EDC,Estructura de Computadores,19,1,practices,afternoon,203,true
+EDC,Estructura de Computadores,18,1,practices,afternoon,204,true
+SSOO,Sistemas Operativos,75,2,theory,morning,1,false
+SSOO,Sistemas Operativos,38,1,problems,morning,101,false
+SSOO,Sistemas Operativos,37,1,problems,morning,102,false
+SSOO,Sistemas Operativos,15,1,practices,morning,101,true
+SSOO,Sistemas Operativos,15,1,practices,morning,102,true
+SSOO,Sistemas Operativos,15,1,practices,morning,103,true
+SSOO,Sistemas Operativos,15,1,practices,morning,104,true
+SSOO,Sistemas Operativos,15,1,practices,morning,105,true
+SSOO,Sistemas Operativos,75,2,theory,afternoon,2,false
+SSOO,Sistemas Operativos,38,1,problems,afternoon,201,false
+SSOO,Sistemas Operativos,37,1,problems,afternoon,202,false
+SSOO,Sistemas Operativos,19,1,practices,afternoon,201,true
+SSOO,Sistemas Operativos,19,1,practices,afternoon,202,true
+SSOO,Sistemas Operativos,19,1,practices,afternoon,203,true
+SSOO,Sistemas Operativos,18,1,practices,afternoon,204,true
+INGT,Inglés Técnico,75,2,theory,morning,1,false
+INGT,Inglés Técnico,75,1,problems,morning,101,false
+INGT,Inglés Técnico,75,1,practices,morning,101,false
+INGT,Inglés Técnico,75,2,theory,afternoon,2,false
+INGT,Inglés Técnico,75,1,problems,afternoon,201,false
+INGT,Inglés Técnico,75,1,practices,afternoon,201,false
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,75,2,theory,morning,1,false
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,75,1,problems,morning,101,false
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,morning,101,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,morning,102,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,morning,103,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,18,1,practices,morning,104,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,75,2,theory,afternoon,2,false
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,75,1,problems,afternoon,201,false
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,afternoon,201,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,afternoon,202,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,19,1,practices,afternoon,203,true
+AYEDA,Algoritmos y Estructuras de Datos Avanzadas,18,1,practices,afternoon,204,true
+RSD,Redes y Sistemas Distribuidos,75,2,theory,morning,1,false
+RSD,Redes y Sistemas Distribuidos,19,2,practices,morning,101,true
+RSD,Redes y Sistemas Distribuidos,19,2,practices,morning,102,true
+RSD,Redes y Sistemas Distribuidos,19,2,practices,morning,103,true
+RSD,Redes y Sistemas Distribuidos,18,2,practices,morning,104,true
+RSD,Redes y Sistemas Distribuidos,75,2,theory,afternoon,2,false
+RSD,Redes y Sistemas Distribuidos,25,2,practices,afternoon,201,true
+RSD,Redes y Sistemas Distribuidos,25,2,practices,afternoon,202,true
+RSD,Redes y Sistemas Distribuidos,25,2,practices,afternoon,203,true
+ADMS,Administración de Sistemas,75,2,theory,morning,1,false
+ADMS,Administración de Sistemas,19,2,practices,morning,101,true
+ADMS,Administración de Sistemas,19,2,practices,morning,102,true
+ADMS,Administración de Sistemas,19,2,practices,morning,103,true
+ADMS,Administración de Sistemas,18,2,practices,morning,104,true
+ADMS,Administración de Sistemas,75,2,theory,afternoon,2,false
+ADMS,Administración de Sistemas,19,2,practices,afternoon,201,true
+ADMS,Administración de Sistemas,19,2,practices,afternoon,202,true
+ADMS,Administración de Sistemas,19,2,practices,afternoon,203,true
+ADMS,Administración de Sistemas,18,2,practices,afternoon,204,true
+FIS,Fundamentos de Ingeniería del Software,75,2,theory,morning,1,false
+FIS,Fundamentos de Ingeniería del Software,75,1,problems,morning,101,false
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,morning,101,true
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,morning,102,true
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,morning,103,true
+FIS,Fundamentos de Ingeniería del Software,75,2,theory,afternoon,2,false
+FIS,Fundamentos de Ingeniería del Software,75,1,problems,afternoon,201,false
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,afternoon,201,true
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,afternoon,202,true
+FIS,Fundamentos de Ingeniería del Software,25,1,practices,afternoon,203,true
+CDAL,Código Deontológico y Aspectos Legales,75,2,theory,morning,1,false
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,morning,101,true
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,morning,102,true
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,morning,103,true
+CDAL,Código Deontológico y Aspectos Legales,75,2,theory,afternoon,2,false
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,afternoon,201,true
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,afternoon,202,true
+CDAL,Código Deontológico y Aspectos Legales,25,2,practices,afternoon,203,true
+BBDD,Bases de Datos,100,2,theory,morning,1,false
+BBDD,Bases de Datos,100,1,problems,morning,101,false
+BBDD,Bases de Datos,15,1,practices,morning,101,true
+BBDD,Bases de Datos,15,1,practices,morning,102,true
+BBDD,Bases de Datos,14,1,practices,morning,103,true
+BBDD,Bases de Datos,14,1,practices,morning,104,true
+BBDD,Bases de Datos,14,1,practices,morning,105,true
+BBDD,Bases de Datos,14,1,practices,morning,106,true
+BBDD,Bases de Datos,14,1,practices,morning,107,true
+IA1,Inteligencia Artificial,100,2,theory,morning,1,false
+IA1,Inteligencia Artificial,50,1,problems,morning,101,false
+IA1,Inteligencia Artificial,50,1,problems,morning,102,false
+IA1,Inteligencia Artificial,20,1,practices,morning,101,true
+IA1,Inteligencia Artificial,20,1,practices,morning,102,true
+IA1,Inteligencia Artificial,20,1,practices,morning,103,true
+IA1,Inteligencia Artificial,20,1,practices,morning,104,true
+IA1,Inteligencia Artificial,20,1,practices,morning,105,true
+SIPC,Sistemas de Interacción Persona-Computador,100,2,theory,morning,1,false
+SIPC,Sistemas de Interacción Persona-Computador,50,1,problems,morning,101,false
+SIPC,Sistemas de Interacción Persona-Computador,50,1,problems,morning,102,false
+SIPC,Sistemas de Interacción Persona-Computador,20,1,practices,morning,101,true
+SIPC,Sistemas de Interacción Persona-Computador,20,1,practices,morning,102,true
+SIPC,Sistemas de Interacción Persona-Computador,20,1,practices,morning,103,true
+SIPC,Sistemas de Interacción Persona-Computador,20,1,practices,morning,104,true
+SIPC,Sistemas de Interacción Persona-Computador,20,1,practices,morning,105,true
+LPP,Lenguajes y Paradigmas de Programación,100,2,theory,morning,1,false
+LPP,Lenguajes y Paradigmas de Programación,100,1,problems,morning,101,false
+LPP,Lenguajes y Paradigmas de Programación,15,1,practices,morning,101,true
+LPP,Lenguajes y Paradigmas de Programación,15,1,practices,morning,102,true
+LPP,Lenguajes y Paradigmas de Programación,14,1,practices,morning,103,true
+LPP,Lenguajes y Paradigmas de Programación,14,1,practices,morning,104,true
+LPP,Lenguajes y Paradigmas de Programación,14,1,practices,morning,105,true
+LPP,Lenguajes y Paradigmas de Programación,14,1,practices,morning,106,true
+LPP,Lenguajes y Paradigmas de Programación,14,1,practices,morning,107,true
+GPI,Gestión de Proyectos Informáticos,100,2,theory,morning,1,false
+GPI,Gestión de Proyectos Informáticos,20,2,practices,morning,101,true
+GPI,Gestión de Proyectos Informáticos,20,2,practices,morning,102,true
+GPI,Gestión de Proyectos Informáticos,20,2,practices,morning,103,true
+GPI,Gestión de Proyectos Informáticos,20,2,practices,morning,104,true
+GPI,Gestión de Proyectos Informáticos,20,2,practices,morning,105,true
+PLNG,Procesadores de Lenguajes,75,2,theory,morning,1,false
+PLNG,Procesadores de Lenguajes,75,1,problems,morning,101,false
+PLNG,Procesadores de Lenguajes,25,1,practices,morning,101,true
+PLNG,Procesadores de Lenguajes,25,1,practices,morning,102,true
+PLNG,Procesadores de Lenguajes,25,1,practices,morning,103,true
+DAA,Diseño y Análisis de Algoritmos,75,2,theory,morning,1,false
+DAA,Diseño y Análisis de Algoritmos,75,1,problems,morning,101,false
+DAA,Diseño y Análisis de Algoritmos,38,1,practices,morning,101,true
+DAA,Diseño y Análisis de Algoritmos,37,1,practices,morning,102,true
+PAI,Programación de Aplicaciones Interactivas,75,2,theory,morning,1,false
+PAI,Programación de Aplicaciones Interactivas,75,1,problems,morning,101,false
+PAI,Programación de Aplicaciones Interactivas,25,1,practices,morning,101,true
+PAI,Programación de Aplicaciones Interactivas,25,1,practices,morning,102,true
+PAI,Programación de Aplicaciones Interactivas,25,1,practices,morning,103,true
+IAA,Inteligencia Artificial Avanzada,75,2,theory,morning,1,false
+IAA,Inteligencia Artificial Avanzada,75,1,problems,morning,101,false
+IAA,Inteligencia Artificial Avanzada,38,1,practices,morning,101,true
+IAA,Inteligencia Artificial Avanzada,37,1,practices,morning,102,true
+TID,Tratamiento Inteligente de Datos,75,2,theory,morning,1,false
+TID,Tratamiento Inteligente de Datos,75,1,problems,morning,101,false
+TID,Tratamiento Inteligente de Datos,38,1,practices,morning,101,true
+TID,Tratamiento Inteligente de Datos,37,1,practices,morning,102,true
+DDP,Diseño de Procesadores,30,2,theory,morning,1,false
+DDP,Diseño de Procesadores,30,1,problems,morning,101,false
+DDP,Diseño de Procesadores,30,1,practices,morning,101,true
+ADC,Arquitectura de Computadores,30,2,theory,morning,1,false
+ADC,Arquitectura de Computadores,30,1,problems,morning,101,false
+ADC,Arquitectura de Computadores,30,1,practices,morning,101,false
+RCIC,Redes de Computadores en Ingeniería de Computadores,30,2,theory,morning,1,false
+RCIC,Redes de Computadores en Ingeniería de Computadores,30,2,problems,morning,101,false
+LRIC,Laboratorio de Redes en Ingeniería de Computadores,30,2,problems,morning,101,false
+LRIC,Laboratorio de Redes en Ingeniería de Computadores,30,2,practices,morning,101,true
+SSOOA,Sistemas Operativos Avanzados,30,2,theory,morning,1,false
+SSOOA,Sistemas Operativos Avanzados,30,2,practices,morning,101,true
+MSS,Modelado de Sistemas Software,30,2,theory,morning,1,false
+MSS,Modelado de Sistemas Software,30,1,problems,morning,101,false
+MSS,Modelado de Sistemas Software,30,1,practices,morning,101,true
+ASS,Análisis de Sistemas Software,30,2,theory,morning,1,false
+ASS,Análisis de Sistemas Software,30,1,problems,morning,101,false
+ASS,Análisis de Sistemas Software,30,1,practices,morning,101,false
+MDD,Modelado de Datos,30,2,theory,morning,1,false
+MDD,Modelado de Datos,30,1,problems,morning,101,false
+MDD,Modelado de Datos,30,1,practices,morning,101,true
+GDC,Gestión de Calidad,30,2,theory,morning,1,false
+GDC,Gestión de Calidad,30,2,practices,morning,101,true
+GRIS,Gestión de Riesgos en Ingeniería del Software,30,2,theory,morning,1,false
+GRIS,Gestión de Riesgos en Ingeniería del Software,30,1,problems,morning,101,false
+GRIS,Gestión de Riesgos en Ingeniería del Software,30,1,practices,morning,101,true
+RCTI,Redes de Computadores en Tecnologías de la Información,75,2,theory,morning,1,false
+RCTI,Redes de Computadores en Tecnologías de la Información,75,2,problems,morning,101,false
+LRTI,Laboratorio de Redes en Tecnologías de la Información,75,2,problems,morning,101,false
+LRTI,Laboratorio de Redes en Tecnologías de la Información,25,2,practices,morning,101,true
+LRTI,Laboratorio de Redes en Tecnologías de la Información,25,2,practices,morning,102,true
+LRTI,Laboratorio de Redes en Tecnologías de la Información,25,2,practices,morning,103,true
+SSI,Seguridad en Sistemas Informáticos,75,2,theory,morning,1,false
+SSI,Seguridad en Sistemas Informáticos,75,1,problems,morning,101,false
+SSI,Seguridad en Sistemas Informáticos,25,1,practices,morning,101,true
+SSI,Seguridad en Sistemas Informáticos,25,1,practices,morning,102,true
+SSI,Seguridad en Sistemas Informáticos,25,1,practices,morning,103,true
+DSI,Desarrollo de Sistemas Informáticos,75,2,theory,morning,1,false
+DSI,Desarrollo de Sistemas Informáticos,25,2,practices,morning,101,true
+DSI,Desarrollo de Sistemas Informáticos,25,2,practices,morning,102,true
+DSI,Desarrollo de Sistemas Informáticos,25,2,practices,morning,103,true
+UYA,Usabilidad y Accesibilidad,75,2,theory,morning,1,false
+UYA,Usabilidad y Accesibilidad,75,1,problems,morning,101,false
+UYA,Usabilidad y Accesibilidad,25,1,practices,morning,101,true
+UYA,Usabilidad y Accesibilidad,25,1,practices,morning,102,true
+UYA,Usabilidad y Accesibilidad,25,1,practices,morning,103,true
+INTI,Interfaces Inteligentes,50,2,theory,morning,1,false
+INTI,Interfaces Inteligentes,50,1,problems,morning,101,false
+INTI,Interfaces Inteligentes,25,1,practices,morning,101,true
+INTI,Interfaces Inteligentes,25,1,practices,morning,102,true
+SISI,Sistemas Inteligentes,50,2,theory,morning,1,false
+SISI,Sistemas Inteligentes,50,1,problems,morning,101,false
+SISI,Sistemas Inteligentes,25,1,practices,morning,101,true
+SISI,Sistemas Inteligentes,25,1,practices,morning,102,true
+COMC,Complejidad Computacional,50,2,theory,morning,1,false
+COMC,Complejidad Computacional,50,1,problems,morning,101,false
+COMC,Complejidad Computacional,25,1,practices,morning,101,true
+COMC,Complejidad Computacional,25,1,practices,morning,102,true
+SISE,Sistemas Empotrados,30,2,theory,morning,1,false
+SISE,Sistemas Empotrados,30,2,problems,morning,101,false
+AVPE,Arquitecturas Avanzadas y de Propósitos Específicos,30,2,theory,morning,1,false
+AVPE,Arquitecturas Avanzadas y de Propósitos Específicos,30,2,problems,morning,101,false
+SEGI,Seguridad de Sistemas Informáticos,30,2,theory,morning,1,false
+SEGI,Seguridad de Sistemas Informáticos,30,2,problems,morning,101,false
+LDH,Laboratorio de Desarrollo y Herramientas,30,2,theory,morning,1,false
+LDH,Laboratorio de Desarrollo y Herramientas,30,2,problems,morning,101,false
+NYR,Normativa y Regulación,50,2,theory,morning,1,false
+NYR,Normativa y Regulación,50,2,problems,morning,101,false
+DAP,Diseño Arquitectónico y Patrones,50,2,theory,morning,1,false
+DAP,Diseño Arquitectónico y Patrones,50,2,problems,morning,101,false
+GIN,Gestión de la Innovación,50,2,theory,morning,1,false
+GIN,Gestión de la Innovación,50,2,problems,morning,101,false
+DMSI,Desarrollo y Mantenimiento de Sistemas de Información,50,2,theory,morning,1,false
+DMSI,Desarrollo y Mantenimiento de Sistemas de Información,50,2,problems,morning,101,false
+TIO,Tecnologías de la Información para las Organizaciones,50,2,theory,morning,1,false
+TIO,Tecnologías de la Información para las Organizaciones,50,1,problems,morning,101,false
+TIO,Tecnologías de la Información para las Organizaciones,17,1,practices,morning,101,true
+TIO,Tecnologías de la Información para las Organizaciones,17,1,practices,morning,102,true
+TIO,Tecnologías de la Información para las Organizaciones,16,1,practices,morning,103,true
+SYTW,Sistemas y Tecnologías Web,50,2,theory,morning,1,false
+SYTW,Sistemas y Tecnologías Web,50,1,problems,morning,101,false
+SYTW,Sistemas y Tecnologías Web,17,1,practices,morning,101,true
+SYTW,Sistemas y Tecnologías Web,17,1,practices,morning,102,true
+SYTW,Sistemas y Tecnologías Web,16,1,practices,morning,103,true
+GCO,Gestión del Conocimiento en las Organizaciones,50,2,theory,morning,1,false
+GCO,Gestión del Conocimiento en las Organizaciones,50,1,problems,morning,101,false
+GCO,Gestión del Conocimiento en las Organizaciones,17,1,practices,morning,101,true
+GCO,Gestión del Conocimiento en las Organizaciones,17,1,practices,morning,102,true
+GCO,Gestión del Conocimiento en las Organizaciones,16,1,practices,morning,103,true
+ADBD,Administración y Diseño de Bases de Datos,50,2,theory,morning,1,false
+ADBD,Administración y Diseño de Bases de Datos,50,1,problems,morning,101,false
+ADBD,Administración y Diseño de Bases de Datos,17,1,practices,morning,101,true
+ADBD,Administración y Diseño de Bases de Datos,17,1,practices,morning,102,true
+ADBD,Administración y Diseño de Bases de Datos,16,1,practices,morning,103,true
+VPC,Visión por Computador,50,2,theory,morning,1,false
+VPC,Visión por Computador,50,1,problems,morning,101,false
+VPC,Visión por Computador,17,1,practices,morning,101,true
+VPC,Visión por Computador,17,1,practices,morning,102,true
+VPC,Visión por Computador,16,1,practices,morning,103,true
+ILOG,Ingeniería Logística,50,2,theory,morning,1,false
+ILOG,Ingeniería Logística,50,1,problems,morning,101,false
+ILOG,Ingeniería Logística,50,1,practices,morning,101,false
+ROBO,Robótica Computacional,50,2,theory,morning,1,false
+ROBO,Robótica Computacional,50,1,problems,morning,101,false
+ROBO,Robótica Computacional,13,1,practices,morning,101,true
+ROBO,Robótica Computacional,13,1,practices,morning,102,true
+ROBO,Robótica Computacional,12,1,practices,morning,103,true
+ROBO,Robótica Computacional,12,1,practices,morning,104,true
+INTE,Inteligencia Emocional,75,2,theory,morning,1,false
+INTE,Inteligencia Emocional,75,2,problems,morning,101,false

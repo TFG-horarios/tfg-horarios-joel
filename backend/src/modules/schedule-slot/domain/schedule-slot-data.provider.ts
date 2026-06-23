@@ -2,6 +2,7 @@ import type { Shift } from '@tfg-horarios/shared';
 
 export interface IScheduleSlotContext {
   academicYearId: string;
+  period: number;
   shift: Shift;
 }
 
@@ -18,14 +19,15 @@ export interface IScheduleSlotDataProvider {
   unpublishSchedule(scheduleId: string, organizationId: string): Promise<void>;
   rejectConflictingReservations(
     organizationId: string,
+    academicYearId: string,
+    period: number,
     classroomId: string,
     dayOfWeek: number,
     slotIndex: number,
     duration: number
   ): Promise<void>;
-  updateScheduleConflictsCount(
+  updateScheduleConflictsAndUnassignedCount(
     scheduleId: string,
-    organizationId: string,
-    conflictsCount: number
+    organizationId: string
   ): Promise<void>;
 }

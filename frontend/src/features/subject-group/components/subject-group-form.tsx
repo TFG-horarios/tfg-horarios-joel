@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/shared/form/form-input';
 import { FormSelect } from '@/components/shared/form/form-select';
+import { FormCheckbox } from '@/components/shared/form/form-checkbox';
 import {
   SaveSubjectGroupBodySchema,
   type SubjectGroupDTO,
@@ -59,6 +60,7 @@ export function SubjectGroupForm({
       groupNumber: defaultValues?.groupNumber ?? 1,
       weeklyHours: defaultValues?.weeklyHours ?? 2.5,
       numberOfStudents: defaultValues?.numberOfStudents ?? 0,
+      needsComputerLab: defaultValues?.needsComputerLab ?? false,
     },
     onSuccess,
   });
@@ -75,6 +77,8 @@ export function SubjectGroupForm({
               label: subject.name,
               value: subject.id,
             }))}
+            searchable={true}
+            searchPlaceholder={t('subjectId.placeholder')}
           />
         )}
 
@@ -125,6 +129,13 @@ export function SubjectGroupForm({
             type="number"
             label={t('numberOfStudents.label')}
             placeholder={t('numberOfStudents.placeholder')}
+          />
+        </div>
+
+        <div className="py-2">
+          <FormCheckbox
+            name="needsComputerLab"
+            label={t('needsComputerLab.label')}
           />
         </div>
 

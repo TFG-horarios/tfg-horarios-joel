@@ -40,6 +40,7 @@ export const schedulesTable = pgTable(
     period: integer('period').notNull(),
     isCanonicalCommon: boolean('is_canonical_common').notNull().default(false),
     conflicts: integer('conflicts').notNull().default(0),
+    unassigned: integer('unassigned').notNull().default(0),
     status: scheduleStatusEnum('status').notNull().default('draft'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')

@@ -91,38 +91,38 @@ export default async function OrganizationDegreesPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-degrees"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-degrees"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={
+          <ResourceSearch
+            placeholder={t('searchPlaceholder') || 'Buscar grado...'}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterInput
+              paramKey="code"
+              type="text"
+              placeholder={t('codePlaceholder') || 'Código...'}
             />
-          }
-          search={
-            <ResourceSearch
-              placeholder={t('searchPlaceholder') || 'Buscar grado...'}
-            />
-          }
-          filters={
-            <div className="flex gap-2 w-full lg:w-auto">
-              <ResourceFilterInput
-                paramKey="code"
-                type="text"
-                placeholder={t('codePlaceholder') || 'Código...'}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <DegreeActions
-          organizationId={id}
-          canCreate={canCreate}
-          canDeleteAll={canDeleteAll}
-          canImport={canImport}
-          canReplaceAll={canReplaceAll}
-        />
-      </div>
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <DegreeActions
+            organizationId={id}
+            canCreate={canCreate}
+            canDeleteAll={canDeleteAll}
+            canImport={canImport}
+            canReplaceAll={canReplaceAll}
+          />
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

@@ -44,7 +44,7 @@ export function ResourceViewToggle({
       <Button
         variant="ghost"
         size="icon"
-        className={`size-6 rounded-md ${currentView === 'grid' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
+        className={`size-6 rounded-md cursor-pointer ${currentView === 'grid' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
         onClick={() => setView('grid')}
         title="Vista en cuadrícula"
       >
@@ -53,7 +53,7 @@ export function ResourceViewToggle({
       <Button
         variant="ghost"
         size="icon"
-        className={`size-6 rounded-md ${currentView === 'table' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
+        className={`size-6 rounded-md cursor-pointer ${currentView === 'table' ? 'bg-black/10 dark:bg-white/10' : 'hover:bg-transparent text-muted-foreground'}`}
         onClick={() => setView('table')}
         title="Vista en tabla"
       >

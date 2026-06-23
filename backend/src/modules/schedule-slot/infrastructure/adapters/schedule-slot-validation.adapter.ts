@@ -16,6 +16,8 @@ import { RoomCapacityRule } from '../../domain/rules/room-capacity.rule';
 import { ShiftRule } from '../../domain/rules/shift.rule';
 import { CourseGroupOverlapRule } from '../../domain/rules/course-group-overlap.rule';
 import { RoomOverlapRule } from '../../domain/rules/room-overlap.rule';
+import { UnassignedDiagnosticRule } from '../../domain/rules/unassigned-diagnostic.rule';
+import { RoomTypeRule } from '../../domain/rules/room-type.rule';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
   private readonly rules: IMoveValidationRule[];
@@ -27,9 +29,11 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
   ) {
     this.rules = [
       new RoomCapacityRule(),
+      new RoomTypeRule(),
       new ShiftRule(),
       new CourseGroupOverlapRule(),
       new RoomOverlapRule(this.scheduleSlotRepository),
+      new UnassignedDiagnosticRule(),
     ];
   }
 
@@ -115,16 +119,12 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
         isCommon: group.isCommon,
         itineraryName: group.itineraryName ?? null,
         numberOfStudents: group.numberOfStudents,
+        needsComputerLab: group.needsComputerLab,
         degreeId: schedule.degreeId,
         courseYear: schedule.courseYear,
         classroomId: s.classroomId,
         dayOfWeek: s.dayOfWeek,
-        slotIndex:
-          s.slotIndex !== null
-            ? schedule.shift === 'afternoon'
-              ? s.slotIndex + maxMorningSlots
-              : s.slotIndex
-            : null,
+        slotIndex: s.slotIndex,
         duration: s.duration,
       };
 

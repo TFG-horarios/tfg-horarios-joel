@@ -111,7 +111,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar organización..."
-                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
+                  className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -125,7 +125,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                 <Breadcrumb>
                   <BreadcrumbList className="flex-nowrap">
                     <BreadcrumbItem>
-                      <BreadcrumbPage className="font-medium text-purple-700 dark:text-purple-300">
+                      <BreadcrumbPage className="font-medium text-brand-purple-solid">
                         <div className="flex items-center gap-1.5">
                           <User className="size-4" />
                           <span>{tProfile('title')}</span>
@@ -197,7 +197,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     className={cn(
                       'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
                       pathname === '/login'
-                        ? 'border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200'
+                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple'
                         : ''
                     )}
                   >
@@ -209,7 +209,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     className={cn(
                       'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
                       pathname === '/register'
-                        ? 'border-purple-500/40 bg-purple-500/15 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200'
+                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple'
                         : ''
                     )}
                   >

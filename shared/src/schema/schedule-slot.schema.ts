@@ -9,10 +9,14 @@ export const ScheduleConflictTypeSchema = z.enum([
   'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES',
   'COURSE_OVERLAP_SAME_SUBJECT',
   'ROOM_CAPACITY',
+  'ROOM_TYPE',
   'SHIFT_MORNING',
   'SHIFT_AFTERNOON',
   'SHIFT_EXCEEDS_DAY',
   'UNASSIGNED',
+  'UNASSIGNED_NO_ROOMS_OF_TYPE',
+  'UNASSIGNED_ROOM_CAPACITY',
+  'UNASSIGNED_NO_COMPATIBLE_SLOTS',
 ]);
 
 export type ScheduleConflictType = z.infer<typeof ScheduleConflictTypeSchema>;

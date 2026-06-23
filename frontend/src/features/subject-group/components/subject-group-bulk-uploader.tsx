@@ -54,6 +54,7 @@ export function SubjectGroupBulkUploader({
         'groupType',
         'shift',
         'groupNumber',
+        'needsComputerLab',
       ]}
       schema={GlobalSubjectGroupCsvSchema}
       rowTransformer={(row) => {
@@ -94,6 +95,9 @@ export function SubjectGroupBulkUploader({
           numberOfStudents: Number(row.numberOfStudents || 0),
           weeklyHours: Number(row.weeklyHours || 0),
           groupNumber: Number(row.groupNumber || 1),
+          needsComputerLab: ['si', 'sí', 'true', '1', 'yes', 'y', 's'].includes(
+            (row.needsComputerLab as string || '').toString().trim().toLowerCase()
+          ),
         };
       }}
       onAnalyze={async (validData) => {

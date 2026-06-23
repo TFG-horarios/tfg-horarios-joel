@@ -20,6 +20,7 @@ export const ScheduleSchema = z
     courseYear: z.number().int().positive().openapi({ example: 1 }),
     period: z.number().int().positive().openapi({ example: 1 }),
     conflicts: z.number().int().min(0).openapi({ example: 0 }),
+    unassigned: z.number().int().min(0).openapi({ example: 0 }),
     status: z.enum(['draft', 'published']).openapi({ example: 'draft' }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),

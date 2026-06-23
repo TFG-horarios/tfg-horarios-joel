@@ -9,6 +9,7 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
   calculatePenalty(context: ConstraintContext): PenaltyResult {
     let penalty = 0;
     const conflicts: ConflictDetail[] = [];
+    const registeredConflicts = new Set<string>();
 
     const groupCountsPerSubjectType = new Map<string, Set<string>>();
     for (const assignment of context.assignments) {
@@ -56,6 +57,11 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
                 )?.size === 1;
 
               const addConflict = (type: ConflictDetail['type']) => {
+                const pairKey = [a.id, b.id].sort().join(':');
+                const conflictKey = `${type}:${pairKey}`;
+                if (registeredConflicts.has(conflictKey)) return;
+                registeredConflicts.add(conflictKey);
+
                 penalty += 1000;
                 conflicts.push({
                   type,

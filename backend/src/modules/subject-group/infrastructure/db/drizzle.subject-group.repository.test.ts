@@ -44,6 +44,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
 
   test('should create and retrieve a subject group by ID', async () => {
@@ -74,6 +75,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     const group2 = SubjectGroup.create({
       organizationId: testOrgId,
@@ -84,6 +86,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 25,
+      needsComputerLab: false,
     });
     await repository.createMany([group1, group2]);
     const foundGroups = await repository.findAll(testOrgId);
@@ -102,6 +105,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     const group2 = SubjectGroup.create({
       organizationId: testOrgId,
@@ -112,6 +116,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 25,
+      needsComputerLab: false,
     });
     await repository.createMany([group1, group2]);
     const allGroups = await repository.findAll(testOrgId);
@@ -149,6 +154,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     await expect(repository.create(groupDuplicate)).rejects.toThrow(
       ConflictError
@@ -165,6 +171,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 2,
       weeklyHours: 3,
       numberOfStudents: 30,
+      needsComputerLab: false,
     });
     await repository.update(group);
     const updatedGroup = await repository.findById(group.id, testOrgId);
@@ -194,6 +201,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     const group2 = SubjectGroup.create({
       organizationId: testOrgId,
@@ -204,6 +212,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     await repository.createMany([group1, group2]);
     const groupsInDegree = await repository.findGroupsWithSubjectsInScope(
@@ -242,6 +251,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 50,
+      needsComputerLab: false,
     });
     await repository.createMany([group1, group2]);
     const beforeDelete = await repository.findAll(testOrgId);
@@ -263,6 +273,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
       groupNumber: 1,
       weeklyHours: 2,
       numberOfStudents: 10,
+      needsComputerLab: false,
     });
     await repository.replace([newGroup], testOrgId);
     const allGroups = await repository.findAll(testOrgId);

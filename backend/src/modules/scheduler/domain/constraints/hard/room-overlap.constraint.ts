@@ -9,6 +9,7 @@ export class RoomOverlapConstraint implements IScheduleConstraint {
   calculatePenalty(context: ConstraintContext): PenaltyResult {
     let penalty = 0;
     const conflicts: ConflictDetail[] = [];
+    const registeredPairs = new Set<string>();
 
     for (const classesAtThisTime of context.timeSlots.values()) {
       const roomOccupants = new Map<string, (typeof classesAtThisTime)[0]>();
@@ -17,6 +18,10 @@ export class RoomOverlapConstraint implements IScheduleConstraint {
 
         const existingOccupant = roomOccupants.get(assignment.classroomId);
         if (existingOccupant) {
+          const pairKey = [existingOccupant.id, assignment.id].sort().join(':');
+          if (registeredPairs.has(pairKey)) continue;
+          registeredPairs.add(pairKey);
+
           penalty += 1000;
           conflicts.push({
             type: 'ROOM_OVERLAP',

@@ -93,7 +93,9 @@ export function GenericBulkUploader<TData>({
         const foundIssues: CsvRowIssue[] = [];
         const locallyValidData: TData[] = [];
 
-        const headers = results.meta.fields || [];
+        const headers = (results.meta.fields || []).filter(
+          (col) => col.trim() !== ''
+        );
 
         const missingColumns = expectedColumns.filter(
           (col) => !headers.includes(col)

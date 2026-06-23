@@ -27,6 +27,7 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
 
     return {
       academicYearId: schedule.academicYearId,
+      period: schedule.period,
       shift: schedule.shift,
     };
   }
@@ -72,6 +73,8 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
 
   async rejectConflictingReservations(
     organizationId: string,
+    academicYearId: string,
+    period: number,
     classroomId: string,
     dayOfWeek: number,
     slotIndex: number,
@@ -91,12 +94,23 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
       );
 
     for (const res of allFutureReservations) {
-      if (res.status === 'REJECTED') continue;
+      if (
+        res.status === 'REJECTED' ||
+        res.status === 'CANCELLED' ||
+        res.academicYearId !== academicYearId
+      ) {
+        continue;
+      }
 
       const resDate = new Date(res.date);
       const resDow = resDate.getUTCDay();
+      const matchingPeriods =
+        await this.scheduleDataProvider.getMatchingPeriods(
+          academicYearId,
+          resDate
+        );
 
-      if (resDow === dayOfWeek) {
+      if (matchingPeriods.includes(period) && resDow === dayOfWeek) {
         const startSlot = slotIndex;
         const endSlot = slotIndex + Math.ceil(duration) - 1;
 
@@ -119,18 +133,15 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
     }
   }
 
-  async updateScheduleConflictsCount(
+  async updateScheduleConflictsAndUnassignedCount(
     scheduleId: string,
-    organizationId: string,
-    conflictsCount: number
+    organizationId: string
   ): Promise<void> {
-    const schedule = await this.scheduleRepository.findById(
-      scheduleId,
-      organizationId
-    );
-    if (!schedule) return;
-
-    schedule.updateConflicts(conflictsCount);
-    await this.scheduleRepository.update(schedule);
+    if (this.scheduleRepository.updateConflictsAndUnassignedCount) {
+      await this.scheduleRepository.updateConflictsAndUnassignedCount(
+        scheduleId,
+        organizationId
+      );
+    }
   }
 }

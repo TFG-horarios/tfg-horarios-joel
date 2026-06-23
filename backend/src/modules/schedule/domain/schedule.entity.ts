@@ -11,6 +11,7 @@ export interface ScheduleProps {
   period: number;
   isCanonicalCommon?: boolean;
   conflicts: number;
+  unassigned?: number;
   status: 'draft' | 'published';
   createdAt: Date;
   updatedAt: Date;
@@ -22,10 +23,11 @@ export class Schedule {
   public static create(
     props: Omit<
       ScheduleProps,
-      'id' | 'createdAt' | 'updatedAt' | 'status' | 'conflicts'
+      'id' | 'createdAt' | 'updatedAt' | 'status' | 'conflicts' | 'unassigned'
     > & {
       status?: 'draft' | 'published';
       conflicts?: number;
+      unassigned?: number;
     }
   ): Schedule {
     return new Schedule({
@@ -33,6 +35,7 @@ export class Schedule {
       id: crypto.randomUUID(),
       isCanonicalCommon: props.isCanonicalCommon ?? false,
       conflicts: props.conflicts ?? 0,
+      unassigned: props.unassigned ?? 0,
       status: props.status ?? 'draft',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -40,7 +43,10 @@ export class Schedule {
   }
 
   public static reconstitute(props: ScheduleProps): Schedule {
-    return new Schedule(props);
+    return new Schedule({
+      ...props,
+      unassigned: props.unassigned ?? 0,
+    });
   }
 
   public publish(): void {
@@ -55,6 +61,12 @@ export class Schedule {
 
   public updateConflicts(count: number): void {
     this.props.conflicts = count;
+    this.props.updatedAt = new Date();
+  }
+
+  public updateConflictsAndUnassigned(conflicts: number, unassigned: number): void {
+    this.props.conflicts = conflicts;
+    this.props.unassigned = unassigned;
     this.props.updatedAt = new Date();
   }
 
@@ -92,6 +104,9 @@ export class Schedule {
   }
   get conflicts() {
     return this.props.conflicts;
+  }
+  get unassigned() {
+    return this.props.unassigned ?? 0;
   }
   get status() {
     return this.props.status;

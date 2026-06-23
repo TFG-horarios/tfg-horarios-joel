@@ -164,6 +164,36 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(foundSchedule).not.toBeNull();
   });
 
+  test('should keep unassigned diagnostics out of the conflict count', async () => {
+    const schedule = createValidSchedule();
+    await repository.createSchedulesWithSlots([
+      {
+        schedule,
+        slots: [
+          {
+            scheduleId: schedule.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: null,
+            dayOfWeek: null,
+            slotIndex: null,
+            duration: 1,
+            conflicts: [
+              {
+                type: 'UNASSIGNED_ROOM_CAPACITY',
+                message: 'ERR_UNASSIGNED_ROOM_CAPACITY',
+              },
+              { type: 'ROOM_CAPACITY', message: 'ERR_ROOM_CAPACITY' },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const persisted = await repository.findById(schedule.id, testOrgId);
+    expect(persisted?.unassigned).toBe(1);
+    expect(persisted?.conflicts).toBe(1);
+  });
+
   test('should hide canonical common schedules from user-facing lists', async () => {
     const commonSchedule = Schedule.create({
       organizationId: testOrgId,

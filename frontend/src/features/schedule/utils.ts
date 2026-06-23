@@ -57,10 +57,17 @@ export async function generateScheduleCsv(
     (endMins - startMins) / academicYear.slotDurationMinutes
   );
   const slotTimeLabels: Record<number, string> = {};
+  const afternoonOffset = Math.floor(
+    (parseTime(academicYear.morningEnd) -
+      parseTime(academicYear.morningStart)) /
+      academicYear.slotDurationMinutes
+  );
   for (let i = 0; i < count; i++) {
     const slotStart = startMins + i * academicYear.slotDurationMinutes;
     const slotEnd = slotStart + academicYear.slotDurationMinutes;
-    slotTimeLabels[i] = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+    const slotIndex = shift === 'afternoon' ? afternoonOffset + i : i;
+    slotTimeLabels[slotIndex] =
+      `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
   }
 
   const tCsv = await getTranslations('Organizations.schedules.csv');

@@ -45,16 +45,16 @@ export class PublishScheduleUseCase {
       return ScheduleMapper.toDTO(schedule);
     }
 
-    if (schedule.conflicts > 0) {
-      throw new ValidationError('ERR_SCHEDULE_HAS_CONFLICTS');
-    }
-
     const hasUnassigned = await this.scheduleSlotProvider.hasUnassignedSlots(
       schedule.id
     );
 
     if (hasUnassigned) {
       throw new ValidationError('ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS');
+    }
+
+    if (schedule.conflicts > 0) {
+      throw new ValidationError('ERR_SCHEDULE_HAS_CONFLICTS');
     }
 
     schedule.publish();

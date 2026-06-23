@@ -53,8 +53,10 @@ export default async function OrganizationClassroomsPage({
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     type:
-      rawSearchParams.type === 'theory' || rawSearchParams.type === 'lab'
-        ? (rawSearchParams.type as 'theory' | 'lab')
+      rawSearchParams.type === 'theory' ||
+      rawSearchParams.type === 'lab' ||
+      rawSearchParams.type === 'computer_lab'
+        ? (rawSearchParams.type as 'theory' | 'lab' | 'computer_lab')
         : undefined,
     minCapacity:
       typeof rawSearchParams.minCapacity === 'string'
@@ -88,8 +90,9 @@ export default async function OrganizationClassroomsPage({
     notFound();
   }
   const translations = {
-    'type.theory': t('type.theory'),
-    'type.lab': t('type.lab'),
+    'type.theory': t('types.theory'),
+    'type.lab': t('types.lab'),
+    'type.computer_lab': t('types.computer_lab'),
     capacity: t('capacity'),
     floor: t('floor'),
     empty: t('empty'),
@@ -103,51 +106,52 @@ export default async function OrganizationClassroomsPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex-none flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-classrooms"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-classrooms"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={
+          <ResourceSearch
+            placeholder={t('searchPlaceholder') || 'Buscar aulas...'}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterSelect
+              paramKey="type"
+              placeholder={t('typeFilterLabel')}
+              options={[
+                { label: t('types.theory'), value: 'theory' },
+                { label: t('types.lab'), value: 'lab' },
+                { label: t('types.computer_lab'), value: 'computer_lab' },
+              ]}
             />
-          }
-          search={
-            <ResourceSearch
-              placeholder={t('searchPlaceholder') || 'Buscar aulas...'}
+            <ResourceFilterInput
+              paramKey="minCapacity"
+              type="number"
+              placeholder={t('capacityMinLabel')}
             />
-          }
-          filters={
-            <div className="flex gap-2 w-full">
-              <ResourceFilterSelect
-                paramKey="type"
-                placeholder={t('typeFilterLabel')}
-                options={[
-                  { label: t('type.theory'), value: 'theory' },
-                  { label: t('type.lab'), value: 'lab' },
-                ]}
-              />
-              <ResourceFilterInput
-                paramKey="minCapacity"
-                type="number"
-                placeholder={t('capacityMinLabel')}
-              />
-              <ResourceFilterInput
-                paramKey="maxCapacity"
-                type="number"
-                placeholder={t('capacityMaxLabel')}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <ClassroomActions
-          organizationId={id}
-          canCreate={canCreate}
-          canDeleteAll={canDeleteAll}
-          canImport={canImport}
-          canReplaceAll={canReplaceAll}
-        />
-      </div>
+            <ResourceFilterInput
+              paramKey="maxCapacity"
+              type="number"
+              placeholder={t('capacityMaxLabel')}
+            />
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <ClassroomActions
+            organizationId={id}
+            canCreate={canCreate}
+            canDeleteAll={canDeleteAll}
+            canImport={canImport}
+            canReplaceAll={canReplaceAll}
+          />
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

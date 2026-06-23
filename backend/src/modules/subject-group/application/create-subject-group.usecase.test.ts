@@ -36,6 +36,7 @@ describe('CreateSubjectGroupUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     };
     const result = await useCase.execute('org-1', 'sub-1', 'user-1', dto);
     expect(result.name).toBe('T1');
@@ -52,6 +53,7 @@ describe('CreateSubjectGroupUseCase', () => {
       groupNumber: 1,
       weeklyHours: 4,
       numberOfStudents: 30,
+      needsComputerLab: false,
     };
     expect(useCase.execute('org-1', 'sub-1', 'user-1', dto)).rejects.toThrow(
       ValidationError

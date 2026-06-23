@@ -7,6 +7,7 @@ import {
   text,
   pgEnum,
   uniqueIndex,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
@@ -32,6 +33,7 @@ export const subjectGroupsTable = pgTable(
     groupNumber: integer('group_number').notNull(),
     weeklyHours: numeric('weekly_hours', { precision: 4, scale: 1 }).notNull(),
     numberOfStudents: integer('number_of_students').notNull(),
+    needsComputerLab: boolean('needs_computer_lab').notNull().default(false),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
       .notNull()

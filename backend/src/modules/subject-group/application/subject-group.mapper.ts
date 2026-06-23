@@ -13,6 +13,7 @@ export class SubjectGroupMapper {
       groupNumber: group.groupNumber,
       weeklyHours: group.weeklyHours,
       numberOfStudents: group.numberOfStudents,
+      needsComputerLab: group.needsComputerLab,
       createdAt: group.createdAt.toISOString(),
       updatedAt: group.updatedAt.toISOString(),
       deletedAt: group.deletedAt ? group.deletedAt.toISOString() : null,

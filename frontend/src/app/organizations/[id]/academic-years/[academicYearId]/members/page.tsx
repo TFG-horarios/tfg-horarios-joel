@@ -98,41 +98,39 @@ export default async function OrganizationMembersPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-members"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-members"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={
+          <ResourceSearch
+            paramKey="name"
+            placeholder={t('namePlaceholder')}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterInput
+              paramKey="email"
+              placeholder={t('emailPlaceholder')}
             />
-          }
-          search={
-            <ResourceSearch
-              paramKey="name"
-              placeholder={t('namePlaceholder')}
+            <ResourceFilterSelect
+              paramKey="role"
+              placeholder={t('rolePlaceholder')}
+              options={[
+                { label: tm('roleOptions.admin'), value: 'admin' },
+                { label: tm('roleOptions.editor'), value: 'editor' },
+                { label: tm('roleOptions.viewer'), value: 'viewer' },
+              ]}
             />
-          }
-          filters={
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              <ResourceFilterInput
-                paramKey="email"
-                placeholder={t('emailPlaceholder')}
-              />
-              <ResourceFilterSelect
-                paramKey="role"
-                placeholder={t('rolePlaceholder')}
-                options={[
-                  { label: tm('roleOptions.admin'), value: 'admin' },
-                  { label: tm('roleOptions.editor'), value: 'editor' },
-                  { label: tm('roleOptions.viewer'), value: 'viewer' },
-                ]}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <MemberActions organizationId={id} canManage={canManage} />
-      </div>
+            <ResourceFilterClear />
+          </>
+        }
+        actions={<MemberActions organizationId={id} canManage={canManage} />}
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

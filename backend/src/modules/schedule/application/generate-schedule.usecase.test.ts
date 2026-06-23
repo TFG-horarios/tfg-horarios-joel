@@ -22,6 +22,7 @@ describe('GenerateScheduleUseCase', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
 
@@ -247,9 +248,10 @@ describe('GenerateScheduleUseCase', () => {
           itineraryName: null,
           itineraryId: null,
           numberOfStudents: 60,
-          classroomId: 'c-1',
-          dayOfWeek: 1,
-          slotIndex: 0,
+          needsComputerLab: false,
+          classroomId: null,
+          dayOfWeek: null,
+          slotIndex: null,
           duration: 1,
           conflicts: [],
         },
@@ -321,6 +323,15 @@ describe('GenerateScheduleUseCase', () => {
           item.slots[0]?.subjectGroupId !== 'sg-common' &&
           (item.inclusions ?? []).length === 1 &&
           item.inclusions?.[0]?.slotId === commonItem?.slots[0]?.id
+      )
+    ).toBe(true);
+    expect(result.every((schedule) => schedule.unassigned === 1)).toBe(true);
+    expect(result.every((schedule) => schedule.conflicts === 0)).toBe(true);
+    expect(
+      itineraryItems.every((item) =>
+        item.inclusions?.[0]?.conflicts.some((conflict) =>
+          conflict.type.startsWith('UNASSIGNED')
+        )
       )
     ).toBe(true);
   });
@@ -413,6 +424,77 @@ describe('GenerateScheduleUseCase', () => {
       periods: [1],
     });
     expect(result).toHaveLength(0);
+  });
+
+  test('should count an unassigned slot separately from scheduling conflicts', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
+    dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
+      { id: 'c-1', capacity: 30, type: 'computer_lab', floor: 0 },
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
+      {
+        subjectGroupId: 'sg-1',
+        subjectId: 'sub-1',
+        degreeId: 'deg-1',
+        courseYear: 1,
+        shift: 'morning',
+        groupType: 'practices',
+        isCommon: true,
+        itineraryId: null,
+        numberOfStudents: 40,
+        needsComputerLab: true,
+      },
+    ]);
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
+    repositoryMock.findByScope.mockResolvedValue(null);
+    repositoryMock.findLockedAssignments.mockResolvedValueOnce([]);
+    repositoryMock.findAll.mockResolvedValueOnce([]);
+    engineProviderMock.runGeneration.mockResolvedValueOnce({
+      assignments: [
+        {
+          id: 'assignment-1',
+          subjectGroupId: 'sg-1',
+          subjectId: 'sub-1',
+          degreeId: 'deg-1',
+          courseYear: 1,
+          shift: 'morning',
+          groupType: 'practices',
+          isCommon: true,
+          itineraryName: null,
+          itineraryId: null,
+          numberOfStudents: 40,
+          needsComputerLab: true,
+          classroomId: null,
+          dayOfWeek: null,
+          slotIndex: null,
+          duration: 1,
+          conflicts: [],
+        },
+      ],
+      unassigned: 1,
+      penalty: 0,
+      hardPenalty: 0,
+    });
+
+    const result = await useCase.execute('org-1', 'user-1', {
+      academicYearId: 'ay-1',
+      periods: [1],
+    });
+
+    expect(result[0]?.unassigned).toBe(1);
+    expect(result[0]?.conflicts).toBe(0);
+    const persistedItems =
+      repositoryMock.createSchedulesWithSlots.mock.calls.at(-1)?.[0];
+    expect(persistedItems?.[0]?.slots[0]?.conflicts[0]?.type).toBe(
+      'UNASSIGNED_ROOM_CAPACITY'
+    );
   });
 
   test('should persist a solution even with hard conflicts', async () => {

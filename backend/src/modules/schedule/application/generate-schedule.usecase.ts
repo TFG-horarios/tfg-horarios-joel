@@ -10,6 +10,11 @@ import type { IScheduleMemberProvider } from '../domain/schedule-member.provider
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
+import { getUnassignedDiagnostics } from '../../schedule-slot/domain/unassigned-diagnostics';
+import {
+  countSchedulingConflicts,
+  isUnassignedPlacement,
+} from '../../schedule-slot/domain/schedule-issues';
 import type { AppRole } from '@/core/permissions/roles';
 import type {
   IScheduleEngineProvider,
@@ -80,6 +85,7 @@ export class GenerateScheduleUseCase {
       dayOfWeek: number;
       slotIndex: number;
       duration: number;
+      period: number;
     };
     type PeriodGenerationResult = {
       schedulesToPersist: PersistedScheduleItem[];
@@ -209,12 +215,6 @@ export class GenerateScheduleUseCase {
         (assignment) =>
           !commonSubjectGroupIdsInScope.has(assignment.subjectGroupId)
       );
-
-      for (const locked of effectiveLockedAssignments) {
-        if (locked.shift === 'afternoon' && locked.slotIndex !== null) {
-          locked.slotIndex += maxMorningSlots;
-        }
-      }
 
       const uniqueLockedAssignments = [
         ...new Map(
@@ -355,6 +355,34 @@ export class GenerateScheduleUseCase {
           return true;
         }) || [];
 
+      const buildAssignmentConflicts = (
+        asm: (typeof solution.assignments)[number],
+        scopeSubjectGroupIds: Set<string>,
+        persistedSlotId: string
+      ) => {
+        const conflicts = filterAssignmentConflicts(asm, scopeSubjectGroupIds);
+
+        if (isUnassignedPlacement(asm)) {
+          const diag = getUnassignedDiagnostics(
+            {
+              needsComputerLab: asm.needsComputerLab,
+              groupType: asm.groupType,
+              numberOfStudents: asm.numberOfStudents,
+            },
+            classroomsCache,
+            availableClassrooms
+          );
+          conflicts.push({
+            type: diag.type,
+            message: diag.message,
+            subjectGroupId: asm.subjectGroupId,
+            assignmentId: persistedSlotId,
+          });
+        }
+
+        return conflicts;
+      };
+
       const orderedScopeEntries = [...scopeAssignments.entries()].sort(
         ([keyA], [keyB]) => {
           const aIsCommon = keyA.endsWith('_common');
@@ -401,12 +429,6 @@ export class GenerateScheduleUseCase {
           }
         );
 
-        const scheduleConflictsCount =
-          scopeAssignmentsWithFilteredConflicts.reduce(
-            (acc, asm) => acc + asm.conflicts.length,
-            0
-          );
-
         const schedule =
           existingSchedule ||
           Schedule.create({
@@ -419,13 +441,13 @@ export class GenerateScheduleUseCase {
             shift: sData.shift,
             isCanonicalCommon,
             status: 'draft',
-            conflicts: scheduleConflictsCount,
+            conflicts: 0,
           });
 
         schedule.setCanonicalCommon(isCanonicalCommon);
         if (existingSchedule) {
           schedule.markAsDraft();
-          schedule.updateConflicts(scheduleConflictsCount);
+          schedule.updateConflictsAndUnassigned(0, 0);
         }
 
         const slots = scopeAssignmentsWithFilteredConflicts.map((asm) => {
@@ -433,6 +455,12 @@ export class GenerateScheduleUseCase {
           if (asm.isCommon) {
             commonSlotIdsByAssignmentId.set(asm.id, id);
           }
+
+          const conflicts = buildAssignmentConflicts(
+            asm,
+            scopeSubjectGroupIds,
+            id
+          );
 
           return {
             id,
@@ -442,7 +470,7 @@ export class GenerateScheduleUseCase {
             dayOfWeek: asm.dayOfWeek,
             slotIndex: asm.slotIndex,
             duration: asm.duration,
-            conflicts: asm.conflicts,
+            conflicts,
           };
         });
 
@@ -481,20 +509,43 @@ export class GenerateScheduleUseCase {
           item.inclusions.push({
             scheduleId: item.schedule.id,
             slotId,
-            conflicts: filterAssignmentConflicts(
+            conflicts: buildAssignmentConflicts(
               commonAssignment,
-              scopeSubjectGroupIds
+              scopeSubjectGroupIds,
+              slotId
             ),
           });
         }
+      }
 
+      const slotsById = new Map(
+        schedulesToPersist
+          .flatMap((item) => item.slots)
+          .map((slot) => [slot.id, slot])
+      );
+
+      for (const item of schedulesToPersist) {
         const conflictsCount =
-          item.slots.reduce((acc, slot) => acc + slot.conflicts.length, 0) +
+          item.slots.reduce(
+            (acc, slot) => acc + countSchedulingConflicts(slot.conflicts),
+            0
+          ) +
           item.inclusions.reduce(
-            (acc, inclusion) => acc + inclusion.conflicts.length,
+            (acc, inclusion) =>
+              acc + countSchedulingConflicts(inclusion.conflicts),
             0
           );
-        item.schedule.updateConflicts(conflictsCount);
+        const unassignedCount =
+          item.slots.filter(isUnassignedPlacement).length +
+          item.inclusions.filter((inclusion) => {
+            const includedSlot = slotsById.get(inclusion.slotId);
+            return includedSlot ? isUnassignedPlacement(includedSlot) : false;
+          }).length;
+
+        item.schedule.updateConflictsAndUnassigned(
+          conflictsCount,
+          unassignedCount
+        );
       }
 
       const persistedScheduleIds = new Set(
@@ -539,9 +590,10 @@ export class GenerateScheduleUseCase {
           additionalInclusions.push({
             scheduleId: existingSchedule.id,
             slotId,
-            conflicts: filterAssignmentConflicts(
+            conflicts: buildAssignmentConflicts(
               commonAssignment,
-              scopeSubjectGroupIds
+              scopeSubjectGroupIds,
+              slotId
             ),
           });
         }
@@ -560,6 +612,7 @@ export class GenerateScheduleUseCase {
           dayOfWeek: slot.dayOfWeek as number,
           slotIndex: slot.slotIndex as number,
           duration: slot.duration,
+          period,
         }));
 
       return {
@@ -595,6 +648,7 @@ export class GenerateScheduleUseCase {
       try {
         await this.dataProvider.rejectConflictingReservationsBatch(
           organizationId,
+          scope.academicYearId,
           reservationSlots
         );
       } catch (error) {

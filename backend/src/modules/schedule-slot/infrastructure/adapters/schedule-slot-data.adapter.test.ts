@@ -21,6 +21,7 @@ describe('ScheduleSlotDataAdapter', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
 
@@ -54,10 +55,15 @@ describe('ScheduleSlotDataAdapter', () => {
   test('getScheduleContext should return context if schedule found', async () => {
     scheduleRepositoryMock.findById.mockResolvedValue({
       academicYearId: 'year-1',
+      period: 1,
       shift: 'morning',
     });
     const result = await adapter.getScheduleContext('sch-1', 'org-1');
-    expect(result).toEqual({ academicYearId: 'year-1', shift: 'morning' });
+    expect(result).toEqual({
+      academicYearId: 'year-1',
+      period: 1,
+      shift: 'morning',
+    });
   });
 
   test('isGroupCommon should return true if group is common', async () => {
@@ -84,6 +90,7 @@ describe('ScheduleSlotDataAdapter', () => {
   test('rejectConflictingReservations should reject and notify if conflict', async () => {
     const reservation = {
       status: 'ACCEPTED',
+      academicYearId: 'year-1',
       date: '2025-01-01',
       slotIndex: 2,
       requesterUserId: 'user-1',
@@ -92,8 +99,17 @@ describe('ScheduleSlotDataAdapter', () => {
     reservationRepositoryMock.findReservationsInDateRange.mockResolvedValue([
       reservation,
     ]);
+    scheduleDataProviderMock.getMatchingPeriods.mockResolvedValue([1]);
 
-    await adapter.rejectConflictingReservations('org-1', 'room-1', 3, 1, 2);
+    await adapter.rejectConflictingReservations(
+      'org-1',
+      'year-1',
+      1,
+      'room-1',
+      3,
+      1,
+      2
+    );
 
     expect(reservation.reject).toHaveBeenCalled();
     expect(reservationRepositoryMock.update).toHaveBeenCalledWith(reservation);

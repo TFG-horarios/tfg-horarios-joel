@@ -109,6 +109,8 @@ export function SubjectForm({
               label: `${d.name} (${d.code})`,
               value: d.id,
             }))}
+            searchable={true}
+            searchPlaceholder={t('degreeId.placeholder')}
           />
         )}
 
@@ -191,6 +193,8 @@ export function SubjectForm({
                 label: `${i.name} (${i.code})`,
                 value: i.id,
               }))}
+              searchable={true}
+              searchPlaceholder={t('itineraryId.placeholder')}
             />
           )}
         </div>

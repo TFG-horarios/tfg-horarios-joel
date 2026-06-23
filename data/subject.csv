@@ -1,0 +1,65 @@
+degreeCode,name,code,availableShifts,courseYear,weeklyHours,numberOfStudents,period,isCommon,itineraryCode
+ING-INF,Informática Básica,INFB,"morning,afternoon",1,4,200,1,true,
+ING-INF,Álgebra,ALGB,"morning,afternoon",1,4,200,1,true,
+ING-INF,Cálculo,CALC,"morning,afternoon",1,4,200,1,true,
+ING-INF,Fundamentos Físicos para la Ingeniería,FFI,"morning,afternoon",1,4,200,1,true,
+ING-INF,Organizaciones Empresariales,OGE,"morning,afternoon",1,4,200,1,true,
+ING-INF,Algoritmos y Estructuras de Datos,AYED,"morning,afternoon",1,4,200,2,true,
+ING-INF,Principios de Computadores,PDC,"morning,afternoon",1,4,200,2,true,
+ING-INF,Optimización,OPTZ,"morning,afternoon",1,4,200,2,true,
+ING-INF,Sistemas Electrónicos Digitales,SED,"morning,afternoon",1,4,200,2,true,
+ING-INF,Expresión Gráfica en Ingeniería,EGI,"morning,afternoon",1,4,200,2,true,
+ING-INF,Estadística,EST,"morning,afternoon",2,4,150,1,true,
+ING-INF,Computabilidad y Algoritmia,CYA,"morning,afternoon",2,4,150,1,true,
+ING-INF,Estructura de Computadores,EDC,"morning,afternoon",2,4,150,1,true,
+ING-INF,Sistemas Operativos,SSOO,"morning,afternoon",2,4,150,1,true,
+ING-INF,Inglés Técnico,INGT,"morning,afternoon",2,4,150,1,true,
+ING-INF,Algoritmos y Estructuras de Datos Avanzadas,AYEDA,"morning,afternoon",2,4,150,2,true,
+ING-INF,Redes y Sistemas Distribuidos,RSD,"morning,afternoon",2,4,150,2,true,
+ING-INF,Administración de Sistemas,ADMS,"morning,afternoon",2,4,150,2,true,
+ING-INF,Fundamentos de Ingeniería del Software,FIS,"morning,afternoon",2,4,150,2,true,
+ING-INF,Código Deontológico y Aspectos Legales,CDAL,"morning,afternoon",2,4,150,2,true,
+ING-INF,Bases de Datos,BBDD,morning,3,4,100,1,true,
+ING-INF,Inteligencia Artificial,IA1,morning,3,4,100,1,true,
+ING-INF,Sistemas de Interacción Persona-Computador,SIPC,morning,3,4,100,1,true,
+ING-INF,Lenguajes y Paradigmas de Programación,LPP,morning,3,4,100,1,true,
+ING-INF,Gestión de Proyectos Informáticos,GPI,morning,3,4,100,1,true,
+ING-INF,Procesadores de Lenguajes,PLNG,morning,3,4,75,2,false,IT-COMP
+ING-INF,Diseño y Análisis de Algoritmos,DAA,morning,3,4,75,2,false,IT-COMP
+ING-INF,Programación de Aplicaciones Interactivas,PAI,morning,3,4,75,2,false,IT-COMP
+ING-INF,Inteligencia Artificial Avanzada,IAA,morning,3,4,75,2,false,IT-COMP
+ING-INF,Tratamiento Inteligente de Datos,TID,morning,3,4,75,2,false,IT-COMP
+ING-INF,Diseño de Procesadores,DDP,morning,3,4,30,2,false,IT-IC
+ING-INF,Arquitectura de Computadores,ADC,morning,3,4,30,2,false,IT-IC
+ING-INF,Redes de Computadores en Ingeniería de Computadores,RCIC,morning,3,4,30,2,false,IT-IC
+ING-INF,Laboratorio de Redes en Ingeniería de Computadores,LRIC,morning,3,4,30,2,false,IT-IC
+ING-INF,Sistemas Operativos Avanzados,SSOOA,morning,3,4,30,2,false,IT-IC
+ING-INF,Modelado de Sistemas Software,MSS,morning,3,4,30,2,false,IT-IS
+ING-INF,Análisis de Sistemas Software,ASS,morning,3,4,30,2,false,IT-IS
+ING-INF,Modelado de Datos,MDD,morning,3,4,30,2,false,IT-IS
+ING-INF,Gestión de Calidad,GDC,morning,3,4,30,2,false,IT-IS
+ING-INF,Gestión de Riesgos en Ingeniería del Software,GRIS,morning,3,4,30,2,false,IT-IS
+ING-INF,Redes de Computadores en Tecnologías de la Información,RCTI,morning,3,4,75,2,false,IT-TI
+ING-INF,Laboratorio de Redes en Tecnologías de la Información,LRTI,morning,3,4,75,2,false,IT-TI
+ING-INF,Seguridad en Sistemas Informáticos,SSI,morning,3,4,75,2,false,IT-TI
+ING-INF,Desarrollo de Sistemas Informáticos,DSI,morning,3,4,75,2,false,IT-TI
+ING-INF,Usabilidad y Accesibilidad,UYA,morning,3,4,75,2,false,IT-TI
+ING-INF,Interfaces Inteligentes,INTI,morning,4,4,50,1,false,IT-COMP
+ING-INF,Sistemas Inteligentes,SISI,morning,4,4,50,1,false,IT-COMP
+ING-INF,Complejidad Computacional,COMC,morning,4,4,50,1,false,IT-COMP
+ING-INF,Sistemas Empotrados,SISE,morning,4,4,30,1,false,IT-IC
+ING-INF,Arquitecturas Avanzadas y de Propósitos Específicos,AVPE,morning,4,4,30,1,false,IT-IC
+ING-INF,Seguridad de Sistemas Informáticos,SEGI,morning,4,4,30,1,false,IT-IC
+ING-INF,Laboratorio de Desarrollo y Herramientas,LDH,morning,4,4,30,1,false,IT-IS
+ING-INF,Normativa y Regulación,NYR,morning,4,4,50,1,false,IT-IS
+ING-INF,Diseño Arquitectónico y Patrones,DAP,morning,4,4,50,1,false,IT-IS
+ING-INF,Gestión de la Innovación,GIN,morning,4,4,50,1,false,IT-SI
+ING-INF,Desarrollo y Mantenimiento de Sistemas de Información,DMSI,morning,4,4,50,1,false,IT-SI
+ING-INF,Tecnologías de la Información para las Organizaciones,TIO,morning,4,4,50,1,false,IT-TI
+ING-INF,Sistemas y Tecnologías Web,SYTW,morning,4,4,50,1,false,IT-TI
+ING-INF,Gestión del Conocimiento en las Organizaciones,GCO,morning,4,4,50,1,false,IT-TI
+ING-INF,Administración y Diseño de Bases de Datos,ADBD,morning,4,4,50,1,true,
+ING-INF,Visión por Computador,VPC,morning,4,4,50,1,true,
+ING-INF,Ingeniería Logística,ILOG,morning,4,4,50,1,true,
+ING-INF,Robótica Computacional,ROBO,morning,4,4,50,1,true,
+ING-INF,Inteligencia Emocional,INTE,morning,4,4,75,2,true,

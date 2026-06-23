@@ -28,7 +28,7 @@ describe('UpdateScheduleSlotUseCase', () => {
     isGroupCommon: mock(),
     unpublishSchedule: mock(),
     rejectConflictingReservations: mock(),
-    updateScheduleConflictsCount: mock(),
+    updateScheduleConflictsAndUnassignedCount: mock(),
   };
 
   const memberProviderMock = {
@@ -63,15 +63,14 @@ describe('UpdateScheduleSlotUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
     dataProviderMock.getScheduleContext.mockResolvedValueOnce({
-      academicYear: '2023',
+      academicYearId: 'ay-1',
+      period: 1,
       shift: 'morning',
     });
     dataProviderMock.isGroupCommon.mockResolvedValueOnce(true);
     repositoryMock.findScheduleIdsIncludingSlot.mockResolvedValueOnce([]);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
-    repositoryMock.findByScheduleId
-      .mockResolvedValueOnce([slot])
-      .mockResolvedValueOnce([slot]);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
     const dto = { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 1 };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
     expect(result.classroomId).toBe('c-2');
@@ -103,14 +102,13 @@ describe('UpdateScheduleSlotUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     repositoryMock.findById.mockResolvedValueOnce(slot);
     dataProviderMock.getScheduleContext.mockResolvedValueOnce({
-      academicYear: '2023',
+      academicYearId: 'ay-1',
+      period: 1,
       shift: 'morning',
     });
     dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
     validationProviderMock.validateMove.mockResolvedValueOnce(undefined);
-    repositoryMock.findByScheduleId
-      .mockResolvedValueOnce([slot])
-      .mockResolvedValueOnce([slot]);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
 
     const dto = { classroomId: 'c-2' };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
@@ -139,6 +137,42 @@ describe('UpdateScheduleSlotUseCase', () => {
     expect(useCase.execute('org-1', 'user-1', 'slot-1', {})).rejects.toThrow(
       NotFoundError
     );
+  });
+
+  test('should allow unassigning a slot and persist its diagnostic', async () => {
+    const slot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 1,
+      classroomId: 'c-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+    });
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(slot);
+    dataProviderMock.getScheduleContext.mockResolvedValueOnce({
+      academicYearId: 'ay-1',
+      period: 1,
+      shift: 'morning',
+    });
+    dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
+    validationProviderMock.validateMove.mockRejectedValueOnce(
+      new ConflictError('ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS')
+    );
+
+    const result = await useCase.execute('org-1', 'user-1', slot.id, {
+      dayOfWeek: null,
+      slotIndex: null,
+    });
+
+    expect(result.dayOfWeek).toBeNull();
+    expect(result.slotIndex).toBeNull();
+    expect(dataProviderMock.unpublishSchedule).toHaveBeenCalledWith(
+      'sch-1',
+      'org-1'
+    );
+    expect(slot.conflicts[0]?.type).toBe('UNASSIGNED_NO_COMPATIBLE_SLOTS');
   });
 
   test('should clear the conflict from the slot left alone in the old time range', async () => {
@@ -173,9 +207,10 @@ describe('UpdateScheduleSlotUseCase', () => {
     });
     dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
     validationProviderMock.validateMove.mockResolvedValue(undefined);
-    repositoryMock.findByScheduleId
-      .mockResolvedValueOnce([movedSlot, remainingSlot])
-      .mockResolvedValueOnce([movedSlot, remainingSlot]);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([
+      movedSlot,
+      remainingSlot,
+    ]);
 
     await useCase.execute('org-1', 'user-1', movedSlot.id, {
       classroomId: 'c-1',
@@ -185,11 +220,9 @@ describe('UpdateScheduleSlotUseCase', () => {
 
     expect(remainingSlot.conflicts).toEqual([]);
     expect(repositoryMock.updateConflicts).toHaveBeenCalledWith(remainingSlot);
-    expect(dataProviderMock.updateScheduleConflictsCount).toHaveBeenCalledWith(
-      'sch-1',
-      'org-1',
-      0
-    );
+    expect(
+      dataProviderMock.updateScheduleConflictsAndUnassignedCount
+    ).toHaveBeenCalledWith('sch-1', 'org-1');
   });
 
   test('should keep conflicts between slots that still overlap after moving a third slot', async () => {
@@ -239,9 +272,11 @@ describe('UpdateScheduleSlotUseCase', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new ConflictError('ERR_OVERLAP_THEORY'))
       .mockRejectedValueOnce(new ConflictError('ERR_OVERLAP_THEORY'));
-    repositoryMock.findByScheduleId
-      .mockResolvedValueOnce([movedSlot, remainingSlotA, remainingSlotB])
-      .mockResolvedValueOnce([movedSlot, remainingSlotA, remainingSlotB]);
+    repositoryMock.findByScheduleId.mockResolvedValueOnce([
+      movedSlot,
+      remainingSlotA,
+      remainingSlotB,
+    ]);
 
     await useCase.execute('org-1', 'user-1', movedSlot.id, {
       classroomId: 'c-1',
@@ -256,10 +291,8 @@ describe('UpdateScheduleSlotUseCase', () => {
       { type: 'COURSE_OVERLAP_THEORY', message: 'ERR_OVERLAP_THEORY' },
     ]);
     expect(repositoryMock.updateConflicts).toHaveBeenCalledTimes(2);
-    expect(dataProviderMock.updateScheduleConflictsCount).toHaveBeenCalledWith(
-      'sch-1',
-      'org-1',
-      2
-    );
+    expect(
+      dataProviderMock.updateScheduleConflictsAndUnassignedCount
+    ).toHaveBeenCalledWith('sch-1', 'org-1');
   });
 });

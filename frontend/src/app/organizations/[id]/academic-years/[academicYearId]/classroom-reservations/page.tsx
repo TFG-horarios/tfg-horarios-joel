@@ -152,52 +152,52 @@ export default async function OrganizationClassroomReservationsPage({
       count={meta.total}
       countLabel="reservas"
     >
-      <div className="flex-none flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-classroom-reservations"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-classroom-reservations"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        filters={
+          <>
+            <ResourceFilterSelect
+              paramKey="status"
+              placeholder="Estado"
+              options={[
+                { label: 'Pendiente', value: 'PENDING' },
+                { label: 'Aceptada', value: 'ACCEPTED' },
+                { label: 'Rechazada', value: 'REJECTED' },
+              ]}
             />
-          }
-          filters={
-            <div className="flex gap-2 w-full">
-              <ResourceFilterSelect
-                paramKey="status"
-                placeholder="Estado"
-                options={[
-                  { label: 'Pendiente', value: 'PENDING' },
-                  { label: 'Aceptada', value: 'ACCEPTED' },
-                  { label: 'Rechazada', value: 'REJECTED' },
-                ]}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <div className="flex items-center gap-2">
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  asChild
-                  size="icon"
-                  className="size-9 cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30"
-                >
-                  <Link
-                    href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations/new`}
-                    aria-label="Nueva Reserva"
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    size="icon"
+                    className="size-9 cursor-pointer bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span className="sr-only">Nueva Reserva</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Nueva Reserva</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
+                    <Link
+                      href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations/new`}
+                      aria-label="Nueva Reserva"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="sr-only">Nueva Reserva</span>
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Nueva Reserva</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

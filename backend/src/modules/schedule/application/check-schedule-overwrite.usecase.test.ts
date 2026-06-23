@@ -22,6 +22,7 @@ describe('CheckScheduleOverwriteUseCase', () => {
     getGroupsInScope: mock(),
     getAvailableClassrooms: mock(),
     getAcademicYearConstraints: mock(),
+    getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
 

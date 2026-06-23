@@ -152,76 +152,78 @@ export default async function OrganizationSubjectsPage({
       count={meta.total}
       countLabel={t('countLabel')}
     >
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 w-full pb-4 border-b border-border/50">
-        <ResourceToolbar
-          viewToggle={
-            <ResourceViewToggle
-              viewKey="view-subjects"
-              defaultView={query.view as 'grid' | 'table'}
+      <ResourceToolbar
+        viewToggle={
+          <ResourceViewToggle
+            viewKey="view-subjects"
+            defaultView={query.view as 'grid' | 'table'}
+          />
+        }
+        search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
+        filters={
+          <>
+            <ResourceFilterInput
+              paramKey="code"
+              placeholder={t('codePlaceholder') || 'Código'}
             />
-          }
-          search={<ResourceSearch placeholder={t('searchPlaceholder')} />}
-          filters={
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              <ResourceFilterInput
-                paramKey="code"
-                placeholder={t('codePlaceholder') || 'Código'}
-              />
-              <ResourceFilterSelect
-                paramKey="degreeId"
-                placeholder={t('degreePlaceholder')}
-                options={degrees.map((d) => ({ label: d.name, value: d.id }))}
-              />
-              <ResourceFilterSelect
-                paramKey="itineraryId"
-                placeholder={t('itineraryPlaceholder')}
-                options={[
-                  { label: t('itineraryOptions.common'), value: 'common' },
-                  ...itineraries.map((i) => ({ label: i.name, value: i.id })),
-                ]}
-              />
-              <ResourceFilterSelect
-                paramKey="courseYear"
-                placeholder={t('coursePlaceholder')}
-                options={[1, 2, 3, 4, 5, 6].map((c) => ({
-                  label: `${c}º`,
-                  value: c.toString(),
-                }))}
-              />
-              <ResourceFilterSelect
-                paramKey="period"
-                placeholder={t('periodPlaceholder')}
-                options={[0, 1, 2].map((p) => ({
-                  label:
-                    p === 0
-                      ? t('periodOptions.annual')
-                      : t(`periodOptions.${p}`),
-                  value: p.toString(),
-                }))}
-              />
-              <ResourceFilterSelect
-                paramKey="shift"
-                placeholder={t('shiftPlaceholder')}
-                options={[
-                  { label: t('shiftOptions.morning'), value: 'morning' },
-                  { label: t('shiftOptions.afternoon'), value: 'afternoon' },
-                ]}
-              />
-              <ResourceFilterClear />
-            </div>
-          }
-        />
-        <SubjectActions
-          organization={organization}
-          academicYear={currentAcademicYear}
-          degrees={degrees}
-          itineraries={itineraries}
-          canCreate={canCreate}
-          canDeleteAll={canDeleteAll}
-          canImport={canImport}
-          canReplaceAll={canReplaceAll}
-        />
-      </div>
+            <ResourceFilterSelect
+              paramKey="degreeId"
+              placeholder={t('degreePlaceholder')}
+              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              searchable={true}
+            />
+            <ResourceFilterSelect
+              paramKey="itineraryId"
+              placeholder={t('itineraryPlaceholder')}
+              options={[
+                { label: t('itineraryOptions.common'), value: 'common' },
+                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+              ]}
+              searchable={true}
+            />
+            <ResourceFilterSelect
+              paramKey="courseYear"
+              placeholder={t('coursePlaceholder')}
+              options={[1, 2, 3, 4, 5, 6].map((c) => ({
+                label: `${c}º`,
+                value: c.toString(),
+              }))}
+            />
+            <ResourceFilterSelect
+              paramKey="period"
+              placeholder={t('periodPlaceholder')}
+              options={[0, 1, 2].map((p) => ({
+                label:
+                  p === 0
+                    ? t('periodOptions.annual')
+                    : t(`periodOptions.${p}`),
+                value: p.toString(),
+              }))}
+            />
+            <ResourceFilterSelect
+              paramKey="shift"
+              placeholder={t('shiftPlaceholder')}
+              options={[
+                { label: t('shiftOptions.morning'), value: 'morning' },
+                { label: t('shiftOptions.afternoon'), value: 'afternoon' },
+              ]}
+            />
+            <ResourceFilterClear />
+          </>
+        }
+        actions={
+          <SubjectActions
+            organization={organization}
+            academicYear={currentAcademicYear}
+            degrees={degrees}
+            itineraries={itineraries}
+            canCreate={canCreate}
+            canDeleteAll={canDeleteAll}
+            canImport={canImport}
+            canReplaceAll={canReplaceAll}
+          />
+        }
+      />
       <div>
         <ResourceLayout
           view={query.view as 'grid' | 'table'}

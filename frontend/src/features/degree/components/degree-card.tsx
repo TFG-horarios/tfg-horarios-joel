@@ -54,7 +54,7 @@ export const DegreeCard = memo(function DegreeCard({
         <div className="flex flex-col h-full w-full justify-center">
           <div className="flex flex-col">
             <div className="flex flex-wrap items-center gap-2 mb-4 justify-center">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-brand-purple-border bg-brand-purple-bg text-brand-purple">
                 {degree.code}
               </span>
             </div>

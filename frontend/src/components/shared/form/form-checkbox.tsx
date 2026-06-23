@@ -25,7 +25,7 @@ export function FormCheckbox({ name, label, helpText }: FormCheckboxProps) {
           <FormControl>
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+              className="h-4 w-4 rounded border-border text-brand-purple-solid focus:ring-brand-purple-solid accent-brand-purple-solid cursor-pointer"
               checked={field.value}
               onChange={field.onChange}
               onBlur={field.onBlur}

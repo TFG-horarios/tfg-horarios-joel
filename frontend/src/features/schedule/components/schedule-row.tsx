@@ -9,6 +9,7 @@ import {
   Archive,
   FileDown,
   AlertTriangle,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
@@ -150,6 +151,16 @@ export const ScheduleRow = memo(function ScheduleRow({
             >
               <AlertTriangle className="size-3" />
               <span>{schedule.conflicts}</span>
+            </Badge>
+          )}
+          {schedule.unassigned > 0 && (
+            <Badge
+              variant="outline"
+              className="bg-amber-500/10 text-amber-600 border-amber-500/20 flex items-center gap-1"
+              title={t('unassignedTooltip')}
+            >
+              <HelpCircle className="size-3" />
+              <span>{schedule.unassigned}</span>
             </Badge>
           )}
         </div>

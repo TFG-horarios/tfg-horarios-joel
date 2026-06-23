@@ -67,7 +67,7 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            'w-full justify-between h-auto min-h-10 px-3 py-2',
+            'w-full justify-between h-auto min-h-10 px-3 py-2 cursor-pointer',
             selected.length === 0 ? 'text-muted-foreground' : 'text-foreground',
             className
           )}
@@ -81,7 +81,7 @@ export function MultiSelect({
               <Badge
                 variant="secondary"
                 key={item.value}
-                className="mr-1 mb-1"
+                className="mr-1 mb-1 bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleUnselect(item.value);
@@ -105,7 +105,7 @@ export function MultiSelect({
                     handleUnselect(item.value);
                   }}
                 >
-                  <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  <X className="h-3 w-3 text-brand-purple/70 hover:text-brand-purple" />
                 </div>
               </Badge>
             ))}
@@ -130,9 +130,9 @@ export function MultiSelect({
                 >
                   <div
                     className={cn(
-                      'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-border',
+                      'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-border transition-colors',
                       selected.includes(option.value)
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'bg-brand-purple-solid border-brand-purple-solid text-white'
                         : 'opacity-50 [&_svg]:invisible'
                     )}
                   >

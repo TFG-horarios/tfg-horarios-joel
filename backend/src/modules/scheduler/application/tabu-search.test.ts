@@ -10,6 +10,11 @@ describe('TabuSearchEngine', () => {
   const penaltyCalculator = new PenaltyCalculator([], [], {}, 12, 12);
   const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12, 1);
 
+  const evaluateHardSpy = spyOn(penaltyCalculator, 'evaluateHard').mockReturnValue({
+    hardPenalty: 0,
+    conflicts: [],
+  });
+
   const evaluateSpy = spyOn(penaltyCalculator, 'evaluate').mockReturnValue({
     hardPenalty: 0,
     softPenalty: 0,
@@ -19,6 +24,7 @@ describe('TabuSearchEngine', () => {
 
   const generateSpy = spyOn(initialGen, 'generate').mockImplementation(() => ({
     assignments: [],
+    unassigned: 0,
     penalty: 0,
     hardPenalty: 0,
     conflicts: [],
@@ -42,6 +48,7 @@ describe('TabuSearchEngine', () => {
   test('returns initial solution if penalty is 0', () => {
     const sol: Solution = {
       assignments: [],
+      unassigned: 0,
       penalty: 0,
       hardPenalty: 0,
       conflicts: [],
@@ -51,7 +58,7 @@ describe('TabuSearchEngine', () => {
     expect(result).toBe(sol);
   });
 
-  test('runs iterations and improves solution', () => {
+  test('runs iterations and improves solution in hard phase', () => {
     const initialSol: Solution = {
       assignments: [
         {
@@ -65,25 +72,25 @@ describe('TabuSearchEngine', () => {
           isCommon: false,
           itineraryName: null,
           numberOfStudents: 30,
+          needsComputerLab: false,
           degreeId: 'deg-1',
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
         },
       ],
+      unassigned: 0,
       penalty: 100,
       hardPenalty: 100,
       conflicts: [],
     };
     generateSpy.mockReturnValueOnce(initialSol);
-    evaluateSpy.mockReturnValue({
+    evaluateHardSpy.mockReturnValue({
       hardPenalty: 50,
-      softPenalty: 0,
-      totalPenalty: 50,
       conflicts: [],
     });
     const result = engine.run([]);
-    expect(result.penalty).toBe(50);
+    expect(result.hardPenalty).toBe(50);
   });
 
   test('repairs common course overlaps before tabu iterations', () => {
@@ -115,6 +122,7 @@ describe('TabuSearchEngine', () => {
           isCommon: true,
           itineraryName: null,
           numberOfStudents: 30,
+          needsComputerLab: false,
           degreeId: 'deg-1',
           courseYear: 1,
           groupType: 'theory',
@@ -131,12 +139,14 @@ describe('TabuSearchEngine', () => {
           isCommon: false,
           itineraryName: 'Itinerary A',
           numberOfStudents: 30,
+          needsComputerLab: false,
           degreeId: 'deg-1',
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
         },
       ],
+      unassigned: 0,
       penalty: 2000,
       hardPenalty: 2000,
       conflicts: [
@@ -154,7 +164,13 @@ describe('TabuSearchEngine', () => {
       calculator,
       initialSolutionGen,
       ['c-1'],
-      {},
+      {
+        'c-1': {
+          capacity: 40,
+          type: 'theory',
+          floor: 0,
+        },
+      },
       3,
       6,
       randomGen
@@ -165,7 +181,111 @@ describe('TabuSearchEngine', () => {
       (assignment) => assignment.id === 'common-1'
     );
 
-    expect(result.penalty).toBe(0);
+    expect(result.hardPenalty).toBe(0);
     expect(commonAssignment?.slotIndex).not.toBe(0);
+  });
+
+  test('tries to place assignments left unassigned by the greedy solution', () => {
+    const calculator = new PenaltyCalculator(
+      [],
+      [],
+      {
+        'c-1': { capacity: 40, type: 'theory', floor: 0 },
+      },
+      3,
+      6
+    );
+    const generator = new InitialSolution(
+      calculator,
+      ['c-1'],
+      { 'c-1': { capacity: 40, type: 'theory', floor: 0 } },
+      6,
+      3,
+      60
+    );
+    spyOn(generator, 'generate').mockReturnValueOnce({
+      assignments: [
+        {
+          id: 'a-1',
+          subjectGroupId: 'sg-1',
+          subjectId: 's-1',
+          shift: 'morning',
+          groupType: 'theory',
+          isCommon: true,
+          itineraryName: null,
+          numberOfStudents: 20,
+          needsComputerLab: false,
+          degreeId: 'deg-1',
+          courseYear: 1,
+          classroomId: null,
+          dayOfWeek: null,
+          slotIndex: null,
+          duration: 1,
+        },
+      ],
+      unassigned: 1,
+      penalty: 0,
+      hardPenalty: 0,
+      conflicts: [],
+    });
+    const repairEngine = new TabuSearchEngine(
+      calculator,
+      generator,
+      ['c-1'],
+      { 'c-1': { capacity: 40, type: 'theory', floor: 0 } },
+      3,
+      6,
+      randomGen
+    );
+
+    const result = repairEngine.run([]);
+
+    expect(result.unassigned).toBe(0);
+    expect(result.assignments[0]?.classroomId).toBe('c-1');
+  });
+
+  test('runSoftPhase rejects neighbors with hard conflicts and stops at limit', () => {
+    const initialSol: Solution = {
+      assignments: [
+        {
+          id: 'a-1',
+          classroomId: 'c-1',
+          dayOfWeek: 1,
+          slotIndex: 1,
+          subjectGroupId: 'sg-1',
+          subjectId: 's-1',
+          shift: 'morning',
+          isCommon: false,
+          itineraryName: null,
+          numberOfStudents: 30,
+          needsComputerLab: false,
+          degreeId: 'deg-1',
+          courseYear: 1,
+          groupType: 'theory',
+          duration: 1,
+        },
+      ],
+      unassigned: 0,
+      penalty: 0,
+      hardPenalty: 0,
+      conflicts: [],
+    };
+    
+    evaluateSpy.mockReturnValueOnce({
+      hardPenalty: 0,
+      softPenalty: 100,
+      totalPenalty: 100,
+      conflicts: [],
+    });
+    
+    evaluateHardSpy.mockReturnValue({
+      hardPenalty: 50,
+      conflicts: []
+    });
+
+    const result = engine.runSoftPhase(initialSol);
+    
+    expect(result.penalty).toBe(100);
+    expect(result.hardPenalty).toBe(0);
   });
 });

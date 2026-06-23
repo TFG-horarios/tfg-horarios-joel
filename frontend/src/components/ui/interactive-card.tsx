@@ -148,14 +148,14 @@ export const InteractiveCard = React.forwardRef<
             ) : href ? (
               <Link
                 href={href}
-                className="flex items-center justify-center w-full h-full bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30 transition-colors rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40"
+                className="flex items-center justify-center w-full h-full bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover transition-colors rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40"
               >
                 <ArrowRight className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </Link>
             ) : (
               <button
                 onClick={onClick}
-                className="flex items-center justify-center w-full h-full cursor-pointer bg-purple-500/15 text-purple-700 border border-purple-500/40 hover:bg-purple-500/25 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-500/30 dark:hover:bg-purple-500/30 transition-colors rounded-lg shadow-lg shadow-black/10 dark:shadow-black/40"
+                className="flex items-center justify-center w-full h-full cursor-pointer bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover transition-colors rounded-lg shadow-lg shadow-black/10 dark:shadow-black/40"
               >
                 <ArrowRight className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </button>

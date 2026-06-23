@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, TriangleAlert, Pencil, X } from 'lucide-react';
+import { CircleHelp, MapPin, TriangleAlert, Pencil, X } from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -55,7 +55,14 @@ export const DraggableSlot = memo(function DraggableSlot({
 
   const tErrors = useTranslations('Organizations.schedules.planner.errors');
   const tPlanner = useTranslations('Organizations.schedules.planner');
-  const hasConflicts = slot.conflicts && slot.conflicts.length > 0;
+  const placementIssues = slot.conflicts.filter((conflict) =>
+    conflict.type.startsWith('UNASSIGNED')
+  );
+  const schedulingConflicts = slot.conflicts.filter(
+    (conflict) => !conflict.type.startsWith('UNASSIGNED')
+  );
+  const hasConflicts = schedulingConflicts.length > 0;
+  const hasPlacementIssue = placementIssues.length > 0;
 
   const getConflictMessage = (type: string) => {
     switch (type) {
@@ -73,14 +80,26 @@ export const DraggableSlot = memo(function DraggableSlot({
         return tErrors('ERR_OVERLAP_COMMON_ITINERARY');
       case 'COURSE_OVERLAP_SAME_SUBJECT':
         return tErrors('ERR_OVERLAP_SAME_SUBJECT');
-      case 'CAPACITY_EXCEEDED':
+      case 'ROOM_CAPACITY':
         return tErrors('ERR_ROOM_CAPACITY');
-      case 'SHIFT_MORNING_REQUIRED':
+      case 'ROOM_TYPE':
+        return tErrors('ERR_COMPUTER_LAB_REQUIRED');
+      case 'SHIFT_MORNING':
         return tErrors('ERR_SHIFT_MORNING');
-      case 'SHIFT_AFTERNOON_REQUIRED':
+      case 'SHIFT_AFTERNOON':
         return tErrors('ERR_SHIFT_AFTERNOON');
-      case 'DURATION_EXCEEDS_DAY':
+      case 'SHIFT_EXCEEDS_DAY':
         return tErrors('ERR_SHIFT_EXCEEDS_DAY');
+      case 'UNASSIGNED':
+        return tErrors('ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS');
+      case 'UNASSIGNED_NO_ROOMS_OF_TYPE':
+        return tErrors('ERR_UNASSIGNED_NO_ROOMS_OF_TYPE');
+      case 'UNASSIGNED_ROOM_CAPACITY':
+        return tErrors('ERR_UNASSIGNED_ROOM_CAPACITY', {
+          capacity: group.numberOfStudents,
+        });
+      case 'UNASSIGNED_NO_COMPATIBLE_SLOTS':
+        return tErrors('ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS');
       default:
         return 'Conflicto detectado';
     }
@@ -102,6 +121,7 @@ export const DraggableSlot = memo(function DraggableSlot({
         ${getSubjectColorClasses(subject.id, subjectIdsPool)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
         ${hasConflicts ? 'border-destructive border-2' : ''}
+        ${!hasConflicts && hasPlacementIssue ? 'border-amber-500 border-2' : ''}
       `}
     >
       {!isOverlay && onEditClassroomClick && (
@@ -142,11 +162,37 @@ export const DraggableSlot = memo(function DraggableSlot({
               <p className="font-semibold text-[10px] uppercase text-destructive-foreground/80 mb-1 border-b border-destructive-foreground/20 pb-1">
                 Conflictos
               </p>
-              {slot.conflicts.map((conflict, idx) => (
+              {schedulingConflicts.map((conflict, idx) => (
                 <div key={idx} className="flex gap-1.5 items-start">
                   <span className="mt-0.5">•</span>
                   <span className="text-xs leading-tight">
                     {getConflictMessage(conflict.type)}
+                  </span>
+                </div>
+              ))}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      {hasPlacementIssue && (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={`absolute -top-2 ${hasConflicts ? 'right-5' : '-right-2'} bg-amber-500 text-white rounded-full p-1 shadow-md z-30 cursor-help`}
+              >
+                <CircleHelp className="size-3" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
+              <p className="font-semibold text-[10px] uppercase mb-1 border-b pb-1">
+                {tPlanner('unassignedSlots')}
+              </p>
+              {placementIssues.map((issue, idx) => (
+                <div key={idx} className="flex gap-1.5 items-start">
+                  <span className="mt-0.5">•</span>
+                  <span className="text-xs leading-tight">
+                    {getConflictMessage(issue.type)}
                   </span>
                 </div>
               ))}

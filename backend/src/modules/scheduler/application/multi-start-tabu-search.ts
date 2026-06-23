@@ -1,4 +1,6 @@
-import type { Solution } from '../domain/types';
+import type { Solution, Assignment } from '../domain/types';
+import type { TabuSearchEngine } from './tabu-search';
+import type { GroupInitialData } from '../domain/initial-solution';
 
 export const MAX_GENERATION_ATTEMPTS = 5;
 
@@ -10,32 +12,58 @@ export const buildSeeds = (
   );
 };
 
+export const isBetterHardSolution = (
+  candidate: Solution,
+  reference: Solution
+): boolean => {
+  if (candidate.hardPenalty !== reference.hardPenalty) {
+    return candidate.hardPenalty < reference.hardPenalty;
+  }
+  return candidate.unassigned < reference.unassigned;
+};
+
 export const isBetterSolution = (
   candidate: Solution,
   reference: Solution
-): boolean =>
-  candidate.hardPenalty < reference.hardPenalty ||
-  (candidate.hardPenalty === reference.hardPenalty &&
-    candidate.penalty < reference.penalty);
+): boolean => {
+  if (candidate.hardPenalty !== reference.hardPenalty) {
+    return candidate.hardPenalty < reference.hardPenalty;
+  }
+  if (candidate.unassigned !== reference.unassigned) {
+    return candidate.unassigned < reference.unassigned;
+  }
+  
+  if (candidate.unassigned === 0 && candidate.hardPenalty === 0) {
+    return candidate.penalty < reference.penalty;
+  }
+  
+  return false;
+};
 
 export const runMultiStartTabuSearch = (
   seeds: number[],
-  runAttempt: (seed: number) => Solution
+  buildEngine: (seed: number) => TabuSearchEngine,
+  groups: GroupInitialData[],
+  lockedAssignments: Assignment[] = []
 ): Solution => {
   if (seeds.length === 0) {
     throw new Error('At least one Tabu Search seed is required.');
   }
 
   let bestSolution: Solution | null = null;
+  let bestEngine: TabuSearchEngine | null = null;
 
   for (const seed of seeds) {
-    const candidate = runAttempt(seed);
-    if (!bestSolution || isBetterSolution(candidate, bestSolution)) {
+    const engine = buildEngine(seed);
+    const candidate = engine.run(groups, lockedAssignments);
+    if (!bestSolution || isBetterHardSolution(candidate, bestSolution)) {
       bestSolution = candidate;
+      bestEngine = engine;
     }
-    if (bestSolution.hardPenalty === 0) {
-      return bestSolution;
-    }
+  }
+
+  if (bestSolution!.unassigned === 0 && bestSolution!.hardPenalty === 0) {
+    return bestEngine!.runSoftPhase(bestSolution!, lockedAssignments);
   }
 
   return bestSolution!;

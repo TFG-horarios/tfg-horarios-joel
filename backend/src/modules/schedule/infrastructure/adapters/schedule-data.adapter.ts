@@ -10,6 +10,7 @@ import type { ISubjectGroupRepository } from '@/modules/subject-group/domain/sub
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import type { ScheduleEngineGroupData } from '../../domain/schedule-engine.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
+import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export class ScheduleDataAdapter implements IScheduleDataProvider {
   constructor(
@@ -17,7 +18,8 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
     private readonly classroomRepository: IClassroomRepository,
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly reservationRepository: IClassroomReservationRepository
+    private readonly reservationRepository: IClassroomReservationRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async getTargetDegreeIds(organizationId: string): Promise<string[]> {
@@ -61,6 +63,7 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       itineraryName: r.itineraryName,
       itineraryId: r.itineraryId,
       numberOfStudents: r.numberOfStudents,
+      needsComputerLab: r.needsComputerLab,
       shift: r.shift,
       weeklyHours: r.weeklyHours,
       degreeId: r.degreeId,
@@ -85,14 +88,20 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
 
   async rejectConflictingReservationsBatch(
     organizationId: string,
+    academicYearId: string,
     slots: {
       classroomId: string;
       dayOfWeek: number;
       slotIndex: number;
       duration: number;
+      period: number;
     }[]
   ): Promise<void> {
     if (slots.length === 0) return;
+
+    const academicYear =
+      await this.academicYearRepository.findById(academicYearId);
+    if (!academicYear || academicYear.organizationId !== organizationId) return;
 
     const today = new Date().toISOString().split('T')[0]!;
     const endDate = new Date();
@@ -113,13 +122,23 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       const classroomSlots = slots.filter((s) => s.classroomId === classroomId);
 
       for (const res of allFutureReservations) {
-        if (res.status === 'REJECTED') continue;
+        if (
+          res.status === 'REJECTED' ||
+          res.status === 'CANCELLED' ||
+          res.academicYearId !== academicYearId
+        ) {
+          continue;
+        }
 
         const resDate = new Date(res.date);
         const resDow = resDate.getUTCDay();
+        const matchingPeriods = academicYear.getMatchingPeriods(resDate);
 
         const hasConflict = classroomSlots.some((slot) => {
-          if (resDow === slot.dayOfWeek) {
+          if (
+            matchingPeriods.includes(slot.period) &&
+            resDow === slot.dayOfWeek
+          ) {
             const startSlot = slot.slotIndex;
             const endSlot = slot.slotIndex + Math.ceil(slot.duration) - 1;
             return res.slotIndex >= startSlot && res.slotIndex <= endSlot;
@@ -132,8 +151,25 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
             'Cancelada automáticamente por solapamiento con clase regular'
           );
           await this.reservationRepository.update(res);
+          await this.createNotificationUseCase.execute({
+            userId: res.requesterUserId,
+            organizationId,
+            title: 'Reserva cancelada automáticamente',
+            message:
+              'Tu reserva ha sido cancelada debido a un solapamiento con un horario regular generado.',
+            type: 'ERROR',
+          });
         }
       }
     }
+  }
+
+  async getMatchingPeriods(
+    academicYearId: string,
+    date: Date
+  ): Promise<number[]> {
+    const academicYear =
+      await this.academicYearRepository.findById(academicYearId);
+    return academicYear?.getMatchingPeriods(date) ?? [];
   }
 }

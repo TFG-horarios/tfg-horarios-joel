@@ -163,13 +163,13 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
                 asChild
                 variant="ghost"
                 className={cn(
-                  'h-11 w-full whitespace-nowrap text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white',
+                  'h-11 w-full whitespace-nowrap transition-colors',
                   isCollapsed
                     ? 'justify-center px-0'
                     : 'justify-start gap-3 px-4',
                   isActive
-                    ? 'border border-purple-500/40 bg-purple-500/15 text-purple-700 shadow-lg shadow-black/10 dark:border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-200 dark:shadow-black/40'
-                    : ''
+                    ? 'border border-brand-purple-border bg-brand-purple-bg text-brand-purple shadow-lg shadow-black/10 hover:bg-brand-purple-hover hover:text-brand-purple dark:hover:bg-brand-purple-hover dark:shadow-black/40'
+                    : 'text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white'
                 )}
               >
                 <Link href={item.href}>
