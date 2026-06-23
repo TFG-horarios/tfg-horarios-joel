@@ -100,18 +100,18 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(combinedFilters.data.length).toBe(1);
   });
 
-  test('should find schedules filtered by conflicts status', async () => {
-    const s1 = Schedule.create({
+  test('should find schedules filtered by conflicts and unassigned status', async () => {
+    const conflictOnly = Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
       academicYearId: testAcademicYearId,
-      shift: 'morning',
-      courseYear: 2,
+      shift: 'afternoon',
+      courseYear: 1,
       period: 1,
       itineraryId: null,
       conflicts: 3,
     });
-    const s2 = Schedule.create({
+    const unassignedOnly = Schedule.create({
       organizationId: testOrgId,
       degreeId: testDegreeId,
       academicYearId: testAcademicYearId,
@@ -119,22 +119,77 @@ describe('DrizzleScheduleRepository Integration', () => {
       courseYear: 2,
       period: 1,
       itineraryId: null,
+      unassigned: 2,
+    });
+    const conflictsAndUnassigned = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 3,
+      period: 2,
+      itineraryId: null,
+      conflicts: 2,
+      unassigned: 1,
+    });
+    const cleanSchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'afternoon',
+      courseYear: 4,
+      period: 2,
+      itineraryId: null,
       conflicts: 0,
     });
-    await repository.create(s1);
-    await repository.create(s2);
+    await repository.create(conflictOnly);
+    await repository.create(unassignedOnly);
+    await repository.create(conflictsAndUnassigned);
+    await repository.create(cleanSchedule);
 
-    const withConflicts = await repository.findPaginated(testOrgId, {
-      hasConflicts: 'true',
+    const allSchedules = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'all',
     });
-    expect(withConflicts.data.some((s) => s.id === s1.id)).toBe(true);
-    expect(withConflicts.data.some((s) => s.id === s2.id)).toBe(false);
+    expect(allSchedules.data.length).toBeGreaterThanOrEqual(4);
 
-    const withoutConflicts = await repository.findPaginated(testOrgId, {
-      hasConflicts: 'false',
+    const conflictSchedules = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'conflicts',
     });
-    expect(withoutConflicts.data.some((s) => s.id === s1.id)).toBe(false);
-    expect(withoutConflicts.data.some((s) => s.id === s2.id)).toBe(true);
+    expect(conflictSchedules.data.some((s) => s.id === conflictOnly.id)).toBe(
+      true
+    );
+    expect(conflictSchedules.data.some((s) => s.id === unassignedOnly.id)).toBe(
+      false
+    );
+    expect(
+      conflictSchedules.data.some((s) => s.id === conflictsAndUnassigned.id)
+    ).toBe(false);
+
+    const unassignedSchedules = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'unassigned',
+    });
+    expect(
+      unassignedSchedules.data.some((s) => s.id === unassignedOnly.id)
+    ).toBe(true);
+    expect(unassignedSchedules.data.some((s) => s.id === conflictOnly.id)).toBe(
+      false
+    );
+    expect(
+      unassignedSchedules.data.some((s) => s.id === conflictsAndUnassigned.id)
+    ).toBe(false);
+
+    const combinedSchedules = await repository.findPaginated(testOrgId, {
+      hasConflicts: 'conflictsAndUnassigned',
+    });
+    expect(
+      combinedSchedules.data.some((s) => s.id === conflictsAndUnassigned.id)
+    ).toBe(true);
+    expect(combinedSchedules.data.some((s) => s.id === conflictOnly.id)).toBe(
+      false
+    );
+    expect(combinedSchedules.data.some((s) => s.id === unassignedOnly.id)).toBe(
+      false
+    );
   });
 
   test('should update a schedule successfully', async () => {

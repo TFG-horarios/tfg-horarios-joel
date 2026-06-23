@@ -35,7 +35,6 @@ export function Header({ variant = 'inline' }: HeaderProps) {
   const { user, isAuthenticated } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const t = useTranslations('Common.actions');
-  const tBrand = useTranslations('Common');
   const tProfile = useTranslations('Profile');
 
   const handleLogout = async () => {

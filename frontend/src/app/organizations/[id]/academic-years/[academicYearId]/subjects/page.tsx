@@ -194,9 +194,7 @@ export default async function OrganizationSubjectsPage({
               placeholder={t('periodPlaceholder')}
               options={[0, 1, 2].map((p) => ({
                 label:
-                  p === 0
-                    ? t('periodOptions.annual')
-                    : t(`periodOptions.${p}`),
+                  p === 0 ? t('periodOptions.annual') : t(`periodOptions.${p}`),
                 value: p.toString(),
               }))}
             />

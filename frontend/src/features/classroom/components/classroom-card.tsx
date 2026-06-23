@@ -24,7 +24,6 @@ export const ClassroomCard = memo(function ClassroomCard({
   canDelete,
 }: ClassroomCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const isTheory = classroom.type === 'theory';
 
   return (
     <>

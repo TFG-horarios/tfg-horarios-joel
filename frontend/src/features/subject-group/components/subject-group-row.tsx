@@ -55,9 +55,7 @@ export const SubjectGroupRow = memo(function SubjectGroupRow({
         >
           {subject?.name ?? '-'}
         </TableCell>
-        <TableCell>
-          {groupTypeLabel}
-        </TableCell>
+        <TableCell>{groupTypeLabel}</TableCell>
         <TableCell>
           {group.needsComputerLab ? (
             <span

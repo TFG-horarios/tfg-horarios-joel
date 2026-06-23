@@ -124,7 +124,10 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     }
     if (filters?.needsComputerLab !== undefined) {
       conditions.push(
-        eq(subjectGroupsTable.needsComputerLab, filters.needsComputerLab === 'true')
+        eq(
+          subjectGroupsTable.needsComputerLab,
+          filters.needsComputerLab === 'true'
+        )
       );
     }
 

@@ -9,7 +9,10 @@ import {
   type GroupInitialData,
 } from '../domain/initial-solution';
 import type { IRandomGenerator } from '../domain/random-generator';
-import { isBetterSolution, isBetterHardSolution } from './multi-start-tabu-search';
+import {
+  isBetterSolution,
+  isBetterHardSolution,
+} from './multi-start-tabu-search';
 
 interface TabuMove {
   assignmentId: string;
@@ -64,7 +67,8 @@ export class TabuSearchEngine {
     while (
       i < this.MAX_ITERATIONS &&
       stagnantIterations < this.MAX_STAGNANT_ITERATIONS &&
-      (bestGlobalSolution.unassigned > 0 || bestGlobalSolution.hardPenalty > 0) &&
+      (bestGlobalSolution.unassigned > 0 ||
+        bestGlobalSolution.hardPenalty > 0) &&
       currentSolution.assignments.length > 0
     ) {
       this.cleanTabuList(tabuList, i);
@@ -228,7 +232,10 @@ export class TabuSearchEngine {
       ++i;
     }
 
-    if (bestGlobalSolution.unassigned > 0 || bestGlobalSolution.hardPenalty > 0) {
+    if (
+      bestGlobalSolution.unassigned > 0 ||
+      bestGlobalSolution.hardPenalty > 0
+    ) {
       const repairedSolution = this.improveConflictedAssignments(
         bestGlobalSolution,
         lockedAssignments
@@ -246,7 +253,7 @@ export class TabuSearchEngine {
     lockedAssignments: Assignment[] = []
   ): Solution {
     let currentSolution = { ...solution };
-    
+
     const initialPenalties = this.penaltyCalculator.evaluate(
       currentSolution.assignments,
       lockedAssignments
@@ -254,7 +261,7 @@ export class TabuSearchEngine {
     currentSolution.penalty = initialPenalties.totalPenalty;
     currentSolution.hardPenalty = initialPenalties.hardPenalty;
     currentSolution.conflicts = initialPenalties.conflicts;
-    
+
     let bestGlobalSolution = currentSolution;
 
     const MAX_SOFT_ITERATIONS = 200;
@@ -264,17 +271,16 @@ export class TabuSearchEngine {
     let i = 0;
     let stagnantIterations = 0;
 
-    while (
-      i < MAX_SOFT_ITERATIONS &&
-      stagnantIterations < MAX_SOFT_STAGNANT
-    ) {
+    while (i < MAX_SOFT_ITERATIONS && stagnantIterations < MAX_SOFT_STAGNANT) {
       this.cleanTabuList(tabuList, i);
 
       let bestNeighbor: Solution | null = null;
       let bestMoveData: TabuMove | null = null;
 
       for (let j = 0; j < this.NEIGHBORHOOD_SIZE; ++j) {
-        const targetIndex = this.random.randomInt(currentSolution.assignments.length);
+        const targetIndex = this.random.randomInt(
+          currentSolution.assignments.length
+        );
         const original = currentSolution.assignments[targetIndex]!;
 
         if (original.dayOfWeek === null || original.slotIndex === null)
@@ -294,11 +300,19 @@ export class TabuSearchEngine {
           const spannedSlots = Math.ceil(original.duration) - 1;
 
           if (original.shift === 'morning') {
-            mutated.slotIndex = this.random.randomInt(this.maxMorningSlots - spannedSlots);
+            mutated.slotIndex = this.random.randomInt(
+              this.maxMorningSlots - spannedSlots
+            );
           } else if (original.shift === 'afternoon') {
-            mutated.slotIndex = this.maxMorningSlots + this.random.randomInt(this.maxSlotsPerDay - this.maxMorningSlots - spannedSlots);
+            mutated.slotIndex =
+              this.maxMorningSlots +
+              this.random.randomInt(
+                this.maxSlotsPerDay - this.maxMorningSlots - spannedSlots
+              );
           } else {
-            mutated.slotIndex = this.random.randomInt(this.maxSlotsPerDay - spannedSlots);
+            mutated.slotIndex = this.random.randomInt(
+              this.maxSlotsPerDay - spannedSlots
+            );
           }
 
           if (moveAttribute === 'time') {
@@ -312,7 +326,9 @@ export class TabuSearchEngine {
 
           if (classroomsToSearch.length === 0) continue;
 
-          const classroomIndex = this.random.randomInt(classroomsToSearch.length);
+          const classroomIndex = this.random.randomInt(
+            classroomsToSearch.length
+          );
           mutated.classroomId = classroomsToSearch[classroomIndex]!;
 
           if (moveAttribute === 'room') {
@@ -353,13 +369,22 @@ export class TabuSearchEngine {
 
         const isTabu = tabuList.some((t) => {
           if (t.assignmentId !== mutated.id) return false;
-          if (t.attribute === 'time' && tabuAttribute === 'time') return `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue;
-          if (t.attribute === 'room' && tabuAttribute === 'room') return mutated.classroomId === t.forbiddenValue;
-          if (t.attribute === 'both' && tabuAttribute === 'both') return `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` === t.forbiddenValue;
+          if (t.attribute === 'time' && tabuAttribute === 'time')
+            return (
+              `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue
+            );
+          if (t.attribute === 'room' && tabuAttribute === 'room')
+            return mutated.classroomId === t.forbiddenValue;
+          if (t.attribute === 'both' && tabuAttribute === 'both')
+            return (
+              `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` ===
+              t.forbiddenValue
+            );
           return false;
         });
 
-        const isTabuButBestMove = isTabu && isBetterSolution(neighbor, bestGlobalSolution);
+        const isTabuButBestMove =
+          isTabu && isBetterSolution(neighbor, bestGlobalSolution);
 
         if (!isTabu || isTabuButBestMove) {
           if (!bestNeighbor || isBetterSolution(neighbor, bestNeighbor)) {

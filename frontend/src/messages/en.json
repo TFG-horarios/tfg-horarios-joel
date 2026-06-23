@@ -643,8 +643,10 @@
       "published": "Published",
       "draft": "Draft",
       "conflictsLabel": "Conflicts",
-      "withConflicts": "With conflict",
-      "withoutConflicts": "Without conflict",
+      "withConflicts": "With conflicts",
+      "withUnassigned": "With unassigned slots",
+      "withConflictsAndUnassigned": "With conflicts and unassigned slots",
+      "withoutConflictsAndUnassigned": "Without conflicts or unassigned slots",
       "degreePlaceholder": "Degree",
       "itineraryPlaceholder": "Itinerary",
       "itineraryOptions": {

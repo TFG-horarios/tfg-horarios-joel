@@ -99,8 +99,8 @@ export const SubjectGroupCard = memo(function SubjectGroupCard({
               {group.groupNumber}
             </span>
             {group.needsComputerLab && (
-              <span 
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300" 
+              <span
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300"
                 title="Aula de ordenadores"
               >
                 <Monitor className="w-3 h-3 mr-1" />

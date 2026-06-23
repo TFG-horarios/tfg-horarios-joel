@@ -89,7 +89,7 @@
   --brand-purple: #7e22ce;
   --brand-purple-bg: rgba(168, 85, 247, 0.15);
   --brand-purple-hover: rgba(168, 85, 247, 0.25);
-  --brand-purple-border: rgba(168, 85, 247, 0.40);
+  --brand-purple-border: rgba(168, 85, 247, 0.4);
   --brand-purple-solid: #9333ea;
 }
 
@@ -127,9 +127,9 @@
   --sidebar-ring: #ffffff;
   --glow-color: rgba(255, 255, 255, 0.05);
   --brand-purple: #e9d5ff;
-  --brand-purple-bg: rgba(168, 85, 247, 0.20);
-  --brand-purple-hover: rgba(168, 85, 247, 0.30);
-  --brand-purple-border: rgba(168, 85, 247, 0.30);
+  --brand-purple-bg: rgba(168, 85, 247, 0.2);
+  --brand-purple-hover: rgba(168, 85, 247, 0.3);
+  --brand-purple-border: rgba(168, 85, 247, 0.3);
   --brand-purple-solid: #a855f7;
 }
 
@@ -162,14 +162,14 @@
     display: none;
   }
 
-  form button[type="submit"] {
+  form button[type='submit'] {
     background-color: var(--brand-purple-bg) !important;
     color: var(--brand-purple) !important;
     border: 1px solid var(--brand-purple-border) !important;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
-  form button[type="submit"]:hover {
+  form button[type='submit']:hover {
     background-color: var(--brand-purple-hover) !important;
   }
 }

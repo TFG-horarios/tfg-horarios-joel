@@ -106,7 +106,11 @@ export function FormSelect({
                         <CommandItem
                           key={option.value}
                           value={option.label}
-                          data-state={option.value === field.value?.toString() ? "checked" : "unchecked"}
+                          data-state={
+                            option.value === field.value?.toString()
+                              ? 'checked'
+                              : 'unchecked'
+                          }
                           onSelect={() => {
                             field.onChange(option.value);
                             setOpen(false);

@@ -13,12 +13,20 @@ export function getUnassignedDiagnostics(
   assignment: DiagnosableAssignment,
   classroomsCache: Record<string, CachedClassroom>,
   availableClassrooms: string[]
-): { type: 'UNASSIGNED_NO_ROOMS_OF_TYPE' | 'UNASSIGNED_ROOM_CAPACITY' | 'UNASSIGNED_NO_COMPATIBLE_SLOTS'; message: string } {
+): {
+  type:
+    | 'UNASSIGNED_NO_ROOMS_OF_TYPE'
+    | 'UNASSIGNED_ROOM_CAPACITY'
+    | 'UNASSIGNED_NO_COMPATIBLE_SLOTS';
+  message: string;
+} {
   const requiredType = assignment.needsComputerLab
     ? 'computer_lab'
-    : ['practices', 'reduced_practices', 'tutoring'].includes(assignment.groupType)
-    ? 'lab'
-    : 'theory';
+    : ['practices', 'reduced_practices', 'tutoring'].includes(
+          assignment.groupType
+        )
+      ? 'lab'
+      : 'theory';
 
   const classroomsOfType = availableClassrooms.filter(
     (id) => classroomsCache[id]?.type === requiredType

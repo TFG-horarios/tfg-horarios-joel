@@ -2,7 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef, Fragment, Suspense, type ReactNode } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+  Fragment,
+  Suspense,
+  type ReactNode,
+} from 'react';
 import { LogOut, Search, Building2, User, X, ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
@@ -35,7 +42,6 @@ function OrganizationHeaderInner() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const t = useTranslations('Common.actions');
-  const tBrand = useTranslations('Common');
   const tNav = useTranslations('Organizations.navigation');
   const tProfile = useTranslations('Profile');
 
@@ -401,7 +407,11 @@ function OrganizationHeaderInner() {
 
 export function OrganizationHeader() {
   return (
-    <Suspense fallback={<header className="relative rounded-3xl border border-border bg-white/70 p-2 h-[56px]"></header>}>
+    <Suspense
+      fallback={
+        <header className="relative rounded-3xl border border-border bg-white/70 p-2 h-[56px]"></header>
+      }
+    >
       <OrganizationHeaderInner />
     </Suspense>
   );

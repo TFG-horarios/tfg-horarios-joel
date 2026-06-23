@@ -96,7 +96,10 @@ export function SubjectGroupBulkUploader({
           weeklyHours: Number(row.weeklyHours || 0),
           groupNumber: Number(row.groupNumber || 1),
           needsComputerLab: ['si', 'sí', 'true', '1', 'yes', 'y', 's'].includes(
-            (row.needsComputerLab as string || '').toString().trim().toLowerCase()
+            ((row.needsComputerLab as string) || '')
+              .toString()
+              .trim()
+              .toLowerCase()
           ),
         };
       }}

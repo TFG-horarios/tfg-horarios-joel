@@ -10,7 +10,10 @@ describe('TabuSearchEngine', () => {
   const penaltyCalculator = new PenaltyCalculator([], [], {}, 12, 12);
   const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12, 1);
 
-  const evaluateHardSpy = spyOn(penaltyCalculator, 'evaluateHard').mockReturnValue({
+  const evaluateHardSpy = spyOn(
+    penaltyCalculator,
+    'evaluateHard'
+  ).mockReturnValue({
     hardPenalty: 0,
     conflicts: [],
   });
@@ -270,21 +273,21 @@ describe('TabuSearchEngine', () => {
       hardPenalty: 0,
       conflicts: [],
     };
-    
+
     evaluateSpy.mockReturnValueOnce({
       hardPenalty: 0,
       softPenalty: 100,
       totalPenalty: 100,
       conflicts: [],
     });
-    
+
     evaluateHardSpy.mockReturnValue({
       hardPenalty: 50,
-      conflicts: []
+      conflicts: [],
     });
 
     const result = engine.runSoftPhase(initialSol);
-    
+
     expect(result.penalty).toBe(100);
     expect(result.hardPenalty).toBe(0);
   });

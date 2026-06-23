@@ -307,8 +307,8 @@ export function ReservationPlanner({
                 <span className="truncate">
                   {selectedClassroom
                     ? classrooms.find((c) => c.id === selectedClassroom)
-                        ? `${classrooms.find((c) => c.id === selectedClassroom)?.name} (Capacidad: ${classrooms.find((c) => c.id === selectedClassroom)?.capacity})`
-                        : 'Selecciona un aula'
+                      ? `${classrooms.find((c) => c.id === selectedClassroom)?.name} (Capacidad: ${classrooms.find((c) => c.id === selectedClassroom)?.capacity})`
+                      : 'Selecciona un aula'
                     : 'Selecciona un aula'}
                 </span>
                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -327,7 +327,9 @@ export function ReservationPlanner({
                       <CommandItem
                         key={c.id}
                         value={c.name}
-                        data-state={selectedClassroom === c.id ? "checked" : "unchecked"}
+                        data-state={
+                          selectedClassroom === c.id ? 'checked' : 'unchecked'
+                        }
                         onSelect={() => {
                           setSelectedClassroom(c.id);
                           setClassroomOpen(false);

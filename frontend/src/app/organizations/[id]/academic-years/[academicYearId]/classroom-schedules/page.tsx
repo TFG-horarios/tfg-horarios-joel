@@ -171,7 +171,10 @@ export default async function OrganizationClassroomSchedulesPage({
               options={[
                 { label: tClassrooms('types.theory'), value: 'theory' },
                 { label: tClassrooms('types.lab'), value: 'lab' },
-                { label: tClassrooms('types.computer_lab'), value: 'computer_lab' },
+                {
+                  label: tClassrooms('types.computer_lab'),
+                  value: 'computer_lab',
+                },
               ]}
             />
             <ResourceFilterClear />

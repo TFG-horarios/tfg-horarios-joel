@@ -64,7 +64,10 @@ export class Schedule {
     this.props.updatedAt = new Date();
   }
 
-  public updateConflictsAndUnassigned(conflicts: number, unassigned: number): void {
+  public updateConflictsAndUnassigned(
+    conflicts: number,
+    unassigned: number
+  ): void {
     this.props.conflicts = conflicts;
     this.props.unassigned = unassigned;
     this.props.updatedAt = new Date();

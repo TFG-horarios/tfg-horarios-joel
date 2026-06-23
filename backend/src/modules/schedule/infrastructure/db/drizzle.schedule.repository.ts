@@ -185,10 +185,25 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       conditions.push(eq(schedulesTable.status, filters.status));
     }
     if (filters?.hasConflicts) {
-      if (filters.hasConflicts === 'true') {
-        conditions.push(gt(schedulesTable.conflicts, 0));
-      } else {
-        conditions.push(eq(schedulesTable.conflicts, 0));
+      switch (filters.hasConflicts) {
+        case 'all':
+          break;
+        case 'conflicts':
+          conditions.push(gt(schedulesTable.conflicts, 0));
+          conditions.push(eq(schedulesTable.unassigned, 0));
+          break;
+        case 'unassigned':
+          conditions.push(eq(schedulesTable.conflicts, 0));
+          conditions.push(gt(schedulesTable.unassigned, 0));
+          break;
+        case 'conflictsAndUnassigned':
+          conditions.push(gt(schedulesTable.conflicts, 0));
+          conditions.push(gt(schedulesTable.unassigned, 0));
+          break;
+        case 'withoutConflictsAndUnassigned':
+          conditions.push(eq(schedulesTable.conflicts, 0));
+          conditions.push(eq(schedulesTable.unassigned, 0));
+          break;
       }
     }
 

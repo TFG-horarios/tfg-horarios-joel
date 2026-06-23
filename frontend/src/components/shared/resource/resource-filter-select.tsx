@@ -101,7 +101,7 @@ export function ResourceFilterSelect({
                 {clearable && (
                   <CommandItem
                     value="all"
-                    data-state={value === 'all' ? "checked" : "unchecked"}
+                    data-state={value === 'all' ? 'checked' : 'unchecked'}
                     onSelect={() => {
                       handleValueChange('all');
                       setOpen(false);
@@ -114,7 +114,9 @@ export function ResourceFilterSelect({
                   <CommandItem
                     key={option.value}
                     value={option.label}
-                    data-state={option.value === value ? "checked" : "unchecked"}
+                    data-state={
+                      option.value === value ? 'checked' : 'unchecked'
+                    }
                     onSelect={() => {
                       handleValueChange(option.value);
                       setOpen(false);
@@ -133,7 +135,10 @@ export function ResourceFilterSelect({
 
   return (
     <Select value={value} onValueChange={handleValueChange}>
-      <SelectTrigger size="lg" className="w-full lg:w-fit lg:min-w-[180px] bg-card">
+      <SelectTrigger
+        size="lg"
+        className="w-full lg:w-fit lg:min-w-[180px] bg-card"
+      >
         <div className="flex items-center gap-1 overflow-hidden">
           <span className="text-muted-foreground truncate">{placeholder}:</span>
           <SelectValue />

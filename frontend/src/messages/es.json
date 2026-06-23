@@ -639,8 +639,10 @@
       "published": "Publicado",
       "draft": "Borrador",
       "conflictsLabel": "Conflictos",
-      "withConflicts": "Con conflicto",
-      "withoutConflicts": "Sin conflicto",
+      "withConflicts": "Con conflictos",
+      "withUnassigned": "Con slots descolocados",
+      "withConflictsAndUnassigned": "Con conflictos y slots descolocados",
+      "withoutConflictsAndUnassigned": "Sin conflictos ni slots descolocados",
       "degreePlaceholder": "Grado",
       "itineraryPlaceholder": "Itinerario",
       "itineraryOptions": {

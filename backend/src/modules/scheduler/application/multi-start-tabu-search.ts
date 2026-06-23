@@ -32,11 +32,11 @@ export const isBetterSolution = (
   if (candidate.unassigned !== reference.unassigned) {
     return candidate.unassigned < reference.unassigned;
   }
-  
+
   if (candidate.unassigned === 0 && candidate.hardPenalty === 0) {
     return candidate.penalty < reference.penalty;
   }
-  
+
   return false;
 };
 

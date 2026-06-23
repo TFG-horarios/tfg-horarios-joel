@@ -12,7 +12,7 @@ describe('SubjectGroup', () => {
     groupNumber: 1,
     weeklyHours: 4,
     numberOfStudents: 30,
-      needsComputerLab: false,
+    needsComputerLab: false,
   };
 
   test('creates a subject group successfully', () => {

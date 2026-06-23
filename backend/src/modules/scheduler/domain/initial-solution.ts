@@ -110,7 +110,6 @@ export class InitialSolution {
           dayOfWeek: number;
           slotIndex: number;
         } | null = null;
-        let minPenalty = Infinity;
         let minHardPenalty = Infinity;
 
         const classroomsToSearch = this.getClassroomsForGroup(group);
@@ -319,9 +318,7 @@ export class InitialSolution {
   private getClassroomsForGroup(group: GroupInitialData): string[] {
     const requiredType = group.needsComputerLab
       ? 'computer_lab'
-      : ['practices', 'reduced_practices', 'tutoring'].includes(
-            group.groupType
-          )
+      : ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)
         ? 'lab'
         : 'theory';
 
@@ -338,16 +335,12 @@ export class InitialSolution {
 
     if (
       !group.needsComputerLab &&
-      ['practices', 'reduced_practices', 'tutoring'].includes(
-        group.groupType
-      )
+      ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)
     ) {
       const fallbackRooms = this.availableClassrooms.filter((id) => {
         const cls = this.classroomsCache[id];
         return (
-          cls &&
-          cls.type === 'theory' &&
-          cls.capacity >= group.numberOfStudents
+          cls && cls.type === 'theory' && cls.capacity >= group.numberOfStudents
         );
       });
 
@@ -356,9 +349,7 @@ export class InitialSolution {
       const fallbackRooms = this.availableClassrooms.filter((id) => {
         const cls = this.classroomsCache[id];
         return (
-          cls &&
-          cls.type === 'lab' &&
-          cls.capacity >= group.numberOfStudents
+          cls && cls.type === 'lab' && cls.capacity >= group.numberOfStudents
         );
       });
 

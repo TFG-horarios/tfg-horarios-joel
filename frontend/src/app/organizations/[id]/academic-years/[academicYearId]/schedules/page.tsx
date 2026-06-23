@@ -23,6 +23,16 @@ import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 
+type ConflictFilter = NonNullable<ScheduleListQueryDTO['hasConflicts']>;
+
+const conflictFilterValues: ConflictFilter[] = [
+  'all',
+  'conflicts',
+  'unassigned',
+  'conflictsAndUnassigned',
+  'withoutConflictsAndUnassigned',
+];
+
 type OrganizationSchedulesPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -85,9 +95,10 @@ export default async function OrganizationSchedulesPage({
         : undefined,
     hasConflicts:
       typeof rawSearchParams.hasConflicts === 'string' &&
-      (rawSearchParams.hasConflicts === 'true' ||
-        rawSearchParams.hasConflicts === 'false')
-        ? (rawSearchParams.hasConflicts as 'true' | 'false')
+      conflictFilterValues.includes(
+        rawSearchParams.hasConflicts as ConflictFilter
+      )
+        ? (rawSearchParams.hasConflicts as ConflictFilter)
         : undefined,
   };
 
@@ -243,9 +254,18 @@ export default async function OrganizationSchedulesPage({
               <ResourceFilterSelect
                 paramKey="hasConflicts"
                 placeholder={t('conflictsLabel')}
+                clearLabel={t('all')}
                 options={[
-                  { label: t('withConflicts'), value: 'true' },
-                  { label: t('withoutConflicts'), value: 'false' },
+                  { label: t('withConflicts'), value: 'conflicts' },
+                  { label: t('withUnassigned'), value: 'unassigned' },
+                  {
+                    label: t('withConflictsAndUnassigned'),
+                    value: 'conflictsAndUnassigned',
+                  },
+                  {
+                    label: t('withoutConflictsAndUnassigned'),
+                    value: 'withoutConflictsAndUnassigned',
+                  },
                 ]}
               />
             )}

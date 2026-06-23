@@ -43,7 +43,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
-      needsComputerLab: false,
+        needsComputerLab: false,
         subjectId: 'sub-1',
       },
       {
@@ -53,7 +53,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
-      needsComputerLab: false,
+        needsComputerLab: false,
         subjectId: 'sub-1',
       },
     ];
@@ -75,7 +75,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
           groupNumber: 1,
           weeklyHours: 2,
           numberOfStudents: 10,
-      needsComputerLab: false,
+          needsComputerLab: false,
           subjectId: 'sub-1',
         },
       ])
@@ -92,7 +92,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
-      needsComputerLab: false,
+        needsComputerLab: false,
         subjectId: 'sub-1',
       },
       {
@@ -102,7 +102,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
-      needsComputerLab: false,
+        needsComputerLab: false,
         subjectId: 'sub-1',
       },
     ];
@@ -122,7 +122,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
         groupNumber: 1,
         weeklyHours: 2,
         numberOfStudents: 10,
-      needsComputerLab: false,
+        needsComputerLab: false,
         subjectId: 'sub-1',
       },
     ];

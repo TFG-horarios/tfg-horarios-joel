@@ -106,10 +106,7 @@ export default async function OrganizationMembersPage({
           />
         }
         search={
-          <ResourceSearch
-            paramKey="name"
-            placeholder={t('namePlaceholder')}
-          />
+          <ResourceSearch paramKey="name" placeholder={t('namePlaceholder')} />
         }
         filters={
           <>
