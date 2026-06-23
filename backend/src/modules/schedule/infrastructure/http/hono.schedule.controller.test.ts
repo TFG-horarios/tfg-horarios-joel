@@ -124,7 +124,10 @@ describe('HonoScheduleController Integration', () => {
       dayOfWeek: 2,
       slotIndex: 3,
     };
-    updateSlotMock.execute.mockResolvedValueOnce({ id: slotId, ...validBody });
+    updateSlotMock.execute.mockResolvedValueOnce({
+      slot: { id: slotId, ...validBody },
+      affectedScheduleIds: [scheduleId],
+    });
     const res = await app.request(
       `/api/organizations/${orgId}/slots/${slotId}`,
       {

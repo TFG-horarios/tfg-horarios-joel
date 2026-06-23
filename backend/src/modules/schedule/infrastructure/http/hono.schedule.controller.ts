@@ -136,18 +136,20 @@ export class HonoScheduleController {
     const { id, organizationId } = c.req.valid('param');
     const body = c.req.valid('json');
     const requesterUserId = c.get('userId');
-    const updatedSlot = await this.updateScheduleSlotUseCase.execute(
+    const result = await this.updateScheduleSlotUseCase.execute(
       organizationId,
       requesterUserId,
       id,
       body
     );
-    SseService.getInstance().broadcast(
-      `schedule_${updatedSlot.scheduleId}`,
-      'schedule_updated',
-      updatedSlot
-    );
-    return c.json(updatedSlot, 200);
+    for (const scheduleId of result.affectedScheduleIds) {
+      SseService.getInstance().broadcast(
+        `schedule_${scheduleId}`,
+        'schedule_updated',
+        result.slot
+      );
+    }
+    return c.json(result.slot, 200);
   };
 
   generate: RouteHandler<typeof generateScheduleRoute, AppEnv> = async (c) => {

@@ -40,7 +40,9 @@ import {
 import { ScheduleSlotValidationAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-validation.adapter';
 import { ScheduleSlotDataAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-data.adapter';
 import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.adapter';
-import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
+import { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
+import { DrizzleNotificationRepository } from '@/modules/notification/infrastructure/db/drizzle.notification.repository';
+import type { IScheduleSlotUnitOfWork } from '@/modules/schedule-slot/domain/schedule-slot-unit-of-work';
 
 export const createScheduleModule = (
   db: DbConnection,
@@ -83,6 +85,40 @@ export const createScheduleModule = (
 
   const slotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
 
+  const slotUnitOfWork: IScheduleSlotUnitOfWork = {
+    run: (work) =>
+      db.transaction(async (transaction) => {
+        const tx = transaction as unknown as DbConnection;
+        const txScheduleRepository = new DrizzleScheduleRepository(tx);
+        const txSlotRepository = new DrizzleScheduleSlotRepository(tx);
+        const txDataProvider = new ScheduleDataAdapter(
+          new DrizzleDegreeRepository(tx),
+          new DrizzleClassroomRepository(tx),
+          new DrizzleSubjectGroupRepository(tx),
+          new DrizzleAcademicYearRepository(tx),
+          new DrizzleClassroomReservationRepository(tx),
+          new CreateNotificationUseCase(new DrizzleNotificationRepository(tx))
+        );
+        const txSlotDataProvider = new ScheduleSlotDataAdapter(
+          txScheduleRepository,
+          txDataProvider,
+          new DrizzleClassroomReservationRepository(tx),
+          new CreateNotificationUseCase(new DrizzleNotificationRepository(tx))
+        );
+        const txValidationProvider = new ScheduleSlotValidationAdapter(
+          txSlotRepository,
+          txScheduleRepository,
+          txDataProvider
+        );
+
+        return work({
+          repository: txSlotRepository,
+          dataProvider: txSlotDataProvider,
+          validationProvider: txValidationProvider,
+        });
+      }),
+  };
+
   const controller = new HonoScheduleController(
     new ListSchedulesUseCase(scheduleRepository, memberProvider),
     new ListAllSchedulesUseCase(scheduleRepository, memberProvider),
@@ -110,7 +146,8 @@ export const createScheduleModule = (
       scheduleSlotRepository,
       slotDataProvider,
       slotMemberProvider,
-      slotValidationProvider
+      slotValidationProvider,
+      slotUnitOfWork
     )
   );
 

@@ -23,7 +23,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
+import {
+  DragDropProvider,
+  DragOverlay,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/react';
 import { DraggableSlot } from './dnd/draggable-slot';
 import { DroppableCell } from './dnd/droppable-cell';
 import {
@@ -66,6 +71,8 @@ type MemoizedScheduleCellProps = {
     { group: SubjectGroupDTO | undefined; subject: SubjectDTO | undefined }
   >;
   classroomMap: Map<string, ClassroomDTO>;
+  conflictSubjectLabels: ReadonlyMap<string, string>;
+  classroomLabels: ReadonlyMap<string, string>;
   dropHereText: string;
   subjectIdsPool: string[];
   onEditSlotClassroom?: (slotId: string) => void;
@@ -77,6 +84,8 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
   cellSlots,
   slotMetaMap,
   classroomMap,
+  conflictSubjectLabels,
+  classroomLabels,
   dropHereText,
   subjectIdsPool,
   onEditSlotClassroom,
@@ -105,6 +114,8 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
               onEditClassroomClick={onEditSlotClassroom}
               onUnassignClick={onUnassignSlot}
               disabled={!onEditSlotClassroom}
+              conflictSubjectLabels={conflictSubjectLabels}
+              classroomLabels={classroomLabels}
             />
           );
         })
@@ -369,10 +380,18 @@ export function SchedulePlanner({
       if (!result.success) {
         throw new Error(result.message);
       }
+      if (result.data) {
+        setSlots((prev) =>
+          prev.map((slot) =>
+            slot.id === result.data!.id ? result.data! : slot
+          )
+        );
+      }
       toast.success(
         t('actions.updateSuccess', { fallback: 'Aula actualizada' })
       );
       setEditingSlotId(null);
+      router.refresh();
     } catch (err) {
       setSlots(oldSlots);
       const errorMsg =
@@ -431,22 +450,40 @@ export function SchedulePlanner({
     return new Map(classrooms.map((c) => [c.id, c]));
   }, [classrooms]);
 
-  const handleDragStart = (event: any) => {
+  const conflictSubjectLabels = useMemo(() => {
+    return new Map(
+      subjectGroups.map((group) => {
+        const subject = slotMetaMap.get(group.id)?.subject;
+        return [
+          group.id,
+          `${subject?.name ?? group.id} (${group.groupType} ${group.groupNumber})`,
+        ];
+      })
+    );
+  }, [subjectGroups, slotMetaMap]);
+
+  const classroomLabels = useMemo(
+    () =>
+      new Map(classrooms.map((classroom) => [classroom.id, classroom.name])),
+    [classrooms]
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
     if (!canUpdate) return;
-    const active = event.active || event.operation?.source;
-    setActiveId(active?.id || null);
+    const active = event.operation.source;
+    setActiveId(active ? String(active.id) : null);
   };
 
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     if (!canUpdate) return;
     setActiveId(null);
-    const active = event.active || event.operation?.source;
-    const over = event.over || event.operation?.target;
+    const active = event.operation.source;
+    const over = event.operation.target;
 
     if (!active || !over) return;
 
-    const slotId = active.id;
-    const overId = over.id;
+    const slotId = String(active.id);
+    const overId = String(over.id);
 
     const currentSlot = slots.find((s) => s.id === slotId);
     if (!currentSlot) return;
@@ -457,8 +494,8 @@ export function SchedulePlanner({
     if (overId !== 'unassigned') {
       const parts = overId.split('_');
       if (parts.length !== 3 || parts[0] !== 'time') return;
-      targetDay = parseInt(parts[1], 10);
-      targetSlot = parseInt(parts[2], 10);
+      targetDay = parseInt(parts[1]!, 10);
+      targetSlot = parseInt(parts[2]!, 10);
     }
 
     const targetClassroom =
@@ -657,6 +694,8 @@ export function SchedulePlanner({
                           canUpdate ? handleEditClassroomClick : undefined
                         }
                         disabled={!canUpdate}
+                        conflictSubjectLabels={conflictSubjectLabels}
+                        classroomLabels={classroomLabels}
                       />
                     </div>
                   );
@@ -682,6 +721,8 @@ export function SchedulePlanner({
                 cellSlots={cellSlots}
                 slotMetaMap={slotMetaMap}
                 classroomMap={classroomMap}
+                conflictSubjectLabels={conflictSubjectLabels}
+                classroomLabels={classroomLabels}
                 dropHereText={t('planner.dropHere')}
                 subjectIdsPool={subjectIdsPool}
                 onEditSlotClassroom={
@@ -711,6 +752,8 @@ export function SchedulePlanner({
                 isOverlay
                 subjectIdsPool={subjectIdsPool}
                 disabled={!canUpdate}
+                conflictSubjectLabels={conflictSubjectLabels}
+                classroomLabels={classroomLabels}
               />
             </div>
           ) : null}

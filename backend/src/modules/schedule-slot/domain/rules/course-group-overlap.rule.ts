@@ -1,4 +1,5 @@
-import { ConflictError } from '@/core/errors/app.error';
+import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
+import { ScheduleSlotConflictError } from '../schedule-slot-conflict.error';
 import type {
   IMoveValidationRule,
   MoveValidationContext,
@@ -6,7 +7,7 @@ import type {
 
 export class CourseGroupOverlapRule implements IMoveValidationRule {
   validate(context: MoveValidationContext): void {
-    const errors = new Set<string>();
+    const conflicts = new Map<string, ScheduleConflictDetailDTO>();
     const groupCountsPerSubjectType = new Map<string, Set<string>>();
     for (const assignment of context.assignments) {
       const key = `${assignment.subjectId}-${assignment.shift}-${assignment.groupType}`;
@@ -50,26 +51,51 @@ export class CourseGroupOverlapRule implements IMoveValidationRule {
                 `${other.subjectId}-${other.shift}-${other.groupType}`
               )?.size === 1;
 
+            const addConflict = (
+              type: ScheduleConflictDetailDTO['type'],
+              message: string
+            ) => {
+              conflicts.set(`${type}:${other.id}`, {
+                type,
+                message,
+                subjectGroupId: context.movingAssignment.subjectGroupId,
+                assignmentId: context.movingAssignment.id,
+                relatedSubjectGroupIds: [other.subjectGroupId],
+              });
+            };
+
             if (context.movingAssignment.isCommon !== other.isCommon) {
-              errors.add('ERR_OVERLAP_COMMON_ITINERARY');
+              addConflict(
+                'COURSE_OVERLAP_COMMON_ITINERARY',
+                'ERR_OVERLAP_COMMON_ITINERARY'
+              );
             } else if (isATheory || isBTheory) {
-              errors.add('ERR_OVERLAP_THEORY');
+              addConflict('COURSE_OVERLAP_THEORY', 'ERR_OVERLAP_THEORY');
             } else if (isASingleGroup || isBSingleGroup) {
-              errors.add('ERR_OVERLAP_SINGLE_GROUP');
+              addConflict(
+                'COURSE_OVERLAP_SINGLE_GROUP',
+                'ERR_OVERLAP_SINGLE_GROUP'
+              );
             } else if (context.movingAssignment.groupType !== other.groupType) {
-              errors.add('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
+              addConflict(
+                'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES',
+                'ERR_OVERLAP_DIFFERENT_GROUP_TYPES'
+              );
             }
 
             if (context.movingAssignment.subjectId === other.subjectId) {
-              errors.add('ERR_OVERLAP_SAME_SUBJECT');
+              addConflict(
+                'COURSE_OVERLAP_SAME_SUBJECT',
+                'ERR_OVERLAP_SAME_SUBJECT'
+              );
             }
           }
         }
       }
     }
 
-    if (errors.size > 0) {
-      throw new ConflictError([...errors].join('\n'));
+    if (conflicts.size > 0) {
+      throw new ScheduleSlotConflictError([...conflicts.values()]);
     }
   }
 }

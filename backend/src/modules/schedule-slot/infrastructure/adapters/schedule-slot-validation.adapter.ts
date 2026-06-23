@@ -3,7 +3,7 @@ import type { ScheduleSlot } from '../../domain/schedule-slot.entity';
 import type { IScheduleSlotRepository } from '../../domain/schedule-slot.repository';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IScheduleDataProvider } from '@/modules/schedule/domain/schedule-data.provider';
-import { ConflictError, NotFoundError } from '@/core/errors/app.error';
+import { NotFoundError } from '@/core/errors/app.error';
 import type {
   Assignment,
   ClassroomMap,
@@ -18,6 +18,11 @@ import { CourseGroupOverlapRule } from '../../domain/rules/course-group-overlap.
 import { RoomOverlapRule } from '../../domain/rules/room-overlap.rule';
 import { UnassignedDiagnosticRule } from '../../domain/rules/unassigned-diagnostic.rule';
 import { RoomTypeRule } from '../../domain/rules/room-type.rule';
+import {
+  conflictCodeToType,
+  ScheduleSlotConflictError,
+} from '../../domain/schedule-slot-conflict.error';
+import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
   private readonly rules: IMoveValidationRule[];
@@ -151,22 +156,28 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       shift: schedule.shift,
     };
 
-    const errors: string[] = [];
+    const conflicts: ScheduleConflictDetailDTO[] = [];
 
     for (const rule of this.rules) {
       try {
         await rule.validate(context);
       } catch (err) {
-        if (err instanceof Error && err.name === 'ConflictError') {
-          errors.push(err.message);
+        if (err instanceof ScheduleSlotConflictError) {
+          conflicts.push(...err.details);
+        } else if (err instanceof Error && err.name === 'ConflictError') {
+          for (const message of err.message.split('\n')) {
+            const type = conflictCodeToType(message);
+            if (!type) throw err;
+            conflicts.push({ type, message });
+          }
         } else {
           throw err;
         }
       }
     }
 
-    if (errors.length > 0) {
-      throw new ConflictError(errors.join('\n'));
+    if (conflicts.length > 0) {
+      throw new ScheduleSlotConflictError(conflicts);
     }
   }
 }

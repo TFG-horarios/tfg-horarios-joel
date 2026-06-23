@@ -1,4 +1,5 @@
-import { ConflictError } from '@/core/errors/app.error';
+import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
+import { ScheduleSlotConflictError } from '../schedule-slot-conflict.error';
 import type {
   IMoveValidationRule,
   MoveValidationContext,
@@ -31,6 +32,7 @@ export class RoomOverlapRule implements IMoveValidationRule {
       const newStart = context.newSlotIndex;
       const newEnd = context.newSlotIndex + movingDurationSlots - 1;
 
+      const conflicts: ScheduleConflictDetailDTO[] = [];
       for (const existingSlot of classroomSlots) {
         if (existingSlot.id === context.movingAssignment.id) continue;
         if (existingSlot.dayOfWeek !== context.newDayOfWeek) continue;
@@ -41,8 +43,18 @@ export class RoomOverlapRule implements IMoveValidationRule {
           existingSlot.slotIndex + Math.ceil(existingSlot.duration) - 1;
 
         if (newStart <= existingEnd && newEnd >= existingStart) {
-          throw new ConflictError('ERR_ROOM_OVERLAP');
+          conflicts.push({
+            type: 'ROOM_OVERLAP',
+            message: 'ERR_ROOM_OVERLAP',
+            subjectGroupId: context.movingAssignment.subjectGroupId,
+            assignmentId: context.movingAssignment.id,
+            relatedSubjectGroupIds: [existingSlot.subjectGroupId],
+            classroomId: context.newClassroomId,
+          });
         }
+      }
+      if (conflicts.length > 0) {
+        throw new ScheduleSlotConflictError(conflicts);
       }
     }
   }

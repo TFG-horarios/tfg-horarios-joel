@@ -73,9 +73,9 @@ describe('UpdateScheduleSlotUseCase', () => {
     repositoryMock.findByScheduleId.mockResolvedValueOnce([slot]);
     const dto = { classroomId: 'c-2', dayOfWeek: 2, slotIndex: 1 };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
-    expect(result.classroomId).toBe('c-2');
-    expect(result.dayOfWeek).toBe(2);
-    expect(result.slotIndex).toBe(1);
+    expect(result.slot.classroomId).toBe('c-2');
+    expect(result.slot.dayOfWeek).toBe(2);
+    expect(result.slot.slotIndex).toBe(1);
     expect(validationProviderMock.validateMove).toHaveBeenCalledWith(
       'org-1',
       slot,
@@ -112,9 +112,9 @@ describe('UpdateScheduleSlotUseCase', () => {
 
     const dto = { classroomId: 'c-2' };
     const result = await useCase.execute('org-1', 'user-1', slot.id, dto);
-    expect(result.classroomId).toBe('c-2');
-    expect(result.dayOfWeek).toBe(1);
-    expect(result.slotIndex).toBe(0);
+    expect(result.slot.classroomId).toBe('c-2');
+    expect(result.slot.dayOfWeek).toBe(1);
+    expect(result.slot.slotIndex).toBe(0);
     expect(validationProviderMock.validateMove).toHaveBeenCalledWith(
       'org-1',
       slot,
@@ -166,8 +166,8 @@ describe('UpdateScheduleSlotUseCase', () => {
       slotIndex: null,
     });
 
-    expect(result.dayOfWeek).toBeNull();
-    expect(result.slotIndex).toBeNull();
+    expect(result.slot.dayOfWeek).toBeNull();
+    expect(result.slot.slotIndex).toBeNull();
     expect(dataProviderMock.unpublishSchedule).toHaveBeenCalledWith(
       'sch-1',
       'org-1'
@@ -294,5 +294,55 @@ describe('UpdateScheduleSlotUseCase', () => {
     expect(
       dataProviderMock.updateScheduleConflictsAndUnassignedCount
     ).toHaveBeenCalledWith('sch-1', 'org-1');
+  });
+
+  test('should revalidate and report the other schedule affected by an old room overlap', async () => {
+    const movedSlot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 1,
+      classroomId: 'c-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+      conflicts: [{ type: 'ROOM_OVERLAP', message: 'ERR_ROOM_OVERLAP' }],
+    });
+    const otherScheduleSlot = ScheduleSlot.create({
+      scheduleId: 'sch-2',
+      subjectGroupId: 'sg-2',
+      duration: 1,
+      classroomId: 'c-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+      conflicts: [{ type: 'ROOM_OVERLAP', message: 'ERR_ROOM_OVERLAP' }],
+    });
+
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(movedSlot);
+    dataProviderMock.getScheduleContext.mockResolvedValueOnce({
+      academicYearId: 'ay-1',
+      period: 1,
+      shift: 'morning',
+    });
+    dataProviderMock.isGroupCommon.mockResolvedValueOnce(false);
+    repositoryMock.findSlotsByClassroomIdAndFilters
+      .mockResolvedValueOnce([movedSlot, otherScheduleSlot])
+      .mockResolvedValueOnce([]);
+    repositoryMock.findScheduleIdsIncludingSlot.mockResolvedValueOnce([]);
+    repositoryMock.findByScheduleId
+      .mockResolvedValueOnce([movedSlot])
+      .mockResolvedValueOnce([otherScheduleSlot]);
+    validationProviderMock.validateMove.mockResolvedValue(undefined);
+
+    const result = await useCase.execute('org-1', 'user-1', movedSlot.id, {
+      classroomId: 'c-2',
+      dayOfWeek: 1,
+      slotIndex: 2,
+    });
+
+    expect(result.affectedScheduleIds).toEqual(['sch-1', 'sch-2']);
+    expect(otherScheduleSlot.conflicts).toEqual([]);
+    expect(
+      dataProviderMock.updateScheduleConflictsAndUnassignedCount
+    ).toHaveBeenCalledWith('sch-2', 'org-1');
   });
 });

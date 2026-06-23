@@ -1,7 +1,7 @@
 import type {
   ScheduleSlotDTO,
   SaveScheduleSlotDTO,
-  ScheduleConflictType,
+  ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
 import type { IScheduleSlotDataProvider } from '../domain/schedule-slot-data.provider';
@@ -10,13 +10,25 @@ import type { IScheduleSlotValidationProvider } from '../domain/schedule-slot-va
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleSlotMapper } from './schedule-slot.mapper';
+import {
+  conflictCodeToType,
+  ScheduleSlotConflictError,
+} from '../domain/schedule-slot-conflict.error';
+import type { IScheduleSlotUnitOfWork } from '../domain/schedule-slot-unit-of-work';
+import type { ScheduleSlot } from '../domain/schedule-slot.entity';
+
+export interface UpdateScheduleSlotResult {
+  slot: ScheduleSlotDTO;
+  affectedScheduleIds: string[];
+}
 
 export class UpdateScheduleSlotUseCase {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly dataProvider: IScheduleSlotDataProvider,
     private readonly memberProvider: IScheduleSlotMemberProvider,
-    private readonly validationProvider: IScheduleSlotValidationProvider
+    private readonly validationProvider: IScheduleSlotValidationProvider,
+    private readonly unitOfWork?: IScheduleSlotUnitOfWork
   ) {}
 
   async execute(
@@ -24,7 +36,7 @@ export class UpdateScheduleSlotUseCase {
     requesterUserId: string,
     slotId: string,
     dto: SaveScheduleSlotDTO
-  ): Promise<ScheduleSlotDTO> {
+  ): Promise<UpdateScheduleSlotResult> {
     const role = await this.memberProvider.getMemberRole(
       requesterUserId,
       organizationId
@@ -36,7 +48,45 @@ export class UpdateScheduleSlotUseCase {
       );
     }
 
-    const slot = await this.scheduleSlotRepository.findById(slotId);
+    const update = (
+      repository: IScheduleSlotRepository,
+      dataProvider: IScheduleSlotDataProvider,
+      validationProvider: IScheduleSlotValidationProvider
+    ) =>
+      this.executeUpdate(
+        organizationId,
+        slotId,
+        dto,
+        repository,
+        dataProvider,
+        validationProvider
+      );
+
+    if (this.unitOfWork) {
+      return this.unitOfWork.run((dependencies) =>
+        update(
+          dependencies.repository,
+          dependencies.dataProvider,
+          dependencies.validationProvider
+        )
+      );
+    }
+    return update(
+      this.scheduleSlotRepository,
+      this.dataProvider,
+      this.validationProvider
+    );
+  }
+
+  private async executeUpdate(
+    organizationId: string,
+    slotId: string,
+    dto: SaveScheduleSlotDTO,
+    repository: IScheduleSlotRepository,
+    dataProvider: IScheduleSlotDataProvider,
+    validationProvider: IScheduleSlotValidationProvider
+  ): Promise<UpdateScheduleSlotResult> {
+    const slot = await repository.findById(slotId);
     if (!slot) {
       throw new NotFoundError('ScheduleSlot', slotId);
     }
@@ -48,7 +98,7 @@ export class UpdateScheduleSlotUseCase {
     const slotIndex =
       dto.slotIndex !== undefined ? dto.slotIndex : slot.slotIndex;
 
-    const scheduleContext = await this.dataProvider.getScheduleContext(
+    const scheduleContext = await dataProvider.getScheduleContext(
       slot.scheduleId,
       organizationId
     );
@@ -56,7 +106,50 @@ export class UpdateScheduleSlotUseCase {
       throw new NotFoundError('Schedule', slot.scheduleId);
     }
 
-    const isCommon = await this.dataProvider.isGroupCommon(
+    const oldPlacement = {
+      classroomId: slot.classroomId,
+      dayOfWeek: slot.dayOfWeek,
+      slotIndex: slot.slotIndex,
+      duration: slot.duration,
+    };
+
+    const findRoomNeighbours = async (placement: typeof oldPlacement) => {
+      if (
+        placement.classroomId === null ||
+        placement.dayOfWeek === null ||
+        placement.slotIndex === null
+      ) {
+        return [];
+      }
+      const roomSlots =
+        (await repository.findSlotsByClassroomIdAndFilters(
+          placement.classroomId,
+          organizationId,
+          {
+            academicYearId: scheduleContext.academicYearId,
+            period: scheduleContext.period,
+            shift: scheduleContext.shift,
+          }
+        )) ?? [];
+      const start = placement.slotIndex;
+      const end = start + Math.ceil(placement.duration) - 1;
+      return roomSlots.filter((candidate) => {
+        if (
+          candidate.id === slot.id ||
+          candidate.dayOfWeek !== placement.dayOfWeek ||
+          candidate.slotIndex === null
+        ) {
+          return false;
+        }
+        const candidateEnd =
+          candidate.slotIndex + Math.ceil(candidate.duration) - 1;
+        return start <= candidateEnd && end >= candidate.slotIndex;
+      });
+    };
+
+    const oldRoomNeighbours = await findRoomNeighbours(oldPlacement);
+
+    const isCommon = await dataProvider.isGroupCommon(
       slot.subjectGroupId,
       slot.scheduleId,
       organizationId
@@ -65,8 +158,9 @@ export class UpdateScheduleSlotUseCase {
     let linkedSlots = [slot];
 
     if (isCommon) {
-      const includedScheduleIds =
-        await this.scheduleSlotRepository.findScheduleIdsIncludingSlot(slot.id);
+      const includedScheduleIds = await repository.findScheduleIdsIncludingSlot(
+        slot.id
+      );
       linkedSlots = [
         slot,
         ...includedScheduleIds.map((scheduleId) =>
@@ -80,7 +174,7 @@ export class UpdateScheduleSlotUseCase {
 
     if (isCompletePlacement) {
       for (const linkedSlot of linkedSlots) {
-        await this.validationProvider.validateMove(
+        await validationProvider.validateMove(
           organizationId,
           linkedSlot,
           classroomId,
@@ -91,13 +185,13 @@ export class UpdateScheduleSlotUseCase {
     }
 
     slot.assignLocationAndTime(classroomId, dayOfWeek, slotIndex);
-    await this.scheduleSlotRepository.update(slot);
+    await repository.update(slot);
     if (isCommon) {
-      await this.scheduleSlotRepository.clearInclusionConflictsForSlot(slot.id);
+      await repository.clearInclusionConflictsForSlot(slot.id);
     }
 
     if (classroomId !== null && dayOfWeek !== null && slotIndex !== null) {
-      await this.dataProvider.rejectConflictingReservations(
+      await dataProvider.rejectConflictingReservations(
         organizationId,
         scheduleContext.academicYearId,
         scheduleContext.period,
@@ -110,59 +204,44 @@ export class UpdateScheduleSlotUseCase {
 
     if (!isCompletePlacement) {
       for (const linkedSlot of linkedSlots) {
-        await this.dataProvider.unpublishSchedule(
+        await dataProvider.unpublishSchedule(
           linkedSlot.scheduleId,
           organizationId
         );
       }
     }
 
-    const mapErrorToConflictType = (err: string): ScheduleConflictType => {
-      switch (err) {
-        case 'ERR_ROOM_CAPACITY':
-          return 'ROOM_CAPACITY';
-        case 'ERR_COMPUTER_LAB_REQUIRED':
-          return 'ROOM_TYPE';
-        case 'ERR_ROOM_OVERLAP':
-          return 'ROOM_OVERLAP';
-        case 'ERR_OVERLAP_COMMON_ITINERARY':
-          return 'COURSE_OVERLAP_COMMON_ITINERARY';
-        case 'ERR_OVERLAP_THEORY':
-          return 'COURSE_OVERLAP_THEORY';
-        case 'ERR_OVERLAP_SINGLE_GROUP':
-          return 'COURSE_OVERLAP_SINGLE_GROUP';
-        case 'ERR_OVERLAP_DIFFERENT_GROUP_TYPES':
-          return 'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES';
-        case 'ERR_OVERLAP_SAME_SUBJECT':
-          return 'COURSE_OVERLAP_SAME_SUBJECT';
-        case 'ERR_SHIFT_MORNING':
-          return 'SHIFT_MORNING';
-        case 'ERR_SHIFT_AFTERNOON':
-          return 'SHIFT_AFTERNOON';
-        case 'ERR_SHIFT_EXCEEDS_DAY':
-          return 'SHIFT_EXCEEDS_DAY';
-        case 'ERR_UNASSIGNED_NO_ROOMS_OF_TYPE':
-          return 'UNASSIGNED_NO_ROOMS_OF_TYPE';
-        case 'ERR_UNASSIGNED_ROOM_CAPACITY':
-          return 'UNASSIGNED_ROOM_CAPACITY';
-        case 'ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS':
-          return 'UNASSIGNED_NO_COMPATIBLE_SLOTS';
-        default:
-          return 'UNASSIGNED';
-      }
-    };
-
-    const affectedScheduleIds = [
-      ...new Set(linkedSlots.map((linkedSlot) => linkedSlot.scheduleId)),
-    ];
+    const newRoomNeighbours = await findRoomNeighbours({
+      classroomId,
+      dayOfWeek,
+      slotIndex,
+      duration: slot.duration,
+    });
+    const affectedScheduleIdsSet = new Set(
+      linkedSlots.map((linkedSlot) => linkedSlot.scheduleId)
+    );
+    for (const neighbour of [...oldRoomNeighbours, ...newRoomNeighbours]) {
+      affectedScheduleIdsSet.add(neighbour.scheduleId);
+      const includedIds =
+        (await repository.findScheduleIdsIncludingSlot(neighbour.id)) ?? [];
+      includedIds.forEach((id) => affectedScheduleIdsSet.add(id));
+    }
+    const affectedScheduleIds = [...affectedScheduleIdsSet];
+    let refreshedSlot: ScheduleSlot | null = null;
 
     for (const scheduleId of affectedScheduleIds) {
-      const allSlots =
-        await this.scheduleSlotRepository.findByScheduleId(scheduleId);
+      const allSlots = await repository.findByScheduleId(scheduleId);
 
       for (const s of allSlots) {
+        if (
+          s.id === slot.id &&
+          s.scheduleId === slot.scheduleId &&
+          !s.isSharedCommon
+        ) {
+          refreshedSlot = s;
+        }
         try {
-          await this.validationProvider.validateMove(
+          await validationProvider.validateMove(
             organizationId,
             s,
             s.classroomId,
@@ -171,27 +250,36 @@ export class UpdateScheduleSlotUseCase {
           );
           if (s.conflicts.length === 0) continue;
           s.updateConflicts([]);
-          await this.scheduleSlotRepository.updateConflicts(s);
+          await repository.updateConflicts(s);
         } catch (err) {
-          if (err instanceof Error && err.name === 'ConflictError') {
-            const newConflicts = err.message.split('\n').map((msg) => ({
-              type: mapErrorToConflictType(msg),
-              message: msg,
-            }));
+          if (err instanceof Error && err.name.endsWith('ConflictError')) {
+            const newConflicts: ScheduleConflictDetailDTO[] =
+              err instanceof ScheduleSlotConflictError
+                ? err.details
+                : err.message.split('\n').flatMap((message) => {
+                    const type = conflictCodeToType(message);
+                    return type ? [{ type, message }] : [];
+                  });
+            if (newConflicts.length === 0) throw err;
             s.updateConflicts(newConflicts);
-            await this.scheduleSlotRepository.updateConflicts(s);
+            await repository.updateConflicts(s);
           } else {
             throw err;
           }
         }
       }
 
-      await this.dataProvider.updateScheduleConflictsAndUnassignedCount(
+      await dataProvider.updateScheduleConflictsAndUnassignedCount(
         scheduleId,
         organizationId
       );
     }
 
-    return ScheduleSlotMapper.toDTO(slot);
+    if (!refreshedSlot) throw new NotFoundError('ScheduleSlot', slot.id);
+
+    return {
+      slot: ScheduleSlotMapper.toDTO(refreshedSlot),
+      affectedScheduleIds,
+    };
   }
 }

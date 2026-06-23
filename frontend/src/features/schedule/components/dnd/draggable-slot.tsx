@@ -11,6 +11,7 @@ import {
   type SubjectGroupDTO,
   type ClassroomDTO,
   type DegreeDTO,
+  type ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 import { cn } from '@/lib/utils';
 import { getSubjectColorClasses } from '@/lib/subject-colors';
@@ -21,6 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
+import { formatConflictMessage } from './conflict-message';
 
 type DraggableSlotProps = {
   slot: ScheduleSlotDTO;
@@ -33,6 +35,8 @@ type DraggableSlotProps = {
   onEditClassroomClick?: (slotId: string) => void;
   onUnassignClick?: (slotId: string) => void;
   disabled?: boolean;
+  conflictSubjectLabels?: ReadonlyMap<string, string>;
+  classroomLabels?: ReadonlyMap<string, string>;
 };
 
 export const DraggableSlot = memo(function DraggableSlot({
@@ -46,6 +50,8 @@ export const DraggableSlot = memo(function DraggableSlot({
   onEditClassroomClick,
   onUnassignClick,
   disabled = false,
+  conflictSubjectLabels,
+  classroomLabels,
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
@@ -64,45 +70,14 @@ export const DraggableSlot = memo(function DraggableSlot({
   const hasConflicts = schedulingConflicts.length > 0;
   const hasPlacementIssue = placementIssues.length > 0;
 
-  const getConflictMessage = (type: string) => {
-    switch (type) {
-      case 'ROOM_OVERLAP':
-        return tErrors('ERR_ROOM_OVERLAP');
-      case 'COURSE_OVERLAP':
-        return tErrors('ERR_OVERLAP_SAME_SUBJECT');
-      case 'COURSE_OVERLAP_THEORY':
-        return tErrors('ERR_OVERLAP_THEORY');
-      case 'COURSE_OVERLAP_SINGLE_GROUP':
-        return tErrors('ERR_OVERLAP_SINGLE_GROUP');
-      case 'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES':
-        return tErrors('ERR_OVERLAP_DIFFERENT_GROUP_TYPES');
-      case 'COURSE_OVERLAP_COMMON_ITINERARY':
-        return tErrors('ERR_OVERLAP_COMMON_ITINERARY');
-      case 'COURSE_OVERLAP_SAME_SUBJECT':
-        return tErrors('ERR_OVERLAP_SAME_SUBJECT');
-      case 'ROOM_CAPACITY':
-        return tErrors('ERR_ROOM_CAPACITY');
-      case 'ROOM_TYPE':
-        return tErrors('ERR_COMPUTER_LAB_REQUIRED');
-      case 'SHIFT_MORNING':
-        return tErrors('ERR_SHIFT_MORNING');
-      case 'SHIFT_AFTERNOON':
-        return tErrors('ERR_SHIFT_AFTERNOON');
-      case 'SHIFT_EXCEEDS_DAY':
-        return tErrors('ERR_SHIFT_EXCEEDS_DAY');
-      case 'UNASSIGNED':
-        return tErrors('ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS');
-      case 'UNASSIGNED_NO_ROOMS_OF_TYPE':
-        return tErrors('ERR_UNASSIGNED_NO_ROOMS_OF_TYPE');
-      case 'UNASSIGNED_ROOM_CAPACITY':
-        return tErrors('ERR_UNASSIGNED_ROOM_CAPACITY', {
-          capacity: group.numberOfStudents,
-        });
-      case 'UNASSIGNED_NO_COMPATIBLE_SLOTS':
-        return tErrors('ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS');
-      default:
-        return 'Conflicto detectado';
-    }
+  const getConflictMessage = (conflict: ScheduleConflictDetailDTO) => {
+    return formatConflictMessage(
+      conflict,
+      group.numberOfStudents,
+      (key, values) => tErrors(key, values),
+      conflictSubjectLabels,
+      classroomLabels
+    );
   };
 
   return (
@@ -166,7 +141,7 @@ export const DraggableSlot = memo(function DraggableSlot({
                 <div key={idx} className="flex gap-1.5 items-start">
                   <span className="mt-0.5">•</span>
                   <span className="text-xs leading-tight">
-                    {getConflictMessage(conflict.type)}
+                    {getConflictMessage(conflict)}
                   </span>
                 </div>
               ))}
@@ -192,7 +167,7 @@ export const DraggableSlot = memo(function DraggableSlot({
                 <div key={idx} className="flex gap-1.5 items-start">
                   <span className="mt-0.5">•</span>
                   <span className="text-xs leading-tight">
-                    {getConflictMessage(issue.type)}
+                    {getConflictMessage(issue)}
                   </span>
                 </div>
               ))}

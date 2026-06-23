@@ -689,10 +689,16 @@
           "ERR_OVERLAP_SINGLE_GROUP": "This group is the only one available in its shift and cannot coincide with another.",
           "ERR_OVERLAP_DIFFERENT_GROUP_TYPES": "Different group types cannot coincide at the same time.",
           "ERR_OVERLAP_SAME_SUBJECT": "Two groups of the same subject cannot be taught at the same time.",
+          "ERR_OVERLAP_DUPLICATE_GROUP": "The same group appears more than once in this schedule.",
           "ERR_OVERLAP_COMMON_ITINERARY": "Common subjects cannot overlap with itinerary subjects.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
-          "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots."
+          "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots.",
+          "ERR_UNASSIGNED_NO_ROOMS_OF_TYPE": "No classrooms of the required type are available in the organization.",
+          "ERR_UNASSIGNED_ROOM_CAPACITY": "No classroom of the required type has enough capacity for this group ({capacity} students).",
+          "ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS": "No compatible schedule positions remain because of shift or overlap constraints.",
+          "conflictWith": "Conflict with: {subjects}.",
+          "conflictClassroom": "Classroom: {classroom}."
         },
         "unassignedSlots": "Unassigned slots",
         "noUnassignedSlots": "There are no unassigned slots at the moment. Drag a slot here or click the 'Unassign' button on a slot.",

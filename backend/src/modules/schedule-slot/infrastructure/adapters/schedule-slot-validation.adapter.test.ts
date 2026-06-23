@@ -2,6 +2,7 @@ import { describe, expect, test, mock, beforeEach } from 'bun:test';
 import { ScheduleSlotValidationAdapter } from './schedule-slot-validation.adapter';
 import { ScheduleSlot } from '../../domain/schedule-slot.entity';
 import { NotFoundError, ConflictError } from '@/core/errors/app.error';
+import { ScheduleSlotConflictError } from '../../domain/schedule-slot-conflict.error';
 
 describe('ScheduleSlotValidationAdapter', () => {
   const scheduleSlotRepositoryMock = {
@@ -151,6 +152,52 @@ describe('ScheduleSlotValidationAdapter', () => {
     await expect(
       adapter.validateMove('org-1', slot, 'c-2', 2, 1)
     ).rejects.toThrow(ConflictError);
+  });
+
+  test('should retain the exact group related to an overlap', async () => {
+    setupMocks();
+    const slot2 = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-2',
+      duration: 1,
+      classroomId: 'c-2',
+      dayOfWeek: 2,
+      slotIndex: 1,
+    });
+    scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
+      slot,
+      slot2,
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValue([
+      {
+        subjectGroupId: 'sg-1',
+        subjectId: 's-1',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 50,
+      },
+      {
+        subjectGroupId: 'sg-2',
+        subjectId: 's-2',
+        groupType: 'theory',
+        isCommon: true,
+        itineraryName: null,
+        numberOfStudents: 50,
+      },
+    ]);
+
+    try {
+      await adapter.validateMove('org-1', slot, 'c-2', 2, 1);
+      throw new Error('Expected overlap');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ScheduleSlotConflictError);
+      expect((error as ScheduleSlotConflictError).details[0]).toMatchObject({
+        type: 'COURSE_OVERLAP_THEORY',
+        assignmentId: slot.id,
+        relatedSubjectGroupIds: ['sg-2'],
+      });
+    }
   });
 
   test('should throw NotFoundError if schedule is not found', async () => {
