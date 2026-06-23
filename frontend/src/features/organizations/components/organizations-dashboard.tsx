@@ -111,10 +111,10 @@ function DashboardContent({
             handleModalChange(true);
           }
         }}
-        className="group h-full min-h-[10.5rem] cursor-pointer bg-card text-card-foreground border border-border p-6 transition-all duration-300 hover:border-brand-purple-border rounded-xl"
+        className="group h-full min-h-[10.5rem] cursor-pointer bg-card text-card-foreground border border-border p-6 transition-all duration-300 hover:border-brand-purple-border dark:hover:border-brand-purple-border rounded-xl"
       >
         <div className="flex h-full flex-col items-center justify-center text-center">
-          <div className="flex size-16 items-center justify-center rounded-full border border-black/10 bg-white/70 text-brand-purple-solid transition-colors group-hover:border-brand-purple-border dark:group-hover:border-brand-purple-border dark:border-white/10 dark:bg-white/5">
+          <div className="flex size-16 items-center justify-center rounded-full border border-brand-purple-border bg-brand-purple-bg text-brand-purple transition-colors group-hover:bg-brand-purple-hover dark:group-hover:bg-brand-purple-hover">
             <Plus className="size-8" />
           </div>
         </div>

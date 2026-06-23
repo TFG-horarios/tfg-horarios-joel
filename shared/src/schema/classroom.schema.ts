@@ -63,6 +63,7 @@ export const ClassroomConfigurationListQuerySchema =
     academicYearId: z.uuid().optional(),
     shift: z.enum(SHIFT_TYPES).optional(),
     period: z.coerce.number().int().positive().optional(),
+    type: z.enum(CLASSROOM_TYPES).optional(),
   });
 
 export type ClassroomDTO = z.infer<typeof ClassroomSchema>;

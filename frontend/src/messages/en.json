@@ -76,7 +76,7 @@
       "previous": "Previous",
       "next": "Next"
     },
-    "brand": "TFG Horarios",
+    "brand": "SkEdu",
     "bulkUploader": {
       "reviewTitle": "File review",
       "reviewDescription": "Review the data before sending it to the database.",
@@ -144,11 +144,11 @@
     }
   },
   "Metadata": {
-    "title": "TFG Horarios",
+    "title": "SkEdu",
     "description": "Schedule planning with secure access"
   },
   "Landing": {
-    "eyebrow": "TFG Horarios",
+    "eyebrow": "SkEdu",
     "title": "Plan schedules with a clean, fast, and serious interface.",
     "description": "A modern foundation for managing organizations, classrooms, subjects, and users with JWT authentication and a consistent visual experience from end to end.",
     "primaryCta": "Sign in",
@@ -176,7 +176,7 @@
   },
   "Auth": {
     "login": {
-      "eyebrow": "TFG Horarios",
+      "eyebrow": "SkEdu",
       "title": "Sign in",
       "description": "Access your account to manage academic scheduling.",
       "invalidCredentials": "Invalid email or password.",
@@ -199,7 +199,7 @@
       }
     },
     "register": {
-      "eyebrow": "TFG Horarios",
+      "eyebrow": "SkEdu",
       "title": "Create account",
       "description": "Create an account to start managing your schedules.",
       "fields": {

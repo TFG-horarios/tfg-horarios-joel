@@ -8,7 +8,7 @@ import {
 import type { ReactNode } from 'react';
 
 type AuthShellProps = {
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
   description: string;
   children: ReactNode;

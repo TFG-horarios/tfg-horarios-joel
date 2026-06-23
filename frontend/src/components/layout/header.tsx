@@ -95,9 +95,9 @@ export function Header({ variant = 'inline' }: HeaderProps) {
       >
         <Link
           href={logoHref}
-          className="rounded-lg px-3 py-2 text-sm font-semibold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10"
+          className="rounded-lg px-3 py-2 text-lg font-bold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10"
         >
-          {tBrand('brand')}
+          Sk<span className="text-brand-purple-solid">Edu</span>
         </Link>
         {isOrganizations && variant === 'inline' && (
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4 pointer-events-none">

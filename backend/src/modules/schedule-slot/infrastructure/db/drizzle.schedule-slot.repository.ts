@@ -132,6 +132,9 @@ export class DrizzleScheduleSlotRepository implements IScheduleSlotRepository {
     if (filters?.search) {
       conditions.push(ilike(classroomsTable.name, `%${filters.search}%`));
     }
+    if (filters?.type) {
+      conditions.push(eq(classroomsTable.type, filters.type));
+    }
 
     const subquery = this.database
       .select({

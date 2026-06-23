@@ -62,10 +62,18 @@ export default async function OrganizationClassroomSchedulesPage({
       typeof rawSearchParams.period === 'string'
         ? parseInt(rawSearchParams.period, 10)
         : undefined,
+    type:
+      typeof rawSearchParams.type === 'string' &&
+      (rawSearchParams.type === 'theory' ||
+        rawSearchParams.type === 'lab' ||
+        rawSearchParams.type === 'computer_lab')
+        ? rawSearchParams.type
+        : undefined,
   };
 
   const t = await getTranslations('Organizations.classroomSchedules');
   const tStatus = await getTranslations('Organizations.schedules');
+  const tClassrooms = await getTranslations('Organizations.classrooms');
 
   const [
     organization,
@@ -156,6 +164,15 @@ export default async function OrganizationClassroomSchedulesPage({
               paramKey="period"
               placeholder={tStatus('period')}
               options={periodOptions}
+            />
+            <ResourceFilterSelect
+              paramKey="type"
+              placeholder={tClassrooms('typeFilterLabel')}
+              options={[
+                { label: tClassrooms('types.theory'), value: 'theory' },
+                { label: tClassrooms('types.lab'), value: 'lab' },
+                { label: tClassrooms('types.computer_lab'), value: 'computer_lab' },
+              ]}
             />
             <ResourceFilterClear />
           </>

@@ -1,15 +1,8 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { Loader2, Building2 } from 'lucide-react';
+import { Loader2, Building2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Label } from '@/components/ui/label';
@@ -21,6 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
 import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
 import { requestReservationAction, fetchOccupiedSlotsAction } from '../actions';
@@ -44,6 +50,7 @@ export function ReservationPlanner({
   academicYear,
 }: ReservationPlannerProps) {
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
+  const [classroomOpen, setClassroomOpen] = useState(false);
 
   const validStarts = [
     academicYear.period0Start,
@@ -289,21 +296,53 @@ export function ReservationPlanner({
       <div className="flex flex-col md:flex-row gap-4 p-4 bg-card border rounded-xl shadow-sm items-end">
         <div className="flex-1 space-y-2 w-full">
           <Label>Aula</Label>
-          <Select
-            value={selectedClassroom}
-            onValueChange={setSelectedClassroom}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona un aula" />
-            </SelectTrigger>
-            <SelectContent>
-              {classrooms.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name} (Capacidad: {c.capacity})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={classroomOpen} onOpenChange={setClassroomOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                role="combobox"
+                aria-expanded={classroomOpen}
+                className="w-full justify-between font-normal h-10 px-3 py-2 border border-border bg-card text-card-foreground cursor-pointer hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50"
+              >
+                <span className="truncate">
+                  {selectedClassroom
+                    ? classrooms.find((c) => c.id === selectedClassroom)
+                        ? `${classrooms.find((c) => c.id === selectedClassroom)?.name} (Capacidad: ${classrooms.find((c) => c.id === selectedClassroom)?.capacity})`
+                        : 'Selecciona un aula'
+                    : 'Selecciona un aula'}
+                </span>
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[var(--radix-popover-trigger-width)] p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput placeholder="Buscar aula..." />
+                <CommandList>
+                  <CommandEmpty>No se encontraron aulas.</CommandEmpty>
+                  <CommandGroup>
+                    {classrooms.map((c) => (
+                      <CommandItem
+                        key={c.id}
+                        value={c.name}
+                        data-state={selectedClassroom === c.id ? "checked" : "unchecked"}
+                        onSelect={() => {
+                          setSelectedClassroom(c.id);
+                          setClassroomOpen(false);
+                        }}
+                      >
+                        <span className="break-words">
+                          {c.name} (Capacidad: {c.capacity})
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex-1 space-y-2 w-full">

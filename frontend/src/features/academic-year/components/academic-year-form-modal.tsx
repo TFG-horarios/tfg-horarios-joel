@@ -30,6 +30,13 @@ import type {
   SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
 
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export function AcademicYearFormModal({
   organization,
   academicYear,
@@ -196,9 +203,7 @@ export function AcademicYearFormModal({
                   onChange={(date) =>
                     setFormData({
                       ...formData,
-                      period0Start: date
-                        ? (date.toISOString().split('T')[0] ?? '')
-                        : '',
+                      period0Start: date ? formatDate(date) : '',
                     })
                   }
                 />
@@ -214,9 +219,7 @@ export function AcademicYearFormModal({
                   onChange={(date) =>
                     setFormData({
                       ...formData,
-                      period0End: date
-                        ? (date.toISOString().split('T')[0] ?? '')
-                        : '',
+                      period0End: date ? formatDate(date) : '',
                     })
                   }
                 />
@@ -235,9 +238,7 @@ export function AcademicYearFormModal({
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        period1Start: date
-                          ? (date.toISOString().split('T')[0] ?? '')
-                          : '',
+                        period1Start: date ? formatDate(date) : '',
                       })
                     }
                   />
@@ -253,9 +254,7 @@ export function AcademicYearFormModal({
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        period1End: date
-                          ? (date.toISOString().split('T')[0] ?? '')
-                          : '',
+                        period1End: date ? formatDate(date) : '',
                       })
                     }
                   />
@@ -275,9 +274,7 @@ export function AcademicYearFormModal({
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        period2Start: date
-                          ? (date.toISOString().split('T')[0] ?? '')
-                          : '',
+                        period2Start: date ? formatDate(date) : '',
                       })
                     }
                   />
@@ -293,9 +290,7 @@ export function AcademicYearFormModal({
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        period2End: date
-                          ? (date.toISOString().split('T')[0] ?? '')
-                          : '',
+                        period2End: date ? formatDate(date) : '',
                       })
                     }
                   />

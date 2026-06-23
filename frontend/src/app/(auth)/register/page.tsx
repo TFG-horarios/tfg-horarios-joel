@@ -8,7 +8,11 @@ export default async function RegisterPage() {
 
   return (
     <AuthShell
-      eyebrow={t('eyebrow')}
+      eyebrow={
+        <span>
+          Sk<span className="text-brand-purple-solid">Edu</span>
+        </span>
+      }
       title={t('title')}
       description={t('description')}
     >

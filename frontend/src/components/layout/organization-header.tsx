@@ -149,10 +149,10 @@ function OrganizationHeaderInner() {
           <Link
             href="/organizations"
             className={cn(
-              'rounded-lg px-3 p-2 text-base font-extrabold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10 md:text-sm md:font-semibold'
+              'rounded-lg px-3 p-2 text-lg font-bold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10'
             )}
           >
-            {tBrand('brand')}
+            Sk<span className="text-brand-purple-solid">Edu</span>
           </Link>
         </div>
 

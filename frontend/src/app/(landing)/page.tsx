@@ -37,10 +37,10 @@ export default async function Home() {
         <section className="max-w-2xl space-y-8">
           <div className="space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground dark:text-muted-foreground">
-              {t('eyebrow')}
+              Sk<span className="text-brand-purple-solid">Edu</span>
             </p>
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {t('title')}
+              Sk<span className="text-brand-purple-solid">Edu</span>
             </h1>
             <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
               {t('description')}

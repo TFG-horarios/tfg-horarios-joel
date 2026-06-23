@@ -76,7 +76,7 @@
       "previous": "Anterior",
       "next": "Siguiente"
     },
-    "brand": "TFG Horarios",
+    "brand": "SkEdu",
     "bulkUploader": {
       "reviewTitle": "Revisión del archivo",
       "reviewDescription": "Revisa los datos antes de introducirlos en la base de datos.",
@@ -144,11 +144,11 @@
     }
   },
   "Metadata": {
-    "title": "TFG Horarios",
+    "title": "SkEdu",
     "description": "Planificación de horarios con acceso seguro"
   },
   "Landing": {
-    "eyebrow": "TFG Horarios",
+    "eyebrow": "SkEdu",
     "title": "Planifica horarios con una interfaz limpia, rápida y seria.",
     "description": "Una base moderna para gestionar organizaciones, aulas, materias y usuarios con autenticación JWT y una experiencia visual coherente de principio a fin.",
     "primaryCta": "Iniciar sesión",
@@ -176,7 +176,7 @@
   },
   "Auth": {
     "login": {
-      "eyebrow": "TFG Horarios",
+      "eyebrow": "SkEdu",
       "title": "Inicia sesión",
       "description": "Accede con tu cuenta para gestionar la planificación académica.",
       "invalidCredentials": "Correo o contraseña inválidos.",
@@ -199,7 +199,7 @@
       }
     },
     "register": {
-      "eyebrow": "TFG Horarios",
+      "eyebrow": "SkEdu",
       "title": "Crear cuenta",
       "description": "Crea una cuenta para empezar a gestionar tus horarios.",
       "fields": {
