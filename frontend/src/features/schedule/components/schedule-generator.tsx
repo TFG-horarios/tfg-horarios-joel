@@ -30,6 +30,7 @@ import {
 } from '@/features/schedule/actions';
 import {
   OPTIMIZATIONS,
+  type Optimization,
   type DegreeDTO,
   type SubjectDTO,
   type ScheduleDTO,
@@ -94,8 +95,7 @@ export function ScheduleGenerator({
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
             : undefined,
-        optimizations:
-          selectedOptimizations as (typeof OPTIMIZATIONS)[number][],
+        optimizations: selectedOptimizations as Optimization[],
       });
 
       if (!result.success) {
@@ -128,8 +128,7 @@ export function ScheduleGenerator({
           selectedCourseYears.length > 0
             ? selectedCourseYears.map(Number)
             : undefined,
-        optimizations:
-          selectedOptimizations as (typeof OPTIMIZATIONS)[number][],
+        optimizations: selectedOptimizations as Optimization[],
       });
       if (result.success && result.data && result.data.length > 0) {
         setOverwrittenSchedules(result.data);

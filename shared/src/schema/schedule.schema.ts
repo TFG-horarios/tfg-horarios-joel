@@ -75,13 +75,15 @@ export type ScheduleIdParamDTO = z.infer<typeof ScheduleIdParamSchema>;
 export type SaveScheduleDTO = z.infer<typeof SaveScheduleBodySchema>;
 export type ScheduleListQueryDTO = z.infer<typeof ScheduleListQuerySchema>;
 
-// TODO: Añadir todas las restricciones blandas para el manejo de conflictos
 export const OPTIMIZATIONS = [
   'roomType',
   'lowerFloor',
   'classroomConsolidation',
   'studentGaps',
+  'groupTypeOrder',
 ] as const;
+
+export type Optimization = (typeof OPTIMIZATIONS)[number];
 
 export const GenerationScopeSchema = z
   .object({
@@ -107,7 +109,7 @@ export const GenerationScopeSchema = z
     optimizations: z
       .array(z.enum(OPTIMIZATIONS))
       .optional()
-      .openapi({ example: ['studentGaps'] }),
+      .openapi({ example: ['studentGaps', 'groupTypeOrder'] }),
   })
   .openapi('GenerationScope');
 

@@ -5,6 +5,7 @@ import type {
   ScheduleEngineSolution,
   ScheduleEngineAssignment,
 } from '../../domain/providers/schedule-engine.provider';
+import type { Optimization } from '@tfg-horarios/shared';
 
 export class SchedulerEngineAdapter implements IScheduleEngineProvider {
   runGeneration(
@@ -15,7 +16,7 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
     maxAfternoonSlots: number,
     slotDuration: number,
     lockedAssignments?: ScheduleEngineAssignment[],
-    optimizations?: string[]
+    optimizations?: Optimization[]
   ): Promise<ScheduleEngineSolution> {
     return new Promise((resolve, reject) => {
       const workerUrl = new URL(

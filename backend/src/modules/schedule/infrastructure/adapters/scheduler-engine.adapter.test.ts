@@ -1,11 +1,14 @@
 import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
 import { SchedulerEngineAdapter } from './scheduler-engine.adapter';
 
+let lastPostedMessage: unknown;
+
 class MockWorker {
   onmessage: ((ev: { data: unknown }) => void) | null = null;
   onerror: ((err: Error) => void) | null = null;
 
   postMessage(data: { availableClassrooms: unknown[] }) {
+    lastPostedMessage = data;
     if (data.availableClassrooms.length === 0) {
       setTimeout(() => {
         if (this.onerror) this.onerror(new Error('No classrooms'));
@@ -53,13 +56,17 @@ describe('SchedulerEngineAdapter', () => {
       6,
       6,
       60,
-      []
+      [],
+      ['groupTypeOrder']
     );
     expect(result).toEqual({
       assignments: [],
       unassigned: 0,
       penalty: 0,
       hardPenalty: 0,
+    });
+    expect(lastPostedMessage).toMatchObject({
+      optimizations: ['groupTypeOrder'],
     });
   });
 

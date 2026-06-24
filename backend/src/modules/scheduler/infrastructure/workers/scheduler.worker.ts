@@ -4,6 +4,7 @@ import { RoomTypeConstraint } from '../../domain/constraints/soft/room-type.cons
 import { LowerFloorConstraint } from '../../domain/constraints/soft/lower-floor.constraint';
 import { ClassroomConsolidationConstraint } from '../../domain/constraints/soft/classroom-consolidation.constraint';
 import { StudentGapsConstraint } from '../../domain/constraints/soft/student-gaps.constraint';
+import { GroupTypeOrderConstraint } from '../../domain/constraints/soft/group-type-order.constraint';
 import { RoomOverlapConstraint } from '../../domain/constraints/hard/room-overlap.constraint';
 import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
@@ -21,6 +22,7 @@ import type {
   ScheduleEngineClassroomMap,
   ScheduleEngineAssignment,
 } from '@/modules/schedule/domain/providers/schedule-engine.provider';
+import type { Optimization } from '@tfg-horarios/shared';
 
 export interface SchedulerWorkerMessage {
   groupsData: ScheduleEngineGroupData[];
@@ -30,7 +32,7 @@ export interface SchedulerWorkerMessage {
   maxAfternoonSlots: number;
   slotDuration: number;
   lockedAssignments?: ScheduleEngineAssignment[];
-  optimizations?: string[];
+  optimizations?: Optimization[];
 }
 
 declare const self: Worker;
@@ -71,7 +73,6 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       new CourseOverlapConstraint(),
     ];
 
-    // TODO: Añadir soft constraints
     const softConstraints = [];
     if (!optimizations || optimizations.includes('roomType')) {
       softConstraints.push(new RoomTypeConstraint());
@@ -84,6 +85,9 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
     }
     if (!optimizations || optimizations.includes('studentGaps')) {
       softConstraints.push(new StudentGapsConstraint());
+    }
+    if (!optimizations || optimizations.includes('groupTypeOrder')) {
+      softConstraints.push(new GroupTypeOrderConstraint());
     }
 
     const penaltyCalculator = new PenaltyCalculator(

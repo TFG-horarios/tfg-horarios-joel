@@ -3,6 +3,7 @@ import type {
   ClassroomType,
   Shift,
   ScheduleConflictType,
+  Optimization,
 } from '@tfg-horarios/shared';
 
 export interface ScheduleEngineGroupData {
@@ -74,6 +75,6 @@ export interface IScheduleEngineProvider {
     maxAfternoonSlots: number,
     slotDuration: number,
     lockedAssignments?: ScheduleEngineAssignment[],
-    optimizations?: string[]
+    optimizations?: Optimization[]
   ): Promise<ScheduleEngineSolution>;
 }

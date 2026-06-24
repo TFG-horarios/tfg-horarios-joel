@@ -152,6 +152,7 @@ describe('HonoScheduleController Integration', () => {
       periods: [1],
       courseYears: [1, 2],
       degreeIds: ['d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a55'],
+      optimizations: ['groupTypeOrder'],
     };
     generateMock.execute.mockResolvedValueOnce([{ id: scheduleId }]);
     const res = await app.request(
@@ -169,6 +170,23 @@ describe('HonoScheduleController Integration', () => {
       'u-admin',
       validBody
     );
+  });
+
+  test('POST /organizations/:organizationId/schedules/generate should reject unknown optimizations', async () => {
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/generate`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+          periods: [1],
+          optimizations: ['unknownOptimization'],
+        }),
+      }
+    );
+
+    expect(res.status).toBe(400);
   });
 
   test('GET /organizations/:organizationId/schedules/all should return 200', async () => {
