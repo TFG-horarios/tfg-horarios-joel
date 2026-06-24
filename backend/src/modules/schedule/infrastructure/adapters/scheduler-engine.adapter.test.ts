@@ -57,7 +57,7 @@ describe('SchedulerEngineAdapter', () => {
       6,
       60,
       [],
-      ['groupTypeOrder']
+      ['subjectDailyDispersion']
     );
     expect(result).toEqual({
       assignments: [],
@@ -66,7 +66,7 @@ describe('SchedulerEngineAdapter', () => {
       hardPenalty: 0,
     });
     expect(lastPostedMessage).toMatchObject({
-      optimizations: ['groupTypeOrder'],
+      optimizations: ['subjectDailyDispersion'],
     });
   });
 

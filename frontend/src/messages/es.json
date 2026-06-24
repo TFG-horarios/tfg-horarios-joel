@@ -739,7 +739,8 @@
         "lowerFloor": "Preferir aulas en plantas inferiores",
         "classroomConsolidation": "Menos aulas con más grupos",
         "studentGaps": "Minimizar huecos entre clases",
-        "groupTypeOrder": "Ordenar teoría, problemas y clases prácticas"
+        "groupTypeOrder": "Ordenar teoría, problemas y clases prácticas",
+        "subjectDailyDispersion": "Dispersar clases de una misma asignatura"
       },
       "form": {
         "academicYear": "Año Académico",

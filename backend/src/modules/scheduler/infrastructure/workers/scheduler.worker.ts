@@ -5,6 +5,7 @@ import { LowerFloorConstraint } from '../../domain/constraints/soft/lower-floor.
 import { ClassroomConsolidationConstraint } from '../../domain/constraints/soft/classroom-consolidation.constraint';
 import { StudentGapsConstraint } from '../../domain/constraints/soft/student-gaps.constraint';
 import { GroupTypeOrderConstraint } from '../../domain/constraints/soft/group-type-order.constraint';
+import { SubjectDailyDispersionConstraint } from '../../domain/constraints/soft/subject-daily-dispersion.constraint';
 import { RoomOverlapConstraint } from '../../domain/constraints/hard/room-overlap.constraint';
 import { ShiftConstraint } from '../../domain/constraints/hard/shift.constraint';
 import { RoomCapacityConstraint } from '../../domain/constraints/hard/room-capacity.constraint';
@@ -88,6 +89,9 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
     }
     if (!optimizations || optimizations.includes('groupTypeOrder')) {
       softConstraints.push(new GroupTypeOrderConstraint());
+    }
+    if (!optimizations || optimizations.includes('subjectDailyDispersion')) {
+      softConstraints.push(new SubjectDailyDispersionConstraint());
     }
 
     const penaltyCalculator = new PenaltyCalculator(

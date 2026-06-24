@@ -742,7 +742,8 @@
         "lowerFloor": "Lower floor preference",
         "classroomConsolidation": "Fewer classrooms with more groups instead of more classrooms with fewer groups",
         "studentGaps": "Minimize schedule gaps",
-        "groupTypeOrder": "Order theory, problems, and practical classes"
+        "groupTypeOrder": "Order theory, problems, and practical classes",
+        "subjectDailyDispersion": "Spread classes of the same subject across days"
       },
       "form": {
         "academicYear": "Academic Year",

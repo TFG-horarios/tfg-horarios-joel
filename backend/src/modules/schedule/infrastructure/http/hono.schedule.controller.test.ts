@@ -152,7 +152,7 @@ describe('HonoScheduleController Integration', () => {
       periods: [1],
       courseYears: [1, 2],
       degreeIds: ['d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a55'],
-      optimizations: ['groupTypeOrder'],
+      optimizations: ['subjectDailyDispersion'],
     };
     generateMock.execute.mockResolvedValueOnce([{ id: scheduleId }]);
     const res = await app.request(
