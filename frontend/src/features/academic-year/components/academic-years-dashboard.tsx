@@ -39,7 +39,9 @@ function DashboardContent({
   const canEdit = memberRole === 'admin' || memberRole === 'editor';
   const canDelete = memberRole === 'admin';
 
-  const academicYears = initialAcademicYears;
+  const academicYears = [...initialAcademicYears].sort(
+    (a, b) => Number(b.isActive) - Number(a.isActive)
+  );
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredAcademicYears =
     normalizedQuery.length > 0
