@@ -175,6 +175,26 @@ describe('UpdateScheduleSlotUseCase', () => {
     expect(slot.conflicts[0]?.type).toBe('UNASSIGNED_NO_COMPATIBLE_SLOTS');
   });
 
+  test('should reject assigning a day and time without a classroom', async () => {
+    const slot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 1,
+    });
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    repositoryMock.findById.mockResolvedValueOnce(slot);
+
+    await expect(
+      useCase.execute('org-1', 'user-1', slot.id, {
+        dayOfWeek: 1,
+        slotIndex: 0,
+      })
+    ).rejects.toThrow('ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT');
+
+    expect(repositoryMock.update).not.toHaveBeenCalled();
+    expect(validationProviderMock.validateMove).not.toHaveBeenCalled();
+  });
+
   test('should clear the conflict from the slot left alone in the old time range', async () => {
     const movedSlot = ScheduleSlot.create({
       scheduleId: 'sch-1',

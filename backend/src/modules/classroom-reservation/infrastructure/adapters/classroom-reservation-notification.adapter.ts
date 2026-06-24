@@ -1,4 +1,4 @@
-import type { IClassroomReservationNotificationProvider } from '../../domain/classroom-reservation-notification.provider';
+import type { IClassroomReservationNotificationProvider } from '../../domain/providers/classroom-reservation-notification.provider';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export class ClassroomReservationNotificationAdapter implements IClassroomReservationNotificationProvider {

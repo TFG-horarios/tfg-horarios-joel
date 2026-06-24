@@ -26,7 +26,11 @@ import {
   getItineraryIdentifiersRoute,
 } from './infrastructure/http/hono.itinerary.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { ItineraryScheduleAdapter } from './infrastructure/adapters/itinerary-schedule.adapter';
 import { ItineraryMemberAdapter } from './infrastructure/adapters/itinerary-member.adapter';
+import { ItineraryAcademicYearAdapter } from './infrastructure/adapters/itinerary-academic-year.adapter';
 
 export const createItineraryModule = (
   db: DbConnection,
@@ -34,18 +38,48 @@ export const createItineraryModule = (
 ) => {
   const itineraryRepository = new DrizzleItineraryRepository(db);
   const memberProvider = new ItineraryMemberAdapter(memberRepository);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const scheduleProvider = new ItineraryScheduleAdapter(
+    new DrizzleScheduleRepository(db)
+  );
+  const academicYearProvider = new ItineraryAcademicYearAdapter(
+    academicYearRepository
+  );
+
+  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
+    db.transaction(work);
 
   const controller = new HonoItineraryController(
     new CreateItineraryUseCase(itineraryRepository, memberProvider),
     new BulkCreateItinerariesUseCase(itineraryRepository, memberProvider),
-    new GetItineraryUseCase(itineraryRepository, memberProvider),
+    new GetItineraryUseCase(
+      itineraryRepository,
+      memberProvider,
+      academicYearProvider
+    ),
     new ListItinerariesUseCase(itineraryRepository, memberProvider),
     new UpdateItineraryUseCase(itineraryRepository, memberProvider),
-    new DeleteItineraryUseCase(itineraryRepository, memberProvider),
-    new DeleteAllItinerariesUseCase(itineraryRepository, memberProvider),
+    new DeleteItineraryUseCase(
+      itineraryRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      runInTransaction
+    ),
+    new DeleteAllItinerariesUseCase(
+      itineraryRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      runInTransaction
+    ),
     new ReplaceItinerariesUseCase(itineraryRepository, memberProvider),
     new GetItineraryIdentifiersUseCase(itineraryRepository, memberProvider),
-    new ListAllItinerariesUseCase(itineraryRepository, memberProvider)
+    new ListAllItinerariesUseCase(
+      itineraryRepository,
+      memberProvider,
+      academicYearProvider
+    )
   );
 
   const app = new OpenAPIHono<AppEnv>();

@@ -90,15 +90,15 @@ export default async function OrganizationSubjectsPage({
   const [
     organization,
     { data: subjects, meta },
-    degrees,
-    itineraries,
+    historicalDegrees,
+    historicalItineraries,
     academicYears,
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedSubjects(id, query),
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
+    fetchAllDegrees(id, academicYearId),
+    fetchAllItineraries(id, academicYearId),
     fetchAcademicYears(id),
     getSessionUser(),
   ]);
@@ -122,9 +122,15 @@ export default async function OrganizationSubjectsPage({
   if (!currentAcademicYear) {
     notFound();
   }
-  const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
+  const activeDegrees = historicalDegrees.filter((degree) => !degree.deletedAt);
+  const activeItineraries = historicalItineraries.filter(
+    (itinerary) => !itinerary.deletedAt
+  );
+  const degreeMap = new Map(
+    historicalDegrees.map((degree) => [degree.id, degree])
+  );
   const itineraryMap = new Map(
-    itineraries.map((itinerary) => [itinerary.id, itinerary])
+    historicalItineraries.map((itinerary) => [itinerary.id, itinerary])
   );
   const translations = {
     degree: t('degree'),
@@ -169,7 +175,10 @@ export default async function OrganizationSubjectsPage({
             <ResourceFilterSelect
               paramKey="degreeId"
               placeholder={t('degreePlaceholder')}
-              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              options={activeDegrees.map((d) => ({
+                label: d.name,
+                value: d.id,
+              }))}
               searchable={true}
             />
             <ResourceFilterSelect
@@ -177,7 +186,10 @@ export default async function OrganizationSubjectsPage({
               placeholder={t('itineraryPlaceholder')}
               options={[
                 { label: t('itineraryOptions.common'), value: 'common' },
-                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+                ...activeItineraries.map((i) => ({
+                  label: i.name,
+                  value: i.id,
+                })),
               ]}
               searchable={true}
             />
@@ -213,8 +225,8 @@ export default async function OrganizationSubjectsPage({
           <SubjectActions
             organization={organization}
             academicYear={currentAcademicYear}
-            degrees={degrees}
-            itineraries={itineraries}
+            degrees={activeDegrees}
+            itineraries={activeItineraries}
             canCreate={canCreate}
             canDeleteAll={canDeleteAll}
             canImport={canImport}

@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
+import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
 import type {
   SaveSubjectGroupDTO,
   SubjectGroupDTO,
@@ -12,13 +12,21 @@ import {
   NotFoundError,
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { ISubjectProvider } from '../domain/subject.provider';
+import type { ISubjectProvider } from '../domain/providers/subject.provider';
+import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
+import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
+import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { ISubjectGroupScheduleProvider } from '../domain/providers/subject-group-schedule.provider';
 
 export class CreateSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly subjectProvider: ISubjectProvider,
-    private readonly memberProvider: ISubjectGroupMemberProvider
+    private readonly memberProvider: ISubjectGroupMemberProvider,
+    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly scheduleProvider?: ISubjectGroupScheduleProvider,
+    private readonly reevaluateSchedules?: ReevaluateSchedulesUseCase,
+    private readonly runInTransaction?: TransactionRunner
   ) {}
 
   async execute(
@@ -63,7 +71,34 @@ export class CreateSubjectGroupUseCase {
       needsComputerLab: dto.needsComputerLab,
     });
 
-    await this.subjectGroupRepository.create(subjectGroup);
+    if (
+      !this.academicYearRepository ||
+      !this.scheduleProvider ||
+      !this.reevaluateSchedules ||
+      !this.runInTransaction
+    ) {
+      await this.subjectGroupRepository.create(subjectGroup);
+    } else {
+      const yearIds =
+        await this.academicYearRepository.findActiveAndFutureIds!(
+          organizationId
+        );
+      await this.runInTransaction(async (tx) => {
+        await this.subjectGroupRepository.create(subjectGroup, tx);
+        const scheduleIds =
+          await this.scheduleProvider!.handleSubjectGroupsCreation(
+            [subjectGroup.id],
+            organizationId,
+            yearIds,
+            tx
+          );
+        await this.reevaluateSchedules!.execute(
+          scheduleIds,
+          organizationId,
+          tx
+        );
+      });
+    }
 
     return SubjectGroupMapper.toDTO(subjectGroup);
   }

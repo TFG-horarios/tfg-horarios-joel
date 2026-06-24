@@ -1,4 +1,4 @@
-import type { ISubjectGroupMemberProvider } from '../../domain/subject-group-member.provider';
+import type { ISubjectGroupMemberProvider } from '../../domain/providers/subject-group-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
 

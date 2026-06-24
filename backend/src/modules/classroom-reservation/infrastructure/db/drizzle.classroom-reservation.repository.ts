@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import type { IClassroomReservationRepository } from '../../domain/classroom-reservation.repository';
 import { ClassroomReservation } from '../../domain/classroom-reservation.entity';
 import { classroomReservations } from './drizzle.classroom-reservation.schema';
@@ -200,5 +200,32 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       );
 
     return rows.map(this.mapToDomain.bind(this));
+  }
+
+  async rejectFutureReservationsForClassrooms(
+    classroomIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.db
+  ): Promise<void> {
+    if (classroomIds.length === 0 || activeAndFutureYearIds.length === 0) {
+      return;
+    }
+
+    await tx
+      .update(classroomReservations)
+      .set({
+        status: 'REJECTED',
+        reason: 'Aula eliminada del sistema',
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(classroomReservations.organizationId, organizationId),
+          inArray(classroomReservations.classroomId, classroomIds),
+          inArray(classroomReservations.academicYearId, activeAndFutureYearIds),
+          inArray(classroomReservations.status, ['PENDING', 'ACCEPTED'])
+        )
+      );
   }
 }

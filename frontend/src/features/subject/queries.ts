@@ -45,7 +45,10 @@ export const fetchPaginatedSubjects = cache(
 );
 
 export const fetchAllSubjects = cache(
-  async (organizationId: string): Promise<SubjectDTO[]> => {
+  async (
+    organizationId: string,
+    academicYearId?: string
+  ): Promise<SubjectDTO[]> => {
     const t = await getTranslations('Common.errors');
 
     const client = await getServerClient();
@@ -53,6 +56,7 @@ export const fetchAllSubjects = cache(
       ':organizationId'
     ]!.subjects.all.$get({
       param: { organizationId },
+      query: { academicYearId },
     });
 
     const status = response.status + 0;

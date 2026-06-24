@@ -1,4 +1,4 @@
-import type { IAuthUserRepository } from '../domain/auth-user.provider';
+import type { IUserProvider } from '../domain/user.provider';
 import type { ITokenService } from '../domain/token.service';
 import type { IPasswordHasherService } from '../domain/password-hasher.service';
 import { UnauthorizedError } from '@/core/errors/app.error';
@@ -7,7 +7,7 @@ import { AuthMapper } from './auth.mapper';
 
 export class LoginUseCase {
   constructor(
-    private readonly authUserRepository: IAuthUserRepository,
+    private readonly authUserRepository: IUserProvider,
     private readonly tokenService: ITokenService,
     private readonly passwordHasherService: IPasswordHasherService
   ) {}

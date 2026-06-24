@@ -2,13 +2,13 @@ import type {
   IScheduleDataProvider,
   ScheduleOrganizationConstraints,
   ScheduleClassroomData,
-} from '../../domain/schedule-data.provider';
+} from '../../domain/providers/schedule-data.provider';
 import type { ClassroomType } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '@/modules/degree/domain/degree.repository';
 import type { IClassroomRepository } from '@/modules/classroom/domain/classroom.repository';
 import type { ISubjectGroupRepository } from '@/modules/subject-group/domain/subject-group.repository';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
-import type { ScheduleEngineGroupData } from '../../domain/schedule-engine.provider';
+import type { ScheduleEngineGroupData } from '../../domain/providers/schedule-engine.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
@@ -23,14 +23,17 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
   ) {}
 
   async getTargetDegreeIds(organizationId: string): Promise<string[]> {
-    const degrees = await this.degreeRepository.findAll(organizationId);
+    const degrees = await this.degreeRepository.findAll(organizationId, false);
     return degrees.map((d) => d.id);
   }
 
   async getAvailableClassrooms(
     organizationId: string
   ): Promise<ScheduleClassroomData[]> {
-    const classrooms = await this.classroomRepository.findAll(organizationId);
+    const classrooms = await this.classroomRepository.findAll(
+      organizationId,
+      false
+    );
     return classrooms.map((c) => ({
       id: c.id,
       capacity: c.capacity,

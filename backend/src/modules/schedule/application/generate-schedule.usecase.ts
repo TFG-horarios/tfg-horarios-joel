@@ -5,8 +5,8 @@ import type {
 } from '@tfg-horarios/shared';
 import { Schedule } from '../domain/schedule.entity';
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleDataProvider } from '../domain/schedule-data.provider';
-import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
+import type { IScheduleDataProvider } from '../domain/providers/schedule-data.provider';
+import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
@@ -19,7 +19,7 @@ import type { AppRole } from '@/core/permissions/roles';
 import type {
   IScheduleEngineProvider,
   ScheduleEngineClassroomMap,
-} from '../domain/schedule-engine.provider';
+} from '../domain/providers/schedule-engine.provider';
 
 export class GenerateScheduleUseCase {
   constructor(

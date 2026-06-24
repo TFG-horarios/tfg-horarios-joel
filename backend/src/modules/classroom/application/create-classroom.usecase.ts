@@ -4,13 +4,13 @@ import type { IClassroomRepository } from '../domain/classroom.repository';
 import { ClassroomMapper } from './classroom.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 
 export class CreateClassroomUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
-    private readonly memberProvider: IClassroomMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

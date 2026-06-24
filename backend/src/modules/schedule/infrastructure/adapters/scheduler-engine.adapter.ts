@@ -4,7 +4,7 @@ import type {
   ScheduleEngineClassroomMap,
   ScheduleEngineSolution,
   ScheduleEngineAssignment,
-} from '../../domain/schedule-engine.provider';
+} from '../../domain/providers/schedule-engine.provider';
 
 export class SchedulerEngineAdapter implements IScheduleEngineProvider {
   runGeneration(

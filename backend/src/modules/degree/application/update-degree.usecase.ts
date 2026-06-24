@@ -1,6 +1,6 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { IDegreeMemberProvider } from '../domain/providers/degree-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
@@ -30,7 +30,8 @@ export class UpdateDegreeUseCase {
 
     const degree = await this.degreeRepository.findById(
       degreeId,
-      organizationId
+      organizationId,
+      false
     );
     if (!degree) throw new NotFoundError('Degree', degreeId);
 

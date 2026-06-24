@@ -17,8 +17,8 @@ import {
   deleteAcademicYearRoute,
 } from './infrastructure/http/hono.academic-year.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
-import { AcademicYearMemberAdapter } from './infrastructure/adapters/academic-year-member.adapter';
-import { AcademicYearOrganizationAdapter } from './infrastructure/adapters/academic-year-organization.adapter';
+import { MemberAdapter } from './infrastructure/adapters/member.adapter';
+import { OrganizationAdapter } from './infrastructure/adapters/organization.adapter';
 
 export function createAcademicYearModule(
   db: DbConnection,
@@ -26,10 +26,8 @@ export function createAcademicYearModule(
 ) {
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
   const organizationRepository = new DrizzleOrganizationRepository(db);
-  const memberProvider = new AcademicYearMemberAdapter(memberRepository);
-  const organizationProvider = new AcademicYearOrganizationAdapter(
-    organizationRepository
-  );
+  const memberProvider = new MemberAdapter(memberRepository);
+  const organizationProvider = new OrganizationAdapter(organizationRepository);
 
   const createUseCase = new CreateAcademicYearUseCase(
     academicYearRepository,

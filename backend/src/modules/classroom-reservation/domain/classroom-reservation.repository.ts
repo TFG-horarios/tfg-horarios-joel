@@ -31,4 +31,10 @@ export interface IClassroomReservationRepository {
     startDate: string,
     endDate: string
   ): Promise<ClassroomReservation[]>;
+  rejectFutureReservationsForClassrooms?(
+    classroomIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<void>;
 }

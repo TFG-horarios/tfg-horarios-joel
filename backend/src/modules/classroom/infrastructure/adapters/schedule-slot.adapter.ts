@@ -1,4 +1,4 @@
-import type { IClassroomScheduleSlotProvider } from '../../domain/classroom-schedule-slot.provider';
+import type { IScheduleSlotProvider } from '../../domain/providers/schedule-slot.provider';
 import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
 import type {
   ClassroomConfigurationListQueryDTO,
@@ -9,7 +9,7 @@ import type {
 } from '@tfg-horarios/shared';
 import { ScheduleSlotMapper } from '@/modules/schedule-slot/application/schedule-slot.mapper';
 
-export class ClassroomScheduleSlotAdapter implements IClassroomScheduleSlotProvider {
+export class ScheduleSlotAdapter implements IScheduleSlotProvider {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository
   ) {}

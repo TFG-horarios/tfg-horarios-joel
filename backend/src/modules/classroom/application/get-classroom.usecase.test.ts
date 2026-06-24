@@ -37,9 +37,19 @@ describe('GetClassroomUseCase', () => {
       deletedAt: null,
     });
     repositoryMock.findById.mockResolvedValueOnce(classroom);
-    const result = await useCase.execute('org-1', 'classroom-1', 'user-1');
+    const result = await useCase.execute(
+      'org-1',
+      'classroom-1',
+      'user-1',
+      'year-1'
+    );
     expect(result.id).toBe('classroom-1');
     expect(result.name).toBe('Lab 1');
+    expect(repositoryMock.findById).toHaveBeenCalledWith(
+      'classroom-1',
+      'org-1',
+      'year-1'
+    );
   });
 
   test('should throw NotFoundError if classroom does not exist', async () => {

@@ -50,9 +50,11 @@ export class HonoSubjectController {
 
   listAll: RouteHandler<typeof listAllSubjectsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const subjects = await this.listAllUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      academicYearId
     );
     return c.json(subjects, 200);
   };

@@ -224,7 +224,10 @@ export function SchedulePlanner({
   );
 
   const unassignedSlots = useMemo(() => {
-    return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
+    return slots.filter(
+      (s) =>
+        s.classroomId === null || s.dayOfWeek === null || s.slotIndex === null
+    );
   }, [slots]);
 
   const daysOfWeek = [
@@ -293,6 +296,13 @@ export function SchedulePlanner({
   const slotsByCell = useMemo(() => {
     const map = new Map<string, ScheduleSlotDTO[]>();
     slots.forEach((s) => {
+      if (
+        s.classroomId === null ||
+        s.dayOfWeek === null ||
+        s.slotIndex === null
+      ) {
+        return;
+      }
       const key = `${s.dayOfWeek}_${s.slotIndex}`;
       if (!map.has(key)) {
         map.set(key, []);
@@ -498,8 +508,7 @@ export function SchedulePlanner({
       targetSlot = parseInt(parts[2]!, 10);
     }
 
-    const targetClassroom =
-      currentSlot.classroomId || classrooms[0]?.id || null;
+    const targetClassroom = currentSlot.classroomId;
 
     if (
       currentSlot.dayOfWeek === targetDay &&
@@ -565,6 +574,12 @@ export function SchedulePlanner({
   const activeMeta = activeSlotDTO
     ? slotMetaMap.get(activeSlotDTO.subjectGroupId)
     : null;
+  const scheduleDegree = degrees.find(
+    (degree) => degree.id === localSchedule.degreeId
+  );
+  const scheduleItinerary = itineraries.find(
+    (itinerary) => itinerary.id === localSchedule.itineraryId
+  );
 
   return (
     <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -573,15 +588,15 @@ export function SchedulePlanner({
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                {degrees.find((d) => d.id === localSchedule.degreeId)?.name ??
-                  'Common'}
+                {scheduleDegree?.name ?? 'Common'}
+                {scheduleDegree?.deletedAt ? ' (eliminado)' : ''}
               </h1>
               <Badge variant="outline" className="font-mono bg-background">
                 Course Year {localSchedule.courseYear}
               </Badge>
               <Badge variant="outline" className="font-mono bg-background">
-                {itineraries.find((i) => i.id === localSchedule.itineraryId)
-                  ?.name ?? t('planner.globalItinerary')}
+                {scheduleItinerary?.name ?? t('planner.globalItinerary')}
+                {scheduleItinerary?.deletedAt ? ' (eliminado)' : ''}
               </Badge>
               <Badge
                 variant="outline"
@@ -789,11 +804,23 @@ export function SchedulePlanner({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Sin aula asignada</SelectItem>
-                    {classrooms.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name} ({c.capacity} cap.)
-                      </SelectItem>
-                    ))}
+                    {classrooms
+                      .filter(
+                        (classroom) =>
+                          !classroom.deletedAt ||
+                          classroom.id === editingClassroomId
+                      )
+                      .map((c) => (
+                        <SelectItem
+                          key={c.id}
+                          value={c.id}
+                          disabled={Boolean(c.deletedAt)}
+                        >
+                          {c.name}
+                          {c.deletedAt ? ' (eliminada)' : ''} ({c.capacity}{' '}
+                          cap.)
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>

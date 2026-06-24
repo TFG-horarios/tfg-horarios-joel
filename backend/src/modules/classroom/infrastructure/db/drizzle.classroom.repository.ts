@@ -48,31 +48,42 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
 
   async findById(
     id: string,
-    organizationId: string
+    organizationId: string,
+    includeSoftDeleted: boolean
   ): Promise<Classroom | null> {
     const rows = await this.db
       .select()
       .from(classroomsTable)
       .where(
-        and(
-          eq(classroomsTable.id, id),
-          eq(classroomsTable.organizationId, organizationId),
-          isNull(classroomsTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? and(
+              eq(classroomsTable.id, id),
+              eq(classroomsTable.organizationId, organizationId)
+            )
+          : and(
+              eq(classroomsTable.id, id),
+              eq(classroomsTable.organizationId, organizationId),
+              isNull(classroomsTable.deletedAt)
+            )
       )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Classroom[]> {
+  async findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Classroom[]> {
     const rows = await this.db
       .select()
       .from(classroomsTable)
       .where(
-        and(
-          eq(classroomsTable.organizationId, organizationId),
-          isNull(classroomsTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? eq(classroomsTable.organizationId, organizationId)
+          : and(
+              eq(classroomsTable.organizationId, organizationId),
+              isNull(classroomsTable.deletedAt)
+            )
       );
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -200,8 +211,12 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
     }
   }
 
-  async delete(id: string, organizationId: string): Promise<void> {
-    await this.db
+  async delete(
+    id: string,
+    organizationId: string,
+    tx: any = this.db
+  ): Promise<void> {
+    await tx
       .update(classroomsTable)
       .set({ deletedAt: new Date() })
       .where(
@@ -212,8 +227,8 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
       );
   }
 
-  async deleteAll(organizationId: string): Promise<void> {
-    await this.db
+  async deleteAll(organizationId: string, tx: any = this.db): Promise<void> {
+    await tx
       .update(classroomsTable)
       .set({ deletedAt: new Date() })
       .where(

@@ -1,7 +1,7 @@
 import type { ScheduleDTO } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
-import type { IScheduleSlotProvider } from '../domain/schedule-slot.provider';
+import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IScheduleSlotProvider } from '../domain/providers/schedule-slot.provider';
 import {
   ForbiddenError,
   NotFoundError,

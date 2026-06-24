@@ -1,8 +1,8 @@
-import type { IClassroomMemberProvider } from '../../domain/classroom-member.provider';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
+import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import type { IMemberProvider } from '../../domain/providers/member.provider';
 
-export class ClassroomMemberAdapter implements IClassroomMemberProvider {
+export class MemberAdapter implements IMemberProvider {
   constructor(private readonly memberRepository: IMemberRepository) {}
 
   async getMemberRole(
@@ -13,7 +13,6 @@ export class ClassroomMemberAdapter implements IClassroomMemberProvider {
       userId,
       organizationId
     );
-    if (!member) return null;
-    return member.role as AppRole;
+    return member ? member.role : null;
   }
 }

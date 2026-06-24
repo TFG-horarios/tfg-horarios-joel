@@ -82,7 +82,7 @@ export default async function OrganizationClassroomReservationsPage({
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedReservations(id, query),
-    fetchAllClassrooms(id),
+    fetchAllClassrooms(id, academicYearId),
     getSessionUser(),
     fetchAcademicYears(id),
   ]);

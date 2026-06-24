@@ -44,7 +44,10 @@ export const fetchPaginatedItineraries = cache(
 );
 
 export const fetchAllItineraries = cache(
-  async (organizationId: string): Promise<ItineraryDTO[]> => {
+  async (
+    organizationId: string,
+    academicYearId?: string
+  ): Promise<ItineraryDTO[]> => {
     const t = await getTranslations('Common.errors');
 
     const client = await getServerClient();
@@ -52,6 +55,7 @@ export const fetchAllItineraries = cache(
       ':organizationId'
     ]!.itineraries.all.$get({
       param: { organizationId },
+      query: { academicYearId },
     });
     if (!response.ok) {
       throw new Error(t('server'));

@@ -1,7 +1,7 @@
 import type {
   IMemberUserProvider,
   MemberUserDTO,
-} from '../../domain/member-user.provider';
+} from '../../domain/providers/member-user.provider';
 import type { IUserRepository } from '@/modules/user/domain/user.repository';
 
 export class MemberUserAdapter implements IMemberUserProvider {

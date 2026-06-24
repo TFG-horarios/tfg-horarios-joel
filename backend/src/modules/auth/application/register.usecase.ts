@@ -1,4 +1,4 @@
-import type { IAuthUserRepository } from '../domain/auth-user.provider';
+import type { IUserProvider } from '../domain/user.provider';
 import type { ITokenService } from '../domain/token.service';
 import type { IPasswordHasherService } from '../domain/password-hasher.service';
 import { ConflictError } from '@/core/errors/app.error';
@@ -8,7 +8,7 @@ import { PasswordPolicy } from '../domain/password.vo';
 
 export class RegisterUseCase {
   constructor(
-    private readonly authUserRepository: IAuthUserRepository,
+    private readonly authUserRepository: IUserProvider,
     private readonly tokenService: ITokenService,
     private readonly passwordHasherService: IPasswordHasherService
   ) {}

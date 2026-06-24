@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
+import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
 import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { Subject } from '../domain/subject.entity';
 import { SubjectMapper } from './subject.mapper';

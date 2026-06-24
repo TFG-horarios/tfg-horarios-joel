@@ -4,10 +4,14 @@ import type {
   ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
-import type { IScheduleSlotDataProvider } from '../domain/schedule-slot-data.provider';
-import type { IScheduleSlotMemberProvider } from '../domain/schedule-slot-member.provider';
-import type { IScheduleSlotValidationProvider } from '../domain/schedule-slot-validation.provider';
-import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
+import type { IScheduleSlotDataProvider } from '../domain/providers/schedule-slot-data.provider';
+import type { IScheduleSlotMemberProvider } from '../domain/providers/schedule-slot-member.provider';
+import type { IScheduleSlotValidationProvider } from '../domain/providers/schedule-slot-validation.provider';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleSlotMapper } from './schedule-slot.mapper';
 import {
@@ -97,6 +101,10 @@ export class UpdateScheduleSlotUseCase {
       dto.dayOfWeek !== undefined ? dto.dayOfWeek : slot.dayOfWeek;
     const slotIndex =
       dto.slotIndex !== undefined ? dto.slotIndex : slot.slotIndex;
+
+    if (classroomId === null && (dayOfWeek !== null || slotIndex !== null)) {
+      throw new ConflictError('ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT');
+    }
 
     const scheduleContext = await dataProvider.getScheduleContext(
       slot.scheduleId,

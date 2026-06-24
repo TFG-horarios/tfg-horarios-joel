@@ -50,9 +50,11 @@ export class HonoDegreeController {
 
   listAll: RouteHandler<typeof listAllDegreesRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const degrees = await this.listAllDegreesUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      academicYearId
     );
     return c.json(degrees, 200);
   };
@@ -69,10 +71,12 @@ export class HonoDegreeController {
 
   get: RouteHandler<typeof getDegreeRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const degree = await this.getDegreeUseCase.execute(
       organizationId,
       id,
-      c.get('userId')
+      c.get('userId'),
+      academicYearId
     );
     return c.json(degree, 200);
   };

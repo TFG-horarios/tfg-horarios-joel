@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
-import { ClassroomScheduleSlotAdapter } from './classroom-schedule-slot.adapter';
+import { ScheduleSlotAdapter } from './schedule-slot.adapter';
 
 describe('ClassroomScheduleSlotAdapter', () => {
   const scheduleSlotRepositoryMock = {
@@ -17,7 +17,7 @@ describe('ClassroomScheduleSlotAdapter', () => {
     delete: mock(),
   };
 
-  const adapter = new ClassroomScheduleSlotAdapter(scheduleSlotRepositoryMock);
+  const adapter = new ScheduleSlotAdapter(scheduleSlotRepositoryMock);
 
   test('findActiveClassroomConfigurationsPaginated delegates to repository', async () => {
     scheduleSlotRepositoryMock.findActiveClassroomConfigurationsPaginated.mockResolvedValue(

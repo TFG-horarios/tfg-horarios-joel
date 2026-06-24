@@ -8,5 +8,7 @@ export interface IAcademicYearRepository {
   findActiveByOrganizationId(
     organizationId: string
   ): Promise<AcademicYear | null>;
+  findActiveAndFutureIds?(organizationId: string): Promise<string[]>;
+  isHistoric(id: string): Promise<boolean>;
   delete(id: string): Promise<void>;
 }

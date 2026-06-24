@@ -18,6 +18,7 @@ export class SubjectMapper {
       isCommon: subject.isCommon,
       createdAt: subject.createdAt.toISOString(),
       updatedAt: subject.updatedAt.toISOString(),
+      deletedAt: subject.deletedAt ? subject.deletedAt.toISOString() : null,
     };
   }
 

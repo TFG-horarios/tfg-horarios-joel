@@ -1,5 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { AuthUserAdapter } from './infrastructure/adapters/auth-user.adapter';
+import { AuthUserAdapter } from './infrastructure/adapters/user.adapter';
 import { JwtService } from './infrastructure/services/jwt.service';
 import { PasswordHasherService } from './infrastructure/services/password-hasher.service';
 import { LoginUseCase } from './application/login.usecase';

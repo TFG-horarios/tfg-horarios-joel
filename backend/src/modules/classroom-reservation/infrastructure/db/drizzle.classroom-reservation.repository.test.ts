@@ -135,4 +135,26 @@ describe('DrizzleClassroomReservationRepository Integration', () => {
     );
     expect(result.length).toBe(2);
   });
+
+  test('should reject pending and accepted reservations for deleted classrooms', async () => {
+    const pending = createValidReservation('2030-10-01', 'PENDING');
+    const accepted = createValidReservation('2030-10-02', 'ACCEPTED');
+    const cancelled = createValidReservation('2030-10-03', 'CANCELLED');
+    await repository.save(pending);
+    await repository.save(accepted);
+    await repository.save(cancelled);
+
+    await repository.rejectFutureReservationsForClassrooms(
+      [testClassroomId],
+      testOrgId,
+      [testAcademicYearId]
+    );
+
+    expect((await repository.findById(pending.id))?.status).toBe('REJECTED');
+    expect((await repository.findById(pending.id))?.reason).toBe(
+      'Aula eliminada del sistema'
+    );
+    expect((await repository.findById(accepted.id))?.status).toBe('REJECTED');
+    expect((await repository.findById(cancelled.id))?.status).toBe('CANCELLED');
+  });
 });

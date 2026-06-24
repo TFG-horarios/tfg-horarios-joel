@@ -7,7 +7,7 @@ import {
 import { hasPermission } from '@/core/permissions/authorization';
 import { ROLES, type AppRole } from '@/core/permissions/roles';
 import type { Member } from '../domain/member.entity';
-import type { IMemberNotificationProvider } from '../domain/member-notification.provider';
+import type { IMemberNotificationProvider } from '../domain/providers/member-notification.provider';
 
 export class EditMemberRoleUseCase {
   constructor(

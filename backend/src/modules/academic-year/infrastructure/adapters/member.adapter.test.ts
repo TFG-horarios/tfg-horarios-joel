@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
-import { AcademicYearMemberAdapter } from './academic-year-member.adapter';
+import { MemberAdapter } from './member.adapter';
 import { Member } from '@/modules/member/domain/member.entity';
 
 describe('AcademicYearMemberAdapter', () => {
@@ -17,7 +17,7 @@ describe('AcademicYearMemberAdapter', () => {
     getOrganizationsWhereUserIsSoleAdmin: mock(),
   };
 
-  const adapter = new AcademicYearMemberAdapter(memberRepositoryMock);
+  const adapter = new MemberAdapter(memberRepositoryMock);
 
   test('should return null if member is not found', async () => {
     memberRepositoryMock.findByUserAndOrg.mockResolvedValue(null);

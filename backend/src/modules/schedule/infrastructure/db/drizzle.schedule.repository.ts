@@ -8,6 +8,8 @@ import {
   notInArray,
   gt,
   sql,
+  inArray,
+  or,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
 import { ConflictError } from '@/core/errors/app.error';
@@ -31,10 +33,11 @@ import type {
   ScheduleListQueryDTO,
   PaginatedResponse,
 } from '@tfg-horarios/shared';
-import type { ScheduleEngineAssignment } from '../../domain/schedule-engine.provider';
+import type { ScheduleEngineAssignment } from '../../domain/providers/schedule-engine.provider';
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
+import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -575,5 +578,420 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
           eq(schedulesTable.organizationId, organizationId)
         )
       );
+  }
+
+  async unassignClassroomsFromSlots(
+    classroomIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.database
+  ): Promise<string[]> {
+    if (classroomIds.length === 0 || activeAndFutureYearIds.length === 0) {
+      return [];
+    }
+
+    const allowedSchedules = tx
+      .select({ id: schedulesTable.id })
+      .from(schedulesTable)
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds)
+        )
+      );
+    const targetRows = await tx
+      .select({
+        id: scheduleSlotsTable.id,
+        scheduleId: scheduleSlotsTable.scheduleId,
+      })
+      .from(scheduleSlotsTable)
+      .where(
+        and(
+          inArray(scheduleSlotsTable.classroomId, classroomIds),
+          inArray(scheduleSlotsTable.scheduleId, allowedSchedules)
+        )
+      );
+    if (targetRows.length === 0) return [];
+
+    const slotIds = targetRows.map((row: { id: string }) => row.id);
+    const includedRows = await tx
+      .select({ scheduleId: scheduleSlotInclusionsTable.scheduleId })
+      .from(scheduleSlotInclusionsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotInclusionsTable.scheduleId, schedulesTable.id)
+      )
+      .where(
+        and(
+          inArray(scheduleSlotInclusionsTable.slotId, slotIds),
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds)
+        )
+      );
+
+    await tx
+      .update(scheduleSlotsTable)
+      .set({
+        classroomId: null,
+        dayOfWeek: null,
+        slotIndex: null,
+        conflicts: [],
+        updatedAt: new Date(),
+      })
+      .where(inArray(scheduleSlotsTable.id, slotIds));
+    await tx
+      .update(scheduleSlotInclusionsTable)
+      .set({ conflicts: [], updatedAt: new Date() })
+      .where(inArray(scheduleSlotInclusionsTable.slotId, slotIds));
+
+    return [
+      ...new Set<string>(
+        [...targetRows, ...includedRows].map(
+          (row: { scheduleId: string }) => row.scheduleId
+        )
+      ),
+    ];
+  }
+
+  async deleteSchedulesByDegreesOrItineraries(
+    degreeIds: string[],
+    itineraryIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.database
+  ): Promise<void> {
+    if (
+      activeAndFutureYearIds.length === 0 ||
+      (degreeIds.length === 0 && itineraryIds.length === 0)
+    ) {
+      return;
+    }
+
+    const scopeConditions: SQL[] = [];
+    if (degreeIds.length > 0) {
+      scopeConditions.push(inArray(schedulesTable.degreeId, degreeIds));
+    }
+    if (itineraryIds.length > 0) {
+      scopeConditions.push(inArray(schedulesTable.itineraryId, itineraryIds));
+    }
+
+    await tx
+      .delete(schedulesTable)
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds),
+          or(...scopeConditions)
+        )
+      );
+  }
+
+  async deleteSlotsBySubjects(
+    subjectIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.database
+  ): Promise<string[]> {
+    if (subjectIds.length === 0 || activeAndFutureYearIds.length === 0) {
+      return [];
+    }
+
+    const groupIds = tx
+      .select({ id: subjectGroupsTable.id })
+      .from(subjectGroupsTable)
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
+          inArray(subjectGroupsTable.subjectId, subjectIds)
+        )
+      );
+
+    return this.deleteSlotsByGroupQuery(
+      groupIds,
+      organizationId,
+      activeAndFutureYearIds,
+      tx
+    );
+  }
+
+  async deleteSlotsBySubjectGroups(
+    subjectGroupIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.database
+  ): Promise<string[]> {
+    if (subjectGroupIds.length === 0 || activeAndFutureYearIds.length === 0) {
+      return [];
+    }
+
+    return this.deleteSlotsByGroupQuery(
+      subjectGroupIds,
+      organizationId,
+      activeAndFutureYearIds,
+      tx
+    );
+  }
+
+  async addUnassignedSlotsForSubjectGroups(
+    subjectGroupIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any = this.database
+  ): Promise<string[]> {
+    if (subjectGroupIds.length === 0 || activeAndFutureYearIds.length === 0) {
+      return [];
+    }
+
+    type SubjectGroupScheduleRow = {
+      subjectGroupId: string;
+      weeklyHours: string;
+      isCommon: boolean;
+      subjectItineraryId: string | null;
+      scheduleId: string;
+      scheduleItineraryId: string | null;
+      academicYearId: string;
+      slotDurationMinutes: number;
+    };
+
+    const rows: SubjectGroupScheduleRow[] = await tx
+      .select({
+        subjectGroupId: subjectGroupsTable.id,
+        weeklyHours: subjectGroupsTable.weeklyHours,
+        isCommon: subjectsTable.isCommon,
+        subjectItineraryId: subjectsTable.itineraryId,
+        scheduleId: schedulesTable.id,
+        scheduleItineraryId: schedulesTable.itineraryId,
+        academicYearId: schedulesTable.academicYearId,
+        slotDurationMinutes: academicYearsTable.slotDurationMinutes,
+      })
+      .from(subjectGroupsTable)
+      .innerJoin(
+        subjectsTable,
+        eq(subjectGroupsTable.subjectId, subjectsTable.id)
+      )
+      .innerJoin(
+        schedulesTable,
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          eq(schedulesTable.degreeId, subjectsTable.degreeId),
+          eq(schedulesTable.courseYear, subjectsTable.courseYear),
+          eq(schedulesTable.period, subjectsTable.period),
+          eq(schedulesTable.shift, subjectGroupsTable.shift),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds)
+        )
+      )
+      .innerJoin(
+        academicYearsTable,
+        eq(schedulesTable.academicYearId, academicYearsTable.id)
+      )
+      .where(
+        and(
+          eq(subjectGroupsTable.organizationId, organizationId),
+          inArray(subjectGroupsTable.id, subjectGroupIds),
+          isNull(subjectGroupsTable.deletedAt),
+          isNull(subjectsTable.deletedAt)
+        )
+      );
+
+    const affectedScheduleIds = new Set<string>();
+    const scopeRows = new Map<string, typeof rows>();
+    for (const row of rows) {
+      const key = `${row.subjectGroupId}:${row.academicYearId}`;
+      const groupRows = scopeRows.get(key) ?? [];
+      groupRows.push(row);
+      scopeRows.set(key, groupRows);
+    }
+
+    for (const groupRows of scopeRows.values()) {
+      const group = groupRows[0];
+      if (!group) continue;
+
+      const owner = group.isCommon
+        ? groupRows.find((row) => row.scheduleItineraryId === null)
+        : groupRows.find(
+            (row) => row.scheduleItineraryId === group.subjectItineraryId
+          );
+      if (!owner) continue;
+
+      const totalMinutes = Number(group.weeklyHours) * 60;
+      const fullSlots = Math.floor(totalMinutes / group.slotDurationMinutes);
+      const remainder = totalMinutes % group.slotDurationMinutes;
+      const durations: number[] = [];
+      for (let index = 0; index < fullSlots - 1; index++) {
+        durations.push(1);
+      }
+      if (fullSlots > 0) {
+        durations.push(1 + remainder / group.slotDurationMinutes);
+      } else if (remainder > 0) {
+        durations.push(remainder / group.slotDurationMinutes);
+      }
+      if (durations.length === 0) continue;
+
+      const slots = durations.map((duration) => ({
+        id: crypto.randomUUID(),
+        scheduleId: owner.scheduleId,
+        subjectGroupId: group.subjectGroupId,
+        classroomId: null,
+        dayOfWeek: null,
+        slotIndex: null,
+        duration,
+        conflicts: [],
+      }));
+      await tx.insert(scheduleSlotsTable).values(slots);
+      affectedScheduleIds.add(owner.scheduleId);
+
+      if (group.isCommon) {
+        const includedScheduleIds = groupRows
+          .filter((row) => row.scheduleItineraryId !== null)
+          .map((row) => row.scheduleId);
+        const inclusions = includedScheduleIds.flatMap((scheduleId) =>
+          slots.map((slot) => ({
+            scheduleId,
+            slotId: slot.id,
+            conflicts: [],
+          }))
+        );
+        if (inclusions.length > 0) {
+          await tx.insert(scheduleSlotInclusionsTable).values(inclusions);
+          includedScheduleIds.forEach((id) => affectedScheduleIds.add(id));
+        }
+      }
+    }
+
+    return [...affectedScheduleIds];
+  }
+
+  private async deleteSlotsByGroupQuery(
+    groupIds: string[] | any,
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx: any
+  ): Promise<string[]> {
+    const allowedSchedules = tx
+      .select({ id: schedulesTable.id })
+      .from(schedulesTable)
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds)
+        )
+      );
+    const targetRows = await tx
+      .select({
+        id: scheduleSlotsTable.id,
+        scheduleId: scheduleSlotsTable.scheduleId,
+      })
+      .from(scheduleSlotsTable)
+      .where(
+        and(
+          inArray(scheduleSlotsTable.subjectGroupId, groupIds),
+          inArray(scheduleSlotsTable.scheduleId, allowedSchedules)
+        )
+      );
+    if (targetRows.length === 0) return [];
+
+    const slotIds = targetRows.map((row: { id: string }) => row.id);
+    const includedRows = await tx
+      .select({ scheduleId: scheduleSlotInclusionsTable.scheduleId })
+      .from(scheduleSlotInclusionsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotInclusionsTable.scheduleId, schedulesTable.id)
+      )
+      .where(
+        and(
+          inArray(scheduleSlotInclusionsTable.slotId, slotIds),
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(schedulesTable.academicYearId, activeAndFutureYearIds)
+        )
+      );
+    await tx
+      .delete(scheduleSlotsTable)
+      .where(inArray(scheduleSlotsTable.id, slotIds));
+
+    return [
+      ...new Set<string>(
+        [...targetRows, ...includedRows].map(
+          (row: { scheduleId: string }) => row.scheduleId
+        )
+      ),
+    ];
+  }
+
+  async findScheduleIssueData(
+    scheduleIds: string[],
+    organizationId: string,
+    tx: any = this.database
+  ) {
+    if (scheduleIds.length === 0) return [];
+
+    const ownRows = await tx
+      .select({
+        scheduleId: scheduleSlotsTable.scheduleId,
+        classroomId: scheduleSlotsTable.classroomId,
+        dayOfWeek: scheduleSlotsTable.dayOfWeek,
+        slotIndex: scheduleSlotsTable.slotIndex,
+        conflicts: scheduleSlotsTable.conflicts,
+      })
+      .from(scheduleSlotsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotsTable.scheduleId, schedulesTable.id)
+      )
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(scheduleSlotsTable.scheduleId, scheduleIds)
+        )
+      );
+
+    const includedRows = await tx
+      .select({
+        scheduleId: scheduleSlotInclusionsTable.scheduleId,
+        classroomId: scheduleSlotsTable.classroomId,
+        dayOfWeek: scheduleSlotsTable.dayOfWeek,
+        slotIndex: scheduleSlotsTable.slotIndex,
+        conflicts: scheduleSlotInclusionsTable.conflicts,
+      })
+      .from(scheduleSlotInclusionsTable)
+      .innerJoin(
+        schedulesTable,
+        eq(scheduleSlotInclusionsTable.scheduleId, schedulesTable.id)
+      )
+      .innerJoin(
+        scheduleSlotsTable,
+        eq(scheduleSlotInclusionsTable.slotId, scheduleSlotsTable.id)
+      )
+      .where(
+        and(
+          eq(schedulesTable.organizationId, organizationId),
+          inArray(scheduleSlotInclusionsTable.scheduleId, scheduleIds)
+        )
+      );
+
+    return [...ownRows, ...includedRows];
+  }
+
+  async updateSchedulesMetrics(
+    metrics: { scheduleId: string; conflicts: number; unassigned: number }[],
+    organizationId: string,
+    tx: any = this.database
+  ): Promise<void> {
+    for (const metric of metrics) {
+      await tx
+        .update(schedulesTable)
+        .set({
+          conflicts: metric.conflicts,
+          unassigned: metric.unassigned,
+          ...(metric.unassigned > 0 ? { status: 'draft' as const } : {}),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(schedulesTable.id, metric.scheduleId),
+            eq(schedulesTable.organizationId, organizationId)
+          )
+        );
+    }
   }
 }

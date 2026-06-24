@@ -4,7 +4,7 @@ import type {
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IItineraryMemberProvider } from '../domain/itinerary-member.provider';
+import type { IItineraryMemberProvider } from '../domain/providers/itinerary-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { ItineraryMapper } from './itinerary.mapper';

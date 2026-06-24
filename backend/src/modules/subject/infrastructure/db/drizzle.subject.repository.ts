@@ -83,15 +83,20 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Subject[]> {
+  async findAll(
+    organizationId: string,
+    includeSoftDelete: boolean
+  ): Promise<Subject[]> {
     const rows = await this.database
       .select()
       .from(subjectsTable)
       .where(
-        and(
-          eq(subjectsTable.organizationId, organizationId),
-          isNull(subjectsTable.deletedAt)
-        )
+        includeSoftDelete
+          ? eq(subjectsTable.organizationId, organizationId)
+          : and(
+              eq(subjectsTable.organizationId, organizationId),
+              isNull(subjectsTable.deletedAt)
+            )
       );
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -241,8 +246,12 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     }
   }
 
-  async delete(id: string, organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async delete(
+    id: string,
+    organizationId: string,
+    externalTx?: any
+  ): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(subjectsTable)
         .set({ deletedAt: new Date() })
@@ -263,11 +272,13 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
             isNull(subjectGroupsTable.deletedAt)
           )
         );
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
-  async deleteAll(organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async deleteAll(organizationId: string, externalTx?: any): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(subjectsTable)
         .set({ deletedAt: new Date() })
@@ -287,7 +298,9 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
             isNull(subjectGroupsTable.deletedAt)
           )
         );
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
   async replace(subjects: Subject[], organizationId: string): Promise<void> {

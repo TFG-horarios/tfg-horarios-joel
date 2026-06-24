@@ -1,5 +1,5 @@
 import { type IUserRepository } from '../domain/user.repository';
-import type { IUserMemberProvider } from '../domain/user-member.provider';
+import type { IUserMemberProvider } from '../domain/providers/user-member.provider';
 import { ValidationError } from '@/core/errors/app.error';
 
 export class DeleteUserUseCase {

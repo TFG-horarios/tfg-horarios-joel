@@ -1,5 +1,5 @@
-import type { IClassroomScheduleSlotProvider } from '../domain/classroom-schedule-slot.provider';
-import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
+import type { IScheduleSlotProvider } from '../domain/providers/schedule-slot.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type {
   ClassroomConfigurationListQueryDTO,
   PaginatedResponse,
@@ -9,8 +9,8 @@ import { ForbiddenError } from '@/core/errors/app.error';
 
 export class GetActiveClassroomConfigurationsUseCase {
   constructor(
-    private readonly scheduleSlotProvider: IClassroomScheduleSlotProvider,
-    private readonly memberProvider: IClassroomMemberProvider
+    private readonly scheduleSlotProvider: IScheduleSlotProvider,
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

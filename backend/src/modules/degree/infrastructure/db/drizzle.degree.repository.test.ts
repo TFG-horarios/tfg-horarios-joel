@@ -7,7 +7,12 @@ import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.
 import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/drizzle.subject-group.schema';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
-import { seedTestDb, testOrgId, testDegreeId } from '@/tests/seed-db';
+import {
+  seedTestDb,
+  testOrgId,
+  testDegreeId,
+  testPastAcademicYearId,
+} from '@/tests/seed-db';
 
 describe('DrizzleDegreeRepository Integration', () => {
   let repository: DrizzleDegreeRepository;
@@ -159,6 +164,13 @@ describe('DrizzleDegreeRepository Integration', () => {
     await repository.delete(testDegreeId, testOrgId);
     const foundDegree = await repository.findById(testDegreeId, testOrgId);
     expect(foundDegree).toBeNull();
+    const historicalDegrees = await repository.findAll(
+      testOrgId,
+      testPastAcademicYearId
+    );
+    expect(
+      historicalDegrees.find((degree) => degree.id === testDegreeId)?.deletedAt
+    ).toBeInstanceOf(Date);
     const afterItineraries = await testDb
       .select()
       .from(itinerariesTable)

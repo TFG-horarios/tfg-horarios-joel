@@ -52,10 +52,14 @@ export class HonoSubjectGroupController {
     c
   ) => {
     const { organizationId } = c.req.valid('param');
-    const groups = await this.listAllUseCase.execute(
-      organizationId,
-      c.get('userId')
-    );
+    const { academicYearId } = c.req.valid('query');
+    const groups = academicYearId
+      ? await this.listAllUseCase.execute(
+          organizationId,
+          c.get('userId'),
+          academicYearId
+        )
+      : await this.listAllUseCase.execute(organizationId, c.get('userId'));
     return c.json(groups, 200);
   };
 

@@ -29,7 +29,7 @@ export async function fetchPaginatedItinerariesAction(
 }
 
 export async function fetchAllItinerariesAction(
-  organizationId: string
+  organizationId: string,
 ): Promise<ItineraryDTO[]> {
   try {
     return await fetchAllItineraries(organizationId);

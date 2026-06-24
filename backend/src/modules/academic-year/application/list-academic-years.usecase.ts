@@ -2,12 +2,12 @@ import type { IAcademicYearRepository } from '../domain/academic-year.repository
 import { AcademicYearMapper } from './academic-year.mapper';
 import type { AcademicYearDTO } from '@tfg-horarios/shared';
 import { ForbiddenError } from '@/core/errors/app.error';
-import type { IAcademicYearMemberProvider } from '../domain/academic-year-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 
 export class ListAcademicYearsUseCase {
   constructor(
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly memberProvider: IAcademicYearMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

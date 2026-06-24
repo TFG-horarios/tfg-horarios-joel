@@ -50,9 +50,11 @@ export class HonoItineraryController {
 
   listAll: RouteHandler<typeof listAllItinerariesRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const itineraries = await this.listAllItinerariesUseCase.execute(
       organizationId,
-      c.get('userId')
+      c.get('userId'),
+      academicYearId
     );
     return c.json(itineraries, 200);
   };
@@ -69,10 +71,12 @@ export class HonoItineraryController {
 
   get: RouteHandler<typeof getItineraryRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const itinerary = await this.getItineraryUseCase.execute(
       organizationId,
       id,
-      c.get('userId')
+      c.get('userId'),
+      academicYearId
     );
     return c.json(itinerary, 200);
   };

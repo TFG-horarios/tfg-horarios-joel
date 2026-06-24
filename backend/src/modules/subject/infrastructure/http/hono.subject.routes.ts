@@ -10,6 +10,7 @@ import {
   SubjectIdentifierSchema,
   SubjectListQuerySchema,
   createPaginatedSchema,
+  AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listSubjectsRoute = createRoute({
@@ -35,6 +36,7 @@ export const listAllSubjectsRoute = createRoute({
   path: '/organizations/{organizationId}/subjects/all',
   request: {
     params: SubjectListParamSchema,
+    query: AcademicYearContextQuerySchema,
   },
   responses: {
     200: {

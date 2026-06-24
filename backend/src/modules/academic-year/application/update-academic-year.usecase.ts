@@ -5,13 +5,13 @@ import type {
   SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
 import { NotFoundError, ForbiddenError } from '@/core/errors/app.error';
-import type { IAcademicYearMemberProvider } from '../domain/academic-year-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class UpdateAcademicYearUseCase {
   constructor(
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly memberProvider: IAcademicYearMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

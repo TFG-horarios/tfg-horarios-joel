@@ -18,6 +18,7 @@ export const testSubjectGroupId = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55';
 export const testClassroomId = 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a66';
 export const testScheduleId = '20eebc99-9c0b-4ef8-bb6d-6bb9bd380a77';
 export const testAcademicYearId = '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88';
+export const testPastAcademicYearId = '31eebc99-9c0b-4ef8-bb6d-6bb9bd380a89';
 
 export const seedTestUser = async (
   db: TestDbConnection,
@@ -85,6 +86,27 @@ export const seedTestDb = async (db: TestDbConnection) => {
     period1End: '2031-01-31',
     period2Start: '2031-02-01',
     period2End: '2031-06-30',
+    periodType: 'semester',
+    morningStart: '08:00',
+    morningEnd: '14:00',
+    afternoonStart: '15:00',
+    afternoonEnd: '21:00',
+    slotDurationMinutes: 60,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  await db.insert(academicYearsTable).values({
+    id: testPastAcademicYearId,
+    organizationId: testOrgId,
+    name: '2020/2021',
+    isActive: false,
+    period0Start: null,
+    period0End: null,
+    period1Start: '2020-09-01',
+    period1End: '2021-01-31',
+    period2Start: '2021-02-01',
+    period2End: '2021-06-30',
     periodType: 'semester',
     morningStart: '08:00',
     morningEnd: '14:00',

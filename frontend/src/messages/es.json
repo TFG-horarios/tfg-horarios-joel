@@ -689,11 +689,12 @@
           "ERR_OVERLAP_DUPLICATE_GROUP": "El mismo grupo aparece más de una vez en este horario.",
           "ERR_OVERLAP_COMMON_ITINERARY": "Las asignaturas comunes no pueden solaparse con las de itinerario.",
           "ERR_ROOM_OVERLAP": "El aula ya está ocupada por otra asignatura en este horario.",
+          "ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT": "No se puede asignar un día y una hora sin asignar primero un aula.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "No se puede publicar un horario con conflictos activos.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "No se puede publicar un horario con slots descolocados.",
           "ERR_UNASSIGNED_NO_ROOMS_OF_TYPE": "No hay aulas disponibles del tipo requerido en la organización.",
           "ERR_UNASSIGNED_ROOM_CAPACITY": "Ninguna de las aulas del tipo requerido tiene capacidad suficiente para el tamaño de este grupo ({capacity} estudiantes).",
-          "ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS": "No hay huecos compatibles en el horario debido a restricciones de turno o solapamientos.",
+          "ERR_UNASSIGNED_NO_COMPATIBLE_SLOTS": ".",
           "conflictWith": "Conflicto con: {subjects}.",
           "conflictClassroom": "Aula: {classroom}."
         },

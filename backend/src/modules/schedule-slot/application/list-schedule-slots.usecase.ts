@@ -1,6 +1,6 @@
 import type { ScheduleSlotDTO } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
-import type { IScheduleSlotMemberProvider } from '../domain/schedule-slot-member.provider';
+import type { IScheduleSlotMemberProvider } from '../domain/providers/schedule-slot-member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { ScheduleSlotMapper } from './schedule-slot.mapper';
 

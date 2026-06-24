@@ -48,4 +48,51 @@ describe('DeleteClassroomUseCase', () => {
       ForbiddenError
     );
   });
+
+  test('should propagate deletion and reevaluate affected schedules atomically', async () => {
+    const tx = { id: 'tx' };
+    const repository = {
+      ...repositoryMock,
+      findById: mock(async () => ({ id: 'classroom-1' })),
+      delete: mock(async () => undefined),
+    };
+    const memberProvider = {
+      getMemberRole: mock(async () => 'admin' as const),
+    };
+    const academicYearRepository = {
+      findActiveAndFutureIds: mock(async () => ['year-1']),
+    };
+    const scheduleProvider = {
+      handleClassroomsDeletion: mock(async () => ['schedule-1']),
+    };
+    const reevaluateSchedules = {
+      execute: mock(async () => undefined),
+    };
+    const runInTransaction = mock(async (work: (tx: any) => Promise<void>) =>
+      work(tx)
+    );
+    const transactionalUseCase = new DeleteClassroomUseCase(
+      repository as any,
+      memberProvider,
+      academicYearRepository as any,
+      scheduleProvider,
+      reevaluateSchedules as any,
+      runInTransaction as any
+    );
+
+    await transactionalUseCase.execute('org-1', 'classroom-1', 'user-1');
+
+    expect(repository.delete).toHaveBeenCalledWith('classroom-1', 'org-1', tx);
+    expect(scheduleProvider.handleClassroomsDeletion).toHaveBeenCalledWith(
+      ['classroom-1'],
+      'org-1',
+      ['year-1'],
+      tx
+    );
+    expect(reevaluateSchedules.execute).toHaveBeenCalledWith(
+      ['schedule-1'],
+      'org-1',
+      tx
+    );
+  });
 });

@@ -59,4 +59,52 @@ describe('CreateSubjectGroupUseCase', () => {
       ValidationError
     );
   });
+
+  test('should add the new group to existing schedules as unassigned', async () => {
+    const tx = { id: 'tx-1' };
+    const scheduleProvider = {
+      handleSubjectGroupsCreation: mock(async () => ['schedule-1']),
+      handleSubjectGroupsDeletion: mock(),
+    };
+    const reevaluateSchedules = { execute: mock(async () => {}) };
+    const transactionalUseCase = new CreateSubjectGroupUseCase(
+      repositoryMock,
+      subjectProviderMock,
+      memberProviderMock,
+      { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
+      scheduleProvider,
+      reevaluateSchedules as any,
+      async (work) => work(tx)
+    );
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
+
+    const result = await transactionalUseCase.execute(
+      'org-1',
+      'sub-1',
+      'user-1',
+      {
+        name: 'T2',
+        groupType: 'theory',
+        shift: 'morning',
+        groupNumber: 2,
+        weeklyHours: 2,
+        numberOfStudents: 25,
+        needsComputerLab: false,
+      }
+    );
+
+    expect(repositoryMock.create).toHaveBeenCalledWith(expect.anything(), tx);
+    expect(scheduleProvider.handleSubjectGroupsCreation).toHaveBeenCalledWith(
+      [result.id],
+      'org-1',
+      ['year-1'],
+      tx
+    );
+    expect(reevaluateSchedules.execute).toHaveBeenCalledWith(
+      ['schedule-1'],
+      'org-1',
+      tx
+    );
+  });
 });

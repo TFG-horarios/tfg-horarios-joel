@@ -6,7 +6,7 @@ import type {
   Shift,
 } from '@tfg-horarios/shared';
 
-export interface IClassroomScheduleSlotProvider {
+export interface IScheduleSlotProvider {
   findActiveClassroomConfigurationsPaginated(
     organizationId: string,
     filters?: ClassroomConfigurationListQueryDTO

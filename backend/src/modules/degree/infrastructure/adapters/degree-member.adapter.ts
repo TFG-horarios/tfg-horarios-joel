@@ -1,4 +1,4 @@
-import type { IDegreeMemberProvider } from '../../domain/degree-member.provider';
+import type { IDegreeMemberProvider } from '../../domain/providers/degree-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
 

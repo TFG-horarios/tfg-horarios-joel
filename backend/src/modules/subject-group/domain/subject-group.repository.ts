@@ -25,7 +25,10 @@ export interface GroupWithSubjectAndItinerary {
 
 export interface ISubjectGroupRepository {
   findById(id: string, organizationId: string): Promise<SubjectGroup | null>;
-  findAll(organizationId: string): Promise<SubjectGroup[]>;
+  findAll(
+    organizationId: string,
+    includeDeleted: boolean
+  ): Promise<SubjectGroup[]>;
   findPaginated(
     organizationId: string,
     filters?: SubjectGroupListQueryDTO
@@ -38,10 +41,14 @@ export interface ISubjectGroupRepository {
     itineraryIds?: string[],
     courseYears?: number[]
   ): Promise<GroupWithSubjectAndItinerary[]>;
-  create(subjectGroup: SubjectGroup): Promise<void>;
-  createMany(subjectGroups: SubjectGroup[]): Promise<void>;
+  create(subjectGroup: SubjectGroup, tx?: any): Promise<void>;
+  createMany(subjectGroups: SubjectGroup[], tx?: any): Promise<void>;
   update(subjectGroup: SubjectGroup): Promise<void>;
-  delete(id: string, organizationId: string): Promise<void>;
-  deleteAll(organizationId: string): Promise<void>;
-  replace(subjectGroups: SubjectGroup[], organizationId: string): Promise<void>;
+  delete(id: string, organizationId: string, tx?: any): Promise<void>;
+  deleteAll(organizationId: string, tx?: any): Promise<void>;
+  replace(
+    subjectGroups: SubjectGroup[],
+    organizationId: string,
+    tx?: any
+  ): Promise<void>;
 }

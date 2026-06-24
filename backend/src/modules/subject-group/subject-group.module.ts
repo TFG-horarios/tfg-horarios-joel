@@ -27,8 +27,13 @@ import { ReplaceSubjectGroupsUseCase } from './application/replace-subject-group
 import { GetSubjectGroupIdentifiersUseCase } from './application/get-subject-group-identifiers.usecase';
 import type { IMemberRepository } from '../member/domain/member.repository';
 import type { ISubjectRepository } from '../subject/domain/subject.repository';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { SubjectGroupScheduleAdapter } from './infrastructure/adapters/subject-group-schedule.adapter';
+import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import { SubjectGroupMemberAdapter } from './infrastructure/adapters/subject-group-member.adapter';
 import { SubjectAdapter } from './infrastructure/adapters/subject.adapter';
+import { SubjectGroupAcademicYearAdapter } from './infrastructure/adapters/subject-group-academic-year.adapter';
 
 export const createSubjectGroupModule = (
   db: DbConnection,
@@ -38,6 +43,17 @@ export const createSubjectGroupModule = (
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
   const memberProvider = new SubjectGroupMemberAdapter(memberRepository);
   const subjectProvider = new SubjectAdapter(subjectRepository);
+  const scheduleRepository = new DrizzleScheduleRepository(db);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const scheduleProvider = new SubjectGroupScheduleAdapter(scheduleRepository);
+  const academicYearProvider = new SubjectGroupAcademicYearAdapter(
+    academicYearRepository
+  );
+  const reevaluateSchedules = new ReevaluateSchedulesUseCase(
+    scheduleRepository
+  );
+  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
+    db.transaction(work);
 
   const listUseCase = new ListSubjectGroupsUseCase(
     subjectGroupRepository,
@@ -46,7 +62,8 @@ export const createSubjectGroupModule = (
 
   const listAllUseCase = new ListAllSubjectGroupsUseCase(
     subjectGroupRepository,
-    memberProvider
+    memberProvider,
+    academicYearProvider
   );
 
   const getUseCase = new GetSubjectGroupUseCase(
@@ -57,13 +74,21 @@ export const createSubjectGroupModule = (
   const createUseCase = new CreateSubjectGroupUseCase(
     subjectGroupRepository,
     subjectProvider,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const bulkCreateUseCase = new BulkCreateSubjectGroupUseCase(
     subjectGroupRepository,
     subjectProvider,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const updateUseCase = new UpdateSubjectGroupUseCase(
@@ -74,18 +99,30 @@ export const createSubjectGroupModule = (
 
   const deleteUseCase = new DeleteSubjectGroupUseCase(
     subjectGroupRepository,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const deleteAllUseCase = new DeleteAllSubjectGroupsUseCase(
     subjectGroupRepository,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const replaceUseCase = new ReplaceSubjectGroupsUseCase(
     subjectGroupRepository,
     memberProvider,
-    subjectProvider
+    subjectProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const getIdentifiersUseCase = new GetSubjectGroupIdentifiersUseCase(

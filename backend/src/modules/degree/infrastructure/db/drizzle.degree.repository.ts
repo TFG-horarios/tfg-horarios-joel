@@ -45,30 +45,44 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
     };
   }
 
-  async findById(id: string, organizationId: string): Promise<Degree | null> {
+  async findById(
+    id: string,
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Degree | null> {
     const rows = await this.database
       .select()
       .from(degreesTable)
       .where(
-        and(
-          eq(degreesTable.id, id),
-          eq(degreesTable.organizationId, organizationId),
-          isNull(degreesTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? and(
+              eq(degreesTable.id, id),
+              eq(degreesTable.organizationId, organizationId)
+            )
+          : and(
+              eq(degreesTable.id, id),
+              eq(degreesTable.organizationId, organizationId),
+              isNull(degreesTable.deletedAt)
+            )
       )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Degree[]> {
+  async findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Degree[]> {
     const rows = await this.database
       .select()
       .from(degreesTable)
       .where(
-        and(
-          eq(degreesTable.organizationId, organizationId),
-          isNull(degreesTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? eq(degreesTable.organizationId, organizationId)
+          : and(
+              eq(degreesTable.organizationId, organizationId),
+              isNull(degreesTable.deletedAt)
+            )
       );
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -190,8 +204,12 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
     }
   }
 
-  async delete(id: string, organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async delete(
+    id: string,
+    organizationId: string,
+    externalTx?: any
+  ): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(degreesTable)
         .set({ deletedAt: new Date() })
@@ -225,7 +243,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
         );
 
       if (relatedSubjects.length > 0) {
-        const subjectIds = relatedSubjects.map((s) => s.id);
+        const subjectIds = relatedSubjects.map((s: { id: string }) => s.id);
 
         await tx
           .update(subjectsTable)
@@ -248,11 +266,13 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
             )
           );
       }
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
-  async deleteAll(organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async deleteAll(organizationId: string, externalTx?: any): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(degreesTable)
         .set({ deletedAt: new Date() })
@@ -292,7 +312,9 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
             isNull(subjectGroupsTable.deletedAt)
           )
         );
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
   async replace(degrees: Degree[], organizationId: string): Promise<void> {

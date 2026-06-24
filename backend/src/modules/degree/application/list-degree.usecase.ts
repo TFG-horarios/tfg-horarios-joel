@@ -4,7 +4,7 @@ import type {
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { IDegreeMemberProvider } from '../domain/providers/degree-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { DegreeMapper } from './degree.mapper';

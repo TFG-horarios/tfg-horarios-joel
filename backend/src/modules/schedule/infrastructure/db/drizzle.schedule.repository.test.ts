@@ -11,7 +11,14 @@ import {
   testSubjectGroupId,
   testClassroomId,
   testAcademicYearId,
+  testScheduleId,
 } from '@/tests/seed-db';
+import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
+import {
+  scheduleSlotsTable,
+  scheduleSlotInclusionsTable,
+} from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
+import { eq } from 'drizzle-orm';
 
 describe('DrizzleScheduleRepository Integration', () => {
   let repository: DrizzleScheduleRepository;
@@ -361,11 +368,187 @@ describe('DrizzleScheduleRepository Integration', () => {
     expect(lockedExcluded.length).toBe(0);
   });
 
+  test('should add a newly created common group as unassigned slots', async () => {
+    const itinerarySchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: testAcademicYearId,
+      shift: 'morning',
+      courseYear: 1,
+      period: 1,
+      itineraryId: testItineraryId,
+    });
+    await repository.create(itinerarySchedule);
+
+    const affected = await repository.addUnassignedSlotsForSubjectGroups(
+      [testSubjectGroupId],
+      testOrgId,
+      [testAcademicYearId]
+    );
+
+    const slots = await testDb
+      .select()
+      .from(scheduleSlotsTable)
+      .where(eq(scheduleSlotsTable.scheduleId, testScheduleId));
+    const inclusions = await testDb
+      .select()
+      .from(scheduleSlotInclusionsTable)
+      .where(eq(scheduleSlotInclusionsTable.scheduleId, itinerarySchedule.id));
+
+    expect(new Set(affected)).toEqual(
+      new Set([testScheduleId, itinerarySchedule.id])
+    );
+    expect(slots).toHaveLength(2);
+    expect(
+      slots.every(
+        (slot) =>
+          slot.subjectGroupId === testSubjectGroupId &&
+          slot.classroomId === null &&
+          slot.dayOfWeek === null &&
+          slot.slotIndex === null &&
+          slot.duration === 1
+      )
+    ).toBe(true);
+    expect(inclusions).toHaveLength(2);
+    expect(inclusions.map((row) => row.slotId).sort()).toEqual(
+      slots.map((row) => row.id).sort()
+    );
+  });
+
   test('should delete schedule successfully', async () => {
     const schedule = createValidSchedule();
     await repository.create(schedule);
     await repository.delete(schedule.id, testOrgId);
     const found = await repository.findById(schedule.id, testOrgId);
     expect(found).toBeNull();
+  });
+
+  test('should mutate slots only in allowed academic years', async () => {
+    const historicalYearId = crypto.randomUUID();
+    await testDb.insert(academicYearsTable).values({
+      id: historicalYearId,
+      organizationId: testOrgId,
+      name: '2020/2021',
+      isActive: false,
+      period0Start: '2020-09-01',
+      period0End: '2021-06-30',
+      periodType: 'annual',
+      morningStart: '08:00',
+      morningEnd: '14:00',
+      afternoonStart: '15:00',
+      afternoonEnd: '21:00',
+      slotDurationMinutes: 60,
+    });
+    const currentSchedule = createValidSchedule();
+    currentSchedule.publish();
+    const historicalSchedule = Schedule.create({
+      organizationId: testOrgId,
+      degreeId: testDegreeId,
+      academicYearId: historicalYearId,
+      shift: 'morning',
+      courseYear: 2,
+      period: 1,
+      itineraryId: null,
+    });
+    await repository.createSchedulesWithSlots([
+      {
+        schedule: currentSchedule,
+        slots: [
+          {
+            scheduleId: currentSchedule.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: testClassroomId,
+            dayOfWeek: 1,
+            slotIndex: 1,
+            duration: 1,
+            conflicts: [],
+          },
+        ],
+      },
+      {
+        schedule: historicalSchedule,
+        slots: [
+          {
+            scheduleId: historicalSchedule.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: testClassroomId,
+            dayOfWeek: 1,
+            slotIndex: 1,
+            duration: 1,
+            conflicts: [],
+          },
+        ],
+      },
+    ]);
+
+    const affected = await repository.unassignClassroomsFromSlots(
+      [testClassroomId],
+      testOrgId,
+      [testAcademicYearId]
+    );
+
+    const currentSlots = await testDb
+      .select()
+      .from(scheduleSlotsTable)
+      .where(eq(scheduleSlotsTable.scheduleId, currentSchedule.id));
+    const historicalSlots = await testDb
+      .select()
+      .from(scheduleSlotsTable)
+      .where(eq(scheduleSlotsTable.scheduleId, historicalSchedule.id));
+    expect(affected).toEqual([currentSchedule.id]);
+    expect(currentSlots[0]?.classroomId).toBeNull();
+    expect(currentSlots[0]?.dayOfWeek).toBeNull();
+    expect(currentSlots[0]?.slotIndex).toBeNull();
+    expect(historicalSlots[0]?.classroomId).toBe(testClassroomId);
+    expect(historicalSlots[0]?.dayOfWeek).toBe(1);
+    expect(historicalSlots[0]?.slotIndex).toBe(1);
+
+    await repository.updateSchedulesMetrics(
+      [{ scheduleId: currentSchedule.id, conflicts: 0, unassigned: 1 }],
+      testOrgId
+    );
+    expect(
+      (await repository.findById(currentSchedule.id, testOrgId))?.status
+    ).toBe('draft');
+
+    const deletedFrom = await repository.deleteSlotsBySubjects(
+      [testSubjectId],
+      testOrgId,
+      [testAcademicYearId]
+    );
+    expect(deletedFrom).toEqual([currentSchedule.id]);
+    expect(
+      await testDb
+        .select()
+        .from(scheduleSlotsTable)
+        .where(eq(scheduleSlotsTable.scheduleId, currentSchedule.id))
+    ).toHaveLength(0);
+    expect(
+      await testDb
+        .select()
+        .from(scheduleSlotsTable)
+        .where(eq(scheduleSlotsTable.scheduleId, historicalSchedule.id))
+    ).toHaveLength(1);
+  });
+
+  test('should delete schedules by degree only in allowed academic years', async () => {
+    const schedule = createValidSchedule();
+    await repository.create(schedule);
+
+    await repository.deleteSchedulesByDegreesOrItineraries(
+      [testDegreeId],
+      [],
+      testOrgId,
+      []
+    );
+    expect(await repository.findById(schedule.id, testOrgId)).not.toBeNull();
+
+    await repository.deleteSchedulesByDegreesOrItineraries(
+      [testDegreeId],
+      [],
+      testOrgId,
+      [testAcademicYearId]
+    );
+    expect(await repository.findById(schedule.id, testOrgId)).toBeNull();
   });
 });

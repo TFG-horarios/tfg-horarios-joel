@@ -27,7 +27,7 @@ import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationSubjectGroupsPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; academicYearId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
@@ -35,7 +35,7 @@ export default async function OrganizationSubjectGroupsPage({
   params,
   searchParams,
 }: OrganizationSubjectGroupsPageProps) {
-  const { id } = await params;
+  const { id, academicYearId } = await params;
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-subject-groups')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
@@ -100,16 +100,16 @@ export default async function OrganizationSubjectGroupsPage({
   const [
     organization,
     { data: groups, meta },
-    subjects,
-    degrees,
-    itineraries,
+    historicalSubjects,
+    historicalDegrees,
+    historicalItineraries,
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchPaginatedSubjectGroups(id, query),
-    fetchAllSubjects(id),
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
+    fetchAllSubjects(id, academicYearId),
+    fetchAllDegrees(id, academicYearId),
+    fetchAllItineraries(id, academicYearId),
     getSessionUser(),
   ]);
 
@@ -126,10 +126,21 @@ export default async function OrganizationSubjectGroupsPage({
   if (!organization) {
     notFound();
   }
-  const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));
-  const degreeMap = new Map(degrees.map((degree) => [degree.id, degree]));
+  const activeSubjects = historicalSubjects.filter(
+    (subject) => !subject.deletedAt
+  );
+  const activeDegrees = historicalDegrees.filter((degree) => !degree.deletedAt);
+  const activeItineraries = historicalItineraries.filter(
+    (itinerary) => !itinerary.deletedAt
+  );
+  const subjectMap = new Map(
+    historicalSubjects.map((subject) => [subject.id, subject])
+  );
+  const degreeMap = new Map(
+    historicalDegrees.map((degree) => [degree.id, degree])
+  );
   const itineraryMap = new Map(
-    itineraries.map((itinerary) => [itinerary.id, itinerary])
+    historicalItineraries.map((itinerary) => [itinerary.id, itinerary])
   );
   const translations = {
     type: t('type'),
@@ -173,7 +184,10 @@ export default async function OrganizationSubjectGroupsPage({
             <ResourceFilterSelect
               paramKey="subjectId"
               placeholder={t('subjectPlaceholder')}
-              options={subjects.map((s) => ({ label: s.name, value: s.id }))}
+              options={activeSubjects.map((s) => ({
+                label: s.name,
+                value: s.id,
+              }))}
               searchable={true}
             />
             <ResourceFilterSelect
@@ -201,7 +215,10 @@ export default async function OrganizationSubjectGroupsPage({
             <ResourceFilterSelect
               paramKey="degreeId"
               placeholder={t('degreePlaceholder')}
-              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              options={activeDegrees.map((d) => ({
+                label: d.name,
+                value: d.id,
+              }))}
               searchable={true}
             />
             <ResourceFilterSelect
@@ -217,7 +234,10 @@ export default async function OrganizationSubjectGroupsPage({
               placeholder={t('itineraryPlaceholder')}
               options={[
                 { label: t('itineraryOptions.common'), value: 'common' },
-                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+                ...activeItineraries.map((i) => ({
+                  label: i.name,
+                  value: i.id,
+                })),
               ]}
               searchable={true}
             />
@@ -235,7 +255,7 @@ export default async function OrganizationSubjectGroupsPage({
         actions={
           <SubjectGroupActions
             organizationId={id}
-            subjects={subjects}
+            subjects={activeSubjects}
             canCreate={canCreate}
             canDeleteAll={canDeleteAll}
             canImport={canImport}

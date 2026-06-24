@@ -1,4 +1,4 @@
-import type { IClassroomReservationScheduleProvider } from '../../domain/classroom-reservation-schedule.provider';
+import type { IClassroomReservationScheduleProvider } from '../../domain/providers/classroom-reservation-schedule.provider';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
 

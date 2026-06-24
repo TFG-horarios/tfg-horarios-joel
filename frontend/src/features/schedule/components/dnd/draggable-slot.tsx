@@ -198,16 +198,19 @@ export const DraggableSlot = memo(function DraggableSlot({
                     ? 'PX'
                     : group.groupType}
           {group.groupNumber}
+          {group.deletedAt ? ' (eliminado)' : ''}
         </Badge>
 
         <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full text-black dark:text-white">
           {subject.name}
+          {subject.deletedAt ? ' (eliminada)' : ''}
         </span>
 
         {degree ? (
           <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
             <span className="font-semibold break-words whitespace-normal leading-tight">
               {degree.name}
+              {degree.deletedAt ? ' (eliminado)' : ''}
             </span>
           </div>
         ) : classroom ? (
@@ -215,16 +218,10 @@ export const DraggableSlot = memo(function DraggableSlot({
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal leading-tight">
               {classroom.name}
+              {classroom.deletedAt ? ' (eliminada)' : ''}
             </span>
           </div>
-        ) : slot.classroomId ? (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] text-destructive dark:text-red-400 w-full">
-            <MapPin className="size-3 shrink-0" />
-            <span className="font-semibold break-words whitespace-normal leading-tight">
-              Aula eliminada
-            </span>
-          </div>
-        ) : (
+        ) : slot.classroomId ? null : (
           <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-70 w-full text-black dark:text-white">
             <MapPin className="size-3 shrink-0" />
             <span className="font-semibold break-words whitespace-normal leading-tight">

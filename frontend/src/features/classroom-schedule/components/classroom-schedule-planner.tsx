@@ -159,6 +159,7 @@ export function ClassroomSchedulePlanner({
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
               {classroom.name}
+              {classroom.deletedAt ? ' (eliminada)' : ''}
             </h1>
             <Badge
               variant="outline"

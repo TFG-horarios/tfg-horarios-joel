@@ -1,7 +1,7 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import { Degree } from '../domain/degree.entity';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IDegreeMemberProvider } from '../domain/degree-member.provider';
+import type { IDegreeMemberProvider } from '../domain/providers/degree-member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';

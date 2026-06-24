@@ -19,7 +19,7 @@ export default async function OrganizationNewReservationPage({
 
   const [organization, classrooms, academicYears] = await Promise.all([
     fetchOrganizationById(id),
-    fetchAllClassrooms(id),
+    fetchAllClassrooms(id, academicYearId),
     fetchAcademicYears(id),
   ]);
 

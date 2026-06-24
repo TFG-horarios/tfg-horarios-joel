@@ -44,7 +44,10 @@ export const fetchPaginatedDegrees = cache(
 );
 
 export const fetchAllDegrees = cache(
-  async (organizationId: string): Promise<DegreeDTO[]> => {
+  async (
+    organizationId: string,
+    academicYearId?: string
+  ): Promise<DegreeDTO[]> => {
     const t = await getTranslations('Common.errors');
 
     const client = await getServerClient();
@@ -52,6 +55,7 @@ export const fetchAllDegrees = cache(
       ':organizationId'
     ]!.degrees.all.$get({
       param: { organizationId },
+      query: { academicYearId },
     });
     if (!response.ok) {
       throw new Error(t('server'));

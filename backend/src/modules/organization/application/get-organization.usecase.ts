@@ -1,7 +1,7 @@
 import { type IOrganizationRepository } from '../domain/organization.repository';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { OrganizationMapper } from './organization.mapper';
-import type { IOrganizationMemberProvider } from '../domain/organization-member.provider';
+import type { IOrganizationMemberProvider } from '../domain/providers/organization-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 
 export class GetOrganizationUseCase {

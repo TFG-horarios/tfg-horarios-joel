@@ -1,6 +1,6 @@
 import type { AppRole } from '@/core/permissions/roles';
 
-export interface IAcademicYearMemberProvider {
+export interface IMemberProvider {
   getMemberRole(
     userId: string,
     organizationId: string

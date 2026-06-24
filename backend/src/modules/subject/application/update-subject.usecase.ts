@@ -1,4 +1,4 @@
-import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
+import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
 import type { ISubjectRepository } from '../domain/subject.repository';
 import type { SaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';

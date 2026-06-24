@@ -1,4 +1,4 @@
-import type { ISubjectProvider } from '../../domain/subject.provider';
+import type { ISubjectProvider } from '../../domain/providers/subject.provider';
 import type { ISubjectRepository } from '@/modules/subject/domain/subject.repository';
 import type { Shift } from '@tfg-horarios/shared';
 

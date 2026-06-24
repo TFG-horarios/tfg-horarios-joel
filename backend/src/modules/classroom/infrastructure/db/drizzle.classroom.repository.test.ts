@@ -3,7 +3,12 @@ import { DrizzleClassroomRepository } from './drizzle.classroom.repository';
 import { Classroom } from '../../domain/classroom.entity';
 import { ConflictError } from '@/core/errors/app.error';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
-import { seedTestDb, testOrgId } from '@/tests/seed-db';
+import {
+  seedTestDb,
+  testOrgId,
+  testAcademicYearId,
+  testPastAcademicYearId,
+} from '@/tests/seed-db';
 
 describe('DrizzleClassroomRepository Integration', () => {
   let repository: DrizzleClassroomRepository;
@@ -187,8 +192,26 @@ describe('DrizzleClassroomRepository Integration', () => {
     await repository.delete(classroom.id, testOrgId);
     const foundClassroom = await repository.findById(classroom.id, testOrgId);
     expect(foundClassroom).toBeNull();
+    const historicalClassroom = await repository.findById(
+      classroom.id,
+      testOrgId,
+      testPastAcademicYearId
+    );
+    expect(historicalClassroom?.deletedAt).toBeInstanceOf(Date);
     const allClassrooms = await repository.findAll(testOrgId);
     expect(allClassrooms.map((c) => c.id)).not.toContain(classroom.id);
+    const currentClassrooms = await repository.findAll(
+      testOrgId,
+      testAcademicYearId
+    );
+    expect(currentClassrooms.map((c) => c.id)).not.toContain(classroom.id);
+    const historicalClassrooms = await repository.findAll(
+      testOrgId,
+      testPastAcademicYearId
+    );
+    expect(
+      historicalClassrooms.find((c) => c.id === classroom.id)?.deletedAt
+    ).toBeInstanceOf(Date);
   });
 
   test('should soft delete all classrooms successfully', async () => {

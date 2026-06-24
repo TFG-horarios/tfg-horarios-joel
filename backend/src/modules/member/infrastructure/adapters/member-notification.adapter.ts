@@ -1,4 +1,4 @@
-import type { IMemberNotificationProvider } from '../../domain/member-notification.provider';
+import type { IMemberNotificationProvider } from '../../domain/providers/member-notification.provider';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export class MemberNotificationAdapter implements IMemberNotificationProvider {

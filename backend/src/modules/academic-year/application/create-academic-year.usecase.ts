@@ -5,20 +5,20 @@ import type {
   AcademicYearDTO,
   SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
-import type { IAcademicYearOrganizationProvider } from '../domain/academic-year-organization.provider';
+import type { IOrganizationProvider } from '../domain/providers/organization.provider';
 import {
   NotFoundError,
   ForbiddenError,
   ConflictError,
 } from '@/core/errors/app.error';
-import type { IAcademicYearMemberProvider } from '../domain/academic-year-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class CreateAcademicYearUseCase {
   constructor(
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly organizationProvider: IAcademicYearOrganizationProvider,
-    private readonly memberProvider: IAcademicYearMemberProvider
+    private readonly organizationProvider: IOrganizationProvider,
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

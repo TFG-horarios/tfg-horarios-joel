@@ -1,4 +1,4 @@
-import type { IScheduleSlotMemberProvider } from '../../domain/schedule-slot-member.provider';
+import type { IScheduleSlotMemberProvider } from '../../domain/providers/schedule-slot-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
 

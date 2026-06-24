@@ -1,12 +1,12 @@
 import type { IAcademicYearRepository } from '../domain/academic-year.repository';
-import type { IAcademicYearMemberProvider } from '../domain/academic-year-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteAcademicYearUseCase {
   constructor(
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly memberProvider: IAcademicYearMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

@@ -152,6 +152,20 @@ describe('HonoClassroomController Integration', () => {
     expect(listAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
+  test('GET /organizations/:organizationId/classrooms/all should forward academic year context', async () => {
+    const academicYearId = '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88';
+    listAllMock.execute.mockResolvedValueOnce([{ id: classroomId }]);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/all?academicYearId=${academicYearId}`
+    );
+    expect(res.status).toBe(200);
+    expect(listAllMock.execute).toHaveBeenCalledWith(
+      orgId,
+      'u-admin',
+      academicYearId
+    );
+  });
+
   test('PUT /organizations/:organizationId/classrooms/:id should return 200', async () => {
     updateMock.execute.mockResolvedValueOnce({
       id: classroomId,

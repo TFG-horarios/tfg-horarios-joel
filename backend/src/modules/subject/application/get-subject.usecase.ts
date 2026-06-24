@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
+import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
 import type { SubjectDTO } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { SubjectMapper } from './subject.mapper';

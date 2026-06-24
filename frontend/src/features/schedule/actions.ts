@@ -47,24 +47,21 @@ export async function exportScheduleCsvAction(
   const tErrors = await getTranslations('Common.errors');
 
   try {
-    const [
-      schedule,
-      slots,
-      classrooms,
-      subjects,
-      subjectGroups,
-      degrees,
-      academicYears,
-    ] = await Promise.all([
-      fetchScheduleById(organizationId, scheduleId),
-      fetchScheduleSlots(organizationId, scheduleId),
-      fetchAllClassrooms(organizationId),
-      fetchAllSubjects(organizationId),
-      fetchAllSubjectGroups(organizationId),
-      fetchAllDegrees(organizationId),
-      fetchAcademicYears(organizationId),
-    ]);
-    if (!schedule || !slots) {
+    const schedule = await fetchScheduleById(organizationId, scheduleId);
+    if (!schedule) {
+      return { success: false, message: tErrors('server') };
+    }
+
+    const [slots, classrooms, subjects, subjectGroups, degrees, academicYears] =
+      await Promise.all([
+        fetchScheduleSlots(organizationId, scheduleId),
+        fetchAllClassrooms(organizationId, schedule.academicYearId),
+        fetchAllSubjects(organizationId, schedule.academicYearId),
+        fetchAllSubjectGroups(organizationId, schedule.academicYearId),
+        fetchAllDegrees(organizationId, schedule.academicYearId),
+        fetchAcademicYears(organizationId),
+      ]);
+    if (!slots) {
       return { success: false, message: tErrors('server') };
     }
 

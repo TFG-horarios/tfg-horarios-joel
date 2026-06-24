@@ -1,7 +1,7 @@
 import type { IOrganizationRepository } from '@/modules/organization/domain/organization.repository';
-import type { IAcademicYearOrganizationProvider } from '../../domain/academic-year-organization.provider';
+import type { IOrganizationProvider } from '../../domain/providers/organization.provider';
 
-export class AcademicYearOrganizationAdapter implements IAcademicYearOrganizationProvider {
+export class OrganizationAdapter implements IOrganizationProvider {
   constructor(
     private readonly organizationRepository: IOrganizationRepository
   ) {}

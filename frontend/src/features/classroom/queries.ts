@@ -44,7 +44,10 @@ export const fetchPaginatedClassrooms = cache(
 );
 
 export const fetchAllClassrooms = cache(
-  async (organizationId: string): Promise<ClassroomDTO[]> => {
+  async (
+    organizationId: string,
+    academicYearId?: string
+  ): Promise<ClassroomDTO[]> => {
     const t = await getTranslations('Common.errors');
     const client = await getServerClient();
 
@@ -52,6 +55,7 @@ export const fetchAllClassrooms = cache(
       ':organizationId'
     ]!.classrooms.all.$get({
       param: { organizationId },
+      query: { academicYearId },
     });
     if (!response.ok) {
       throw new Error(t('server'));
@@ -70,7 +74,8 @@ export const fetchAllClassrooms = cache(
 export const fetchClassroomById = cache(
   async (
     organizationId: string,
-    classroomId: string
+    classroomId: string,
+    academicYearId: string
   ): Promise<ClassroomDTO | null> => {
     const t = await getTranslations('Common.errors');
 
@@ -79,6 +84,7 @@ export const fetchClassroomById = cache(
       ':organizationId'
     ]!.classrooms[':id']!.$get({
       param: { organizationId, id: classroomId },
+      query: { academicYearId },
     });
     if (!response.ok) {
       throw new Error(t('server'));

@@ -1,4 +1,4 @@
-import type { IItineraryMemberProvider } from '../../domain/itinerary-member.provider';
+import type { IItineraryMemberProvider } from '../../domain/providers/itinerary-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
 

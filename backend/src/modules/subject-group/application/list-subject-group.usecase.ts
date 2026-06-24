@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
+import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
 import type {
   SubjectGroupDTO,
   SubjectGroupListQueryDTO,

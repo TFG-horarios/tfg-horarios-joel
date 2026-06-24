@@ -30,6 +30,7 @@ export const SubjectSchema = z
     isCommon: z.boolean().openapi({ example: true }),
     createdAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2025-01-01T12:00:00Z' }),
+    deletedAt: z.iso.datetime().nullable().openapi({ example: null }),
   })
   .openapi('Subject');
 

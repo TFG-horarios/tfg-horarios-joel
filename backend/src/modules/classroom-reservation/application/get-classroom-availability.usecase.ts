@@ -4,8 +4,8 @@ import type {
   OccupiedSlotDTO,
 } from '@tfg-horarios/shared';
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
-import type { IClassroomReservationScheduleProvider } from '../domain/classroom-reservation-schedule.provider';
-import type { IClassroomReservationAcademicYearProvider } from '../domain/classroom-reservation-academic-year.provider';
+import type { IClassroomReservationScheduleProvider } from '../domain/providers/classroom-reservation-schedule.provider';
+import type { IClassroomReservationAcademicYearProvider } from '../domain/providers/classroom-reservation-academic-year.provider';
 import { NotFoundError, ValidationError } from '@/core/errors/app.error';
 
 export class GetClassroomAvailabilityUseCase {

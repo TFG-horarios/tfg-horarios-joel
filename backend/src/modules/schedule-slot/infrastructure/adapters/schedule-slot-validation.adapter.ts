@@ -1,8 +1,8 @@
-import type { IScheduleSlotValidationProvider } from '../../domain/schedule-slot-validation.provider';
+import type { IScheduleSlotValidationProvider } from '../../domain/providers/schedule-slot-validation.provider';
 import type { ScheduleSlot } from '../../domain/schedule-slot.entity';
 import type { IScheduleSlotRepository } from '../../domain/schedule-slot.repository';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
-import type { IScheduleDataProvider } from '@/modules/schedule/domain/schedule-data.provider';
+import type { IScheduleDataProvider } from '@/modules/schedule/domain/providers/schedule-data.provider';
 import { NotFoundError } from '@/core/errors/app.error';
 import type {
   Assignment,

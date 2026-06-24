@@ -1,4 +1,4 @@
-import type { ScheduleSlot } from './schedule-slot.entity';
+import type { ScheduleSlot } from '../schedule-slot.entity';
 
 export interface IScheduleSlotValidationProvider {
   validateMove(

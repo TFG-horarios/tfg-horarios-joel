@@ -82,7 +82,7 @@ export default async function OrganizationClassroomSchedulesPage({
     { data: configurations, meta },
   ] = await Promise.all([
     fetchOrganizationById(id),
-    fetchAllClassrooms(id),
+    fetchAllClassrooms(id, academicYearId),
     fetchAcademicYears(id),
     fetchPaginatedActiveClassroomConfigurations(id, query),
   ]);
@@ -93,7 +93,7 @@ export default async function OrganizationClassroomSchedulesPage({
 
   const classroomMap = classrooms.reduce(
     (acc, c) => {
-      acc[c.id] = c.name;
+      acc[c.id] = `${c.name}${c.deletedAt ? ' (eliminada)' : ''}`;
       return acc;
     },
     {} as Record<string, string>

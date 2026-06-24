@@ -25,14 +25,20 @@ describe('GetClassroomScheduleSlotsUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
   const useCase = new GetClassroomScheduleSlotsUseCase(
     scheduleSlotProviderMock,
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    academicYearProviderMock
   );
 
   test('should return slots', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('viewer');
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockResolvedValue(false);
     repositoryMock.findById.mockResolvedValue({ id: 'room-1' });
     scheduleSlotProviderMock.findUniqueSlotsByClassroomIdAndFilters.mockResolvedValue(
       []
@@ -43,6 +49,30 @@ describe('GetClassroomScheduleSlotsUseCase', () => {
     expect(
       scheduleSlotProviderMock.findUniqueSlotsByClassroomIdAndFilters
     ).toHaveBeenCalledWith('room-1', 'org-1', {});
+  });
+
+  test('should include soft-deleted classroom for historic academic year', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValue('viewer');
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockResolvedValue(true);
+    repositoryMock.findById.mockResolvedValue({
+      id: 'room-1',
+      deletedAt: new Date(),
+    });
+    scheduleSlotProviderMock.findUniqueSlotsByClassroomIdAndFilters.mockResolvedValue(
+      []
+    );
+
+    const filters = { academicYearId: crypto.randomUUID() };
+    await useCase.execute('org-1', 'room-1', 'user-1', filters);
+
+    expect(
+      academicYearProviderMock.shouldIncludeSoftDeleted
+    ).toHaveBeenCalledWith(filters.academicYearId);
+    expect(repositoryMock.findById).toHaveBeenCalledWith(
+      'room-1',
+      'org-1',
+      true
+    );
   });
 
   test('should throw NotFoundError if classroom not found', async () => {

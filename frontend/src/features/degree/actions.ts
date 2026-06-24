@@ -28,7 +28,7 @@ export async function fetchPaginatedDegreesAction(
 }
 
 export async function fetchAllDegreesAction(
-  organizationId: string
+  organizationId: string,
 ): Promise<DegreeDTO[]> {
   try {
     return await fetchAllDegrees(organizationId);

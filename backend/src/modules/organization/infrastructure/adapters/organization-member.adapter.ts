@@ -1,4 +1,4 @@
-import type { IOrganizationMemberProvider } from '../../domain/organization-member.provider';
+import type { IOrganizationMemberProvider } from '../../domain/providers/organization-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
 

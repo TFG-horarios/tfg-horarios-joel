@@ -6,8 +6,15 @@ import type {
 } from '@tfg-horarios/shared';
 
 export interface IItineraryRepository {
-  findById(id: string, organizationId: string): Promise<Itinerary | null>;
-  findAll(organizationId: string): Promise<Itinerary[]>;
+  findById(
+    id: string,
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Itinerary | null>;
+  findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Itinerary[]>;
   findPaginated(
     organizationId: string,
     filters?: ItineraryListQueryDTO
@@ -16,7 +23,7 @@ export interface IItineraryRepository {
   create(itinerary: Itinerary): Promise<void>;
   createMany(itineraries: Itinerary[]): Promise<void>;
   update(itinerary: Itinerary): Promise<void>;
-  delete(id: string, organizationId: string): Promise<void>;
-  deleteAll(organizationId: string): Promise<void>;
+  delete(id: string, organizationId: string, tx?: any): Promise<void>;
+  deleteAll(organizationId: string, tx?: any): Promise<void>;
   replace(itineraries: Itinerary[], organizationId: string): Promise<void>;
 }

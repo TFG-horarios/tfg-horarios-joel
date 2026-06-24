@@ -22,7 +22,7 @@ import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type OrganizationItinerariesPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; academicYearId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
@@ -30,7 +30,7 @@ export default async function OrganizationItinerariesPage({
   params,
   searchParams,
 }: OrganizationItinerariesPageProps) {
-  const { id } = await params;
+  const { id, academicYearId } = await params;
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-itineraries')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
@@ -66,11 +66,11 @@ export default async function OrganizationItinerariesPage({
 
   const t = await getTranslations('Organizations.itineraries');
 
-  const [organization, { data: itineraries, meta }, degrees, user] =
+  const [organization, { data: itineraries, meta }, historicalDegrees, user] =
     await Promise.all([
       fetchOrganizationById(id),
       fetchPaginatedItineraries(id, query),
-      fetchAllDegrees(id),
+      fetchAllDegrees(id, academicYearId),
       getSessionUser(),
     ]);
 
@@ -87,7 +87,8 @@ export default async function OrganizationItinerariesPage({
   if (!organization) {
     notFound();
   }
-  const degreeMap = new Map(degrees.map((d) => [d.id, d]));
+  const activeDegrees = historicalDegrees.filter((degree) => !degree.deletedAt);
+  const degreeMap = new Map(historicalDegrees.map((d) => [d.id, d]));
   const translations = {
     degree: t('degree'),
     unassigned: t('unassigned'),
@@ -121,7 +122,10 @@ export default async function OrganizationItinerariesPage({
             <ResourceFilterSelect
               paramKey="degreeId"
               placeholder={t('degreePlaceholder')}
-              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              options={activeDegrees.map((d) => ({
+                label: d.name,
+                value: d.id,
+              }))}
               searchable={true}
             />
             <ResourceFilterClear />
@@ -130,7 +134,7 @@ export default async function OrganizationItinerariesPage({
         actions={
           <ItineraryActions
             organizationId={id}
-            degrees={degrees}
+            degrees={activeDegrees}
             canCreate={canCreate}
             canDeleteAll={canDeleteAll}
             canImport={canImport}

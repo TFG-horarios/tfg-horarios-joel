@@ -30,9 +30,15 @@ import { ReplaceClassroomsUseCase } from './application/replace-classrooms.useca
 import { GetActiveClassroomConfigurationsUseCase } from './application/get-active-classroom-configurations.usecase';
 import { GetClassroomScheduleSlotsUseCase } from './application/get-classroom-schedule-slots.usecase';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
-import { ClassroomMemberAdapter } from './infrastructure/adapters/classroom-member.adapter';
+import { MemberAdapter } from './infrastructure/adapters/member.adapter';
 import { DrizzleScheduleSlotRepository } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
-import { ClassroomScheduleSlotAdapter } from './infrastructure/adapters/classroom-schedule-slot.adapter';
+import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.adapter';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { DrizzleClassroomReservationRepository } from '@/modules/classroom-reservation/infrastructure/db/drizzle.classroom-reservation.repository';
+import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
+import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
+import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 
 export const createClassroomModule = (
   db: DbConnection,
@@ -40,10 +46,22 @@ export const createClassroomModule = (
 ) => {
   const classroomRepository = new DrizzleClassroomRepository(db);
   const scheduleSlotRepository = new DrizzleScheduleSlotRepository(db);
-  const scheduleSlotProvider = new ClassroomScheduleSlotAdapter(
-    scheduleSlotRepository
+  const scheduleSlotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
+  const scheduleRepository = new DrizzleScheduleRepository(db);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
+
+  const memberProvider = new MemberAdapter(memberRepository);
+  const scheduleProvider = new ScheduleAdapter(
+    scheduleRepository,
+    new DrizzleClassroomReservationRepository(db)
   );
-  const memberProvider = new ClassroomMemberAdapter(memberRepository);
+  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
+
+  const reevaluateSchedules = new ReevaluateSchedulesUseCase(
+    scheduleRepository
+  );
+  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
+    db.transaction(work);
 
   const createUseCase = new CreateClassroomUseCase(
     classroomRepository,
@@ -57,7 +75,8 @@ export const createClassroomModule = (
 
   const listAllUseCase = new ListAllClassroomsUseCase(
     classroomRepository,
-    memberProvider
+    memberProvider,
+    academicYearProvider
   );
 
   const getIdentifiersUseCase = new GetClassroomIdentifiersUseCase(
@@ -72,12 +91,17 @@ export const createClassroomModule = (
 
   const deleteUseCase = new DeleteClassroomUseCase(
     classroomRepository,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const getUseCase = new GetClassroomUseCase(
     classroomRepository,
-    memberProvider
+    memberProvider,
+    academicYearProvider
   );
 
   const createManyUseCase = new BulkCreateClassroomsUseCase(
@@ -87,7 +111,11 @@ export const createClassroomModule = (
 
   const deleteAllUseCase = new DeleteAllClassroomsUseCase(
     classroomRepository,
-    memberProvider
+    memberProvider,
+    academicYearRepository,
+    scheduleProvider,
+    reevaluateSchedules,
+    runInTransaction
   );
 
   const replaceUseCase = new ReplaceClassroomsUseCase(
@@ -104,7 +132,8 @@ export const createClassroomModule = (
   const getScheduleSlotsUseCase = new GetClassroomScheduleSlotsUseCase(
     scheduleSlotProvider,
     classroomRepository,
-    memberProvider
+    memberProvider,
+    academicYearProvider
   );
 
   const controller = new HonoClassroomController(

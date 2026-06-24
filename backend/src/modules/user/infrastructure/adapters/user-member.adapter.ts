@@ -1,4 +1,4 @@
-import type { IUserMemberProvider } from '../../domain/user-member.provider';
+import type { IUserMemberProvider } from '../../domain/providers/user-member.provider';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 
 export class UserMemberAdapter implements IUserMemberProvider {

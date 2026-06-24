@@ -45,11 +45,13 @@ export class HonoClassroomController {
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
     const { organizationId, id } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const requesterUserId = c.get('userId');
     const classroom = await this.getClassroomUseCase.execute(
       organizationId,
       id,
-      requesterUserId
+      requesterUserId,
+      academicYearId
     );
     return c.json(classroom, 200);
   };
@@ -153,10 +155,12 @@ export class HonoClassroomController {
 
   listAll: RouteHandler<typeof listAllClassroomsRoute, AppEnv> = async (c) => {
     const { organizationId } = c.req.valid('param');
+    const { academicYearId } = c.req.valid('query');
     const requesterUserId = c.get('userId');
     const classrooms = await this.listAllClassroomsUseCase.execute(
       organizationId,
-      requesterUserId
+      requesterUserId,
+      academicYearId
     );
     return c.json(classrooms, 200);
   };

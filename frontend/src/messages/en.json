@@ -692,6 +692,7 @@
           "ERR_OVERLAP_DUPLICATE_GROUP": "The same group appears more than once in this schedule.",
           "ERR_OVERLAP_COMMON_ITINERARY": "Common subjects cannot overlap with itinerary subjects.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
+          "ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT": "A classroom must be assigned before choosing a day and time.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots.",
           "ERR_UNASSIGNED_NO_ROOMS_OF_TYPE": "No classrooms of the required type are available in the organization.",

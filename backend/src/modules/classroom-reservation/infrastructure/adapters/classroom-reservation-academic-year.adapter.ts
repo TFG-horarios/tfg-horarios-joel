@@ -1,4 +1,4 @@
-import type { IClassroomReservationAcademicYearProvider } from '../../domain/classroom-reservation-academic-year.provider';
+import type { IClassroomReservationAcademicYearProvider } from '../../domain/providers/classroom-reservation-academic-year.provider';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 
 export class ClassroomReservationAcademicYearAdapter implements IClassroomReservationAcademicYearProvider {

@@ -1,5 +1,5 @@
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleMemberProvider } from '../domain/schedule-member.provider';
+import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 

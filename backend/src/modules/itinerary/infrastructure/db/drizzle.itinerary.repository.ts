@@ -57,31 +57,42 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
 
   async findById(
     id: string,
-    organizationId: string
+    organizationId: string,
+    includeSoftDeleted: boolean
   ): Promise<Itinerary | null> {
     const rows = await this.database
       .select()
       .from(itinerariesTable)
       .where(
-        and(
-          eq(itinerariesTable.id, id),
-          eq(itinerariesTable.organizationId, organizationId),
-          isNull(itinerariesTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? and(
+              eq(itinerariesTable.id, id),
+              eq(itinerariesTable.organizationId, organizationId)
+            )
+          : and(
+              eq(itinerariesTable.id, id),
+              eq(itinerariesTable.organizationId, organizationId),
+              isNull(itinerariesTable.deletedAt)
+            )
       )
       .limit(1);
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<Itinerary[]> {
+  async findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Itinerary[]> {
     const rows = await this.database
       .select()
       .from(itinerariesTable)
       .where(
-        and(
-          eq(itinerariesTable.organizationId, organizationId),
-          isNull(itinerariesTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? eq(itinerariesTable.organizationId, organizationId)
+          : and(
+              eq(itinerariesTable.organizationId, organizationId),
+              isNull(itinerariesTable.deletedAt)
+            )
       );
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -207,8 +218,12 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
     }
   }
 
-  async delete(id: string, organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async delete(
+    id: string,
+    organizationId: string,
+    externalTx?: any
+  ): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(itinerariesTable)
         .set({ deletedAt: new Date() })
@@ -231,7 +246,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
         );
 
       if (relatedSubjects.length > 0) {
-        const subjectIds = relatedSubjects.map((s) => s.id);
+        const subjectIds = relatedSubjects.map((s: { id: string }) => s.id);
 
         await tx
           .update(subjectsTable)
@@ -254,11 +269,13 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
             )
           );
       }
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
-  async deleteAll(organizationId: string): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  async deleteAll(organizationId: string, externalTx?: any): Promise<void> {
+    const execute = async (tx: any) => {
       await tx
         .update(itinerariesTable)
         .set({ deletedAt: new Date() })
@@ -281,7 +298,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
         );
 
       if (relatedSubjects.length > 0) {
-        const subjectIds = relatedSubjects.map((s) => s.id);
+        const subjectIds = relatedSubjects.map((s: { id: string }) => s.id);
 
         await tx
           .update(subjectsTable)
@@ -304,7 +321,9 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
             )
           );
       }
-    });
+    };
+    if (externalTx) return execute(externalTx);
+    await this.database.transaction(execute);
   }
 
   async replace(

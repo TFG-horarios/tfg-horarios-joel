@@ -26,7 +26,12 @@ import {
   getSubjectIdentifiersRoute,
 } from './infrastructure/http/hono.subject.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { SubjectScheduleAdapter } from './infrastructure/adapters/subject-schedule.adapter';
+import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import { SubjectMemberAdapter } from './infrastructure/adapters/subject-member.adapter';
+import { SubjectAcademicYearAdapter } from './infrastructure/adapters/subject-academic-year.adapter';
 
 export const createSubjectModule = (
   db: DbConnection,
@@ -34,6 +39,17 @@ export const createSubjectModule = (
 ) => {
   const subjectRepository = new DrizzleSubjectRepository(db);
   const memberProvider = new SubjectMemberAdapter(memberRepository);
+  const scheduleRepository = new DrizzleScheduleRepository(db);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const scheduleProvider = new SubjectScheduleAdapter(scheduleRepository);
+  const academicYearProvider = new SubjectAcademicYearAdapter(
+    academicYearRepository
+  );
+  const reevaluateSchedules = new ReevaluateSchedulesUseCase(
+    scheduleRepository
+  );
+  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
+    db.transaction(work);
 
   const controller = new HonoSubjectController(
     new CreateSubjectUseCase(subjectRepository, memberProvider),
@@ -41,11 +57,29 @@ export const createSubjectModule = (
     new GetSubjectUseCase(subjectRepository, memberProvider),
     new ListSubjectUseCase(subjectRepository, memberProvider),
     new UpdateSubjectUseCase(subjectRepository, memberProvider),
-    new DeleteSubjectUseCase(subjectRepository, memberProvider),
-    new DeleteAllSubjectsUseCase(subjectRepository, memberProvider),
+    new DeleteSubjectUseCase(
+      subjectRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      reevaluateSchedules,
+      runInTransaction
+    ),
+    new DeleteAllSubjectsUseCase(
+      subjectRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      reevaluateSchedules,
+      runInTransaction
+    ),
     new ReplaceSubjectsUseCase(subjectRepository, memberProvider),
     new GetSubjectIdentifiersUseCase(subjectRepository, memberProvider),
-    new ListAllSubjectsUseCase(subjectRepository, memberProvider)
+    new ListAllSubjectsUseCase(
+      subjectRepository,
+      memberProvider,
+      academicYearProvider
+    )
   );
 
   const app = new OpenAPIHono<AppEnv>();

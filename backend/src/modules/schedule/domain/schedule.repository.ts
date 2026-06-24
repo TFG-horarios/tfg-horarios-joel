@@ -5,7 +5,7 @@ import type {
   Shift,
   ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
-import type { ScheduleEngineAssignment } from './schedule-engine.provider';
+import type { ScheduleEngineAssignment } from './providers/schedule-engine.provider';
 
 export interface CreateScheduleSlotInput {
   id?: string;
@@ -22,6 +22,20 @@ export interface CreateScheduleSlotInclusionInput {
   scheduleId: string;
   slotId: string;
   conflicts: ScheduleConflictDetailDTO[];
+}
+
+export interface ScheduleIssueData {
+  scheduleId: string;
+  classroomId: string | null;
+  dayOfWeek: number | null;
+  slotIndex: number | null;
+  conflicts: ScheduleConflictDetailDTO[];
+}
+
+export interface ScheduleMetrics {
+  scheduleId: string;
+  conflicts: number;
+  unassigned: number;
 }
 
 export interface IScheduleRepository {
@@ -62,4 +76,45 @@ export interface IScheduleRepository {
     excludeScheduleIds: string[]
   ): Promise<ScheduleEngineAssignment[]>;
   delete(id: string, organizationId: string): Promise<void>;
+  unassignClassroomsFromSlots?(
+    classroomIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<string[]>;
+  deleteSchedulesByDegreesOrItineraries?(
+    degreeIds: string[],
+    itineraryIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<void>;
+  deleteSlotsBySubjects?(
+    subjectIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<string[]>;
+  deleteSlotsBySubjectGroups?(
+    subjectGroupIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<string[]>;
+  addUnassignedSlotsForSubjectGroups?(
+    subjectGroupIds: string[],
+    organizationId: string,
+    activeAndFutureYearIds: string[],
+    tx?: any
+  ): Promise<string[]>;
+  findScheduleIssueData?(
+    scheduleIds: string[],
+    organizationId: string,
+    tx?: any
+  ): Promise<ScheduleIssueData[]>;
+  updateSchedulesMetrics?(
+    metrics: ScheduleMetrics[],
+    organizationId: string,
+    tx?: any
+  ): Promise<void>;
 }

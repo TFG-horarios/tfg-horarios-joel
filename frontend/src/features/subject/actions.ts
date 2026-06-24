@@ -29,7 +29,7 @@ export async function fetchPaginatedSubjectsAction(
 }
 
 export async function fetchAllSubjectsAction(
-  organizationId: string
+  organizationId: string,
 ): Promise<SubjectDTO[]> {
   return fetchAllSubjects(organizationId);
 }

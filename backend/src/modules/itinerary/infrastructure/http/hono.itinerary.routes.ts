@@ -10,6 +10,7 @@ import {
   ItineraryIdentifierSchema,
   ItineraryListQuerySchema,
   createPaginatedSchema,
+  AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listItinerariesRoute = createRoute({
@@ -35,6 +36,7 @@ export const listAllItinerariesRoute = createRoute({
   path: '/organizations/{organizationId}/itineraries/all',
   request: {
     params: ItineraryBaseParamSchema,
+    query: AcademicYearContextQuerySchema,
   },
   responses: {
     200: {
@@ -65,7 +67,10 @@ export const getItineraryIdentifiersRoute = createRoute({
 export const getItineraryRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries/{id}',
-  request: { params: ItineraryIdParamSchema },
+  request: {
+    params: ItineraryIdParamSchema,
+    query: AcademicYearContextQuerySchema,
+  },
   responses: {
     200: {
       description: 'Itinerary details',

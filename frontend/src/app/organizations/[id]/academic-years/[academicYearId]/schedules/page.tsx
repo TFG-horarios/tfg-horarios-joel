@@ -107,17 +107,17 @@ export default async function OrganizationSchedulesPage({
 
   const [
     organization,
-    degrees,
-    itineraries,
-    subjects,
+    historicalDegrees,
+    historicalItineraries,
+    historicalSubjects,
     academicYears,
     { data: schedules, meta },
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
-    fetchAllSubjects(id),
+    fetchAllDegrees(id, academicYearId),
+    fetchAllItineraries(id, academicYearId),
+    fetchAllSubjects(id, academicYearId),
     fetchAcademicYears(id),
     fetchPaginatedSchedules(id, query),
     getSessionUser(),
@@ -135,16 +135,24 @@ export default async function OrganizationSchedulesPage({
     notFound();
   }
 
-  const degreeMap = degrees.reduce(
+  const activeDegrees = historicalDegrees.filter((degree) => !degree.deletedAt);
+  const activeItineraries = historicalItineraries.filter(
+    (itinerary) => !itinerary.deletedAt
+  );
+  const activeSubjects = historicalSubjects.filter(
+    (subject) => !subject.deletedAt
+  );
+
+  const degreeMap = historicalDegrees.reduce(
     (acc, d) => {
-      acc[d.id] = d.name;
+      acc[d.id] = `${d.name}${d.deletedAt ? ' (eliminado)' : ''}`;
       return acc;
     },
     {} as Record<string, string>
   );
-  const itineraryMap = itineraries.reduce(
+  const itineraryMap = historicalItineraries.reduce(
     (acc, i) => {
-      acc[i.id] = i.code;
+      acc[i.id] = `${i.code}${i.deletedAt ? ' (eliminado)' : ''}`;
       return acc;
     },
     {} as Record<string, string>
@@ -205,7 +213,10 @@ export default async function OrganizationSchedulesPage({
             <ResourceFilterSelect
               paramKey="degreeId"
               placeholder={t('degreePlaceholder')}
-              options={degrees.map((d) => ({ label: d.name, value: d.id }))}
+              options={activeDegrees.map((d) => ({
+                label: d.name,
+                value: d.id,
+              }))}
               searchable={true}
             />
             <ResourceFilterSelect
@@ -213,7 +224,10 @@ export default async function OrganizationSchedulesPage({
               placeholder={t('itineraryPlaceholder')}
               options={[
                 { label: t('itineraryOptions.common'), value: 'common' },
-                ...itineraries.map((i) => ({ label: i.name, value: i.id })),
+                ...activeItineraries.map((i) => ({
+                  label: i.name,
+                  value: i.id,
+                })),
               ]}
               searchable={true}
             />
@@ -279,8 +293,8 @@ export default async function OrganizationSchedulesPage({
                 organizationId={id}
                 periodType={currentAcademicYear?.periodType || 'semester'}
                 academicYearId={academicYearId}
-                degrees={degrees}
-                subjects={subjects}
+                degrees={activeDegrees}
+                subjects={activeSubjects}
               />
             </ResourceActions>
           )

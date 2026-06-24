@@ -1,6 +1,6 @@
 import type { ClassroomDTO, SaveClassroomDTO } from '@tfg-horarios/shared';
 import type { IClassroomRepository } from '../domain/classroom.repository';
-import type { IClassroomMemberProvider } from '../domain/classroom-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ClassroomMapper } from './classroom.mapper';
@@ -9,7 +9,7 @@ import type { AppRole } from '@/core/permissions/roles';
 export class UpdateClassroomUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
-    private readonly memberProvider: IClassroomMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(
@@ -30,7 +30,8 @@ export class UpdateClassroomUseCase {
 
     const classroom = await this.classroomRepository.findById(
       classroomId,
-      organizationId
+      organizationId,
+      false
     );
     if (!classroom) {
       throw new NotFoundError('Classroom', classroomId);

@@ -1,5 +1,5 @@
 import type { DbConnection } from '@/core/db/connection';
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, or, sql } from 'drizzle-orm';
 import { AcademicYear } from '../../domain/academic-year.entity';
 import type { IAcademicYearRepository } from '../../domain/academic-year.repository';
 import {
@@ -102,6 +102,54 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
   ): Promise<AcademicYear | null> {
     const all = await this.findByOrganizationId(organizationId);
     return all.find((ay) => ay.isActive) || null;
+  }
+
+  async findActiveAndFutureIds(organizationId: string): Promise<string[]> {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = await this.db
+      .select({ id: academicYearsTable.id })
+      .from(academicYearsTable)
+      .where(
+        and(
+          eq(academicYearsTable.organizationId, organizationId),
+          or(
+            eq(academicYearsTable.isActive, true),
+            gte(
+              sql<string>`COALESCE(${academicYearsTable.period2End}, ${academicYearsTable.period1End}, ${academicYearsTable.period0End})`,
+              today
+            )
+          )
+        )
+      );
+
+    return rows.map((row) => row.id);
+  }
+
+  async isHistoric(id: string): Promise<boolean> {
+    const row = await this.db
+      .select({
+        period0End: academicYearsTable.period0End,
+        period1End: academicYearsTable.period1End,
+        period2End: academicYearsTable.period2End,
+      })
+      .from(academicYearsTable)
+      .where(eq(academicYearsTable.id, id))
+      .limit(1);
+
+    const academicYear = row[0];
+    if (!academicYear) return false;
+
+    const latestEnd = [
+      academicYear.period0End,
+      academicYear.period1End,
+      academicYear.period2End,
+    ]
+      .filter((date): date is string => date !== null)
+      .sort()
+      .at(-1);
+
+    const today = new Date().toISOString().slice(0, 10);
+    return latestEnd !== undefined && latestEnd < today;
   }
 
   async delete(id: string): Promise<void> {

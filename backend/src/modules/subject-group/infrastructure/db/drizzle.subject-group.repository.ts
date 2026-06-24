@@ -88,15 +88,20 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     return rows[0] ? this.mapToDomain(rows[0]) : null;
   }
 
-  async findAll(organizationId: string): Promise<SubjectGroup[]> {
+  async findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<SubjectGroup[]> {
     const rows = await this.database
       .select()
       .from(subjectGroupsTable)
       .where(
-        and(
-          eq(subjectGroupsTable.organizationId, organizationId),
-          isNull(subjectGroupsTable.deletedAt)
-        )
+        includeSoftDeleted
+          ? eq(subjectGroupsTable.organizationId, organizationId)
+          : and(
+              eq(subjectGroupsTable.organizationId, organizationId),
+              isNull(subjectGroupsTable.deletedAt)
+            )
       );
     return rows.map((row) => this.mapToDomain(row));
   }
@@ -228,9 +233,12 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     }));
   }
 
-  async create(subjectGroup: SubjectGroup): Promise<void> {
+  async create(
+    subjectGroup: SubjectGroup,
+    tx: any = this.database
+  ): Promise<void> {
     try {
-      await this.database
+      await tx
         .insert(subjectGroupsTable)
         .values(this.mapToPersistence(subjectGroup));
     } catch (error: unknown) {
@@ -243,11 +251,14 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     }
   }
 
-  async createMany(subjectGroups: SubjectGroup[]): Promise<void> {
+  async createMany(
+    subjectGroups: SubjectGroup[],
+    tx: any = this.database
+  ): Promise<void> {
     if (subjectGroups.length === 0) return;
     const valuesToInsert = subjectGroups.map((g) => this.mapToPersistence(g));
     try {
-      await this.database.insert(subjectGroupsTable).values(valuesToInsert);
+      await tx.insert(subjectGroupsTable).values(valuesToInsert);
     } catch (error: unknown) {
       if (getPostgresErrorCode(error) === '23505') {
         throw new ConflictError(
@@ -289,8 +300,12 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
     }
   }
 
-  async delete(id: string, organizationId: string): Promise<void> {
-    await this.database
+  async delete(
+    id: string,
+    organizationId: string,
+    tx: any = this.database
+  ): Promise<void> {
+    await tx
       .update(subjectGroupsTable)
       .set({ deletedAt: new Date() })
       .where(
@@ -301,8 +316,11 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
       );
   }
 
-  async deleteAll(organizationId: string): Promise<void> {
-    await this.database
+  async deleteAll(
+    organizationId: string,
+    tx: any = this.database
+  ): Promise<void> {
+    await tx
       .update(subjectGroupsTable)
       .set({ deletedAt: new Date() })
       .where(
@@ -315,10 +333,11 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
 
   async replace(
     subjectGroups: SubjectGroup[],
-    organizationId: string
+    organizationId: string,
+    tx?: any
   ): Promise<void> {
-    await this.database.transaction(async (tx) => {
-      await tx
+    const replaceWith = async (executor: any) => {
+      await executor
         .update(subjectGroupsTable)
         .set({ deletedAt: new Date() })
         .where(
@@ -333,7 +352,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
           this.mapToPersistence(g)
         );
         try {
-          await tx.insert(subjectGroupsTable).values(valuesToInsert);
+          await executor.insert(subjectGroupsTable).values(valuesToInsert);
         } catch (error: unknown) {
           if (getPostgresErrorCode(error) === '23505') {
             throw new ConflictError(
@@ -343,7 +362,13 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
           throw error;
         }
       }
-    });
+    };
+
+    if (tx) {
+      await replaceWith(tx);
+    } else {
+      await this.database.transaction(replaceWith);
+    }
   }
 
   async findGroupsWithSubjectsInScope(

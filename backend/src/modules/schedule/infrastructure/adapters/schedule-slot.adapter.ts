@@ -1,4 +1,4 @@
-import type { IScheduleSlotProvider } from '../../domain/schedule-slot.provider';
+import type { IScheduleSlotProvider } from '../../domain/providers/schedule-slot.provider';
 import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
 import { isUnassignedPlacement } from '@/modules/schedule-slot/domain/schedule-issues';
 

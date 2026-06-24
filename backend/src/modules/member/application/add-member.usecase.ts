@@ -1,4 +1,4 @@
-import type { IMemberUserProvider } from '../domain/member-user.provider';
+import type { IMemberUserProvider } from '../domain/providers/member-user.provider';
 import type { IMemberRepository } from '../domain/member.repository';
 import type { MemberDTO as MemberDTO } from '@tfg-horarios/shared';
 import { type AppRole } from '@/core/permissions/roles';
@@ -11,7 +11,7 @@ import { Member } from '../domain/member.entity';
 import { MemberMapper } from './member.mapper';
 import { hasPermission } from '@/core/permissions/authorization';
 
-import type { IMemberNotificationProvider } from '../domain/member-notification.provider';
+import type { IMemberNotificationProvider } from '../domain/providers/member-notification.provider';
 
 export class AddMemberUseCase {
   constructor(

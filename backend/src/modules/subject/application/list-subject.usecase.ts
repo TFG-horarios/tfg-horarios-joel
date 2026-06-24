@@ -6,7 +6,7 @@ import type {
 import type { ISubjectRepository } from '../domain/subject.repository';
 import { SubjectMapper } from './subject.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
-import type { ISubjectMemberProvider } from '../domain/subject-member.provider';
+import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
 
 export class ListSubjectUseCase {
   constructor(

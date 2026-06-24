@@ -38,6 +38,7 @@ describe('SubjectMapper', () => {
       isCommon: true,
       createdAt: date.toISOString(),
       updatedAt: date.toISOString(),
+      deletedAt: null,
     });
   });
 });

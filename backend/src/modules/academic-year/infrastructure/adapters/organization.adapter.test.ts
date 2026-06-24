@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
-import { AcademicYearOrganizationAdapter } from './academic-year-organization.adapter';
+import { OrganizationAdapter } from './organization.adapter';
 import { Organization } from '@/modules/organization/domain/organization.entity';
 
 describe('AcademicYearOrganizationAdapter', () => {
@@ -11,9 +11,7 @@ describe('AcademicYearOrganizationAdapter', () => {
     create: mock(),
   };
 
-  const adapter = new AcademicYearOrganizationAdapter(
-    organizationRepositoryMock
-  );
+  const adapter = new OrganizationAdapter(organizationRepositoryMock);
 
   test('should return false if organization is not found', async () => {
     organizationRepositoryMock.findById.mockResolvedValue(null);

@@ -28,7 +28,7 @@ export async function fetchPaginatedClassroomsAction(
 }
 
 export async function fetchAllClassroomsAction(
-  organizationId: string
+  organizationId: string,
 ): Promise<ClassroomDTO[]> {
   try {
     return await fetchAllClassrooms(organizationId);

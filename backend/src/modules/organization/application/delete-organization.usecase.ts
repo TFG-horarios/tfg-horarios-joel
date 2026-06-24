@@ -1,6 +1,6 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { type IOrganizationRepository } from '../domain/organization.repository';
-import type { IOrganizationMemberProvider } from '../domain/organization-member.provider';
+import type { IOrganizationMemberProvider } from '../domain/providers/organization-member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteOrganizationUseCase {

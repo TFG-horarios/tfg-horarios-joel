@@ -69,7 +69,7 @@ export function FormSelect({
         <FormItem className="flex flex-col w-full">
           {label && <FormLabel>{label}</FormLabel>}
           {searchable ? (
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover modal open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button

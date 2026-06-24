@@ -1,5 +1,5 @@
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
-import type { IClassroomReservationMemberProvider } from '../domain/classroom-reservation-member.provider';
+import type { IClassroomReservationMemberProvider } from '../domain/providers/classroom-reservation-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { ClassroomReservationDTO } from '@tfg-horarios/shared';

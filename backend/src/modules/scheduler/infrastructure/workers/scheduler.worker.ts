@@ -20,7 +20,7 @@ import type {
   ScheduleEngineGroupData,
   ScheduleEngineClassroomMap,
   ScheduleEngineAssignment,
-} from '@/modules/schedule/domain/schedule-engine.provider';
+} from '@/modules/schedule/domain/providers/schedule-engine.provider';
 
 export interface SchedulerWorkerMessage {
   groupsData: ScheduleEngineGroupData[];

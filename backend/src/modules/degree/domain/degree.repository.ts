@@ -6,8 +6,15 @@ import type {
 } from '@tfg-horarios/shared';
 
 export interface IDegreeRepository {
-  findById(id: string, organizationId: string): Promise<Degree | null>;
-  findAll(organizationId: string): Promise<Degree[]>;
+  findById(
+    id: string,
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Degree | null>;
+  findAll(
+    organizationId: string,
+    includeSoftDeleted: boolean
+  ): Promise<Degree[]>;
   findPaginated(
     organizationId: string,
     filters?: DegreeListQueryDTO
@@ -16,7 +23,7 @@ export interface IDegreeRepository {
   create(degree: Degree): Promise<void>;
   createMany(degrees: Degree[]): Promise<void>;
   update(degree: Degree): Promise<void>;
-  delete(id: string, organizationId: string): Promise<void>;
-  deleteAll(organizationId: string): Promise<void>;
+  delete(id: string, organizationId: string, tx?: any): Promise<void>;
+  deleteAll(organizationId: string, tx?: any): Promise<void>;
   replace(degrees: Degree[], organizationId: string): Promise<void>;
 }

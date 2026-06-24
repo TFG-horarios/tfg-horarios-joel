@@ -1,6 +1,6 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
-import type { ISubjectProvider } from '../domain/subject.provider';
+import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { ISubjectProvider } from '../domain/providers/subject.provider';
 import type {
   BulkSaveSubjectGroupDTO,
   SubjectGroupDTO,
@@ -9,12 +9,20 @@ import { SubjectGroup } from '../domain/subject-group.entity';
 import { SubjectGroupMapper } from './subject-group.mapper';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
+import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
+import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { ISubjectGroupScheduleProvider } from '../domain/providers/subject-group-schedule.provider';
 
 export class ReplaceSubjectGroupsUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly memberProvider: ISubjectGroupMemberProvider,
-    private readonly subjectProvider: ISubjectProvider
+    private readonly subjectProvider: ISubjectProvider,
+    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly scheduleProvider?: ISubjectGroupScheduleProvider,
+    private readonly reevaluateSchedules?: ReevaluateSchedulesUseCase,
+    private readonly runInTransaction?: TransactionRunner
   ) {}
 
   async execute(
@@ -78,7 +86,43 @@ export class ReplaceSubjectGroupsUseCase {
       );
     }
 
-    await this.subjectGroupRepository.replace(groups, organizationId);
+    if (
+      !this.academicYearRepository ||
+      !this.scheduleProvider ||
+      !this.reevaluateSchedules ||
+      !this.runInTransaction
+    ) {
+      await this.subjectGroupRepository.replace(groups, organizationId);
+      return SubjectGroupMapper.toDTOList(groups);
+    }
+
+    const existingGroups = await this.subjectGroupRepository.findAll(
+      organizationId,
+      false
+    );
+    const yearIds =
+      await this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+    await this.runInTransaction(async (tx) => {
+      await this.subjectGroupRepository.replace(groups, organizationId, tx);
+      const deletedFrom =
+        await this.scheduleProvider!.handleSubjectGroupsDeletion(
+          existingGroups.map((group) => group.id),
+          organizationId,
+          yearIds,
+          tx
+        );
+      const addedTo = await this.scheduleProvider!.handleSubjectGroupsCreation(
+        groups.map((group) => group.id),
+        organizationId,
+        yearIds,
+        tx
+      );
+      await this.reevaluateSchedules!.execute(
+        [...new Set([...deletedFrom, ...addedTo])],
+        organizationId,
+        tx
+      );
+    });
     return SubjectGroupMapper.toDTOList(groups);
   }
 }

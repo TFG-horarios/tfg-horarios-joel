@@ -8,6 +8,7 @@ import {
   DegreeIdentifierSchema,
   DegreeListQuerySchema,
   createPaginatedSchema,
+  AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listDegreesRoute = createRoute({
@@ -33,6 +34,7 @@ export const listAllDegreesRoute = createRoute({
   path: '/organizations/{organizationId}/degrees/all',
   request: {
     params: DegreeBaseParamSchema,
+    query: AcademicYearContextQuerySchema,
   },
   responses: {
     200: {
@@ -63,7 +65,10 @@ export const getDegreeIdentifiersRoute = createRoute({
 export const getDegreeRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees/{id}',
-  request: { params: DegreeIdParamSchema },
+  request: {
+    params: DegreeIdParamSchema,
+    query: AcademicYearContextQuerySchema,
+  },
   responses: {
     200: {
       description: 'Detalle del grado',

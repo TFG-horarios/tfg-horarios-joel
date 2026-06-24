@@ -15,13 +15,17 @@ import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 
 type SchedulePlannerPageProps = {
-  params: Promise<{ id: string; scheduleId: string }>;
+  params: Promise<{
+    id: string;
+    academicYearId: string;
+    scheduleId: string;
+  }>;
 };
 
 export default async function SchedulePlannerPage({
   params,
 }: SchedulePlannerPageProps) {
-  const { id, scheduleId } = await params;
+  const { id, academicYearId, scheduleId } = await params;
 
   const [
     organization,
@@ -38,11 +42,11 @@ export default async function SchedulePlannerPage({
     fetchOrganizationById(id),
     fetchScheduleById(id, scheduleId),
     fetchScheduleSlots(id, scheduleId),
-    fetchAllClassrooms(id),
-    fetchAllSubjects(id),
-    fetchAllSubjectGroups(id),
-    fetchAllDegrees(id),
-    fetchAllItineraries(id),
+    fetchAllClassrooms(id, academicYearId),
+    fetchAllSubjects(id, academicYearId),
+    fetchAllSubjectGroups(id, academicYearId),
+    fetchAllDegrees(id, academicYearId),
+    fetchAllItineraries(id, academicYearId),
     fetchAcademicYears(id),
     getSessionUser(),
   ]);

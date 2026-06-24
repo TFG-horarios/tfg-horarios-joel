@@ -1,15 +1,15 @@
 import type {
-  IAuthUserRepository,
-  AuthUserRecord,
-  CreateAuthUserRecord,
-} from '../../domain/auth-user.provider';
+  IUserProvider,
+  UserRecord,
+  CreateUserRecord,
+} from '../../domain/user.provider';
 import type { IUserRepository } from '@/modules/user/domain/user.repository';
 import { User } from '@/modules/user/domain/user.entity';
 
-export class AuthUserAdapter implements IAuthUserRepository {
+export class AuthUserAdapter implements IUserProvider {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async findByEmail(email: string): Promise<AuthUserRecord | null> {
+  async findByEmail(email: string): Promise<UserRecord | null> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) return null;
 
@@ -21,7 +21,7 @@ export class AuthUserAdapter implements IAuthUserRepository {
     };
   }
 
-  async create(userDto: CreateAuthUserRecord): Promise<AuthUserRecord> {
+  async create(userDto: CreateUserRecord): Promise<UserRecord> {
     const user = User.create({
       name: userDto.name,
       email: userDto.email,

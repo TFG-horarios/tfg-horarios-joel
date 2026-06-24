@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/subject-group-member.provider';
+import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
 import type {
   SaveSubjectGroupDTO,
   SubjectGroupDTO,
@@ -11,7 +11,7 @@ import {
   ValidationError,
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { ISubjectProvider } from '../domain/subject.provider';
+import type { ISubjectProvider } from '../domain/providers/subject.provider';
 
 export class UpdateSubjectGroupUseCase {
   constructor(

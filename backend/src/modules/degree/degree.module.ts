@@ -26,7 +26,11 @@ import {
   getDegreeIdentifiersRoute,
 } from './infrastructure/http/hono.degree.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
+import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
+import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
+import { DegreeScheduleAdapter } from './infrastructure/adapters/degree-schedule.adapter';
 import { DegreeMemberAdapter } from './infrastructure/adapters/degree-member.adapter';
+import { DegreeAcademicYearAdapter } from './infrastructure/adapters/degree-academic-year.adapter';
 
 export const createDegreeModule = (
   db: DbConnection,
@@ -34,18 +38,48 @@ export const createDegreeModule = (
 ) => {
   const degreeRepository = new DrizzleDegreeRepository(db);
   const memberProvider = new DegreeMemberAdapter(memberRepository);
+  const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const scheduleProvider = new DegreeScheduleAdapter(
+    new DrizzleScheduleRepository(db)
+  );
+  const academicYearProvider = new DegreeAcademicYearAdapter(
+    academicYearRepository
+  );
+
+  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
+    db.transaction(work);
 
   const controller = new HonoDegreeController(
     new CreateDegreeUseCase(degreeRepository, memberProvider),
     new BulkCreateDegreesUseCase(degreeRepository, memberProvider),
-    new GetDegreeUseCase(degreeRepository, memberProvider),
+    new GetDegreeUseCase(
+      degreeRepository,
+      memberProvider,
+      academicYearProvider
+    ),
     new ListDegreesUseCase(degreeRepository, memberProvider),
     new UpdateDegreeUseCase(degreeRepository, memberProvider),
-    new DeleteDegreeUseCase(degreeRepository, memberProvider),
-    new DeleteAllDegreesUseCase(degreeRepository, memberProvider),
+    new DeleteDegreeUseCase(
+      degreeRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      runInTransaction
+    ),
+    new DeleteAllDegreesUseCase(
+      degreeRepository,
+      memberProvider,
+      academicYearRepository,
+      scheduleProvider,
+      runInTransaction
+    ),
     new ReplaceDegreesUseCase(degreeRepository, memberProvider),
     new GetDegreeIdentifiersUseCase(degreeRepository, memberProvider),
-    new ListAllDegreesUseCase(degreeRepository, memberProvider)
+    new ListAllDegreesUseCase(
+      degreeRepository,
+      memberProvider,
+      academicYearProvider
+    )
   );
 
   const app = new OpenAPIHono<AppEnv>();

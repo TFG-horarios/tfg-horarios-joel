@@ -1,9 +1,9 @@
 import type {
   IScheduleSlotDataProvider,
   IScheduleSlotContext,
-} from '../../domain/schedule-slot-data.provider';
+} from '../../domain/providers/schedule-slot-data.provider';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
-import type { IScheduleDataProvider } from '@/modules/schedule/domain/schedule-data.provider';
+import type { IScheduleDataProvider } from '@/modules/schedule/domain/providers/schedule-data.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 

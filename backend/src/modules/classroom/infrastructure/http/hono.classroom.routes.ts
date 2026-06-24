@@ -11,6 +11,7 @@ import {
   ClassroomConfigurationListQuerySchema,
   ClassroomScheduleQuerySchema,
   ScheduleSlotSchema,
+  AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
 export const listClassroomsRoute = createRoute({
@@ -36,6 +37,7 @@ export const listAllClassroomsRoute = createRoute({
   path: '/organizations/{organizationId}/classrooms/all',
   request: {
     params: ClassroomBaseParamSchema,
+    query: AcademicYearContextQuerySchema,
   },
   responses: {
     200: {
@@ -66,7 +68,10 @@ export const getClassroomIdentifiersRoute = createRoute({
 export const getClassroomRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/{id}',
-  request: { params: ClassroomIdParamSchema },
+  request: {
+    params: ClassroomIdParamSchema,
+    query: AcademicYearContextQuerySchema,
+  },
   responses: {
     200: {
       description: 'Classroom found',

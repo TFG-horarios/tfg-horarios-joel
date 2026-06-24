@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
-import { ClassroomMemberAdapter } from './classroom-member.adapter';
+import { MemberAdapter } from './member.adapter';
 
 describe('ClassroomMemberAdapter', () => {
   const memberRepositoryMock = {
@@ -15,7 +15,7 @@ describe('ClassroomMemberAdapter', () => {
     findWithUserDetailsByUserAndOrg: mock(),
   };
 
-  const adapter = new ClassroomMemberAdapter(memberRepositoryMock);
+  const adapter = new MemberAdapter(memberRepositoryMock);
 
   test('should return null if member is not found', async () => {
     memberRepositoryMock.findByUserAndOrg.mockResolvedValueOnce(null);

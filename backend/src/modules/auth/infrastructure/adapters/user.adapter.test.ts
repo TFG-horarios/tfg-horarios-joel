@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
-import { AuthUserAdapter } from './auth-user.adapter';
+import { AuthUserAdapter } from './user.adapter';
 import { User } from '@/modules/user/domain/user.entity';
 
 describe('AuthUserAdapter', () => {

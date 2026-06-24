@@ -44,15 +44,15 @@ export default async function ClassroomScheduleDetailPage({
     academicYearsList,
   ] = await Promise.all([
     fetchOrganizationById(id),
-    fetchClassroomById(id, classroomId),
-    fetchAllSubjects(id),
-    fetchAllSubjectGroups(id),
+    fetchClassroomById(id, classroomId, academicYearId),
+    fetchAllSubjects(id, academicYearId),
+    fetchAllSubjectGroups(id, academicYearId),
     fetchClassroomScheduleSlots(id, classroomId, {
       academicYearId,
       shift,
       period,
     }),
-    fetchAllDegrees(id),
+    fetchAllDegrees(id, academicYearId),
     import('@/features/academic-year/queries').then((m) =>
       m.fetchAcademicYears(id)
     ),

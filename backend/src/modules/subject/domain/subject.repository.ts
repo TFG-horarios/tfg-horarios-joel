@@ -7,7 +7,10 @@ import type {
 
 export interface ISubjectRepository {
   findById(id: string, organizationId: string): Promise<Subject | null>;
-  findAll(organizationId: string): Promise<Subject[]>;
+  findAll(
+    organizationId: string,
+    includeSoftDelete: boolean
+  ): Promise<Subject[]>;
   findPaginated(
     organizationId: string,
     filters?: SubjectListQueryDTO
@@ -16,7 +19,7 @@ export interface ISubjectRepository {
   create(subject: Subject): Promise<void>;
   createMany(subjects: Subject[]): Promise<void>;
   update(subject: Subject): Promise<void>;
-  delete(id: string, organizationId: string): Promise<void>;
-  deleteAll(organizationId: string): Promise<void>;
+  delete(id: string, organizationId: string, tx?: any): Promise<void>;
+  deleteAll(organizationId: string, tx?: any): Promise<void>;
   replace(subjects: Subject[], organizationId: string): Promise<void>;
 }
