@@ -38,6 +38,7 @@ import { subjectGroupsTable } from '@/modules/subject-group/infrastructure/db/dr
 import { subjectsTable } from '@/modules/subject/infrastructure/db/drizzle.subject.schema';
 import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
 import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
+import { scheduleTimeConfigsTable } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 
 export class DrizzleScheduleRepository implements IScheduleRepository {
   constructor(private readonly database: DbConnection) {}
@@ -82,6 +83,36 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     };
   }
 
+  private async withEffectiveTimeConfig(
+    row: DrizzleSchedule
+  ): Promise<DrizzleSchedule> {
+    const candidates = await this.database
+      .select()
+      .from(scheduleTimeConfigsTable)
+      .where(
+        and(
+          eq(scheduleTimeConfigsTable.organizationId, row.organizationId),
+          eq(scheduleTimeConfigsTable.academicYearId, row.academicYearId),
+          eq(scheduleTimeConfigsTable.degreeId, row.degreeId),
+          eq(scheduleTimeConfigsTable.courseYear, row.courseYear),
+          eq(scheduleTimeConfigsTable.period, row.period),
+          eq(scheduleTimeConfigsTable.shift, row.shift)
+        )
+      );
+
+    const specific = row.itineraryId
+      ? candidates.find((config) => config.itineraryId === row.itineraryId)
+      : null;
+    const base = candidates.find((config) => config.itineraryId === null);
+    const effective = specific ?? base;
+
+    if (!effective || effective.id === row.timeConfigId) {
+      return row;
+    }
+
+    return { ...row, timeConfigId: effective.id };
+  }
+
   async findById(id: string, organizationId: string): Promise<Schedule | null> {
     const rows = await this.database
       .select()
@@ -93,7 +124,8 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         )
       )
       .limit(1);
-    return rows[0] ? this.mapToDomain(rows[0]) : null;
+    if (!rows[0]) return null;
+    return this.mapToDomain(await this.withEffectiveTimeConfig(rows[0]));
   }
 
   async findByScope(
@@ -263,6 +295,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     await this.database
       .update(schedulesTable)
       .set({
+        timeConfigId: rawData.timeConfigId,
         status: rawData.status,
         conflicts: rawData.conflicts,
         unassigned: rawData.unassigned,
@@ -382,6 +415,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
             await tx
               .update(schedulesTable)
               .set({
+                timeConfigId: item.schedule.timeConfigId,
                 status: item.schedule.status,
                 conflicts: item.schedule.conflicts,
                 unassigned: item.schedule.unassigned,

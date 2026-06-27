@@ -7,6 +7,8 @@ import {
   type PaginatedResponse,
   type ClassroomConfigurationListQueryDTO,
   type ClassroomScheduleQueryDTO,
+  type ClassroomOccupancyEventDTO,
+  ClassroomOccupancyEventSchema,
   type ScheduleSlotDTO,
   ScheduleSlotSchema,
 } from '@tfg-horarios/shared';
@@ -86,5 +88,35 @@ export const fetchClassroomScheduleSlots = cache(
 
     const payload = await response.json();
     return ScheduleSlotSchema.array().parse(payload);
+  }
+);
+
+export const fetchClassroomOccupancy = cache(
+  async (
+    organizationId: string,
+    classroomId: string,
+    query?: ClassroomScheduleQueryDTO
+  ): Promise<ClassroomOccupancyEventDTO[]> => {
+    const t = await getTranslations('Common.errors');
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.classrooms[':id']!.occupancy.$get({
+      param: { organizationId, id: classroomId },
+      query: query || {},
+    });
+
+    const status = response.status + 0;
+
+    if (status === 401 || status === 403 || status === 404) {
+      return [];
+    }
+
+    if (!response.ok) {
+      throw new Error(t('server'));
+    }
+
+    const payload = await response.json();
+    return ClassroomOccupancyEventSchema.array().parse(payload);
   }
 );

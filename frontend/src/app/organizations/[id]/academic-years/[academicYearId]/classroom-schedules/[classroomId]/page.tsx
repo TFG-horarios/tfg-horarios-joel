@@ -4,9 +4,7 @@ import { fetchClassroomById } from '@/features/classroom/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchClassroomScheduleSlots } from '@/features/classroom-schedule/queries';
-import { fetchPaginatedSchedules } from '@/features/schedule/queries';
-import { fetchScheduleTimeConfigs } from '@/features/schedule-time-config/queries';
+import { fetchClassroomOccupancy } from '@/features/classroom-schedule/queries';
 import { ClassroomSchedulePlanner } from '@/features/classroom-schedule/components/classroom-schedule-planner';
 
 type ClassroomScheduleDetailPageProps = {
@@ -41,17 +39,15 @@ export default async function ClassroomScheduleDetailPage({
     classroom,
     subjects,
     subjectGroups,
-    slots,
+    events,
     degrees,
     academicYearsList,
-    schedulesResult,
-    timeConfigs,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchClassroomById(id, classroomId, academicYearId),
     fetchAllSubjects(id, academicYearId),
     fetchAllSubjectGroups(id, academicYearId),
-    fetchClassroomScheduleSlots(id, classroomId, {
+    fetchClassroomOccupancy(id, classroomId, {
       academicYearId,
       shift,
       period,
@@ -60,13 +56,6 @@ export default async function ClassroomScheduleDetailPage({
     import('@/features/academic-year/queries').then((m) =>
       m.fetchAcademicYears(id)
     ),
-    fetchPaginatedSchedules(id, {
-      academicYearId,
-      shift,
-      period,
-      limit: 500,
-    }).catch(() => ({ data: [] })),
-    fetchScheduleTimeConfigs(id, academicYearId).catch(() => []),
   ]);
 
   if (!organization || !classroom) {
@@ -84,13 +73,11 @@ export default async function ClassroomScheduleDetailPage({
     <div className="flex flex-col">
       <ClassroomSchedulePlanner
         classroom={classroom}
-        slots={slots}
+        events={events}
         subjects={subjects}
         subjectGroups={subjectGroups}
         degrees={degrees}
         academicYear={academicYearObj}
-        schedules={schedulesResult.data}
-        timeConfigs={timeConfigs}
         shift={shift}
         period={period}
       />

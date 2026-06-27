@@ -1,6 +1,7 @@
 import { describe, expect, test, beforeAll, beforeEach } from 'bun:test';
 import { DrizzleScheduleRepository } from './drizzle.schedule.repository';
 import { Schedule } from '../../domain/schedule.entity';
+import { schedulesTable } from './drizzle.schedule.schema';
 import { setupTestDb, cleanTestDb, testDb } from '@/tests/setup-db';
 import {
   seedTestDb,
@@ -18,6 +19,7 @@ import {
   scheduleSlotsTable,
   scheduleSlotInclusionsTable,
 } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
+import { scheduleTimeConfigsTable } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 import { eq } from 'drizzle-orm';
 
 describe('DrizzleScheduleRepository Integration', () => {
@@ -224,6 +226,74 @@ describe('DrizzleScheduleRepository Integration', () => {
     await repository.createSchedulesWithSlots([{ schedule, slots }]);
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
+  });
+
+  test('should update time config when overwriting existing schedule slots', async () => {
+    const wrongSemesterConfigId = crypto.randomUUID();
+    const correctSemesterConfigId = crypto.randomUUID();
+    await testDb.insert(scheduleTimeConfigsTable).values([
+      {
+        id: wrongSemesterConfigId,
+        organizationId: testOrgId,
+        academicYearId: testAcademicYearId,
+        degreeId: testDegreeId,
+        itineraryId: null,
+        courseYear: 2,
+        period: 2,
+        shift: 'morning',
+        startTime: '10:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+      {
+        id: correctSemesterConfigId,
+        organizationId: testOrgId,
+        academicYearId: testAcademicYearId,
+        degreeId: testDegreeId,
+        itineraryId: null,
+        courseYear: 2,
+        period: 1,
+        shift: 'morning',
+        startTime: '08:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+    ]);
+
+    const schedule = createValidSchedule();
+    schedule.setTimeConfigId(wrongSemesterConfigId);
+    await repository.create(schedule);
+
+    const autoCorrected = await repository.findById(schedule.id, testOrgId);
+    expect(autoCorrected?.timeConfigId).toBe(correctSemesterConfigId);
+
+    schedule.setTimeConfigId(correctSemesterConfigId);
+    await repository.createSchedulesWithSlots([
+      {
+        schedule,
+        slots: [
+          {
+            scheduleId: schedule.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: testClassroomId,
+            dayOfWeek: 1,
+            slotIndex: 1,
+            duration: 1,
+            conflicts: [],
+          },
+        ],
+      },
+    ]);
+
+    const updated = await repository.findById(schedule.id, testOrgId);
+    expect(updated?.timeConfigId).toBe(correctSemesterConfigId);
+    const [rawSchedule] = await testDb
+      .select({ timeConfigId: schedulesTable.timeConfigId })
+      .from(schedulesTable)
+      .where(eq(schedulesTable.id, schedule.id));
+    expect(rawSchedule?.timeConfigId).toBe(correctSemesterConfigId);
   });
 
   test('should keep unassigned diagnostics out of the conflict count', async () => {

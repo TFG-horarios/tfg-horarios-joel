@@ -1,198 +1,51 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, Loader2, ArchiveRestore } from 'lucide-react';
-import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot';
+import { Calendar, Download, Loader2 } from 'lucide-react';
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
-import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
+import {
+  ClassroomTimelineWeek,
+  type ClassroomTimelineEvent,
+} from '@/components/shared/schedule/classroom-timeline-week';
 import type {
   Shift,
-  ScheduleDTO,
-  ScheduleSlotDTO,
   ClassroomDTO,
   SubjectDTO,
   SubjectGroupDTO,
   DegreeDTO,
   AcademicYearDTO,
-  ScheduleTimeConfigDTO,
+  ClassroomOccupancyEventDTO,
 } from '@tfg-horarios/shared';
-import {
-  buildScheduleTimeGrid,
-  formatMinutesAsTime,
-  projectAssignmentInterval,
-} from '@tfg-horarios/shared';
-import { memo, useMemo } from 'react';
+import { formatMinutesAsTime, parseTimeToMinutes } from '@tfg-horarios/shared';
 
 type ClassroomSchedulePlannerProps = {
-  slots: ScheduleSlotDTO[];
+  events: ClassroomOccupancyEventDTO[];
   classroom: ClassroomDTO;
   subjects: SubjectDTO[];
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
   academicYear: AcademicYearDTO;
-  schedules: ScheduleDTO[];
-  timeConfigs: ScheduleTimeConfigDTO[];
   shift: Shift;
   period: number;
 };
 
-type MemoizedScheduleCellProps = {
-  cellSlots: ScheduleSlotDTO[];
-  slotMetaMap: Map<
-    string,
-    {
-      group: SubjectGroupDTO | undefined;
-      subject: SubjectDTO | undefined;
-      degree: DegreeDTO | undefined;
-    }
-  >;
-  classroom: ClassroomDTO;
-  subjectIdsPool: string[];
-};
-
-const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
-  cellSlots,
-  slotMetaMap,
-  subjectIdsPool,
-}: MemoizedScheduleCellProps) {
-  return (
-    <div className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border/50 bg-background/30 h-full min-h-22.5">
-      {cellSlots.length > 0 &&
-        cellSlots.map((slot) => {
-          const meta = slotMetaMap.get(slot.subjectGroupId);
-          if (!meta || !meta.subject || !meta.group) return null;
-          return (
-            <div key={slot.id} className="w-full">
-              <div className="pointer-events-none">
-                <DraggableSlot
-                  slot={slot}
-                  subject={meta.subject}
-                  group={meta.group}
-                  degree={meta.degree}
-                  subjectIdsPool={subjectIdsPool}
-                />
-              </div>
-            </div>
-          );
-        })}
-    </div>
-  );
-});
+type PlannerEvent = ClassroomTimelineEvent & ClassroomOccupancyEventDTO;
 
 export function ClassroomSchedulePlanner({
-  slots,
+  events,
   classroom,
   subjects,
   subjectGroups,
   degrees,
   academicYear,
-  schedules,
-  timeConfigs,
   shift,
   period,
 }: ClassroomSchedulePlannerProps) {
   const t = useTranslations('Organizations.classroomSchedules.planner');
-
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
-  const { slotTimeLabels, numSlots, slotRowById } = useMemo(() => {
-    const scheduleById = new Map(
-      schedules.map((schedule) => [schedule.id, schedule])
-    );
-    const configById = new Map(
-      timeConfigs.map((config) => [config.id, config])
-    );
-    const rowKeys = new Map<
-      string,
-      { startMinutes: number; endMinutes: number }
-    >();
-    const slotRows = new Map<string, number>();
-
-    slots.forEach((slot) => {
-      if (slot.dayOfWeek === null || slot.slotIndex === null) return;
-      const schedule = scheduleById.get(slot.scheduleId);
-      const config = schedule?.timeConfigId
-        ? configById.get(schedule.timeConfigId)
-        : null;
-      if (!config) return;
-
-      const grid = buildScheduleTimeGrid(
-        {
-          slotDurationMinutes: academicYear.slotDurationMinutes,
-          breakDurationMinutes: academicYear.breakDurationMinutes,
-        },
-        {
-          startTime: config.startTime,
-          endTime: config.endTime,
-          hasBreak: config.hasBreak,
-          breakAfterSlot: config.breakAfterSlot,
-        }
-      );
-      const interval = projectAssignmentInterval(
-        grid,
-        slot.slotIndex,
-        slot.duration
-      );
-      if (!interval) return;
-      const key = `${interval.startMinutes}-${interval.endMinutes}`;
-      rowKeys.set(key, interval);
-    });
-
-    const rows = Array.from(rowKeys.entries())
-      .map(([key, interval]) => ({ key, ...interval }))
-      .sort(
-        (a, b) => a.startMinutes - b.startMinutes || a.endMinutes - b.endMinutes
-      );
-    const rowIndexByKey = new Map(rows.map((row, index) => [row.key, index]));
-
-    slots.forEach((slot) => {
-      if (slot.dayOfWeek === null || slot.slotIndex === null) return;
-      const schedule = scheduleById.get(slot.scheduleId);
-      const config = schedule?.timeConfigId
-        ? configById.get(schedule.timeConfigId)
-        : null;
-      if (!config) return;
-      const grid = buildScheduleTimeGrid(
-        {
-          slotDurationMinutes: academicYear.slotDurationMinutes,
-          breakDurationMinutes: academicYear.breakDurationMinutes,
-        },
-        {
-          startTime: config.startTime,
-          endTime: config.endTime,
-          hasBreak: config.hasBreak,
-          breakAfterSlot: config.breakAfterSlot,
-        }
-      );
-      const interval = projectAssignmentInterval(
-        grid,
-        slot.slotIndex,
-        slot.duration
-      );
-      if (!interval) return;
-      const rowIndex = rowIndexByKey.get(
-        `${interval.startMinutes}-${interval.endMinutes}`
-      );
-      if (rowIndex !== undefined) {
-        slotRows.set(slot.id, rowIndex);
-      }
-    });
-
-    return {
-      numSlots: rows.length,
-      startSlotIndex: 0,
-      slotRowById: slotRows,
-      slotTimeLabels: Object.fromEntries(
-        rows.map((row, index) => [
-          index,
-          `${formatMinutesAsTime(row.startMinutes)} - ${formatMinutesAsTime(
-            row.endMinutes
-          )}`,
-        ])
-      ) as Record<number, string>,
-    };
-  }, [academicYear, schedules, slots, timeConfigs]);
 
   const daysOfWeek = [
     { value: 1, label: t('days.1') },
@@ -201,31 +54,6 @@ export function ClassroomSchedulePlanner({
     { value: 4, label: t('days.4') },
     { value: 5, label: t('days.5') },
   ];
-
-  const slotsByCell = useMemo(() => {
-    const map = new Map<string, ScheduleSlotDTO[]>();
-    slots.forEach((s) => {
-      const rowIndex = slotRowById.get(s.id);
-      if (s.dayOfWeek === null || rowIndex === undefined) return;
-      const key = `${s.dayOfWeek}_${rowIndex}`;
-      if (!map.has(key)) {
-        map.set(key, []);
-      }
-      const cellSlots = map.get(key)!;
-      if (
-        !cellSlots.some(
-          (existing) => existing.subjectGroupId === s.subjectGroupId
-        )
-      ) {
-        cellSlots.push(s);
-      }
-    });
-    return map;
-  }, [slots, slotRowById]);
-
-  const unassignedSlots = useMemo(() => {
-    return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
-  }, [slots]);
 
   const slotMetaMap = useMemo(() => {
     const map = new Map<
@@ -246,16 +74,19 @@ export function ClassroomSchedulePlanner({
     return map;
   }, [subjectGroups, subjects, degrees]);
 
-  const subjectIdsPool = useMemo(() => {
-    const presentSubjectIds = new Set<string>();
-    slots.forEach((slot) => {
-      const meta = slotMetaMap.get(slot.subjectGroupId);
-      if (meta && meta.subject) {
-        presentSubjectIds.add(meta.subject.id);
-      }
-    });
-    return Array.from(presentSubjectIds);
-  }, [slots, slotMetaMap]);
+  const timelineEvents: PlannerEvent[] = useMemo(
+    () =>
+      events
+        .filter((event) => event.dayOfWeek >= 1 && event.dayOfWeek <= 5)
+        .map((event) => ({
+          ...event,
+          day: event.dayOfWeek,
+        })),
+    [events]
+  );
+
+  const startTimeMinutes = parseTimeToMinutes(academicYear.centerOpeningTime);
+  const endTimeMinutes = parseTimeToMinutes(academicYear.centerClosingTime);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -300,49 +131,31 @@ export function ClassroomSchedulePlanner({
         </div>
       </div>
 
-      {unassignedSlots.length > 0 && (
-        <div className="backdrop-blur-md border border-amber-200/50 bg-amber-50/10 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-medium text-sm">
-            <ArchiveRestore className="size-4" />
-            {t('unassignedSlotsTitle', {
-              fallback: 'Clases por asignar a esta aula',
-            })}
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {unassignedSlots.map((slot) => {
-              const meta = slotMetaMap.get(slot.subjectGroupId);
-              if (!meta || !meta.subject || !meta.group) return null;
-              return (
-                <div key={slot.id} className="w-48 pointer-events-none">
-                  <DraggableSlot
-                    slot={slot}
-                    subject={meta.subject}
-                    group={meta.group}
-                    degree={meta.degree}
-                    subjectIdsPool={subjectIdsPool}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <WeeklyScheduleGrid
+      <ClassroomTimelineWeek
         gridRef={gridRef}
         daysOfWeek={daysOfWeek}
-        numSlots={numSlots}
-        startSlotIndex={0}
-        slotTimeLabels={slotTimeLabels}
-        renderCell={(day, slotIndex) => {
-          const cellSlots = slotsByCell.get(`${day}_${slotIndex}`) || [];
+        startTimeMinutes={startTimeMinutes}
+        endTimeMinutes={endTimeMinutes}
+        events={timelineEvents}
+        renderEvent={(event) => {
+          const meta = slotMetaMap.get(event.subjectGroupId);
+          const title = meta?.subject?.name ?? 'Clase';
+          const group = meta?.group?.name;
+          const degree = meta?.degree?.name;
+
           return (
-            <MemoizedScheduleCell
-              cellSlots={cellSlots}
-              slotMetaMap={slotMetaMap}
-              classroom={classroom}
-              subjectIdsPool={subjectIdsPool}
-            />
+            <div className="h-full rounded-lg border border-blue-200 bg-blue-50/90 p-2 shadow-sm dark:border-blue-900/50 dark:bg-blue-950/30 overflow-hidden">
+              <div className="text-[11px] font-mono text-blue-700 dark:text-blue-300">
+                {formatMinutesAsTime(event.startTimeMinutes)}–
+                {formatMinutesAsTime(event.endTimeMinutes)}
+              </div>
+              <div className="text-sm font-semibold text-blue-950 dark:text-blue-100 line-clamp-2">
+                {title}
+              </div>
+              <div className="text-xs text-blue-800/80 dark:text-blue-200/80 line-clamp-2">
+                {[group, degree].filter(Boolean).join(' · ')}
+              </div>
+            </div>
           );
         }}
       />

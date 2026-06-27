@@ -104,14 +104,23 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
 
     let scheduleTimeConfigId = schedule.timeConfigId ?? null;
     if (!scheduleTimeConfigId) {
-      const fallbackConfig = timeConfigs.find(
-        (config) =>
-          config.degreeId === schedule.degreeId &&
-          config.courseYear === schedule.courseYear &&
-          config.period === schedule.period &&
-          config.shift === schedule.shift &&
-          config.itineraryId === (schedule.itineraryId ?? null)
-      );
+      const fallbackConfig =
+        timeConfigs.find(
+          (config) =>
+            config.degreeId === schedule.degreeId &&
+            config.courseYear === schedule.courseYear &&
+            config.period === schedule.period &&
+            config.shift === schedule.shift &&
+            config.itineraryId === (schedule.itineraryId ?? null)
+        ) ??
+        timeConfigs.find(
+          (config) =>
+            config.degreeId === schedule.degreeId &&
+            config.courseYear === schedule.courseYear &&
+            config.period === schedule.period &&
+            config.shift === schedule.shift &&
+            config.itineraryId === null
+        );
       scheduleTimeConfigId = fallbackConfig?.id ?? null;
     }
 
@@ -152,14 +161,23 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       }
       let timeConfigId = otherSchedule.timeConfigId ?? null;
       if (!timeConfigId) {
-        const fallbackConfig = timeConfigs.find(
-          (config) =>
-            config.degreeId === otherSchedule.degreeId &&
-            config.courseYear === otherSchedule.courseYear &&
-            config.period === otherSchedule.period &&
-            config.shift === otherSchedule.shift &&
-            config.itineraryId === (otherSchedule.itineraryId ?? null)
-        );
+        const fallbackConfig =
+          timeConfigs.find(
+            (config) =>
+              config.degreeId === otherSchedule.degreeId &&
+              config.courseYear === otherSchedule.courseYear &&
+              config.period === otherSchedule.period &&
+              config.shift === otherSchedule.shift &&
+              config.itineraryId === (otherSchedule.itineraryId ?? null)
+          ) ??
+          timeConfigs.find(
+            (config) =>
+              config.degreeId === otherSchedule.degreeId &&
+              config.courseYear === otherSchedule.courseYear &&
+              config.period === otherSchedule.period &&
+              config.shift === otherSchedule.shift &&
+              config.itineraryId === null
+          );
         timeConfigId = fallbackConfig?.id ?? null;
       }
       if (!timeConfigId) {

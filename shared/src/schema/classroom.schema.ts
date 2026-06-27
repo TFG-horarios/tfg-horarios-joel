@@ -57,6 +57,23 @@ export const ClassroomScheduleQuerySchema = z.object({
   period: z.coerce.number().int().positive().optional(),
 });
 
+export const ClassroomOccupancyEventSchema = z
+  .object({
+    id: z.string(),
+    type: z.enum(['class']),
+    classroomId: z.uuid(),
+    scheduleId: z.uuid(),
+    subjectGroupId: z.uuid(),
+    dayOfWeek: z.number().int().min(1).max(7),
+    slotIndex: z.number().int().min(0),
+    duration: z.number().positive(),
+    period: z.number().int().positive(),
+    shift: z.enum(SHIFT_TYPES),
+    startTimeMinutes: z.number().int().nonnegative(),
+    endTimeMinutes: z.number().int().positive(),
+  })
+  .openapi('ClassroomOccupancyEvent');
+
 export const ClassroomConfigurationListQuerySchema =
   PaginationQuerySchema.extend({
     search: z.string().optional(),
@@ -74,6 +91,9 @@ export type ClassroomIdentifierDTO = z.infer<typeof ClassroomIdentifierSchema>;
 export type ClassroomListQueryDTO = z.infer<typeof ClassroomListQuerySchema>;
 export type ClassroomScheduleQueryDTO = z.infer<
   typeof ClassroomScheduleQuerySchema
+>;
+export type ClassroomOccupancyEventDTO = z.infer<
+  typeof ClassroomOccupancyEventSchema
 >;
 export type ClassroomConfigurationListQueryDTO = z.infer<
   typeof ClassroomConfigurationListQuerySchema

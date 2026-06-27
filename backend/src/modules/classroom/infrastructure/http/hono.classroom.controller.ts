@@ -14,6 +14,7 @@ import {
   listAllClassroomsRoute,
   getActiveClassroomConfigurationsRoute,
   getClassroomScheduleSlotsRoute,
+  getClassroomOccupancyRoute,
 } from './hono.classroom.routes';
 import { ListClassroomsUseCase } from '../../application/list-classroom.usecase';
 import { ListAllClassroomsUseCase } from '../../application/list-all-classrooms.usecase';
@@ -26,6 +27,7 @@ import { DeleteAllClassroomsUseCase } from '../../application/delete-all-classro
 import { ReplaceClassroomsUseCase } from '../../application/replace-classrooms.usecase';
 import { GetActiveClassroomConfigurationsUseCase } from '../../application/get-active-classroom-configurations.usecase';
 import { GetClassroomScheduleSlotsUseCase } from '../../application/get-classroom-schedule-slots.usecase';
+import { GetClassroomOccupancyUseCase } from '../../application/get-classroom-occupancy.usecase';
 
 export class HonoClassroomController {
   constructor(
@@ -40,7 +42,8 @@ export class HonoClassroomController {
     private readonly getClassroomIdentifiersUseCase: GetClassroomIdentifiersUseCase,
     private readonly listAllClassroomsUseCase: ListAllClassroomsUseCase,
     private readonly getActiveClassroomConfigurationsUseCase: GetActiveClassroomConfigurationsUseCase,
-    private readonly getClassroomScheduleSlotsUseCase: GetClassroomScheduleSlotsUseCase
+    private readonly getClassroomScheduleSlotsUseCase: GetClassroomScheduleSlotsUseCase,
+    private readonly getClassroomOccupancyUseCase: GetClassroomOccupancyUseCase
   ) {}
 
   get: RouteHandler<typeof getClassroomRoute, AppEnv> = async (c) => {
@@ -195,5 +198,21 @@ export class HonoClassroomController {
       query
     );
     return c.json(slots, 200);
+  };
+
+  getOccupancy: RouteHandler<
+    typeof getClassroomOccupancyRoute,
+    AppEnv
+  > = async (c) => {
+    const { organizationId, id } = c.req.valid('param');
+    const query = c.req.valid('query');
+    const requesterUserId = c.get('userId');
+    const events = await this.getClassroomOccupancyUseCase.execute(
+      organizationId,
+      id,
+      requesterUserId,
+      query
+    );
+    return c.json(events, 200);
   };
 }

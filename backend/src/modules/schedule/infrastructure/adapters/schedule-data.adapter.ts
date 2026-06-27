@@ -12,6 +12,27 @@ import type { ScheduleEngineGroupData } from '../../domain/providers/schedule-en
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 import type { IScheduleTimeConfigRepository } from '@/modules/schedule-time-config/domain/schedule-time-config.repository';
+import { SseService } from '@/core/services/sse.service';
+
+const getLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const hasReservationStarted = (
+  reservationDate: string,
+  startTimeMinutes: number | null,
+  now: Date
+): boolean => {
+  const today = getLocalDateString(now);
+  if (reservationDate < today) return true;
+  if (reservationDate > today) return false;
+  if (startTimeMinutes === null) return false;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return startTimeMinutes <= nowMinutes;
+};
 
 export class ScheduleDataAdapter implements IScheduleDataProvider {
   constructor(
@@ -130,7 +151,8 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       await this.academicYearRepository.findById(academicYearId);
     if (!academicYear || academicYear.organizationId !== organizationId) return;
 
-    const today = new Date().toISOString().split('T')[0]!;
+    const now = new Date();
+    const today = getLocalDateString(now);
     const endDate = new Date();
     endDate.setFullYear(endDate.getFullYear() + 2);
     const endStr = endDate.toISOString().split('T')[0]!;
@@ -150,10 +172,13 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
 
       for (const res of allFutureReservations) {
         if (
-          res.status === 'REJECTED' ||
-          res.status === 'CANCELLED' ||
+          (res.status !== 'PENDING' && res.status !== 'ACCEPTED') ||
           res.academicYearId !== academicYearId
         ) {
+          continue;
+        }
+
+        if (hasReservationStarted(res.date, res.startTimeMinutes, now)) {
           continue;
         }
 
@@ -186,6 +211,15 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
             'Cancelada automáticamente por solapamiento con clase regular'
           );
           await this.reservationRepository.update(res);
+          SseService.getInstance().broadcast(
+            `classroom_${classroomId}`,
+            'reservation_updated',
+            {
+              classroomId,
+              reservationId: res.id,
+              status: res.status,
+            }
+          );
           await this.createNotificationUseCase.execute({
             userId: res.requesterUserId,
             organizationId,

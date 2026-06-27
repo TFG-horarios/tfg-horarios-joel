@@ -142,14 +142,14 @@ describe('ScheduleDataAdapter', () => {
       requesterUserId: 'user-1',
       classroomId: 'room-1',
       academicYearId: 'year-1',
-      date: '2025-01-01',
+      date: '2027-01-06',
       slotIndex: 2,
       startTimeMinutes: 600,
       endTimeMinutes: 660,
       status: 'ACCEPTED',
     });
 
-    Object.defineProperty(reservation, 'date', { get: () => '2025-01-01' });
+    Object.defineProperty(reservation, 'date', { get: () => '2027-01-06' });
 
     reservationRepositoryMock.findReservationsInDateRange.mockResolvedValue([
       reservation,

@@ -27,8 +27,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
-import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
+import {
+  ClassroomTimelineWeek,
+  type ClassroomTimelineEvent,
+} from '@/components/shared/schedule/classroom-timeline-week';
 import { requestReservationAction, fetchOccupiedSlotsAction } from '../actions';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -37,9 +39,8 @@ import type {
   OrganizationDTO,
   AcademicYearDTO,
   OccupiedSlotDTO,
-  TimeGridSlot,
 } from '@tfg-horarios/shared';
-import { formatMinutesAsTime } from '@tfg-horarios/shared';
+import { formatMinutesAsTime, parseTimeToMinutes } from '@tfg-horarios/shared';
 
 type ReservationPlannerProps = {
   organization: OrganizationDTO;
@@ -51,13 +52,6 @@ const parseTimeInput = (time: string) => {
   const [hours, minutes] = time.split(':').map(Number);
   return (hours ?? 0) * 60 + (minutes ?? 0);
 };
-
-const intervalsOverlap = (
-  first: Pick<TimeGridSlot, 'startMinutes' | 'endMinutes'>,
-  second: { startMinutes: number; endMinutes: number }
-) =>
-  first.startMinutes < second.endMinutes &&
-  second.startMinutes < first.endMinutes;
 
 export function ReservationPlanner({
   organization,
@@ -155,20 +149,15 @@ export function ReservationPlanner({
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<{
     day: number;
-    index: number;
     date: Date;
     startTimeMinutes: number;
     endTimeMinutes: number;
+    minStartTimeMinutes: number;
+    maxEndTimeMinutes: number;
   } | null>(null);
   const [reason, setReason] = useState('');
   const [customStartTime, setCustomStartTime] = useState('');
   const [customEndTime, setCustomEndTime] = useState('');
-
-  const {
-    slotTimeLabels,
-    numSlots,
-    slots: timeSlots,
-  } = useScheduleGrid(academicYear, 'global');
 
   const getMonday = (d: Date) => {
     const day = d.getDay();
@@ -266,27 +255,31 @@ export function ReservationPlanner({
     };
   }, [selectedClassroom, organization.id, modalOpen]);
 
-  const handleCellClick = (dayValue: number, slotIndex: number) => {
+  const handleEmptyClick = (selection: {
+    day: { value: number; date?: Date };
+    startTimeMinutes: number;
+    endTimeMinutes: number;
+    clickedTimeMinutes: number;
+  }) => {
     if (!selectedClassroom) {
       toast.error('Por favor, selecciona un aula primero');
       return;
     }
-    const dayObj = daysOfWeek.find((d) => d.value === dayValue);
-    if (dayObj) {
-      const slot = timeSlots.find((item) => item.slotIndex === slotIndex);
-      if (!slot) return;
-      setSelectedSlot({
-        day: dayValue,
-        index: slotIndex,
-        date: dayObj.date,
-        startTimeMinutes: slot.startMinutes,
-        endTimeMinutes: slot.endMinutes,
-      });
-      setCustomStartTime(formatMinutesAsTime(slot.startMinutes));
-      setCustomEndTime(formatMinutesAsTime(slot.endMinutes));
-      setReason('');
-      setModalOpen(true);
-    }
+
+    if (!selection.day.date) return;
+
+    setSelectedSlot({
+      day: selection.day.value,
+      date: selection.day.date,
+      startTimeMinutes: selection.startTimeMinutes,
+      endTimeMinutes: selection.endTimeMinutes,
+      minStartTimeMinutes: selection.startTimeMinutes,
+      maxEndTimeMinutes: selection.endTimeMinutes,
+    });
+    setCustomStartTime(formatMinutesAsTime(selection.startTimeMinutes));
+    setCustomEndTime(formatMinutesAsTime(selection.endTimeMinutes));
+    setReason('');
+    setModalOpen(true);
   };
 
   const handleReserve = () => {
@@ -296,6 +289,15 @@ export function ReservationPlanner({
       const formattedDate = format(selectedSlot.date, 'yyyy-MM-dd');
       const startTimeMinutes = parseTimeInput(customStartTime);
       const endTimeMinutes = parseTimeInput(customEndTime);
+
+      if (
+        startTimeMinutes < selectedSlot.minStartTimeMinutes ||
+        endTimeMinutes > selectedSlot.maxEndTimeMinutes ||
+        endTimeMinutes <= startTimeMinutes
+      ) {
+        toast.error('El rango debe estar dentro del hueco disponible');
+        return;
+      }
 
       const result = await requestReservationAction(organization.id, {
         classroomId: selectedClassroom,
@@ -321,6 +323,14 @@ export function ReservationPlanner({
       }
     });
   };
+
+  const timelineEvents: (ClassroomTimelineEvent &
+    OccupiedSlotDTO & { day: number })[] = occupiedSlots.map((slot, index) => ({
+    ...slot,
+    id: `${slot.date}-${slot.startTimeMinutes}-${slot.endTimeMinutes}-${index}`,
+  }));
+  const startTimeMinutes = parseTimeToMinutes(academicYear.centerOpeningTime);
+  const endTimeMinutes = parseTimeToMinutes(academicYear.centerClosingTime);
 
   return (
     <div className="flex flex-col gap-6">
@@ -408,65 +418,42 @@ export function ReservationPlanner({
           </div>
         )}
 
-        <WeeklyScheduleGrid
+        <ClassroomTimelineWeek
           daysOfWeek={daysOfWeek}
-          numSlots={numSlots}
-          slotTimeLabels={slotTimeLabels}
-          renderCell={(day, slotIndex) => {
-            const visualSlot = timeSlots.find(
-              (slot) => slot.slotIndex === slotIndex
-            );
-            const occupied = occupiedSlots.find(
-              (o) =>
-                visualSlot &&
-                o.day === day &&
-                intervalsOverlap(visualSlot, {
-                  startMinutes: o.startTimeMinutes,
-                  endMinutes: o.endTimeMinutes,
-                })
-            );
+          startTimeMinutes={startTimeMinutes}
+          endTimeMinutes={endTimeMinutes}
+          events={timelineEvents}
+          onEmptyClick={handleEmptyClick}
+          emptyLabel="Reservar"
+          renderEvent={(occupied) => {
+            const isClass = occupied.reason === 'Ocupado por clase';
+            const isPending = occupied.reason === 'Reserva pendiente';
+            const isAccepted = occupied.reason === 'Reservado';
 
-            if (occupied) {
-              const isClass = occupied.reason === 'Ocupado por clase';
-              const isPending = occupied.reason === 'Reserva pendiente';
-              const isAccepted = occupied.reason === 'Reservado';
+            let styleClasses =
+              'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
 
-              let styleClasses =
-                'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
-
-              if (isClass) {
-                styleClasses =
-                  'border-blue-200 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400';
-              } else if (isAccepted) {
-                styleClasses =
-                  'border-green-200 bg-green-50/70 dark:border-green-900/50 dark:bg-green-950/20 text-green-700 dark:text-green-400';
-              } else if (isPending) {
-                styleClasses =
-                  'border-amber-200 bg-amber-50/70 dark:border-amber-900/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400';
-              }
-
-              return (
-                <div
-                  className={`w-full h-full min-h-15 rounded-md border border-dashed cursor-not-allowed flex flex-col items-center justify-center p-2 ${styleClasses}`}
-                >
-                  <span className="text-[10px] font-medium text-center uppercase tracking-wider">
-                    {occupied.reason}
-                  </span>
-                  <span className="text-[10px] font-mono opacity-80">
-                    {formatMinutesAsTime(occupied.startTimeMinutes)}–
-                    {formatMinutesAsTime(occupied.endTimeMinutes)}
-                  </span>
-                </div>
-              );
+            if (isClass) {
+              styleClasses =
+                'border-blue-200 bg-blue-50/90 dark:border-blue-900/50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300';
+            } else if (isAccepted) {
+              styleClasses =
+                'border-green-200 bg-green-50/90 dark:border-green-900/50 dark:bg-green-950/30 text-green-700 dark:text-green-300';
+            } else if (isPending) {
+              styleClasses =
+                'border-amber-200 bg-amber-50/90 dark:border-amber-900/50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300';
             }
 
             return (
               <div
-                className="w-full h-full min-h-15 rounded-md border border-dashed border-border hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors flex items-center justify-center group"
-                onClick={() => handleCellClick(day, slotIndex)}
+                className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col justify-center p-2 overflow-hidden ${styleClasses}`}
               >
-                <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                  Reservar
+                <span className="text-[10px] font-medium uppercase tracking-wider line-clamp-2">
+                  {occupied.reason}
+                </span>
+                <span className="text-[10px] font-mono opacity-80">
+                  {formatMinutesAsTime(occupied.startTimeMinutes)}–
+                  {formatMinutesAsTime(occupied.endTimeMinutes)}
                 </span>
               </div>
             );

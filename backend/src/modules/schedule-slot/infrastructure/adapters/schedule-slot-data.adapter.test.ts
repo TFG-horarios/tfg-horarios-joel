@@ -91,7 +91,7 @@ describe('ScheduleSlotDataAdapter', () => {
     const reservation = {
       status: 'ACCEPTED',
       academicYearId: 'year-1',
-      date: '2025-01-01',
+      date: '2027-01-06',
       slotIndex: 2,
       startTimeMinutes: 600,
       endTimeMinutes: 660,
@@ -130,5 +130,56 @@ describe('ScheduleSlotDataAdapter', () => {
     expect(reservation.reject).toHaveBeenCalled();
     expect(reservationRepositoryMock.update).toHaveBeenCalledWith(reservation);
     expect(createNotificationUseCaseMock.execute).toHaveBeenCalled();
+  });
+
+  test('rejectConflictingReservations should keep already started reservations', async () => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+    const reservation = {
+      status: 'ACCEPTED',
+      academicYearId: 'year-1',
+      date: today,
+      slotIndex: 0,
+      startTimeMinutes: 0,
+      endTimeMinutes: 60,
+      requesterUserId: 'user-1',
+      reject: mock(),
+    };
+    reservationRepositoryMock.findReservationsInDateRange.mockResolvedValue([
+      reservation,
+    ]);
+    scheduleDataProviderMock.getMatchingPeriods.mockResolvedValue([1]);
+    scheduleDataProviderMock.getAcademicYearConstraints.mockResolvedValue({
+      slotDurationMinutes: 60,
+      breakDurationMinutes: 0,
+    });
+    scheduleDataProviderMock.getScheduleTimeConfigs.mockResolvedValue([
+      {
+        id: 'tc-1',
+        startTime: '00:00',
+        endTime: '02:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+    ]);
+
+    await adapter.rejectConflictingReservations(
+      'org-1',
+      'year-1',
+      1,
+      'room-1',
+      dayOfWeek,
+      0,
+      1,
+      'tc-1'
+    );
+
+    expect(reservation.reject).not.toHaveBeenCalled();
+    expect(reservationRepositoryMock.update).not.toHaveBeenCalledWith(
+      reservation
+    );
   });
 });

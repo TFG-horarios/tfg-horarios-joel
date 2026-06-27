@@ -10,6 +10,7 @@ import {
   createPaginatedSchema,
   ClassroomConfigurationListQuerySchema,
   ClassroomScheduleQuerySchema,
+  ClassroomOccupancyEventSchema,
   ScheduleSlotSchema,
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
@@ -235,6 +236,27 @@ export const getClassroomScheduleSlotsRoute = createRoute({
       description: 'Classroom schedule slots',
       content: {
         'application/json': { schema: z.array(ScheduleSlotSchema) },
+      },
+    },
+    403: { description: 'Forbidden' },
+    404: { description: 'Classroom not found' },
+  },
+});
+
+export const getClassroomOccupancyRoute = createRoute({
+  method: 'get',
+  path: '/organizations/{organizationId}/classrooms/{id}/occupancy',
+  request: {
+    params: ClassroomIdParamSchema,
+    query: ClassroomScheduleQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Classroom continuous occupancy events',
+      content: {
+        'application/json': {
+          schema: z.array(ClassroomOccupancyEventSchema),
+        },
       },
     },
     403: { description: 'Forbidden' },

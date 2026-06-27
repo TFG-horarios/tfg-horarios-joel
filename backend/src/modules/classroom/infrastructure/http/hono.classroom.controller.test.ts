@@ -16,6 +16,7 @@ import {
   listAllClassroomsRoute,
   getActiveClassroomConfigurationsRoute,
   getClassroomScheduleSlotsRoute,
+  getClassroomOccupancyRoute,
 } from './hono.classroom.routes';
 
 describe('HonoClassroomController Integration', () => {
@@ -31,6 +32,7 @@ describe('HonoClassroomController Integration', () => {
   const listAllMock = { execute: mock() };
   const getActiveConfigurationsMock = { execute: mock() };
   const getScheduleSlotsMock = { execute: mock() };
+  const getOccupancyMock = { execute: mock() };
 
   type Params = ConstructorParameters<typeof HonoClassroomController>;
   const controller = new HonoClassroomController(
@@ -45,7 +47,8 @@ describe('HonoClassroomController Integration', () => {
     getIdentifiersMock as unknown as Params[8],
     listAllMock as unknown as Params[9],
     getActiveConfigurationsMock as unknown as Params[10],
-    getScheduleSlotsMock as unknown as Params[11]
+    getScheduleSlotsMock as unknown as Params[11],
+    getOccupancyMock as unknown as Params[12]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -60,6 +63,7 @@ describe('HonoClassroomController Integration', () => {
   );
   router.openapi(getClassroomRoute, controller.get);
   router.openapi(getClassroomScheduleSlotsRoute, controller.getScheduleSlots);
+  router.openapi(getClassroomOccupancyRoute, controller.getOccupancy);
   router.openapi(listClassroomsRoute, controller.list);
   router.openapi(updateClassroomRoute, controller.update);
   router.openapi(deleteClassroomRoute, controller.delete);
@@ -286,6 +290,41 @@ describe('HonoClassroomController Integration', () => {
       classroomId,
       'u-admin',
       { academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88' }
+    );
+  });
+
+  test('GET /organizations/:organizationId/classrooms/:id/occupancy should return continuous events', async () => {
+    const mockResponse = [
+      {
+        id: 'slot-1',
+        type: 'class',
+        classroomId,
+        scheduleId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a66',
+        subjectGroupId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a77',
+        dayOfWeek: 1,
+        slotIndex: 0,
+        duration: 1,
+        period: 1,
+        shift: 'morning',
+        startTimeMinutes: 540,
+        endTimeMinutes: 600,
+      },
+    ];
+    getOccupancyMock.execute.mockResolvedValueOnce(mockResponse);
+    const res = await app.request(
+      `/api/organizations/${orgId}/classrooms/${classroomId}/occupancy?academicYearId=30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88&period=1&shift=morning`
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(mockResponse);
+    expect(getOccupancyMock.execute).toHaveBeenCalledWith(
+      orgId,
+      classroomId,
+      'u-admin',
+      {
+        academicYearId: '30eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+        period: 1,
+        shift: 'morning',
+      }
     );
   });
 });

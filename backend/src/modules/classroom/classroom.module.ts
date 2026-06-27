@@ -17,6 +17,7 @@ import {
   listAllClassroomsRoute,
   getActiveClassroomConfigurationsRoute,
   getClassroomScheduleSlotsRoute,
+  getClassroomOccupancyRoute,
 } from './infrastructure/http/hono.classroom.routes';
 import { DeleteClassroomUseCase } from './application/delete-classroom.usecase';
 import { UpdateClassroomUseCase } from './application/update-classroom.usecase';
@@ -29,6 +30,7 @@ import { DeleteAllClassroomsUseCase } from './application/delete-all-classrooms.
 import { ReplaceClassroomsUseCase } from './application/replace-classrooms.usecase';
 import { GetActiveClassroomConfigurationsUseCase } from './application/get-active-classroom-configurations.usecase';
 import { GetClassroomScheduleSlotsUseCase } from './application/get-classroom-schedule-slots.usecase';
+import { GetClassroomOccupancyUseCase } from './application/get-classroom-occupancy.usecase';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { MemberAdapter } from './infrastructure/adapters/member.adapter';
 import { DrizzleScheduleSlotRepository } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
@@ -39,6 +41,7 @@ import { DrizzleClassroomReservationRepository } from '@/modules/classroom-reser
 import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
 import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
+import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
 
 export const createClassroomModule = (
   db: DbConnection,
@@ -49,6 +52,9 @@ export const createClassroomModule = (
   const scheduleSlotProvider = new ScheduleSlotAdapter(scheduleSlotRepository);
   const scheduleRepository = new DrizzleScheduleRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
+  const scheduleTimeConfigRepository = new DrizzleScheduleTimeConfigRepository(
+    db
+  );
 
   const memberProvider = new MemberAdapter(memberRepository);
   const scheduleProvider = new ScheduleAdapter(
@@ -136,6 +142,16 @@ export const createClassroomModule = (
     academicYearProvider
   );
 
+  const getClassroomOccupancyUseCase = new GetClassroomOccupancyUseCase(
+    scheduleRepository,
+    scheduleSlotRepository,
+    scheduleTimeConfigRepository,
+    academicYearRepository,
+    classroomRepository,
+    memberProvider,
+    academicYearProvider
+  );
+
   const controller = new HonoClassroomController(
     createUseCase,
     listUseCase,
@@ -148,7 +164,8 @@ export const createClassroomModule = (
     getIdentifiersUseCase,
     listAllUseCase,
     getActiveConfigurationsUseCase,
-    getScheduleSlotsUseCase
+    getScheduleSlotsUseCase,
+    getClassroomOccupancyUseCase
   );
 
   const app = new OpenAPIHono<AppEnv>();
@@ -165,6 +182,7 @@ export const createClassroomModule = (
     .openapi(getClassroomIdentifiersRoute, controller.getIdentifiers)
     .openapi(getClassroomRoute, controller.get)
     .openapi(getClassroomScheduleSlotsRoute, controller.getScheduleSlots)
+    .openapi(getClassroomOccupancyRoute, controller.getOccupancy)
     .openapi(updateClassroomRoute, controller.update)
     .openapi(deleteClassroomRoute, controller.delete)
     .openapi(deleteAllClassroomsRoute, controller.deleteAll);
