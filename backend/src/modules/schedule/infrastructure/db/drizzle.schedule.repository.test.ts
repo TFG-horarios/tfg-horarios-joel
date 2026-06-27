@@ -11,9 +11,9 @@ import {
   testSubjectGroupId,
   testClassroomId,
   testAcademicYearId,
+  testPastAcademicYearId,
   testScheduleId,
 } from '@/tests/seed-db';
-import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
 import {
   scheduleSlotsTable,
   scheduleSlotInclusionsTable,
@@ -424,21 +424,7 @@ describe('DrizzleScheduleRepository Integration', () => {
   });
 
   test('should mutate slots only in allowed academic years', async () => {
-    const historicalYearId = crypto.randomUUID();
-    await testDb.insert(academicYearsTable).values({
-      id: historicalYearId,
-      organizationId: testOrgId,
-      name: '2020/2021',
-      isActive: false,
-      period0Start: '2020-09-01',
-      period0End: '2021-06-30',
-      periodType: 'annual',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
-      slotDurationMinutes: 60,
-    });
+    const historicalYearId = testPastAcademicYearId;
     const currentSchedule = createValidSchedule();
     currentSchedule.publish();
     const historicalSchedule = Schedule.create({

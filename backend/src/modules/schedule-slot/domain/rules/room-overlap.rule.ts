@@ -1,4 +1,7 @@
-import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
+import {
+  intervalsOverlap,
+  type ScheduleConflictDetailDTO,
+} from '@tfg-horarios/shared';
 import { ScheduleSlotConflictError } from '../schedule-slot-conflict.error';
 import type {
   IMoveValidationRule,
@@ -24,13 +27,22 @@ export class RoomOverlapRule implements IMoveValidationRule {
           {
             academicYearId: context.academicYearId,
             period: context.period,
-            shift: context.shift,
           }
         );
 
-      const movingDurationSlots = Math.ceil(context.movingAssignment.duration);
-      const newStart = context.newSlotIndex;
-      const newEnd = context.newSlotIndex + movingDurationSlots - 1;
+      if (
+        !context.projectIntervalForPlacement ||
+        !context.resolveScheduleTimeConfigId
+      ) {
+        return;
+      }
+
+      const movingInterval = context.projectIntervalForPlacement(
+        context.movingAssignment.timeConfigId,
+        context.newSlotIndex,
+        context.movingAssignment.duration
+      );
+      if (!movingInterval) return;
 
       const conflicts: ScheduleConflictDetailDTO[] = [];
       for (const existingSlot of classroomSlots) {
@@ -38,11 +50,19 @@ export class RoomOverlapRule implements IMoveValidationRule {
         if (existingSlot.dayOfWeek !== context.newDayOfWeek) continue;
         if (existingSlot.slotIndex === null) continue;
 
-        const existingStart = existingSlot.slotIndex;
-        const existingEnd =
-          existingSlot.slotIndex + Math.ceil(existingSlot.duration) - 1;
+        const existingTimeConfigId = await context.resolveScheduleTimeConfigId(
+          existingSlot.scheduleId
+        );
+        const existingInterval = context.projectIntervalForPlacement(
+          existingTimeConfigId,
+          existingSlot.slotIndex,
+          existingSlot.duration
+        );
+        const overlaps = Boolean(
+          existingInterval && intervalsOverlap(movingInterval, existingInterval)
+        );
 
-        if (newStart <= existingEnd && newEnd >= existingStart) {
+        if (overlaps) {
           conflicts.push({
             type: 'ROOM_OVERLAP',
             message: 'ERR_ROOM_OVERLAP',

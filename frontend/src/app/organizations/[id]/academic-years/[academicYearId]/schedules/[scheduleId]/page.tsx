@@ -10,6 +10,7 @@ import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
+import { fetchScheduleTimeConfigs } from '@/features/schedule-time-config/queries';
 import { SchedulePlanner } from '@/features/schedule/components/schedule-planner';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
@@ -37,6 +38,7 @@ export default async function SchedulePlannerPage({
     degrees,
     itineraries,
     academicYears,
+    timeConfigs,
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
@@ -48,6 +50,7 @@ export default async function SchedulePlannerPage({
     fetchAllDegrees(id, academicYearId),
     fetchAllItineraries(id, academicYearId),
     fetchAcademicYears(id),
+    fetchScheduleTimeConfigs(id, academicYearId).catch(() => []),
     getSessionUser(),
   ]);
 
@@ -71,6 +74,13 @@ export default async function SchedulePlannerPage({
         itineraries={itineraries}
         academicYear={
           academicYears.find((ay) => ay.id === schedule.academicYearId)!
+        }
+        timeConfig={
+          schedule.timeConfigId
+            ? (timeConfigs.find(
+                (config) => config.id === schedule.timeConfigId
+              ) ?? null)
+            : null
         }
         canUpdate={canUpdate}
       />

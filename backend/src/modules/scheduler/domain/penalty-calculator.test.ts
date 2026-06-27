@@ -13,8 +13,7 @@ describe('PenaltyCalculator', () => {
       [constraint1, constraint2],
       [],
       {},
-      6,
-      12
+      {}
     );
     const result = calculator.calculatePenalty([]);
     expect(result).toBe(30);

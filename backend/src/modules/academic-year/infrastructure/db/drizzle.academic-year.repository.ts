@@ -22,10 +22,9 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period2Start: row.period2Start,
       period2End: row.period2End,
       periodType: row.periodType,
-      morningStart: row.morningStart,
-      morningEnd: row.morningEnd,
-      afternoonStart: row.afternoonStart,
-      afternoonEnd: row.afternoonEnd,
+      breakDurationMinutes: row.breakDurationMinutes,
+      centerOpeningTime: row.centerOpeningTime,
+      centerClosingTime: row.centerClosingTime,
       slotDurationMinutes: row.slotDurationMinutes,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -45,18 +44,20 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       period2Start: academicYear.period2Start,
       period2End: academicYear.period2End,
       periodType: academicYear.periodType,
-      morningStart: academicYear.morningStart,
-      morningEnd: academicYear.morningEnd,
-      afternoonStart: academicYear.afternoonStart,
-      afternoonEnd: academicYear.afternoonEnd,
+      breakDurationMinutes: academicYear.breakDurationMinutes,
+      centerOpeningTime: academicYear.centerOpeningTime,
+      centerClosingTime: academicYear.centerClosingTime,
       slotDurationMinutes: academicYear.slotDurationMinutes,
       createdAt: academicYear.createdAt,
       updatedAt: academicYear.updatedAt,
     });
   }
 
-  async update(academicYear: AcademicYear): Promise<void> {
-    await this.db
+  async update(
+    academicYear: AcademicYear,
+    tx: DbConnection = this.db
+  ): Promise<void> {
+    await tx
       .update(academicYearsTable)
       .set({
         name: academicYear.name,
@@ -68,10 +69,9 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
         period2Start: academicYear.period2Start,
         period2End: academicYear.period2End,
         periodType: academicYear.periodType,
-        morningStart: academicYear.morningStart,
-        morningEnd: academicYear.morningEnd,
-        afternoonStart: academicYear.afternoonStart,
-        afternoonEnd: academicYear.afternoonEnd,
+        breakDurationMinutes: academicYear.breakDurationMinutes,
+        centerOpeningTime: academicYear.centerOpeningTime,
+        centerClosingTime: academicYear.centerClosingTime,
         slotDurationMinutes: academicYear.slotDurationMinutes,
         updatedAt: academicYear.updatedAt,
       })

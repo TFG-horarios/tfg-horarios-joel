@@ -9,17 +9,18 @@ export interface AcademicYearProps {
   period2Start: string | null;
   period2End: string | null;
   periodType: 'semester' | 'trimester' | 'annual';
-  morningStart: string;
-  morningEnd: string;
-  afternoonStart: string;
-  afternoonEnd: string;
+  breakDurationMinutes: number;
+  centerOpeningTime: string;
+  centerClosingTime: string;
   slotDurationMinutes: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export class AcademicYear {
-  private constructor(private readonly props: AcademicYearProps) {}
+  private constructor(private readonly props: AcademicYearProps) {
+    this.validateTiming();
+  }
 
   public static create(
     props: Omit<AcademicYearProps, 'id' | 'createdAt' | 'updatedAt'> & {
@@ -102,20 +103,16 @@ export class AcademicYear {
     return this.props.periodType;
   }
 
-  public get morningStart(): string {
-    return this.props.morningStart;
+  public get breakDurationMinutes(): number {
+    return this.props.breakDurationMinutes;
   }
 
-  public get morningEnd(): string {
-    return this.props.morningEnd;
+  public get centerOpeningTime(): string {
+    return this.props.centerOpeningTime;
   }
 
-  public get afternoonStart(): string {
-    return this.props.afternoonStart;
-  }
-
-  public get afternoonEnd(): string {
-    return this.props.afternoonEnd;
+  public get centerClosingTime(): string {
+    return this.props.centerClosingTime;
   }
 
   public get slotDurationMinutes(): number {
@@ -153,17 +150,30 @@ export class AcademicYear {
       this.props.period2End = props.period2End;
     if (props.periodType !== undefined)
       this.props.periodType = props.periodType;
-    if (props.morningStart !== undefined)
-      this.props.morningStart = props.morningStart;
-    if (props.morningEnd !== undefined)
-      this.props.morningEnd = props.morningEnd;
-    if (props.afternoonStart !== undefined)
-      this.props.afternoonStart = props.afternoonStart;
-    if (props.afternoonEnd !== undefined)
-      this.props.afternoonEnd = props.afternoonEnd;
+    if (props.breakDurationMinutes !== undefined)
+      this.props.breakDurationMinutes = props.breakDurationMinutes;
+    if (props.centerOpeningTime !== undefined)
+      this.props.centerOpeningTime = props.centerOpeningTime;
+    if (props.centerClosingTime !== undefined)
+      this.props.centerClosingTime = props.centerClosingTime;
     if (props.slotDurationMinutes !== undefined)
       this.props.slotDurationMinutes = props.slotDurationMinutes;
     this.props.updatedAt = new Date();
+    this.validateTiming();
+  }
+
+  private validateTiming(): void {
+    if (this.props.slotDurationMinutes <= 0) {
+      throw new Error('slotDurationMinutes must be greater than zero.');
+    }
+    if (this.props.breakDurationMinutes < 0) {
+      throw new Error('breakDurationMinutes cannot be negative.');
+    }
+    if (this.props.centerClosingTime <= this.props.centerOpeningTime) {
+      throw new Error(
+        'centerClosingTime must be later than centerOpeningTime.'
+      );
+    }
   }
 
   public getMatchingPeriods(date: Date): number[] {

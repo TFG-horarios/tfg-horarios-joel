@@ -1,4 +1,5 @@
 import { ConflictError } from '@/core/errors/app.error';
+import { crossesBreakBoundary } from '@tfg-horarios/shared';
 import type {
   IMoveValidationRule,
   MoveValidationContext,
@@ -6,29 +7,34 @@ import type {
 
 export class ShiftRule implements IMoveValidationRule {
   validate(context: MoveValidationContext): void {
-    if (context.newSlotIndex !== null) {
-      const isMorningSlot = context.newSlotIndex < context.maxMorningSlots;
-      const bleedsIntoAfternoon =
-        context.newSlotIndex + Math.ceil(context.movingAssignment.duration) >
-        context.maxMorningSlots;
-      const bleedsOutOfDay =
-        context.newSlotIndex + Math.ceil(context.movingAssignment.duration) >
-        context.maxSlotsPerDay;
+    if (
+      context.newSlotIndex === null ||
+      context.timeGrids === undefined ||
+      context.projectIntervalForPlacement === undefined
+    ) {
+      return;
+    }
 
-      if (context.movingAssignment.shift === 'morning') {
-        if (!isMorningSlot || bleedsIntoAfternoon) {
-          throw new ConflictError('ERR_SHIFT_MORNING');
-        }
+    const grid = context.movingAssignment.timeConfigId
+      ? context.timeGrids[context.movingAssignment.timeConfigId]
+      : undefined;
+    const interval = context.projectIntervalForPlacement(
+      context.movingAssignment.timeConfigId,
+      context.newSlotIndex,
+      context.movingAssignment.duration
+    );
+    if (!interval) {
+      if (
+        grid &&
+        crossesBreakBoundary(
+          context.newSlotIndex,
+          context.movingAssignment.duration,
+          grid.breakBoundaries
+        )
+      ) {
+        throw new ConflictError('ERR_BREAK_CROSSING');
       }
-
-      if (context.movingAssignment.shift === 'afternoon') {
-        if (isMorningSlot) {
-          throw new ConflictError('ERR_SHIFT_AFTERNOON');
-        }
-        if (bleedsOutOfDay) {
-          throw new ConflictError('ERR_SHIFT_EXCEEDS_DAY');
-        }
-      }
+      throw new ConflictError('ERR_SHIFT_EXCEEDS_DAY');
     }
   }
 }

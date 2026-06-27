@@ -4,6 +4,7 @@ import type {
   Shift,
   ScheduleConflictType,
   Optimization,
+  ScheduleTimeGrid,
 } from '@tfg-horarios/shared';
 
 export interface ScheduleEngineGroupData {
@@ -19,6 +20,7 @@ export interface ScheduleEngineGroupData {
   weeklyHours: number;
   degreeId: string;
   courseYear: number;
+  timeConfigId?: string;
 }
 
 export interface ScheduleEngineClassroomMap {
@@ -51,6 +53,7 @@ export interface ScheduleEngineAssignment {
   needsComputerLab: boolean;
   degreeId: string;
   courseYear: number;
+  timeConfigId?: string;
   classroomId: string | null;
   dayOfWeek: number | null;
   slotIndex: number | null;
@@ -71,8 +74,7 @@ export interface IScheduleEngineProvider {
     groupsData: ScheduleEngineGroupData[],
     classroomsCache: ScheduleEngineClassroomMap,
     availableClassrooms: string[],
-    maxMorningSlots: number,
-    maxAfternoonSlots: number,
+    timeGrids: Record<string, ScheduleTimeGrid>,
     slotDuration: number,
     lockedAssignments?: ScheduleEngineAssignment[],
     optimizations?: Optimization[]

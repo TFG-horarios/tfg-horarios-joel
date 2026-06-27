@@ -4,6 +4,7 @@ export interface IScheduleSlotContext {
   academicYearId: string;
   period: number;
   shift: Shift;
+  timeConfigId: string | null;
 }
 
 export interface IScheduleSlotDataProvider {
@@ -24,7 +25,8 @@ export interface IScheduleSlotDataProvider {
     classroomId: string,
     dayOfWeek: number,
     slotIndex: number,
-    duration: number
+    duration: number,
+    timeConfigId?: string | null
   ): Promise<void>;
   updateScheduleConflictsAndUnassignedCount(
     scheduleId: string,

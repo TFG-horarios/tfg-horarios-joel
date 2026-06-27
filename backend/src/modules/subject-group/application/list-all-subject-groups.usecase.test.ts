@@ -22,14 +22,20 @@ describe('ListAllSubjectGroupsUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
   const useCase = new ListAllSubjectGroupsUseCase(
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    academicYearProviderMock
   );
 
   test('should list all subject groups successfully', async () => {
     repositoryMock.findAll.mockClear();
     memberProviderMock.getMemberRole.mockClear();
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockClear();
     memberProviderMock.getMemberRole.mockResolvedValue('ADMIN');
     const group = SubjectGroup.reconstitute({
       organizationId: 'org-1',
@@ -52,7 +58,7 @@ describe('ListAllSubjectGroupsUseCase', () => {
       'user-1',
       'org-1'
     );
-    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1');
+    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1', false);
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('group-1');
   });

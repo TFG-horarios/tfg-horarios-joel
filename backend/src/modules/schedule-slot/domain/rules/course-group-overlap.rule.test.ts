@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import type { AssignmentInterval } from '@tfg-horarios/shared';
 import { CourseGroupOverlapRule } from './course-group-overlap.rule';
 import type {
   MoveValidationContext,
@@ -14,20 +15,33 @@ describe('CourseGroupOverlapRule', () => {
     movingAssignment: ValidationAssignment,
     newDayOfWeek: number | null,
     newSlotIndex: number | null
-  ): MoveValidationContext => ({
-    organizationId: 'org-1',
-    academicYearId: 'year-1',
-    period: 1,
-    shift: 'morning',
-    assignments,
-    classroomsCache: {},
-    movingAssignment,
-    newClassroomId: null,
-    newDayOfWeek,
-    newSlotIndex,
-    maxMorningSlots: 6,
-    maxSlotsPerDay: 12,
-  });
+  ): MoveValidationContext => {
+    const projectIntervalForPlacement = (
+      timeConfigId: string | null | undefined,
+      slotIndex: number | null,
+      duration: number
+    ): AssignmentInterval | null => {
+      if (slotIndex === null) return null;
+      const start =
+        timeConfigId === 'late-config'
+          ? 8 * 60 + 30 + slotIndex * 60
+          : 8 * 60 + slotIndex * 60;
+      return { startMinutes: start, endMinutes: start + duration * 60 };
+    };
+    return {
+      organizationId: 'org-1',
+      academicYearId: 'year-1',
+      period: 1,
+      shift: 'morning',
+      assignments,
+      classroomsCache: {},
+      movingAssignment,
+      newClassroomId: null,
+      newDayOfWeek,
+      newSlotIndex,
+      projectIntervalForPlacement,
+    };
+  };
 
   test('does not throw if no overlap', () => {
     const moving = {
@@ -264,5 +278,33 @@ describe('CourseGroupOverlapRule', () => {
     expect(() => rule.validate(ctx)).toThrow(
       new ConflictError('ERR_OVERLAP_COMMON_ITINERARY')
     );
+  });
+
+  test('does not throw for same slotIndex when real minutes do not overlap', () => {
+    const moving = {
+      id: '1',
+      duration: 0.5,
+      isCommon: true,
+      groupType: 'theory',
+      subjectId: 's1',
+      subjectGroupId: 'sg1',
+      timeConfigId: 'early-config',
+    } as unknown as ValidationAssignment;
+    const assignments = [
+      {
+        id: '2',
+        duration: 0.5,
+        isCommon: true,
+        groupType: 'practice',
+        subjectId: 's2',
+        subjectGroupId: 'sg2',
+        dayOfWeek: 1,
+        slotIndex: 1,
+        timeConfigId: 'late-config',
+      } as unknown as ValidationAssignment,
+    ];
+    const ctx = createContext(assignments, moving, 1, 1);
+
+    expect(() => rule.validate(ctx)).not.toThrow();
   });
 });

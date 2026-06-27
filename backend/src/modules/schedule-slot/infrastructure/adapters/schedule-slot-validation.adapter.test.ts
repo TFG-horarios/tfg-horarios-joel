@@ -38,16 +38,9 @@ describe('ScheduleSlotValidationAdapter', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getScheduleTimeConfigs: mock(),
     getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
-  };
-
-  const reservationRepositoryMock = {
-    hasAcceptedFutureReservation: mock(),
-    findById: mock(),
-    save: mock(),
-    update: mock(),
-    findPaginated: mock(),
   };
 
   const adapter = new ScheduleSlotValidationAdapter(
@@ -61,8 +54,8 @@ describe('ScheduleSlotValidationAdapter', () => {
     scheduleRepositoryMock.findById.mockReset();
     dataProviderMock.getGroupsInScope.mockReset();
     dataProviderMock.getAcademicYearConstraints.mockReset();
+    dataProviderMock.getScheduleTimeConfigs.mockReset();
     dataProviderMock.getAvailableClassrooms.mockReset();
-    reservationRepositoryMock.hasAcceptedFutureReservation.mockReset();
   });
 
   const slot = ScheduleSlot.create({
@@ -77,6 +70,8 @@ describe('ScheduleSlotValidationAdapter', () => {
   const setupMocks = () => {
     scheduleRepositoryMock.findById.mockResolvedValue({
       id: 'sch-1',
+      academicYearId: 'ay-1',
+      timeConfigId: null,
       period: 1,
       degreeId: 'deg-1',
       itineraryId: null,
@@ -95,12 +90,12 @@ describe('ScheduleSlotValidationAdapter', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValue({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
+    dataProviderMock.getScheduleTimeConfigs.mockResolvedValue([]);
     dataProviderMock.getAvailableClassrooms.mockResolvedValue([
       { id: 'c-1', capacity: 100, type: 'theory', floor: 0 },
       { id: 'c-2', capacity: 100, type: 'theory', floor: 0 },
@@ -270,5 +265,112 @@ describe('ScheduleSlotValidationAdapter', () => {
     await expect(
       adapter.validateMove('org-1', movingSlot, 'c-1', 1, 6)
     ).rejects.toThrow('ERR_OVERLAP_THEORY');
+  });
+
+  test('should reject a manual move crossing the configured long break', async () => {
+    setupMocks();
+    const longSlot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 2,
+      classroomId: 'c-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+    });
+    scheduleRepositoryMock.findById.mockResolvedValue({
+      id: 'sch-1',
+      academicYearId: 'ay-1',
+      timeConfigId: 'cfg-1',
+      period: 1,
+      degreeId: 'deg-1',
+      itineraryId: null,
+      courseYear: 1,
+      shift: 'morning',
+    });
+    scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([longSlot]);
+    dataProviderMock.getScheduleTimeConfigs.mockResolvedValue([
+      {
+        id: 'cfg-1',
+        degreeId: 'deg-1',
+        itineraryId: null,
+        courseYear: 1,
+        period: 1,
+        shift: 'morning',
+        startTime: '08:00',
+        endTime: '12:00',
+        hasBreak: true,
+        breakAfterSlot: 2,
+      },
+    ]);
+
+    await expect(
+      adapter.validateMove('org-1', longSlot, 'c-1', 1, 1)
+    ).rejects.toThrow('ERR_BREAK_CROSSING');
+  });
+
+  test('should detect room overlap by real minutes across desynchronized configs', async () => {
+    setupMocks();
+    const movingSlot = ScheduleSlot.create({
+      scheduleId: 'sch-1',
+      subjectGroupId: 'sg-1',
+      duration: 1,
+      classroomId: 'room-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+    });
+    const existingSlot = ScheduleSlot.create({
+      scheduleId: 'sch-2',
+      subjectGroupId: 'sg-2',
+      duration: 1,
+      classroomId: 'room-1',
+      dayOfWeek: 1,
+      slotIndex: 0,
+    });
+    scheduleRepositoryMock.findById.mockImplementation(
+      async (scheduleId: string) => ({
+        id: scheduleId,
+        academicYearId: 'ay-1',
+        timeConfigId: scheduleId === 'sch-1' ? 'cfg-1' : 'cfg-2',
+        period: 1,
+        degreeId: scheduleId === 'sch-1' ? 'deg-1' : 'deg-2',
+        itineraryId: null,
+        courseYear: 1,
+        shift: 'morning',
+      })
+    );
+    scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([movingSlot]);
+    scheduleSlotRepositoryMock.findSlotsByClassroomIdAndFilters.mockResolvedValue(
+      [existingSlot]
+    );
+    dataProviderMock.getScheduleTimeConfigs.mockResolvedValue([
+      {
+        id: 'cfg-1',
+        degreeId: 'deg-1',
+        itineraryId: null,
+        courseYear: 1,
+        period: 1,
+        shift: 'morning',
+        startTime: '08:00',
+        endTime: '12:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+      {
+        id: 'cfg-2',
+        degreeId: 'deg-2',
+        itineraryId: null,
+        courseYear: 1,
+        period: 1,
+        shift: 'morning',
+        startTime: '08:30',
+        endTime: '12:30',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+    ]);
+
+    await expect(
+      adapter.validateMove('org-1', movingSlot, 'room-1', 1, 0)
+    ).rejects.toThrow('ERR_ROOM_OVERLAP');
   });
 });

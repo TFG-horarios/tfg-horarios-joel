@@ -13,3 +13,5 @@ export * from './schema/pagination.schema';
 export * from './schema/academic-year.schema';
 export * from './schema/classroom-reservation.schema';
 export * from './schema/notification.schema';
+export * from './schema/schedule-time-config.schema';
+export * from './schedule-timeline';

@@ -40,10 +40,9 @@ describe('CreateAcademicYearUseCase', () => {
     const dto = {
       name: '2024-2025',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -59,10 +58,9 @@ describe('CreateAcademicYearUseCase', () => {
     const dto = {
       name: '2024-2025',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -78,10 +76,9 @@ describe('CreateAcademicYearUseCase', () => {
     const dto = {
       name: '2024-2025',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -104,10 +101,9 @@ describe('CreateAcademicYearUseCase', () => {
       period1End: null,
       period2Start: null,
       period2End: null,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findByOrganizationId.mockResolvedValue([existingYear]);
@@ -115,10 +111,9 @@ describe('CreateAcademicYearUseCase', () => {
     const dto = {
       name: '2024-2025',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 

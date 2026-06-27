@@ -22,6 +22,8 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       academicYearId: row.academicYearId,
       date: row.date,
       slotIndex: row.slotIndex,
+      startTimeMinutes: row.startTimeMinutes,
+      endTimeMinutes: row.endTimeMinutes,
       status: row.status as ClassroomReservationStatusDTO,
       reason: row.reason,
       createdAt: row.createdAt,
@@ -51,6 +53,8 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       academicYearId: reservation.academicYearId,
       date: reservation.date,
       slotIndex: reservation.slotIndex,
+      startTimeMinutes: reservation.startTimeMinutes,
+      endTimeMinutes: reservation.endTimeMinutes,
       status: reservation.status,
       reason: reservation.reason,
       createdAt: reservation.createdAt,
@@ -64,6 +68,8 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
       .set({
         status: reservation.status,
         reason: reservation.reason,
+        startTimeMinutes: reservation.startTimeMinutes,
+        endTimeMinutes: reservation.endTimeMinutes,
         updatedAt: reservation.updatedAt,
       })
       .where(eq(classroomReservations.id, reservation.id));
@@ -128,57 +134,6 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
         totalPages: Math.ceil(total / limit),
       },
     };
-  }
-
-  async hasAcceptedFutureReservation(
-    organizationId: string,
-    classroomId: string,
-    dayOfWeek: number,
-    slotIndex: number
-  ): Promise<boolean> {
-    const postgresDow = dayOfWeek === 7 ? 0 : dayOfWeek;
-
-    const todayDateStr = new Date().toISOString().split('T')[0];
-
-    const [row] = await this.db
-      .select({ id: classroomReservations.id })
-      .from(classroomReservations)
-      .where(
-        and(
-          eq(classroomReservations.organizationId, organizationId),
-          eq(classroomReservations.classroomId, classroomId),
-          eq(classroomReservations.slotIndex, slotIndex),
-          eq(classroomReservations.status, 'ACCEPTED'),
-          sql`${classroomReservations.date} >= ${todayDateStr}`,
-          sql`EXTRACT(DOW FROM ${classroomReservations.date}::date) = ${postgresDow}`
-        )
-      )
-      .limit(1);
-
-    return !!row;
-  }
-
-  async hasAcceptedReservationOnDate(
-    organizationId: string,
-    classroomId: string,
-    date: string,
-    slotIndex: number
-  ): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: classroomReservations.id })
-      .from(classroomReservations)
-      .where(
-        and(
-          eq(classroomReservations.organizationId, organizationId),
-          eq(classroomReservations.classroomId, classroomId),
-          eq(classroomReservations.slotIndex, slotIndex),
-          eq(classroomReservations.date, date),
-          eq(classroomReservations.status, 'ACCEPTED')
-        )
-      )
-      .limit(1);
-
-    return !!row;
   }
 
   async findReservationsInDateRange(

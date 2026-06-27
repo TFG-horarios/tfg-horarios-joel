@@ -13,18 +13,6 @@ export interface IClassroomReservationRepository {
     query: ClassroomReservationListQueryDTO,
     requesterUserId?: string
   ): Promise<PaginatedResponse<ClassroomReservation>>;
-  hasAcceptedFutureReservation(
-    organizationId: string,
-    classroomId: string,
-    dayOfWeek: number,
-    slotIndex: number
-  ): Promise<boolean>;
-  hasAcceptedReservationOnDate(
-    organizationId: string,
-    classroomId: string,
-    date: string,
-    slotIndex: number
-  ): Promise<boolean>;
   findReservationsInDateRange(
     organizationId: string,
     classroomId: string,

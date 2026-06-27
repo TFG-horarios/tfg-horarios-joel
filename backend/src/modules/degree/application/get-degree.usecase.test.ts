@@ -21,7 +21,15 @@ describe('GetDegreeUseCase', () => {
     getMemberRole: mock(),
   };
 
-  const useCase = new GetDegreeUseCase(repositoryMock, memberProviderMock);
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
+  const useCase = new GetDegreeUseCase(
+    repositoryMock,
+    memberProviderMock,
+    academicYearProviderMock
+  );
 
   test('should retrieve degree successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');

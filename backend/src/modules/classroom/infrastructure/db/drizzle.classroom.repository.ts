@@ -49,7 +49,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   async findById(
     id: string,
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Classroom | null> {
     const rows = await this.db
       .select()
@@ -72,7 +72,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
 
   async findAll(
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Classroom[]> {
     const rows = await this.db
       .select()

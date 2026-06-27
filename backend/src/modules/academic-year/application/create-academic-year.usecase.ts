@@ -60,10 +60,9 @@ export class CreateAcademicYearUseCase {
       period2Start: data.period2Start ?? null,
       period2End: data.period2End ?? null,
       periodType: data.periodType,
-      morningStart: data.morningStart,
-      morningEnd: data.morningEnd,
-      afternoonStart: data.afternoonStart,
-      afternoonEnd: data.afternoonEnd,
+      breakDurationMinutes: data.breakDurationMinutes,
+      centerOpeningTime: data.centerOpeningTime,
+      centerClosingTime: data.centerClosingTime,
       slotDurationMinutes: data.slotDurationMinutes,
     });
 

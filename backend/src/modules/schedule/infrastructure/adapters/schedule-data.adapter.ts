@@ -11,6 +11,7 @@ import type { IAcademicYearRepository } from '@/modules/academic-year/domain/aca
 import type { ScheduleEngineGroupData } from '../../domain/providers/schedule-engine.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
+import type { IScheduleTimeConfigRepository } from '@/modules/schedule-time-config/domain/schedule-time-config.repository';
 
 export class ScheduleDataAdapter implements IScheduleDataProvider {
   constructor(
@@ -19,7 +20,8 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly academicYearRepository: IAcademicYearRepository,
     private readonly reservationRepository: IClassroomReservationRepository,
-    private readonly createNotificationUseCase: CreateNotificationUseCase
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly scheduleTimeConfigRepository?: IScheduleTimeConfigRepository
   ) {}
 
   async getTargetDegreeIds(organizationId: string): Promise<string[]> {
@@ -81,12 +83,31 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       await this.academicYearRepository.findById(academicYearId);
     if (!academicYear) return null;
     return {
-      morningStart: academicYear.morningStart,
-      morningEnd: academicYear.morningEnd,
-      afternoonStart: academicYear.afternoonStart,
-      afternoonEnd: academicYear.afternoonEnd,
+      breakDurationMinutes: academicYear.breakDurationMinutes,
+      centerOpeningTime: academicYear.centerOpeningTime,
+      centerClosingTime: academicYear.centerClosingTime,
       slotDurationMinutes: academicYear.slotDurationMinutes,
     };
+  }
+
+  async getScheduleTimeConfigs(organizationId: string, academicYearId: string) {
+    if (!this.scheduleTimeConfigRepository) return [];
+    const configs = await this.scheduleTimeConfigRepository.findAll(
+      organizationId,
+      academicYearId
+    );
+    return configs.map((config) => ({
+      id: config.id,
+      degreeId: config.degreeId,
+      itineraryId: config.itineraryId,
+      courseYear: config.courseYear,
+      period: config.period,
+      shift: config.shift,
+      startTime: config.startTime,
+      endTime: config.endTime,
+      hasBreak: config.hasBreak,
+      breakAfterSlot: config.breakAfterSlot,
+    }));
   }
 
   async rejectConflictingReservationsBatch(
@@ -98,6 +119,9 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
       slotIndex: number;
       duration: number;
       period: number;
+      timeConfigId?: string;
+      startTimeMinutes?: number;
+      endTimeMinutes?: number;
     }[]
   ): Promise<void> {
     if (slots.length === 0) return;
@@ -142,9 +166,17 @@ export class ScheduleDataAdapter implements IScheduleDataProvider {
             matchingPeriods.includes(slot.period) &&
             resDow === slot.dayOfWeek
           ) {
-            const startSlot = slot.slotIndex;
-            const endSlot = slot.slotIndex + Math.ceil(slot.duration) - 1;
-            return res.slotIndex >= startSlot && res.slotIndex <= endSlot;
+            if (
+              res.startTimeMinutes !== null &&
+              res.endTimeMinutes !== null &&
+              slot.startTimeMinutes !== undefined &&
+              slot.endTimeMinutes !== undefined
+            ) {
+              return (
+                slot.startTimeMinutes < res.endTimeMinutes &&
+                res.startTimeMinutes < slot.endTimeMinutes
+              );
+            }
           }
           return false;
         });

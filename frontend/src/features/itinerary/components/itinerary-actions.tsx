@@ -35,9 +35,7 @@ export function ItineraryActions({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleExportCsv = async () => {
-    const data = await fetchAllItinerariesAction(
-      organizationId,
-    );
+    const data = await fetchAllItinerariesAction(organizationId);
     const degreeMap = new Map(degrees.map((d) => [d.id, d.code]));
 
     const csvData = data.map((item) => ({

@@ -21,8 +21,6 @@ import { OrganizationSectionShell } from '@/features/organizations/components/or
 import { format } from 'date-fns';
 import {
   Calendar,
-  Sun,
-  Moon,
   Clock,
   CalendarRange,
   Activity,
@@ -37,6 +35,7 @@ import {
   Users,
   Presentation,
   Hourglass,
+  TimerReset,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -306,33 +305,17 @@ export default async function AcademicYearSummaryPage({
               <div className="flex-1 flex flex-col justify-center">
                 <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Sun className="w-4 h-4 text-amber-500/70" />
+                    <ClockAlert className="w-4 h-4 text-amber-500/70" />
                     <span className="text-sm font-medium">
-                      {tOrg('morning')}
+                      Apertura del centro
                     </span>
                   </div>
                   <span className="font-semibold text-sm text-foreground">
-                    {academicYear.morningStart}{' '}
+                    {academicYear.centerOpeningTime}{' '}
                     <span className="text-muted-foreground font-normal mx-1">
                       -
                     </span>{' '}
-                    {academicYear.morningEnd}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Moon className="w-4 h-4 text-indigo-500/70" />
-                    <span className="text-sm font-medium">
-                      {tOrg('afternoon')}
-                    </span>
-                  </div>
-                  <span className="font-semibold text-sm text-foreground">
-                    {academicYear.afternoonStart}{' '}
-                    <span className="text-muted-foreground font-normal mx-1">
-                      -
-                    </span>{' '}
-                    {academicYear.afternoonEnd}
+                    {academicYear.centerClosingTime}
                   </span>
                 </div>
 
@@ -345,6 +328,18 @@ export default async function AcademicYearSummaryPage({
                   </div>
                   <span className="font-semibold text-sm text-foreground">
                     {academicYear.slotDurationMinutes} min
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <TimerReset className="w-4 h-4 text-violet-500/70" />
+                    <span className="text-sm font-medium">
+                      Duración del recreo
+                    </span>
+                  </div>
+                  <span className="font-semibold text-sm text-foreground">
+                    {academicYear.breakDurationMinutes} min
                   </span>
                 </div>
               </div>

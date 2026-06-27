@@ -8,15 +8,13 @@ describe('RequestClassroomReservationUseCase', () => {
     findById: mock(),
     save: mock(),
     update: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
     delete: mock(),
   };
 
   const scheduleProviderMock = {
     areAllSchedulesPublished: mock(),
-    hasSubjectInSlot: mock(),
+    hasSubjectInInterval: mock(),
     getClassroomScheduleSlots: mock(),
   };
 
@@ -44,9 +42,9 @@ describe('RequestClassroomReservationUseCase', () => {
 
   beforeEach(() => {
     repositoryMock.save.mockReset();
-    repositoryMock.hasAcceptedReservationOnDate.mockReset();
+    repositoryMock.findReservationsInDateRange.mockReset();
     scheduleProviderMock.areAllSchedulesPublished.mockReset();
-    scheduleProviderMock.hasSubjectInSlot.mockReset();
+    scheduleProviderMock.hasSubjectInInterval.mockReset();
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
     academicYearProviderMock.getAcademicYear.mockReset();
@@ -60,8 +58,12 @@ describe('RequestClassroomReservationUseCase', () => {
       period1End: null,
       period2Start: null,
       period2End: null,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
+      slotDurationMinutes: 60,
       getMatchingPeriods: () => [1],
     });
+    repositoryMock.findReservationsInDateRange.mockResolvedValue([]);
   });
 
   const tomorrow = new Date();
@@ -72,7 +74,8 @@ describe('RequestClassroomReservationUseCase', () => {
     classroomId: 'classroom-1',
     academicYearId: 'ay-1',
     date: tomorrowStr,
-    slotIndex: 2,
+    startTimeMinutes: 600,
+    endTimeMinutes: 690,
     reason: 'Extra class',
   };
 
@@ -96,7 +99,7 @@ describe('RequestClassroomReservationUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValue('viewer');
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
-    scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(true);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(true);
     await expect(useCase.execute('org-1', 'user-1', validDto)).rejects.toThrow(
       ValidationError
     );
@@ -106,11 +109,14 @@ describe('RequestClassroomReservationUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValue('viewer');
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
-    scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(false);
     const result = await useCase.execute('org-1', 'user-1', validDto);
     expect(result).toBeDefined();
     expect(result.status).toBe('PENDING');
     expect(result.classroomId).toBe('classroom-1');
+    expect(result.startTimeMinutes).toBe(600);
+    expect(result.endTimeMinutes).toBe(690);
+    expect(result.slotIndex).toBe(2);
     expect(repositoryMock.save).toHaveBeenCalledTimes(1);
   });
 
@@ -118,7 +124,7 @@ describe('RequestClassroomReservationUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValue('viewer');
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
     scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
-    scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(false);
 
     const nextSunday = new Date();
     nextSunday.setDate(
@@ -132,23 +138,58 @@ describe('RequestClassroomReservationUseCase', () => {
 
     const sundayDto = { ...validDto, date: sundayStr };
     await useCase.execute('org-1', 'user-1', sundayDto);
-    expect(scheduleProviderMock.hasSubjectInSlot).toHaveBeenCalledWith(
+    expect(scheduleProviderMock.hasSubjectInInterval).toHaveBeenCalledWith(
       'org-1',
       'ay-1',
       [1],
       'classroom-1',
       7,
-      2
+      600,
+      690
     );
     const mondayDto = { ...validDto, date: mondayStr };
     await useCase.execute('org-1', 'user-1', mondayDto);
-    expect(scheduleProviderMock.hasSubjectInSlot).toHaveBeenCalledWith(
+    expect(scheduleProviderMock.hasSubjectInInterval).toHaveBeenCalledWith(
       'org-1',
       'ay-1',
       [1],
       'classroom-1',
       1,
-      2
+      600,
+      690
+    );
+  });
+
+  test('should reject if requested interval is outside center opening hours', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValue('viewer');
+    academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
+    scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
+
+    await expect(
+      useCase.execute('org-1', 'user-1', {
+        ...validDto,
+        startTimeMinutes: 420,
+        endTimeMinutes: 500,
+      })
+    ).rejects.toThrow(ValidationError);
+  });
+
+  test('should reject accepted reservations that overlap by real minutes', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValue('viewer');
+    academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
+    scheduleProviderMock.areAllSchedulesPublished.mockResolvedValue(true);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(false);
+    repositoryMock.findReservationsInDateRange.mockResolvedValue([
+      {
+        status: 'ACCEPTED',
+        slotIndex: 0,
+        startTimeMinutes: 630,
+        endTimeMinutes: 690,
+      },
+    ]);
+
+    await expect(useCase.execute('org-1', 'user-1', validDto)).rejects.toThrow(
+      ValidationError
     );
   });
 });

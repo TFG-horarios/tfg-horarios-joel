@@ -1,4 +1,8 @@
-import { type Assignment, type ClassroomMap } from './types';
+import {
+  type Assignment,
+  type ClassroomMap,
+  type ScheduleTimeGridMap,
+} from './types';
 import {
   ConstraintContext,
   type IScheduleConstraint,
@@ -6,13 +10,16 @@ import {
 } from './constraints/constraint.interface';
 
 export class PenaltyCalculator {
+  private readonly timeGrids: ScheduleTimeGridMap;
+
   constructor(
     private readonly hardConstraints: IScheduleConstraint[],
     private readonly softConstraints: IScheduleConstraint[],
     private readonly classroomsCache: ClassroomMap,
-    private readonly maxMorningSlots: number,
-    private readonly maxSlotsPerDay: number
-  ) {}
+    timeGrids: ScheduleTimeGridMap = {}
+  ) {
+    this.timeGrids = timeGrids;
+  }
 
   public calculatePenalty(
     assignments: Assignment[],
@@ -66,8 +73,7 @@ export class PenaltyCalculator {
     return new ConstraintContext(
       allAssignments,
       this.classroomsCache,
-      this.maxMorningSlots,
-      this.maxSlotsPerDay
+      this.timeGrids
     );
   }
 

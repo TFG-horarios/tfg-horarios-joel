@@ -13,15 +13,13 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     findById: mock(),
     save: mock(),
     update: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
     delete: mock(),
   };
 
   const scheduleProviderMock = {
     areAllSchedulesPublished: mock(),
-    hasSubjectInSlot: mock(),
+    hasSubjectInInterval: mock(),
     getClassroomScheduleSlots: mock(),
   };
 
@@ -50,13 +48,18 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
   beforeEach(() => {
     repositoryMock.findById.mockReset();
     repositoryMock.update.mockReset();
-    repositoryMock.hasAcceptedReservationOnDate.mockReset();
     repositoryMock.findReservationsInDateRange.mockReset();
-    scheduleProviderMock.hasSubjectInSlot.mockReset();
+    scheduleProviderMock.hasSubjectInInterval.mockReset();
     memberProviderMock.getMemberRole.mockReset();
     academicYearProviderMock.getMatchingPeriods.mockReset();
+    academicYearProviderMock.getAcademicYear.mockReset();
     notificationProviderMock.notifyReservationRequested.mockReset();
     notificationProviderMock.notifyReservationStatusChanged.mockReset();
+    repositoryMock.findReservationsInDateRange.mockResolvedValue([]);
+    academicYearProviderMock.getAcademicYear.mockResolvedValue({
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
+    });
   });
 
   const baseReservation = ClassroomReservation.create({
@@ -66,6 +69,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     academicYearId: 'ay-1',
     date: new Date(Date.now() + 86400000).toISOString().split('T')[0] as string,
     slotIndex: 2,
+    startTimeMinutes: 600,
+    endTimeMinutes: 660,
     reason: 'Test',
   });
 
@@ -76,6 +81,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     academicYearId: 'ay-1',
     date: '2000-01-01',
     slotIndex: 2,
+    startTimeMinutes: 600,
+    endTimeMinutes: 660,
     reason: 'Test',
   });
 
@@ -121,7 +128,7 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
     memberProviderMock.getMemberRole.mockResolvedValue('editor');
     repositoryMock.findById.mockResolvedValue(baseReservation);
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
-    scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(true);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(true);
     await expect(
       useCase.execute('org-1', 'user-2', 'res-1', { status: 'ACCEPTED' })
     ).rejects.toThrow(ValidationError);
@@ -130,9 +137,8 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
   test('should successfully accept reservation', async () => {
     memberProviderMock.getMemberRole.mockResolvedValue('editor');
     repositoryMock.findById.mockResolvedValue(baseReservation);
-    repositoryMock.hasAcceptedReservationOnDate.mockResolvedValue(false);
     academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
-    scheduleProviderMock.hasSubjectInSlot.mockResolvedValue(false);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(false);
     const result = await useCase.execute('org-1', 'user-2', 'res-1', {
       status: 'ACCEPTED',
     });
@@ -147,7 +153,27 @@ describe('UpdateClassroomReservationStatusUseCase', () => {
       status: 'REJECTED',
     });
     expect(result.status).toBe('REJECTED');
-    expect(scheduleProviderMock.hasSubjectInSlot).not.toHaveBeenCalled();
+    expect(scheduleProviderMock.hasSubjectInInterval).not.toHaveBeenCalled();
     expect(repositoryMock.update).toHaveBeenCalledTimes(1);
+  });
+
+  test('should reject acceptance if another accepted reservation overlaps by minutes', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValue('editor');
+    repositoryMock.findById.mockResolvedValue(baseReservation);
+    academicYearProviderMock.getMatchingPeriods.mockResolvedValue([1]);
+    scheduleProviderMock.hasSubjectInInterval.mockResolvedValue(false);
+    repositoryMock.findReservationsInDateRange.mockResolvedValue([
+      {
+        id: 'other-res',
+        status: 'ACCEPTED',
+        slotIndex: 0,
+        startTimeMinutes: 630,
+        endTimeMinutes: 690,
+      },
+    ]);
+
+    await expect(
+      useCase.execute('org-1', 'user-2', 'res-1', { status: 'ACCEPTED' })
+    ).rejects.toThrow(ValidationError);
   });
 });

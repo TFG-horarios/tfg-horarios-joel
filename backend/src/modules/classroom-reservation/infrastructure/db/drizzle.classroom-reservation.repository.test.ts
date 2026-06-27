@@ -91,37 +91,6 @@ describe('DrizzleClassroomReservationRepository Integration', () => {
     expect(result.data[0]?.status).toBe('ACCEPTED');
   });
 
-  test('hasAcceptedFutureReservation should return true if accepted in future for dayOfWeek', async () => {
-    const today = new Date();
-    today.setDate(today.getDate() + 7);
-    const dateStr = today.toISOString().split('T')[0];
-
-    const res = createValidReservation(dateStr, 'ACCEPTED');
-    await repository.save(res);
-
-    const jsDayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
-    const result = await repository.hasAcceptedFutureReservation(
-      testOrgId,
-      testClassroomId,
-      jsDayOfWeek,
-      1
-    );
-    expect(result).toBe(true);
-  });
-
-  test('hasAcceptedReservationOnDate should return true if accepted on exact date', async () => {
-    const res = createValidReservation('2025-05-05', 'ACCEPTED');
-    await repository.save(res);
-
-    const result = await repository.hasAcceptedReservationOnDate(
-      testOrgId,
-      testClassroomId,
-      '2025-05-05',
-      1
-    );
-    expect(result).toBe(true);
-  });
-
   test('findReservationsInDateRange should return reservations within range', async () => {
     await repository.save(createValidReservation('2025-01-05'));
     await repository.save(createValidReservation('2025-01-10'));

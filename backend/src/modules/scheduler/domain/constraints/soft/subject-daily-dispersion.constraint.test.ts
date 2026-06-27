@@ -138,7 +138,7 @@ describe('SubjectDailyDispersionConstraint', () => {
   });
 
   test('includes locked assignments through the penalty calculator context', () => {
-    const calculator = new PenaltyCalculator([], [constraint], {}, 6, 12);
+    const calculator = new PenaltyCalculator([], [constraint], {}, {});
     const generated = createAssignment({
       subjectGroupId: 'theory',
       groupType: 'theory',

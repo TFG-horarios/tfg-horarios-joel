@@ -11,14 +11,12 @@ describe('GetClassroomAvailabilityUseCase', () => {
     delete: mock(),
     update: mock(),
     findPaginated: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
   };
 
   const scheduleProviderMock = {
     getClassroomScheduleSlots: mock(),
     isSchedulePublished: mock(),
-    hasSubjectInSlot: mock(),
+    hasSubjectInInterval: mock(),
     areAllSchedulesPublished: mock(),
   };
 
@@ -39,12 +37,31 @@ describe('GetClassroomAvailabilityUseCase', () => {
     });
 
     scheduleProviderMock.getClassroomScheduleSlots.mockResolvedValue([
-      { dayOfWeek: 3, period: 1, slotIndex: 1, duration: 2 },
+      {
+        dayOfWeek: 3,
+        period: 1,
+        slotIndex: 1,
+        duration: 2,
+        startTimeMinutes: 600,
+        endTimeMinutes: 720,
+      },
     ]);
 
     repositoryMock.findReservationsInDateRange.mockResolvedValue([
-      { date: '2025-01-01', slotIndex: 5, status: 'ACCEPTED' },
-      { date: '2025-01-01', slotIndex: 6, status: 'PENDING' },
+      {
+        date: '2025-01-01',
+        slotIndex: 5,
+        status: 'ACCEPTED',
+        startTimeMinutes: 780,
+        endTimeMinutes: 840,
+      },
+      {
+        date: '2025-01-01',
+        slotIndex: 6,
+        status: 'PENDING',
+        startTimeMinutes: 840,
+        endTimeMinutes: 900,
+      },
       { date: '2025-01-01', slotIndex: 7, status: 'REJECTED' },
       { date: '2025-01-01', slotIndex: 8, status: 'CANCELLED' },
     ]);
@@ -56,11 +73,15 @@ describe('GetClassroomAvailabilityUseCase', () => {
       endDate: '2025-01-01',
     });
 
-    expect(result.occupiedSlots).toHaveLength(4);
+    expect(result.occupiedSlots).toHaveLength(3);
     const reasons = result.occupiedSlots.map((s) => s.reason);
     expect(reasons).toContain('Ocupado por clase');
     expect(reasons).toContain('Reservado');
     expect(reasons).toContain('Reserva pendiente');
+    expect(result.occupiedSlots[0]).toMatchObject({
+      startTimeMinutes: 600,
+      endTimeMinutes: 720,
+    });
   });
 
   test('should throw NotFoundError if academic year not found', async () => {

@@ -9,6 +9,7 @@ export class ScheduleMapper {
       degreeId: schedule.degreeId,
       itineraryId: schedule.itineraryId ?? undefined,
       academicYearId: schedule.academicYearId,
+      timeConfigId: schedule.timeConfigId ?? undefined,
       shift: schedule.shift,
       courseYear: schedule.courseYear,
       period: schedule.period,

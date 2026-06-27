@@ -1,4 +1,9 @@
-import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+import type {
+  GroupType,
+  ClassroomType,
+  Shift,
+  ScheduleTimeGrid,
+} from '@tfg-horarios/shared';
 import type { ConflictDetail } from './constraints/constraint.interface';
 
 export interface Assignment {
@@ -14,6 +19,7 @@ export interface Assignment {
   needsComputerLab: boolean;
   degreeId: string;
   courseYear: number;
+  timeConfigId?: string;
   classroomId: string | null;
   dayOfWeek: number | null;
   slotIndex: number | null;
@@ -37,3 +43,17 @@ export interface ClassroomMap {
     floor: number;
   };
 }
+
+export interface ProjectedAssignment {
+  assignment: Assignment;
+  dayOfWeek: number;
+  startMinutes: number;
+  endMinutes: number;
+}
+
+export interface InvalidAssignment {
+  assignment: Assignment;
+  reason: 'MISSING_TIME_CONFIG' | 'OUT_OF_BOUNDS' | 'BREAK_CROSSING';
+}
+
+export type ScheduleTimeGridMap = Record<string, ScheduleTimeGrid>;

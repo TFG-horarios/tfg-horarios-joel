@@ -21,10 +21,21 @@ describe('GetClassroomUseCase', () => {
     getMemberRole: mock(),
   };
 
-  const useCase = new GetClassroomUseCase(repositoryMock, memberProviderMock);
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
+  const useCase = new GetClassroomUseCase(
+    repositoryMock,
+    memberProviderMock,
+    academicYearProviderMock
+  );
 
   test('should retrieve classroom successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockResolvedValueOnce(
+      false
+    );
     const classroom = Classroom.reconstitute({
       id: 'classroom-1',
       organizationId: 'org-1',
@@ -48,7 +59,7 @@ describe('GetClassroomUseCase', () => {
     expect(repositoryMock.findById).toHaveBeenCalledWith(
       'classroom-1',
       'org-1',
-      'year-1'
+      false
     );
   });
 

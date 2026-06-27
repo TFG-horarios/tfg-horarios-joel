@@ -3,9 +3,21 @@ import { InitialSolution, type GroupInitialData } from './initial-solution';
 import { PenaltyCalculator } from './penalty-calculator';
 import { CourseOverlapConstraint } from './constraints/hard/course-overlap.constraint';
 import { RoomOverlapConstraint } from './constraints/hard/room-overlap.constraint';
+import { buildScheduleTimeGrid } from '@tfg-horarios/shared';
 
 describe('InitialSolution', () => {
-  const penaltyCalculator = new PenaltyCalculator([], [], {}, 6, 12);
+  const timeGrids = {
+    'tc-1': buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '08:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    ),
+  };
+  const penaltyCalculator = new PenaltyCalculator([], [], {}, {});
   penaltyCalculator.calculatePenalty = mock(() => 0);
   const classroomsCache = {
     'c-1': {
@@ -21,8 +33,8 @@ describe('InitialSolution', () => {
     penaltyCalculator,
     ['c-1'],
     classroomsCache,
-    12,
-    6,
+    timeGrids,
+    undefined,
     60,
     [1]
   );
@@ -40,6 +52,7 @@ describe('InitialSolution', () => {
         weeklyHours: 2,
         degreeId: 'd-1',
         courseYear: 1,
+        timeConfigId: 'tc-1',
       },
     ];
     const result = initial.generate(groups);
@@ -52,8 +65,8 @@ describe('InitialSolution', () => {
       penaltyCalculator,
       [],
       classroomsCache,
-      12,
-      6,
+      timeGrids,
+      undefined,
       60,
       [1]
     );
@@ -69,6 +82,7 @@ describe('InitialSolution', () => {
         weeklyHours: 1,
         degreeId: 'd-1',
         courseYear: 1,
+        timeConfigId: 'tc-1',
       },
     ];
     const result = initialEmpty.generate(groups);
@@ -84,15 +98,14 @@ describe('InitialSolution', () => {
       [new RoomOverlapConstraint(), new CourseOverlapConstraint()],
       [],
       compactClassrooms,
-      4,
-      4
+      {}
     );
     const generator = new InitialSolution(
       calculator,
       Object.keys(compactClassrooms),
       compactClassrooms,
-      4,
-      4,
+      timeGrids,
+      undefined,
       60,
       [1]
     );
@@ -112,6 +125,7 @@ describe('InitialSolution', () => {
         weeklyHours: 2,
         degreeId: 'degree-1',
         courseYear: 4,
+        timeConfigId: 'tc-1',
         ...common,
       },
       {
@@ -127,6 +141,7 @@ describe('InitialSolution', () => {
         weeklyHours: 2,
         degreeId: 'degree-1',
         courseYear: 4,
+        timeConfigId: 'tc-1',
       },
       {
         subjectGroupId: 'group-b',
@@ -141,6 +156,7 @@ describe('InitialSolution', () => {
         weeklyHours: 2,
         degreeId: 'degree-1',
         courseYear: 4,
+        timeConfigId: 'tc-1',
       },
     ];
 
@@ -162,8 +178,10 @@ describe('InitialSolution', () => {
     );
 
     expect(result.hardPenalty).toBe(0);
-    expect(itineraryACells).toEqual(itineraryBCells);
     expect([...itineraryACells].every((cell) => !commonCells.has(cell))).toBe(
+      true
+    );
+    expect([...itineraryBCells].every((cell) => !commonCells.has(cell))).toBe(
       true
     );
   });

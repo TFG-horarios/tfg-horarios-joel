@@ -1,41 +1,67 @@
 import type { ScheduleConflictType } from '@tfg-horarios/shared';
-import type { Assignment, ClassroomMap } from '../types';
+import {
+  crossesBreakBoundary,
+  projectAssignmentInterval,
+} from '@tfg-horarios/shared';
+import type {
+  Assignment,
+  ClassroomMap,
+  InvalidAssignment,
+  ProjectedAssignment,
+  ScheduleTimeGridMap,
+} from '../types';
 
 export class ConstraintContext {
-  public timeSlots: Map<string, Assignment[]>;
-  public degreeGroups: Map<string, Map<string, Assignment[]>>;
+  public projectedAssignments?: ProjectedAssignment[];
+  public invalidAssignments?: InvalidAssignment[];
+  public timeGrids?: ScheduleTimeGridMap;
 
   constructor(
     public readonly assignments: Assignment[],
     public readonly classroomsCache: ClassroomMap,
-    public readonly maxMorningSlots: number,
-    public readonly maxSlotsPerDay: number
+    timeGrids: ScheduleTimeGridMap = {}
   ) {
-    this.timeSlots = new Map();
-    this.degreeGroups = new Map();
+    this.timeGrids = timeGrids;
+    this.projectedAssignments = [];
+    this.invalidAssignments = [];
 
     for (const assignment of assignments) {
       if (assignment.dayOfWeek === null || assignment.slotIndex === null)
         continue;
 
-      const spannedSlots = Math.ceil(assignment.duration);
-      for (let d = 0; d < spannedSlots; d++) {
-        const slotKey = `${assignment.dayOfWeek}-${assignment.slotIndex + d}`;
-
-        if (!this.timeSlots.has(slotKey)) {
-          this.timeSlots.set(slotKey, []);
+      const grid = assignment.timeConfigId
+        ? this.timeGrids[assignment.timeConfigId]
+        : undefined;
+      if (grid) {
+        const interval = projectAssignmentInterval(
+          grid,
+          assignment.slotIndex,
+          assignment.duration
+        );
+        if (interval) {
+          this.projectedAssignments!.push({
+            assignment,
+            dayOfWeek: assignment.dayOfWeek,
+            startMinutes: interval.startMinutes,
+            endMinutes: interval.endMinutes,
+          });
+        } else {
+          this.invalidAssignments!.push({
+            assignment,
+            reason: crossesBreakBoundary(
+              assignment.slotIndex,
+              assignment.duration,
+              grid.breakBoundaries
+            )
+              ? 'BREAK_CROSSING'
+              : 'OUT_OF_BOUNDS',
+          });
         }
-        this.timeSlots.get(slotKey)!.push(assignment);
-
-        const degreeCourseKey = `${assignment.degreeId}-${assignment.courseYear}`;
-        if (!this.degreeGroups.has(degreeCourseKey)) {
-          this.degreeGroups.set(degreeCourseKey, new Map());
-        }
-        const timeSlotsForDegree = this.degreeGroups.get(degreeCourseKey)!;
-        if (!timeSlotsForDegree.has(slotKey)) {
-          timeSlotsForDegree.set(slotKey, []);
-        }
-        timeSlotsForDegree.get(slotKey)!.push(assignment);
+      } else {
+        this.invalidAssignments!.push({
+          assignment,
+          reason: 'MISSING_TIME_CONFIG',
+        });
       }
     }
   }

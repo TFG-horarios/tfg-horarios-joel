@@ -41,6 +41,7 @@ import {
   type DegreeDTO,
   type ItineraryDTO,
   type AcademicYearDTO,
+  type ScheduleTimeConfigDTO,
 } from '@tfg-horarios/shared';
 import {
   publishScheduleAction,
@@ -60,6 +61,7 @@ type SchedulePlannerProps = {
   degrees: DegreeDTO[];
   itineraries: ItineraryDTO[];
   academicYear: AcademicYearDTO;
+  timeConfig?: ScheduleTimeConfigDTO | null;
   canUpdate?: boolean;
 };
 
@@ -140,6 +142,7 @@ export function SchedulePlanner({
   degrees,
   itineraries,
   academicYear,
+  timeConfig,
   canUpdate = false,
 }: SchedulePlannerProps) {
   const router = useRouter();
@@ -186,41 +189,14 @@ export function SchedulePlanner({
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
 
-  const parseTime = (timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
-  };
-
-  const maxMorningSlots = Math.floor(
-    (parseTime(academicYear.morningEnd) -
-      parseTime(academicYear.morningStart)) /
-      academicYear.slotDurationMinutes
-  );
-
   const effectiveShift = useMemo(() => {
-    if (!localSchedule.shift) return 'global';
-
-    const assignedSlots = slots
-      .filter((s) => s.slotIndex !== null)
-      .map((s) => s.slotIndex!);
-    if (assignedSlots.length === 0) return localSchedule.shift;
-
-    const maxSlot = Math.max(...assignedSlots);
-    const minSlot = Math.min(...assignedSlots);
-
-    if (localSchedule.shift === 'morning' && maxSlot >= maxMorningSlots) {
-      return 'global';
-    }
-    if (localSchedule.shift === 'afternoon' && minSlot < maxMorningSlots) {
-      return 'global';
-    }
-
-    return localSchedule.shift;
-  }, [localSchedule.shift, slots, maxMorningSlots]);
+    return localSchedule.shift ?? 'global';
+  }, [localSchedule.shift]);
 
   const { slotTimeLabels, numSlots, startSlotIndex } = useScheduleGrid(
     academicYear,
-    effectiveShift
+    effectiveShift,
+    timeConfig
   );
 
   const unassignedSlots = useMemo(() => {

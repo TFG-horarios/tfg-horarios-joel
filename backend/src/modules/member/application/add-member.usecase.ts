@@ -10,7 +10,6 @@ import {
 import { Member } from '../domain/member.entity';
 import { MemberMapper } from './member.mapper';
 import { hasPermission } from '@/core/permissions/authorization';
-
 import type { IMemberNotificationProvider } from '../domain/providers/member-notification.provider';
 
 export class AddMemberUseCase {

@@ -136,22 +136,13 @@ export class UpdateScheduleSlotUseCase {
           {
             academicYearId: scheduleContext.academicYearId,
             period: scheduleContext.period,
-            shift: scheduleContext.shift,
           }
         )) ?? [];
-      const start = placement.slotIndex;
-      const end = start + Math.ceil(placement.duration) - 1;
       return roomSlots.filter((candidate) => {
-        if (
-          candidate.id === slot.id ||
-          candidate.dayOfWeek !== placement.dayOfWeek ||
-          candidate.slotIndex === null
-        ) {
+        if (candidate.id === slot.id) {
           return false;
         }
-        const candidateEnd =
-          candidate.slotIndex + Math.ceil(candidate.duration) - 1;
-        return start <= candidateEnd && end >= candidate.slotIndex;
+        return candidate.dayOfWeek === placement.dayOfWeek;
       });
     };
 
@@ -206,7 +197,8 @@ export class UpdateScheduleSlotUseCase {
         classroomId,
         dayOfWeek,
         slotIndex,
-        slot.duration
+        slot.duration,
+        scheduleContext.timeConfigId
       );
     }
 

@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { GroupType, Shift } from '@tfg-horarios/shared';
-import type { ConstraintContext } from '../constraint.interface';
+import {
+  buildScheduleTimeGrid,
+  type GroupType,
+  type Shift,
+} from '@tfg-horarios/shared';
+import { ConstraintContext } from '../constraint.interface';
 import type { Assignment } from '../../types';
 import { GroupTypeOrderConstraint } from './group-type-order.constraint';
 
@@ -140,5 +144,37 @@ describe('GroupTypeOrderConstraint', () => {
     ];
 
     expect(calculatePenalty(assignments)).toBe(0);
+  });
+
+  test('orders group types by real start minutes across desynchronized grids', () => {
+    const earlyGrid = buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '08:00',
+        endTime: '12:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    );
+    const lateGrid = buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '10:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    );
+
+    const context = new ConstraintContext(
+      [
+        createAssignment('theory', 0, { timeConfigId: 'late' }),
+        createAssignment('problems', 0, { timeConfigId: 'early' }),
+      ],
+      {},
+      { early: earlyGrid, late: lateGrid }
+    );
+
+    expect(constraint.calculatePenalty(context).penalty).toBe(10);
   });
 });

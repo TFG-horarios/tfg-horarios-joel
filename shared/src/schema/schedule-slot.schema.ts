@@ -13,6 +13,7 @@ export const ScheduleConflictTypeSchema = z.enum([
   'SHIFT_MORNING',
   'SHIFT_AFTERNOON',
   'SHIFT_EXCEEDS_DAY',
+  'BREAK_CROSSING',
   'UNASSIGNED',
   'UNASSIGNED_NO_ROOMS_OF_TYPE',
   'UNASSIGNED_ROOM_CAPACITY',

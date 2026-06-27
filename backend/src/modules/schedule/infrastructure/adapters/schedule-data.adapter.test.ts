@@ -58,8 +58,6 @@ describe('ScheduleDataAdapter', () => {
     save: mock(),
     update: mock(),
     findPaginated: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
   };
   const createNotificationUseCaseMock = {
@@ -129,10 +127,9 @@ describe('ScheduleDataAdapter', () => {
 
   test('getAcademicYearConstraints should return constraints', async () => {
     academicYearRepositoryMock.findById.mockResolvedValue({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     const result = await adapter.getAcademicYearConstraints('year-1');
@@ -147,6 +144,8 @@ describe('ScheduleDataAdapter', () => {
       academicYearId: 'year-1',
       date: '2025-01-01',
       slotIndex: 2,
+      startTimeMinutes: 600,
+      endTimeMinutes: 660,
       status: 'ACCEPTED',
     });
 
@@ -167,6 +166,8 @@ describe('ScheduleDataAdapter', () => {
         slotIndex: 1,
         duration: 2,
         period: 1,
+        startTimeMinutes: 630,
+        endTimeMinutes: 690,
       },
     ]);
 

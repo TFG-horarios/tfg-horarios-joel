@@ -25,18 +25,6 @@ export type ClassroomReservationRowProps = {
   academicYear?: AcademicYearDTO;
 };
 
-const timeToMinutes = (time: string) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  if (
-    hours === undefined ||
-    minutes === undefined ||
-    isNaN(hours) ||
-    isNaN(minutes)
-  )
-    return 0;
-  return hours * 60 + minutes;
-};
-
 const minutesToTime = (totalMinutes: number) => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
@@ -44,30 +32,34 @@ const minutesToTime = (totalMinutes: number) => {
 };
 
 export const getSlotTimeRange = (
-  slotIndex: number,
+  reservationOrSlotIndex: ClassroomReservationDTO | number,
   academicYear?: AcademicYearDTO
 ) => {
+  if (typeof reservationOrSlotIndex !== 'number') {
+    const reservation = reservationOrSlotIndex;
+    if (
+      reservation.startTimeMinutes !== null &&
+      reservation.endTimeMinutes !== null
+    ) {
+      return `${minutesToTime(reservation.startTimeMinutes)} - ${minutesToTime(
+        reservation.endTimeMinutes
+      )}`;
+    }
+    return `Slot ${reservation.slotIndex}`;
+  }
+
+  const slotIndex = reservationOrSlotIndex;
   if (!academicYear) return `Slot ${slotIndex}`;
-
-  const morningTotalMinutes =
-    timeToMinutes(academicYear.morningEnd) -
-    timeToMinutes(academicYear.morningStart);
-  const morningSlots = Math.floor(
-    morningTotalMinutes / academicYear.slotDurationMinutes
-  );
-
-  const isAfternoon = slotIndex >= morningSlots;
-  const baseMinutes = isAfternoon
-    ? timeToMinutes(academicYear.afternoonStart)
-    : timeToMinutes(academicYear.morningStart);
-
-  const effectiveIndex = isAfternoon ? slotIndex - morningSlots : slotIndex;
-
   const startMinutes =
-    baseMinutes + effectiveIndex * academicYear.slotDurationMinutes;
+    minutesFromTime(academicYear.centerOpeningTime) +
+    slotIndex * academicYear.slotDurationMinutes;
   const endMinutes = startMinutes + academicYear.slotDurationMinutes;
-
   return `${minutesToTime(startMinutes)} - ${minutesToTime(endMinutes)}`;
+};
+
+const minutesFromTime = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return (hours ?? 0) * 60 + (minutes ?? 0);
 };
 
 export const ClassroomReservationRow = memo(function ClassroomReservationRow({
@@ -175,9 +167,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
       <TableCell>
         {new Date(reservation.date).toLocaleDateString('es-ES')}
       </TableCell>
-      <TableCell>
-        {getSlotTimeRange(reservation.slotIndex, academicYear)}
-      </TableCell>
+      <TableCell>{getSlotTimeRange(reservation, academicYear)}</TableCell>
       {(isAdmin || isEditor) && <TableCell>{requesterDisplay}</TableCell>}
       <TableCell
         className="max-w-[200px] truncate"

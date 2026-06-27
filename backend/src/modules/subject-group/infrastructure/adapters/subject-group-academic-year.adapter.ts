@@ -9,7 +9,7 @@ export class SubjectGroupAcademicYearAdapter implements ISubjectGroupAcademicYea
   async shouldIncludeSoftDeleted(academicYearId: string): Promise<boolean> {
     if (!academicYearId) return false;
     const isHistoric =
-      await this.academicYearRepository.isHistoric(academicYearId);
+      (await this.academicYearRepository.isHistoric?.(academicYearId)) ?? false;
     return isHistoric;
   }
 }

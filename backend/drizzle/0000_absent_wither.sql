@@ -86,6 +86,7 @@ CREATE TABLE "schedule" (
 	"degree_id" uuid NOT NULL,
 	"itinerary_id" uuid,
 	"academic_year_id" uuid NOT NULL,
+	"time_config_id" uuid,
 	"shift" "shift" NOT NULL,
 	"course_year" integer NOT NULL,
 	"period" integer NOT NULL,
@@ -147,6 +148,8 @@ CREATE TABLE "classroom_reservations" (
 	"academic_year_id" uuid NOT NULL,
 	"date" varchar(10) NOT NULL,
 	"slot_index" integer NOT NULL,
+	"start_time_minutes" integer,
+	"end_time_minutes" integer,
 	"status" "reservation_status" DEFAULT 'PENDING' NOT NULL,
 	"reason" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -165,13 +168,34 @@ CREATE TABLE "academic_year" (
 	"period_2_start" date,
 	"period_2_end" date,
 	"period_type" "period_type" NOT NULL,
-	"morning_start" time NOT NULL,
-	"morning_end" time NOT NULL,
-	"afternoon_start" time NOT NULL,
-	"afternoon_end" time NOT NULL,
+	"break_duration_minutes" integer NOT NULL,
+	"center_opening_time" time NOT NULL,
+	"center_closing_time" time NOT NULL,
 	"slot_duration_minutes" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "academic_year_slot_duration_positive" CHECK ("academic_year"."slot_duration_minutes" > 0),
+	CONSTRAINT "academic_year_break_duration_nonnegative" CHECK ("academic_year"."break_duration_minutes" >= 0),
+	CONSTRAINT "academic_year_center_hours_order" CHECK ("academic_year"."center_closing_time" > "academic_year"."center_opening_time")
+);
+--> statement-breakpoint
+CREATE TABLE "schedule_time_config" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"organization_id" uuid NOT NULL,
+	"academic_year_id" uuid NOT NULL,
+	"degree_id" uuid NOT NULL,
+	"itinerary_id" uuid,
+	"course_year" integer NOT NULL,
+	"period" integer NOT NULL,
+	"shift" "shift" NOT NULL,
+	"start_time" time NOT NULL,
+	"end_time" time NOT NULL,
+	"has_break" boolean DEFAULT false NOT NULL,
+	"break_after_slot" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "schedule_time_config_hours_order" CHECK ("schedule_time_config"."end_time" > "schedule_time_config"."start_time"),
+	CONSTRAINT "schedule_time_config_break_consistency" CHECK (("schedule_time_config"."has_break" = false AND "schedule_time_config"."break_after_slot" IS NULL) OR ("schedule_time_config"."has_break" = true AND "schedule_time_config"."break_after_slot" IS NOT NULL AND "schedule_time_config"."break_after_slot" > 0))
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
@@ -197,6 +221,7 @@ ALTER TABLE "schedule" ADD CONSTRAINT "schedule_organization_id_organization_id_
 ALTER TABLE "schedule" ADD CONSTRAINT "schedule_degree_id_degree_id_fk" FOREIGN KEY ("degree_id") REFERENCES "public"."degree"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedule" ADD CONSTRAINT "schedule_itinerary_id_itinerary_id_fk" FOREIGN KEY ("itinerary_id") REFERENCES "public"."itinerary"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedule" ADD CONSTRAINT "schedule_academic_year_id_academic_year_id_fk" FOREIGN KEY ("academic_year_id") REFERENCES "public"."academic_year"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedule" ADD CONSTRAINT "schedule_time_config_id_schedule_time_config_id_fk" FOREIGN KEY ("time_config_id") REFERENCES "public"."schedule_time_config"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "degree" ADD CONSTRAINT "degree_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedule_slot_inclusion" ADD CONSTRAINT "schedule_slot_inclusion_schedule_id_schedule_id_fk" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedule"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedule_slot_inclusion" ADD CONSTRAINT "schedule_slot_inclusion_slot_id_schedule_slot_id_fk" FOREIGN KEY ("slot_id") REFERENCES "public"."schedule_slot"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -210,6 +235,10 @@ ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_requ
 ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_classroom_id_classroom_id_fk" FOREIGN KEY ("classroom_id") REFERENCES "public"."classroom"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "classroom_reservations" ADD CONSTRAINT "classroom_reservations_academic_year_id_academic_year_id_fk" FOREIGN KEY ("academic_year_id") REFERENCES "public"."academic_year"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_year" ADD CONSTRAINT "academic_year_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedule_time_config" ADD CONSTRAINT "schedule_time_config_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedule_time_config" ADD CONSTRAINT "schedule_time_config_academic_year_id_academic_year_id_fk" FOREIGN KEY ("academic_year_id") REFERENCES "public"."academic_year"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedule_time_config" ADD CONSTRAINT "schedule_time_config_degree_id_degree_id_fk" FOREIGN KEY ("degree_id") REFERENCES "public"."degree"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedule_time_config" ADD CONSTRAINT "schedule_time_config_itinerary_id_itinerary_id_fk" FOREIGN KEY ("itinerary_id") REFERENCES "public"."itinerary"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "classroom_name_org_idx" ON "classroom" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
@@ -222,4 +251,6 @@ CREATE UNIQUE INDEX "degree_code_org_idx" ON "degree" USING btree ("organization
 CREATE UNIQUE INDEX "degree_name_org_idx" ON "degree" USING btree ("organization_id","name") WHERE deleted_at IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_slot_inclusion_unique_idx" ON "schedule_slot_inclusion" USING btree ("schedule_id","slot_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "schedule_slot_classroom_time_unique_idx" ON "schedule_slot" USING btree ("classroom_id","day_of_week","slot_index","schedule_id") WHERE classroom_id IS NOT NULL AND day_of_week IS NOT NULL AND slot_index IS NOT NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX "unique_name_org" ON "academic_year" USING btree ("organization_id","name");
+CREATE UNIQUE INDEX "unique_name_org" ON "academic_year" USING btree ("organization_id","name");--> statement-breakpoint
+CREATE UNIQUE INDEX "schedule_time_config_base_unique" ON "schedule_time_config" USING btree ("organization_id","academic_year_id","degree_id","course_year","period","shift") WHERE itinerary_id IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "schedule_time_config_itinerary_unique" ON "schedule_time_config" USING btree ("organization_id","academic_year_id","degree_id","course_year","period","shift","itinerary_id") WHERE itinerary_id IS NOT NULL;

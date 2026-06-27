@@ -48,7 +48,8 @@ describe('HonoClassroomReservationController Integration', () => {
       classroomId,
       academicYearId,
       date: '2025-01-01',
-      slotIndex: 1,
+      startTimeMinutes: 510,
+      endTimeMinutes: 570,
       reason: 'Meeting',
     };
     createMock.execute.mockResolvedValueOnce({ id: resId, ...validBody });

@@ -21,11 +21,20 @@ describe('ListAllDegreesUseCase', () => {
     getMemberRole: mock(),
   };
 
-  const useCase = new ListAllDegreesUseCase(repositoryMock, memberProviderMock);
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
+  const useCase = new ListAllDegreesUseCase(
+    repositoryMock,
+    memberProviderMock,
+    academicYearProviderMock
+  );
 
   beforeEach(() => {
     repositoryMock.findAll.mockClear();
     memberProviderMock.getMemberRole.mockClear();
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockClear();
   });
 
   test('should list all degrees successfully', async () => {
@@ -45,7 +54,7 @@ describe('ListAllDegreesUseCase', () => {
       'user-id',
       'org-id'
     );
-    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-id');
+    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-id', false);
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('degree-id');
     expect(result[0]?.name).toBe('Computer Science');

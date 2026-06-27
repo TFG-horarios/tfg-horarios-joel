@@ -6,16 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Download, Loader2, ArchiveRestore } from 'lucide-react';
 import { DraggableSlot } from '@/features/schedule/components/dnd/draggable-slot';
 import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
-import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
 import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
 import type {
   Shift,
+  ScheduleDTO,
   ScheduleSlotDTO,
   ClassroomDTO,
   SubjectDTO,
   SubjectGroupDTO,
   DegreeDTO,
   AcademicYearDTO,
+  ScheduleTimeConfigDTO,
+} from '@tfg-horarios/shared';
+import {
+  buildScheduleTimeGrid,
+  formatMinutesAsTime,
+  projectAssignmentInterval,
 } from '@tfg-horarios/shared';
 import { memo, useMemo } from 'react';
 
@@ -26,6 +32,8 @@ type ClassroomSchedulePlannerProps = {
   subjectGroups: SubjectGroupDTO[];
   degrees: DegreeDTO[];
   academicYear: AcademicYearDTO;
+  schedules: ScheduleDTO[];
+  timeConfigs: ScheduleTimeConfigDTO[];
   shift: Shift;
   period: number;
 };
@@ -80,16 +88,111 @@ export function ClassroomSchedulePlanner({
   subjectGroups,
   degrees,
   academicYear,
+  schedules,
+  timeConfigs,
   shift,
   period,
 }: ClassroomSchedulePlannerProps) {
   const t = useTranslations('Organizations.classroomSchedules.planner');
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
-  const { slotTimeLabels, numSlots, startSlotIndex } = useScheduleGrid(
-    academicYear,
-    shift
-  );
+  const { slotTimeLabels, numSlots, slotRowById } = useMemo(() => {
+    const scheduleById = new Map(
+      schedules.map((schedule) => [schedule.id, schedule])
+    );
+    const configById = new Map(
+      timeConfigs.map((config) => [config.id, config])
+    );
+    const rowKeys = new Map<
+      string,
+      { startMinutes: number; endMinutes: number }
+    >();
+    const slotRows = new Map<string, number>();
+
+    slots.forEach((slot) => {
+      if (slot.dayOfWeek === null || slot.slotIndex === null) return;
+      const schedule = scheduleById.get(slot.scheduleId);
+      const config = schedule?.timeConfigId
+        ? configById.get(schedule.timeConfigId)
+        : null;
+      if (!config) return;
+
+      const grid = buildScheduleTimeGrid(
+        {
+          slotDurationMinutes: academicYear.slotDurationMinutes,
+          breakDurationMinutes: academicYear.breakDurationMinutes,
+        },
+        {
+          startTime: config.startTime,
+          endTime: config.endTime,
+          hasBreak: config.hasBreak,
+          breakAfterSlot: config.breakAfterSlot,
+        }
+      );
+      const interval = projectAssignmentInterval(
+        grid,
+        slot.slotIndex,
+        slot.duration
+      );
+      if (!interval) return;
+      const key = `${interval.startMinutes}-${interval.endMinutes}`;
+      rowKeys.set(key, interval);
+    });
+
+    const rows = Array.from(rowKeys.entries())
+      .map(([key, interval]) => ({ key, ...interval }))
+      .sort(
+        (a, b) => a.startMinutes - b.startMinutes || a.endMinutes - b.endMinutes
+      );
+    const rowIndexByKey = new Map(rows.map((row, index) => [row.key, index]));
+
+    slots.forEach((slot) => {
+      if (slot.dayOfWeek === null || slot.slotIndex === null) return;
+      const schedule = scheduleById.get(slot.scheduleId);
+      const config = schedule?.timeConfigId
+        ? configById.get(schedule.timeConfigId)
+        : null;
+      if (!config) return;
+      const grid = buildScheduleTimeGrid(
+        {
+          slotDurationMinutes: academicYear.slotDurationMinutes,
+          breakDurationMinutes: academicYear.breakDurationMinutes,
+        },
+        {
+          startTime: config.startTime,
+          endTime: config.endTime,
+          hasBreak: config.hasBreak,
+          breakAfterSlot: config.breakAfterSlot,
+        }
+      );
+      const interval = projectAssignmentInterval(
+        grid,
+        slot.slotIndex,
+        slot.duration
+      );
+      if (!interval) return;
+      const rowIndex = rowIndexByKey.get(
+        `${interval.startMinutes}-${interval.endMinutes}`
+      );
+      if (rowIndex !== undefined) {
+        slotRows.set(slot.id, rowIndex);
+      }
+    });
+
+    return {
+      numSlots: rows.length,
+      startSlotIndex: 0,
+      slotRowById: slotRows,
+      slotTimeLabels: Object.fromEntries(
+        rows.map((row, index) => [
+          index,
+          `${formatMinutesAsTime(row.startMinutes)} - ${formatMinutesAsTime(
+            row.endMinutes
+          )}`,
+        ])
+      ) as Record<number, string>,
+    };
+  }, [academicYear, schedules, slots, timeConfigs]);
 
   const daysOfWeek = [
     { value: 1, label: t('days.1') },
@@ -102,7 +205,9 @@ export function ClassroomSchedulePlanner({
   const slotsByCell = useMemo(() => {
     const map = new Map<string, ScheduleSlotDTO[]>();
     slots.forEach((s) => {
-      const key = `${s.dayOfWeek}_${s.slotIndex}`;
+      const rowIndex = slotRowById.get(s.id);
+      if (s.dayOfWeek === null || rowIndex === undefined) return;
+      const key = `${s.dayOfWeek}_${rowIndex}`;
       if (!map.has(key)) {
         map.set(key, []);
       }
@@ -116,7 +221,7 @@ export function ClassroomSchedulePlanner({
       }
     });
     return map;
-  }, [slots]);
+  }, [slots, slotRowById]);
 
   const unassignedSlots = useMemo(() => {
     return slots.filter((s) => s.dayOfWeek === null || s.slotIndex === null);
@@ -227,7 +332,7 @@ export function ClassroomSchedulePlanner({
         gridRef={gridRef}
         daysOfWeek={daysOfWeek}
         numSlots={numSlots}
-        startSlotIndex={startSlotIndex}
+        startSlotIndex={0}
         slotTimeLabels={slotTimeLabels}
         renderCell={(day, slotIndex) => {
           const cellSlots = slotsByCell.get(`${day}_${slotIndex}`) || [];

@@ -45,6 +45,8 @@ export class CancelClassroomReservationUseCase {
       academicYearId: reservation.academicYearId,
       date: reservation.date,
       slotIndex: reservation.slotIndex,
+      startTimeMinutes: reservation.startTimeMinutes,
+      endTimeMinutes: reservation.endTimeMinutes,
       status: reservation.status,
       reason: reservation.reason,
       createdAt: reservation.createdAt.toISOString(),

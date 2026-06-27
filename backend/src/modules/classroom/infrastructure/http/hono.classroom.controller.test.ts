@@ -119,7 +119,12 @@ describe('HonoClassroomController Integration', () => {
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ id: classroomId, name: 'Test' });
-    expect(getMock.execute).toHaveBeenCalledWith(orgId, classroomId, 'u-admin');
+    expect(getMock.execute).toHaveBeenCalledWith(
+      orgId,
+      classroomId,
+      'u-admin',
+      undefined
+    );
   });
 
   test('GET /organizations/:organizationId/classrooms should return 200 with list', async () => {
@@ -149,7 +154,11 @@ describe('HonoClassroomController Integration', () => {
     const res = await app.request(`/api/organizations/${orgId}/classrooms/all`);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: classroomId }]);
-    expect(listAllMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
+    expect(listAllMock.execute).toHaveBeenCalledWith(
+      orgId,
+      'u-admin',
+      undefined
+    );
   });
 
   test('GET /organizations/:organizationId/classrooms/all should forward academic year context', async () => {

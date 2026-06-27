@@ -21,14 +21,20 @@ describe('ListAllSubjectsUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
   const useCase = new ListAllSubjectsUseCase(
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    academicYearProviderMock
   );
 
   beforeEach(() => {
     repositoryMock.findAll.mockClear();
     memberProviderMock.getMemberRole.mockClear();
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockClear();
   });
 
   test('should list all subjects successfully', async () => {
@@ -58,7 +64,7 @@ describe('ListAllSubjectsUseCase', () => {
       'user-1',
       'org-1'
     );
-    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1');
+    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1', false);
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('sub-1');
   });

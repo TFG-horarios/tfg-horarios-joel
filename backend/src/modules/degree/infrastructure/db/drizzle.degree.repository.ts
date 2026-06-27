@@ -48,7 +48,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
   async findById(
     id: string,
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Degree | null> {
     const rows = await this.database
       .select()
@@ -71,7 +71,7 @@ export class DrizzleDegreeRepository implements IDegreeRepository {
 
   async findAll(
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Degree[]> {
     const rows = await this.database
       .select()

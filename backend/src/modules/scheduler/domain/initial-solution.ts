@@ -1,5 +1,12 @@
 import type { Assignment, ClassroomMap, Solution } from './types';
-import type { GroupType, Shift } from '@tfg-horarios/shared';
+import {
+  intervalsOverlap,
+  projectAssignmentInterval,
+  type AssignmentInterval,
+  type GroupType,
+  type ScheduleTimeGrid,
+  type Shift,
+} from '@tfg-horarios/shared';
 import { PenaltyCalculator } from './penalty-calculator';
 
 export interface GroupInitialData {
@@ -15,18 +22,26 @@ export interface GroupInitialData {
   weeklyHours: number;
   degreeId: string;
   courseYear: number;
+  timeConfigId?: string;
 }
 
 export class InitialSolution {
+  private readonly timeGrids: Record<string, ScheduleTimeGrid>;
+
   constructor(
     private readonly penaltyCalculator: PenaltyCalculator,
     private readonly availableClassrooms: string[],
     private readonly classroomsCache: ClassroomMap,
-    private readonly maxSlotsPerDay: number,
-    private readonly maxMorningSlots: number,
+    timeGridsOrMaxSlotsPerDay: Record<string, ScheduleTimeGrid> | number,
+    _legacyMaxMorningSlots?: number,
     private readonly slotDuration: number = 60,
     private readonly days: number[] = [1, 2, 3, 4, 5]
-  ) {}
+  ) {
+    this.timeGrids =
+      typeof timeGridsOrMaxSlotsPerDay === 'number'
+        ? {}
+        : timeGridsOrMaxSlotsPerDay;
+  }
 
   public generate(
     groups: GroupInitialData[],
@@ -70,7 +85,10 @@ export class InitialSolution {
 
     const assignments: Assignment[] = [];
 
-    const occupiedClassrooms = new Set<string>();
+    const occupiedClassrooms = new Map<
+      string,
+      { dayOfWeek: number; interval: AssignmentInterval }[]
+    >();
 
     for (const locked of lockedAssignments) {
       if (
@@ -78,11 +96,16 @@ export class InitialSolution {
         locked.dayOfWeek !== null &&
         locked.slotIndex !== null
       ) {
-        const spannedSlots = Math.ceil(locked.duration);
-        for (let d = 0; d < spannedSlots; d++) {
-          occupiedClassrooms.add(
-            `${locked.classroomId}_${locked.dayOfWeek}_${locked.slotIndex + d}`
-          );
+        const grid = locked.timeConfigId
+          ? this.timeGrids[locked.timeConfigId]
+          : undefined;
+        const interval = grid
+          ? projectAssignmentInterval(grid, locked.slotIndex, locked.duration)
+          : null;
+        if (interval) {
+          const roomEntries = occupiedClassrooms.get(locked.classroomId) ?? [];
+          roomEntries.push({ dayOfWeek: locked.dayOfWeek, interval });
+          occupiedClassrooms.set(locked.classroomId, roomEntries);
         }
       }
     }
@@ -114,22 +137,28 @@ export class InitialSolution {
 
         const classroomsToSearch = this.getClassroomsForGroup(group);
 
-        const startLimit = group.shift === 'morning' ? 0 : this.maxMorningSlots;
-        const endLimit =
-          group.shift === 'morning'
-            ? this.maxMorningSlots
-            : this.maxSlotsPerDay;
-
-        const spannedSlots = Math.ceil(sessionDuration);
+        const grid = group.timeConfigId
+          ? this.timeGrids[group.timeConfigId]
+          : undefined;
+        if (!grid) {
+          assignments.push(
+            this.createUnassignedAssignment(group, sessionDuration)
+          );
+          continue;
+        }
         const baselinePenalty = this.penaltyCalculator.evaluateHard(
           assignments,
           lockedAssignments
         );
         const timeCandidates = this.days.flatMap((day) =>
-          Array.from(
-            { length: Math.max(0, endLimit - startLimit - spannedSlots + 1) },
-            (_, index) => ({ day, slot: startLimit + index })
-          )
+          grid.slots
+            .filter((slot: ScheduleTimeGrid['slots'][number]) =>
+              projectAssignmentInterval(grid, slot.slotIndex, sessionDuration)
+            )
+            .map((slot: ScheduleTimeGrid['slots'][number]) => ({
+              day,
+              slot: slot.slotIndex,
+            }))
         );
 
         const overlappingAssignments = (day: number, slot: number) =>
@@ -144,11 +173,25 @@ export class InitialSolution {
               return false;
             }
 
-            const assignmentEnd =
-              assignment.slotIndex + Math.ceil(assignment.duration) - 1;
-            const candidateEnd = slot + spannedSlots - 1;
-            return (
-              slot <= assignmentEnd && candidateEnd >= assignment.slotIndex
+            const assignmentGrid = assignment.timeConfigId
+              ? this.timeGrids[assignment.timeConfigId]
+              : undefined;
+            const assignmentInterval = assignmentGrid
+              ? projectAssignmentInterval(
+                  assignmentGrid,
+                  assignment.slotIndex,
+                  assignment.duration
+                )
+              : null;
+            const candidateInterval = projectAssignmentInterval(
+              grid,
+              slot,
+              sessionDuration
+            );
+            return !!(
+              assignmentInterval &&
+              candidateInterval &&
+              intervalsOverlap(assignmentInterval, candidateInterval)
             );
           });
 
@@ -199,13 +242,17 @@ export class InitialSolution {
 
         candidateSearch: for (const { day, slot } of timeCandidates) {
           for (const roomId of classroomsToSearch) {
-            let isOccupied = false;
-            for (let d = 0; d < spannedSlots; d++) {
-              if (occupiedClassrooms.has(`${roomId}_${day}_${slot + d}`)) {
-                isOccupied = true;
-                break;
-              }
-            }
+            const candidateInterval = projectAssignmentInterval(
+              grid,
+              slot,
+              sessionDuration
+            );
+            if (!candidateInterval) continue;
+            const isOccupied = (occupiedClassrooms.get(roomId) ?? []).some(
+              (entry) =>
+                entry.dayOfWeek === day &&
+                intervalsOverlap(entry.interval, candidateInterval)
+            );
             if (isOccupied) continue;
 
             const tempAssignment: Assignment = {
@@ -221,6 +268,7 @@ export class InitialSolution {
               needsComputerLab: group.needsComputerLab,
               degreeId: group.degreeId,
               courseYear: group.courseYear,
+              timeConfigId: group.timeConfigId,
               classroomId: roomId,
               dayOfWeek: day,
               slotIndex: slot,
@@ -250,11 +298,19 @@ export class InitialSolution {
         }
 
         if (bestPlacement) {
-          const spannedSlots = Math.ceil(sessionDuration);
-          for (let d = 0; d < spannedSlots; d++) {
-            occupiedClassrooms.add(
-              `${bestPlacement.classroomId}_${bestPlacement.dayOfWeek}_${bestPlacement.slotIndex + d}`
-            );
+          const bestInterval = projectAssignmentInterval(
+            grid,
+            bestPlacement.slotIndex,
+            sessionDuration
+          );
+          if (bestInterval) {
+            const roomEntries =
+              occupiedClassrooms.get(bestPlacement.classroomId) ?? [];
+            roomEntries.push({
+              dayOfWeek: bestPlacement.dayOfWeek,
+              interval: bestInterval,
+            });
+            occupiedClassrooms.set(bestPlacement.classroomId, roomEntries);
           }
           assignments.push({
             id: crypto.randomUUID(),
@@ -269,30 +325,16 @@ export class InitialSolution {
             needsComputerLab: group.needsComputerLab,
             degreeId: group.degreeId,
             courseYear: group.courseYear,
+            timeConfigId: group.timeConfigId,
             classroomId: bestPlacement.classroomId,
             dayOfWeek: bestPlacement.dayOfWeek,
             slotIndex: bestPlacement.slotIndex,
             duration: sessionDuration,
           });
         } else {
-          assignments.push({
-            id: crypto.randomUUID(),
-            subjectGroupId: group.subjectGroupId,
-            subjectId: group.subjectId,
-            shift: group.shift,
-            groupType: group.groupType,
-            isCommon: group.isCommon,
-            itineraryName: group.itineraryName ?? null,
-            itineraryId: group.itineraryId ?? null,
-            numberOfStudents: group.numberOfStudents,
-            needsComputerLab: group.needsComputerLab,
-            degreeId: group.degreeId,
-            courseYear: group.courseYear,
-            classroomId: null,
-            dayOfWeek: null,
-            slotIndex: null,
-            duration: sessionDuration,
-          });
+          assignments.push(
+            this.createUnassignedAssignment(group, sessionDuration)
+          );
         }
       }
     }
@@ -365,5 +407,30 @@ export class InitialSolution {
     }
 
     return classroomsToSearch;
+  }
+
+  private createUnassignedAssignment(
+    group: GroupInitialData,
+    duration: number
+  ): Assignment {
+    return {
+      id: crypto.randomUUID(),
+      subjectGroupId: group.subjectGroupId,
+      subjectId: group.subjectId,
+      shift: group.shift,
+      groupType: group.groupType,
+      isCommon: group.isCommon,
+      itineraryName: group.itineraryName ?? null,
+      itineraryId: group.itineraryId ?? null,
+      numberOfStudents: group.numberOfStudents,
+      needsComputerLab: group.needsComputerLab,
+      degreeId: group.degreeId,
+      courseYear: group.courseYear,
+      timeConfigId: group.timeConfigId,
+      classroomId: null,
+      dayOfWeek: null,
+      slotIndex: null,
+      duration,
+    };
   }
 }

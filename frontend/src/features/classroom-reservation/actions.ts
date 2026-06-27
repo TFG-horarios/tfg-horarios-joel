@@ -9,6 +9,7 @@ import {
   ClassroomReservationSchema,
   type ClassroomReservationListQueryDTO,
   type ClassroomReservationDTO,
+  type OccupiedSlotDTO,
 } from '@tfg-horarios/shared';
 import { fetchPaginatedReservations, fetchOccupiedSlots } from './queries';
 import { type ActionResponse } from '@/types/actions';
@@ -27,7 +28,7 @@ export async function fetchOccupiedSlotsAction(
   datesOfWeek: string[]
 ): Promise<
   ActionResponse<{
-    occupiedSlots: { date: string; slotIndex: number; reason: string }[];
+    occupiedSlots: OccupiedSlotDTO[];
   }>
 > {
   const tErrors = await getTranslations('Common.errors');

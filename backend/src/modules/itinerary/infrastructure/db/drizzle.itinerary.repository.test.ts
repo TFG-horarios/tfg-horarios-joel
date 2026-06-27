@@ -12,7 +12,6 @@ import {
   testDegreeId,
   testItineraryId,
   seedTestSubject,
-  testPastAcademicYearId,
 } from '@/tests/seed-db';
 import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 
@@ -215,10 +214,7 @@ describe('DrizzleItineraryRepository Integration', () => {
       testOrgId
     );
     expect(foundItinerary).toBeNull();
-    const historicalItineraries = await repository.findAll(
-      testOrgId,
-      testPastAcademicYearId
-    );
+    const historicalItineraries = await repository.findAll(testOrgId, true);
     expect(
       historicalItineraries.find(
         (itinerary) => itinerary.id === testItineraryId

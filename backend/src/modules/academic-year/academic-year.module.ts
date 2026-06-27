@@ -19,15 +19,21 @@ import {
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { MemberAdapter } from './infrastructure/adapters/member.adapter';
 import { OrganizationAdapter } from './infrastructure/adapters/organization.adapter';
+import { AcademicYearTimingChangeAdapter } from './infrastructure/adapters/timing-change.adapter';
+import type { CreateNotificationUseCase } from '../notification/application/create-notification.usecase';
+import { AcademicYearNotificationAdapter } from './infrastructure/adapters/academic-year-notification.adapter';
 
 export function createAcademicYearModule(
   db: DbConnection,
-  memberRepository: IMemberRepository
+  memberRepository: IMemberRepository,
+  createNotificationUseCase: CreateNotificationUseCase
 ) {
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
   const organizationRepository = new DrizzleOrganizationRepository(db);
   const memberProvider = new MemberAdapter(memberRepository);
   const organizationProvider = new OrganizationAdapter(organizationRepository);
+  const notificationProvider = new AcademicYearNotificationAdapter(createNotificationUseCase);
+  const timingChangeProvider = new AcademicYearTimingChangeAdapter();
 
   const createUseCase = new CreateAcademicYearUseCase(
     academicYearRepository,
@@ -36,7 +42,10 @@ export function createAcademicYearModule(
   );
   const updateUseCase = new UpdateAcademicYearUseCase(
     academicYearRepository,
-    memberProvider
+    memberProvider,
+    notificationProvider,
+    timingChangeProvider,
+    (work) => db.transaction(async (tx) => work(tx))
   );
   const listUseCase = new ListAcademicYearsUseCase(
     academicYearRepository,

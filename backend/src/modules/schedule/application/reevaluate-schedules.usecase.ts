@@ -1,3 +1,4 @@
+// TODO: DESACOPLAR
 import {
   countSchedulingConflicts,
   isUnassignedPlacement,

@@ -4,6 +4,21 @@ import { ForbiddenError } from '@/core/errors/app.error';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 
 describe('GenerateScheduleUseCase', () => {
+  const baseTimeConfig = {
+    id: 'tc-1',
+    organizationId: 'org-1',
+    academicYearId: 'ay-1',
+    degreeId: 'deg-1',
+    itineraryId: null,
+    courseYear: 1,
+    period: 1,
+    shift: 'morning' as const,
+    startTime: '08:00',
+    endTime: '14:00',
+    hasBreak: false,
+    breakAfterSlot: null,
+  };
+
   const repositoryMock = {
     findById: mock(),
     findByScope: mock(),
@@ -22,6 +37,7 @@ describe('GenerateScheduleUseCase', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getScheduleTimeConfigs: mock(async () => [baseTimeConfig]),
     getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
@@ -57,10 +73,9 @@ describe('GenerateScheduleUseCase', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     engineProviderMock.runGeneration.mockResolvedValueOnce({
@@ -88,6 +103,91 @@ describe('GenerateScheduleUseCase', () => {
     expect(repositoryMock.createSchedulesWithSlots).toHaveBeenCalled();
   });
 
+  test('should resolve the common time config for the requested period', async () => {
+    memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
+    dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
+    dataProviderMock.getAvailableClassrooms.mockResolvedValueOnce([
+      { id: 'c-1', capacity: 30, type: 'THEORY', floor: 0 },
+    ]);
+    dataProviderMock.getGroupsInScope.mockResolvedValueOnce([
+      {
+        subjectGroupId: 'sg-course-4-period-1',
+        subjectId: 'sub-course-4-period-1',
+        degreeId: 'deg-1',
+        courseYear: 4,
+        shift: 'morning',
+        groupType: 'theory',
+        isCommon: false,
+        itineraryId: 'itin-a',
+        numberOfStudents: 30,
+      },
+    ]);
+    dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
+      slotDurationMinutes: 60,
+    });
+    dataProviderMock.getScheduleTimeConfigs.mockResolvedValueOnce([
+      {
+        ...baseTimeConfig,
+        id: 'tc-course-4-period-1-common',
+        courseYear: 4,
+        period: 1,
+      },
+      {
+        ...baseTimeConfig,
+        id: 'tc-course-4-period-2-common',
+        courseYear: 4,
+        period: 2,
+        startTime: '10:00',
+        endTime: '16:00',
+      },
+    ]);
+    repositoryMock.findByScope.mockResolvedValue(null);
+    repositoryMock.findLockedAssignments.mockResolvedValueOnce([]);
+    engineProviderMock.runGeneration.mockResolvedValueOnce({
+      assignments: [
+        {
+          id: 'assignment-course-4-period-1',
+          subjectGroupId: 'sg-course-4-period-1',
+          subjectId: 'sub-course-4-period-1',
+          degreeId: 'deg-1',
+          courseYear: 4,
+          shift: 'morning',
+          groupType: 'theory',
+          isCommon: false,
+          itineraryId: 'itin-a',
+          itineraryName: 'A',
+          numberOfStudents: 30,
+          classroomId: 'c-1',
+          dayOfWeek: 1,
+          slotIndex: 0,
+          duration: 1,
+          conflicts: [],
+        },
+      ],
+      penalty: 0,
+      hardPenalty: 0,
+    });
+
+    await useCase.execute('org-1', 'user-1', {
+      academicYearId: 'ay-1',
+      periods: [1],
+    });
+
+    const runGenerationCall =
+      engineProviderMock.runGeneration.mock.calls.at(-1);
+    expect(runGenerationCall?.[0][0]?.timeConfigId).toBe(
+      'tc-course-4-period-1-common'
+    );
+    const persistedItems =
+      repositoryMock.createSchedulesWithSlots.mock.calls.at(-1)?.[0];
+    expect(persistedItems?.[0]?.schedule.timeConfigId).toBe(
+      'tc-course-4-period-1-common'
+    );
+  });
+
   test('should not lock common assignments that belong to the generation scope', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     dataProviderMock.getTargetDegreeIds.mockResolvedValueOnce(['deg-1']);
@@ -104,10 +204,9 @@ describe('GenerateScheduleUseCase', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findByScope.mockResolvedValue(null);
@@ -179,7 +278,7 @@ describe('GenerateScheduleUseCase', () => {
     const runGenerationCall =
       engineProviderMock.runGeneration.mock.calls.at(-1);
     expect(runGenerationCall?.[0]).toHaveLength(1);
-    expect(runGenerationCall?.[6]).toHaveLength(0);
+    expect(runGenerationCall?.[5]).toHaveLength(0);
 
     const persistCall =
       repositoryMock.createSchedulesWithSlots.mock.calls.at(-1);
@@ -226,10 +325,9 @@ describe('GenerateScheduleUseCase', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findByScope.mockResolvedValue(null);
@@ -369,12 +467,20 @@ describe('GenerateScheduleUseCase', () => {
         },
       ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValue({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
+    dataProviderMock.getScheduleTimeConfigs
+      .mockResolvedValueOnce([
+        baseTimeConfig,
+        { ...baseTimeConfig, id: 'tc-period-2', period: 2 },
+      ])
+      .mockResolvedValueOnce([
+        baseTimeConfig,
+        { ...baseTimeConfig, id: 'tc-period-2', period: 2 },
+      ]);
     repositoryMock.findByScope.mockResolvedValue(null);
     repositoryMock.findLockedAssignments.mockResolvedValue([]);
     engineProviderMock.runGeneration
@@ -447,10 +553,9 @@ describe('GenerateScheduleUseCase', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findByScope.mockResolvedValue(null);
@@ -519,10 +624,9 @@ describe('GenerateScheduleUseCase', () => {
       },
     ]);
     dataProviderMock.getAcademicYearConstraints.mockResolvedValueOnce({
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findByScope.mockResolvedValueOnce(null);

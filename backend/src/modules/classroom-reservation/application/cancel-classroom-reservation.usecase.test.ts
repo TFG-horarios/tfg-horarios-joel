@@ -12,8 +12,6 @@ describe('CancelClassroomReservationUseCase', () => {
     delete: mock(),
     update: mock(),
     findPaginated: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
   };
 
   const memberProviderMock = {

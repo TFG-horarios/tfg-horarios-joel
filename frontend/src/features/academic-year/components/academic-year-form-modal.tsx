@@ -63,10 +63,9 @@ export function AcademicYearFormModal({
     period2Start: academicYear?.period2Start || '',
     period2End: academicYear?.period2End || '',
     periodType: academicYear?.periodType || 'semester',
-    morningStart: academicYear?.morningStart || '08:00',
-    morningEnd: academicYear?.morningEnd || '14:00',
-    afternoonStart: academicYear?.afternoonStart || '14:00',
-    afternoonEnd: academicYear?.afternoonEnd || '20:00',
+    centerOpeningTime: academicYear?.centerOpeningTime || '08:00',
+    centerClosingTime: academicYear?.centerClosingTime || '22:00',
+    breakDurationMinutes: academicYear?.breakDurationMinutes ?? 30,
     slotDurationMinutes: academicYear?.slotDurationMinutes || 60,
   });
 
@@ -84,10 +83,9 @@ export function AcademicYearFormModal({
         period2Start: formData.period2Start || undefined,
         period2End: formData.period2End || undefined,
         periodType: formData.periodType,
-        morningStart: formData.morningStart,
-        morningEnd: formData.morningEnd,
-        afternoonStart: formData.afternoonStart,
-        afternoonEnd: formData.afternoonEnd,
+        centerOpeningTime: formData.centerOpeningTime,
+        centerClosingTime: formData.centerClosingTime,
+        breakDurationMinutes: formData.breakDurationMinutes,
         slotDurationMinutes: formData.slotDurationMinutes,
       };
 
@@ -150,9 +148,9 @@ export function AcademicYearFormModal({
               <div className="flex items-start gap-2 p-3 bg-amber-500/15 border border-amber-500/20 rounded-md text-amber-600 text-sm">
                 <p>
                   <strong>¡Atención!</strong> Si editas los horarios de
-                  inicio/fin de turnos o la duración de clase, los horarios
-                  existentes cambiarán de acuerdo a los nuevos parámetros
-                  visualmente.
+                  apertura/cierre del centro, la duración del slot o la duración
+                  del recreo, los horarios existentes pueden quedar invalidados
+                  y deberán regenerarse.
                 </p>
               </div>
             )}
@@ -300,74 +298,71 @@ export function AcademicYearFormModal({
 
             <div className="pt-4 border-t border-border mt-4">
               <h4 className="text-sm font-semibold mb-3">
-                Configuración de Horarios
+                Configuración temporal global
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
-                  <Label>Inicio Mañana</Label>
+                  <Label>Hora de apertura del centro</Label>
                   <Input
                     type="time"
                     required
-                    value={formData.morningStart}
-                    onChange={(e) =>
-                      setFormData({ ...formData, morningStart: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Fin Mañana</Label>
-                  <Input
-                    type="time"
-                    required
-                    value={formData.morningEnd}
-                    onChange={(e) =>
-                      setFormData({ ...formData, morningEnd: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div className="space-y-2">
-                  <Label>Inicio Tarde</Label>
-                  <Input
-                    type="time"
-                    required
-                    value={formData.afternoonStart}
+                    value={formData.centerOpeningTime}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        afternoonStart: e.target.value,
+                        centerOpeningTime: e.target.value,
                       })
                     }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fin Tarde</Label>
+                  <Label>Hora de cierre del centro</Label>
                   <Input
                     type="time"
                     required
-                    value={formData.afternoonEnd}
+                    value={formData.centerClosingTime}
                     onChange={(e) =>
-                      setFormData({ ...formData, afternoonEnd: e.target.value })
+                      setFormData({
+                        ...formData,
+                        centerClosingTime: e.target.value,
+                      })
                     }
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Duración del Slot (minutos)</Label>
-                <Input
-                  type="number"
-                  min={15}
-                  max={240}
-                  required
-                  value={formData.slotDurationMinutes}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      slotDurationMinutes: parseInt(e.target.value) || 60,
-                    })
-                  }
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <Label>Duración del slot (minutos)</Label>
+                  <Input
+                    type="number"
+                    min={15}
+                    max={240}
+                    required
+                    value={formData.slotDurationMinutes}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        slotDurationMinutes: parseInt(e.target.value) || 60,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Duración del recreo (minutos)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={240}
+                    required
+                    value={formData.breakDurationMinutes}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        breakDurationMinutes: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>

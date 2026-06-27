@@ -12,6 +12,7 @@ import { shiftEnum } from '@/modules/subject/infrastructure/db/drizzle.subject.s
 import { itinerariesTable } from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
 import { degreesTable } from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 import { academicYearsTable } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
+import { scheduleTimeConfigsTable } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 import { sql } from 'drizzle-orm';
 
 export const scheduleStatusEnum = pgEnum('schedule_status', [
@@ -35,6 +36,10 @@ export const schedulesTable = pgTable(
     academicYearId: uuid('academic_year_id')
       .notNull()
       .references(() => academicYearsTable.id, { onDelete: 'cascade' }),
+    timeConfigId: uuid('time_config_id').references(
+      () => scheduleTimeConfigsTable.id,
+      { onDelete: 'restrict' }
+    ),
     shift: shiftEnum('shift').notNull(),
     courseYear: integer('course_year').notNull(),
     period: integer('period').notNull(),

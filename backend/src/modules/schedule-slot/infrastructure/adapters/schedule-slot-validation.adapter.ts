@@ -23,6 +23,11 @@ import {
   ScheduleSlotConflictError,
 } from '../../domain/schedule-slot-conflict.error';
 import type { ScheduleConflictDetailDTO } from '@tfg-horarios/shared';
+import {
+  buildScheduleTimeGrid,
+  projectAssignmentInterval,
+  type ScheduleTimeGrid,
+} from '@tfg-horarios/shared';
 
 export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationProvider {
   private readonly rules: IMoveValidationRule[];
@@ -76,24 +81,123 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
         schedule.academicYearId
       );
 
-    const parseTime = (timeStr: string) => {
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      return (hours || 0) * 60 + (minutes || 0);
+    const timeConfigs =
+      (await this.dataProvider.getScheduleTimeConfigs?.(
+        organizationId,
+        schedule.academicYearId
+      )) ?? [];
+    const timeGrids: Record<string, ScheduleTimeGrid> = {};
+    for (const config of timeConfigs) {
+      timeGrids[config.id] = buildScheduleTimeGrid(
+        {
+          slotDurationMinutes: orgConstraints.slotDurationMinutes,
+          breakDurationMinutes: orgConstraints.breakDurationMinutes,
+        },
+        {
+          startTime: config.startTime,
+          endTime: config.endTime,
+          hasBreak: config.hasBreak,
+          breakAfterSlot: config.breakAfterSlot,
+        }
+      );
+    }
+
+    let scheduleTimeConfigId = schedule.timeConfigId ?? null;
+    if (!scheduleTimeConfigId) {
+      const fallbackConfig = timeConfigs.find(
+        (config) =>
+          config.degreeId === schedule.degreeId &&
+          config.courseYear === schedule.courseYear &&
+          config.period === schedule.period &&
+          config.shift === schedule.shift &&
+          config.itineraryId === (schedule.itineraryId ?? null)
+      );
+      scheduleTimeConfigId = fallbackConfig?.id ?? null;
+    }
+
+    const legacyTimeConfigId = `legacy:${schedule.id}`;
+    if (!scheduleTimeConfigId) {
+      scheduleTimeConfigId = legacyTimeConfigId;
+      timeGrids[legacyTimeConfigId] = buildScheduleTimeGrid(
+        {
+          slotDurationMinutes: orgConstraints.slotDurationMinutes,
+          breakDurationMinutes: 0,
+        },
+        {
+          startTime: orgConstraints.centerOpeningTime,
+          endTime: orgConstraints.centerClosingTime,
+          hasBreak: false,
+          breakAfterSlot: null,
+        }
+      );
+    }
+
+    const scheduleTimeConfigCache = new Map<string, string | null>([
+      [schedule.id, scheduleTimeConfigId],
+    ]);
+
+    const resolveScheduleTimeConfigId = async (
+      scheduleId: string
+    ): Promise<string | null> => {
+      if (scheduleTimeConfigCache.has(scheduleId)) {
+        return scheduleTimeConfigCache.get(scheduleId) ?? null;
+      }
+      const otherSchedule = await this.scheduleRepository.findById(
+        scheduleId,
+        organizationId
+      );
+      if (!otherSchedule) {
+        scheduleTimeConfigCache.set(scheduleId, null);
+        return null;
+      }
+      let timeConfigId = otherSchedule.timeConfigId ?? null;
+      if (!timeConfigId) {
+        const fallbackConfig = timeConfigs.find(
+          (config) =>
+            config.degreeId === otherSchedule.degreeId &&
+            config.courseYear === otherSchedule.courseYear &&
+            config.period === otherSchedule.period &&
+            config.shift === otherSchedule.shift &&
+            config.itineraryId === (otherSchedule.itineraryId ?? null)
+        );
+        timeConfigId = fallbackConfig?.id ?? null;
+      }
+      if (!timeConfigId) {
+        const legacyId = `legacy:${otherSchedule.id}`;
+        timeConfigId = legacyId;
+        timeGrids[legacyId] = buildScheduleTimeGrid(
+          {
+            slotDurationMinutes: orgConstraints.slotDurationMinutes,
+            breakDurationMinutes: 0,
+          },
+          {
+            startTime: orgConstraints.centerOpeningTime,
+            endTime: orgConstraints.centerClosingTime,
+            hasBreak: false,
+            breakAfterSlot: null,
+          }
+        );
+      }
+      scheduleTimeConfigCache.set(scheduleId, timeConfigId);
+      return timeConfigId;
     };
 
-    const morningStart = parseTime(orgConstraints.morningStart);
-    const morningEnd = parseTime(orgConstraints.morningEnd);
-    const afternoonStart = parseTime(orgConstraints.afternoonStart);
-    const afternoonEnd = parseTime(orgConstraints.afternoonEnd);
-    const slotDuration = orgConstraints.slotDurationMinutes;
-
-    const maxMorningSlots = Math.floor(
-      (morningEnd - morningStart) / slotDuration
-    );
-    const maxAfternoonSlots = Math.floor(
-      (afternoonEnd - afternoonStart) / slotDuration
-    );
-    const maxSlotsPerDay = maxMorningSlots + maxAfternoonSlots;
+    const projectIntervalForPlacement = (
+      timeConfigId: string | null | undefined,
+      slotIndex: number | null,
+      duration: number
+    ) => {
+      if (
+        timeConfigId === null ||
+        timeConfigId === undefined ||
+        slotIndex === null
+      ) {
+        return null;
+      }
+      const grid = timeGrids[timeConfigId];
+      if (!grid) return null;
+      return projectAssignmentInterval(grid, slotIndex, duration);
+    };
 
     const availableClassrooms =
       await this.dataProvider.getAvailableClassrooms(organizationId);
@@ -130,6 +234,7 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
         classroomId: s.classroomId,
         dayOfWeek: s.dayOfWeek,
         slotIndex: s.slotIndex,
+        timeConfigId: scheduleTimeConfigId,
         duration: s.duration,
       };
 
@@ -149,8 +254,14 @@ export class ScheduleSlotValidationAdapter implements IScheduleSlotValidationPro
       newSlotIndex,
       assignments,
       classroomsCache,
-      maxMorningSlots,
-      maxSlotsPerDay,
+      timeGrids,
+      movingInterval: projectIntervalForPlacement(
+        scheduleTimeConfigId,
+        newSlotIndex,
+        movingAssignment.duration
+      ),
+      projectIntervalForPlacement,
+      resolveScheduleTimeConfigId,
       academicYearId: schedule.academicYearId,
       period: schedule.period,
       shift: schedule.shift,

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { buildScheduleTimeGrid } from '@tfg-horarios/shared';
 import { StudentGapsConstraint } from './student-gaps.constraint';
-import type { ConstraintContext } from '../constraint.interface';
+import { ConstraintContext } from '../constraint.interface';
 import type { Assignment } from '../../types';
 
 describe('StudentGapsConstraint', () => {
@@ -73,6 +74,77 @@ describe('StudentGapsConstraint', () => {
     } as unknown as ConstraintContext;
 
     const result = constraint.calculatePenalty(context);
+    expect(result.penalty).toBe(0);
+  });
+
+  test('penalizes gaps by real minutes across desynchronized grids', () => {
+    const gridA = buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '08:00',
+        endTime: '12:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    );
+    const gridB = buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '10:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    );
+
+    const context = new ConstraintContext(
+      [
+        {
+          ...createAssignment('a1', 1, 0, 1, true),
+          timeConfigId: 'config-a',
+        },
+        {
+          ...createAssignment('a2', 1, 0, 1, true),
+          timeConfigId: 'config-b',
+        },
+      ],
+      {},
+      { 'config-a': gridA, 'config-b': gridB }
+    );
+
+    const result = constraint.calculatePenalty(context);
+
+    expect(result.penalty).toBe(10);
+  });
+
+  test('does not penalize the configured break as a student gap', () => {
+    const grid = buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 30 },
+      {
+        startTime: '08:00',
+        endTime: '11:00',
+        hasBreak: true,
+        breakAfterSlot: 1,
+      }
+    );
+
+    const context = new ConstraintContext(
+      [
+        {
+          ...createAssignment('a1', 1, 0, 1, true),
+          timeConfigId: 'config-a',
+        },
+        {
+          ...createAssignment('a2', 1, 1, 1, true),
+          timeConfigId: 'config-a',
+        },
+      ],
+      {},
+      { 'config-a': grid }
+    );
+
+    const result = constraint.calculatePenalty(context);
+
     expect(result.penalty).toBe(0);
   });
 });

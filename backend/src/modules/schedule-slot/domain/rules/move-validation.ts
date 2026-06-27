@@ -1,4 +1,10 @@
-import type { GroupType, ClassroomType, Shift } from '@tfg-horarios/shared';
+import type {
+  AssignmentInterval,
+  GroupType,
+  ClassroomType,
+  ScheduleTimeGrid,
+  Shift,
+} from '@tfg-horarios/shared';
 
 export interface ValidationAssignment {
   id: string;
@@ -13,6 +19,7 @@ export interface ValidationAssignment {
   duration: number;
   dayOfWeek: number | null;
   slotIndex: number | null;
+  timeConfigId?: string | null;
 }
 
 interface ValidationClassroom {
@@ -30,8 +37,16 @@ export interface MoveValidationContext {
   newSlotIndex: number | null;
   assignments: ValidationAssignment[];
   classroomsCache: ValidationClassroomMap;
-  maxMorningSlots: number;
-  maxSlotsPerDay: number;
+  timeGrids?: Record<string, ScheduleTimeGrid>;
+  movingInterval?: AssignmentInterval | null;
+  projectIntervalForPlacement?: (
+    timeConfigId: string | null | undefined,
+    slotIndex: number | null,
+    duration: number
+  ) => AssignmentInterval | null;
+  resolveScheduleTimeConfigId?: (
+    scheduleId: string
+  ) => Promise<string | null> | string | null;
   academicYearId: string;
   period: number;
   shift: Shift;

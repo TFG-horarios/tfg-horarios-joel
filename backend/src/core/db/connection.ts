@@ -11,6 +11,9 @@ import * as scheduleSlotSchema from '@/modules/schedule-slot/infrastructure/db/d
 import * as degreeSchema from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 import * as itinerarySchema from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
 import * as academicYearSchema from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
+import * as classroomReservationSchema from '@/modules/classroom-reservation/infrastructure/db/drizzle.classroom-reservation.schema';
+import * as notificationSchema from '@/modules/notification/infrastructure/db/drizzle.notification.schema';
+import * as scheduleTimeConfigSchema from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 
 const schema = {
   ...userSchema,
@@ -24,6 +27,9 @@ const schema = {
   ...degreeSchema,
   ...itinerarySchema,
   ...academicYearSchema,
+  ...classroomReservationSchema,
+  ...notificationSchema,
+  ...scheduleTimeConfigSchema,
 };
 const connectionString = Bun.env.DATABASE_URL;
 

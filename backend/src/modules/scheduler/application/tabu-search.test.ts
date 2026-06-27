@@ -5,10 +5,29 @@ import { InitialSolution } from '../domain/initial-solution';
 import type { IRandomGenerator } from '../domain/random-generator';
 import type { Solution } from '../domain/types';
 import { CourseOverlapConstraint } from '../domain/constraints/hard/course-overlap.constraint';
+import { buildScheduleTimeGrid } from '@tfg-horarios/shared';
 
 describe('TabuSearchEngine', () => {
-  const penaltyCalculator = new PenaltyCalculator([], [], {}, 12, 12);
-  const initialGen = new InitialSolution(penaltyCalculator, [], {}, 12, 12, 1);
+  const timeGrids = {
+    'tc-1': buildScheduleTimeGrid(
+      { slotDurationMinutes: 60, breakDurationMinutes: 0 },
+      {
+        startTime: '08:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      }
+    ),
+  };
+  const penaltyCalculator = new PenaltyCalculator([], [], {}, {});
+  const initialGen = new InitialSolution(
+    penaltyCalculator,
+    [],
+    {},
+    timeGrids,
+    undefined,
+    1
+  );
 
   const evaluateHardSpy = spyOn(
     penaltyCalculator,
@@ -43,8 +62,7 @@ describe('TabuSearchEngine', () => {
     initialGen,
     ['c-1'],
     {},
-    6,
-    12,
+    {},
     randomGen
   );
 
@@ -80,6 +98,7 @@ describe('TabuSearchEngine', () => {
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
+          timeConfigId: 'tc-1',
         },
       ],
       unassigned: 0,
@@ -101,15 +120,14 @@ describe('TabuSearchEngine', () => {
       [new CourseOverlapConstraint()],
       [],
       {},
-      3,
-      6
+      timeGrids
     );
     const initialSolutionGen = new InitialSolution(
       calculator,
       ['c-1'],
       {},
-      6,
-      3,
+      timeGrids,
+      undefined,
       60
     );
     const initialSolution: Solution = {
@@ -130,6 +148,7 @@ describe('TabuSearchEngine', () => {
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
+          timeConfigId: 'tc-1',
         },
         {
           id: 'itinerary-1',
@@ -147,6 +166,7 @@ describe('TabuSearchEngine', () => {
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
+          timeConfigId: 'tc-1',
         },
       ],
       unassigned: 0,
@@ -174,8 +194,7 @@ describe('TabuSearchEngine', () => {
           floor: 0,
         },
       },
-      3,
-      6,
+      timeGrids,
       randomGen
     );
 
@@ -195,15 +214,14 @@ describe('TabuSearchEngine', () => {
       {
         'c-1': { capacity: 40, type: 'theory', floor: 0 },
       },
-      3,
-      6
+      timeGrids
     );
     const generator = new InitialSolution(
       calculator,
       ['c-1'],
       { 'c-1': { capacity: 40, type: 'theory', floor: 0 } },
-      6,
-      3,
+      timeGrids,
+      undefined,
       60
     );
     spyOn(generator, 'generate').mockReturnValueOnce({
@@ -224,6 +242,7 @@ describe('TabuSearchEngine', () => {
           dayOfWeek: null,
           slotIndex: null,
           duration: 1,
+          timeConfigId: 'tc-1',
         },
       ],
       unassigned: 1,
@@ -236,8 +255,7 @@ describe('TabuSearchEngine', () => {
       generator,
       ['c-1'],
       { 'c-1': { capacity: 40, type: 'theory', floor: 0 } },
-      3,
-      6,
+      timeGrids,
       randomGen
     );
 
@@ -266,6 +284,7 @@ describe('TabuSearchEngine', () => {
           courseYear: 1,
           groupType: 'theory',
           duration: 1,
+          timeConfigId: 'tc-1',
         },
       ],
       unassigned: 0,

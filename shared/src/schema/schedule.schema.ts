@@ -16,6 +16,7 @@ export const ScheduleSchema = z
       .optional()
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174003' }),
     academicYearId: z.uuid(),
+    timeConfigId: z.uuid().optional(),
     shift: z.enum(SHIFT_TYPES).openapi({ example: 'morning' }),
     courseYear: z.number().int().positive().openapi({ example: 1 }),
     period: z.number().int().positive().openapi({ example: 1 }),

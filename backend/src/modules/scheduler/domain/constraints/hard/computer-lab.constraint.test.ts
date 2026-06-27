@@ -26,8 +26,7 @@ describe('ComputerLabConstraint', () => {
     const context = new ConstraintContext(
       [assignment('room-1')],
       { 'room-1': { capacity: 30, type: 'theory', floor: 0 } },
-      6,
-      12
+      {}
     );
 
     const result = new ComputerLabConstraint().calculatePenalty(context);

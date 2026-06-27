@@ -42,10 +42,9 @@ describe('HonoAcademicYearController Integration', () => {
   const validBody = {
     name: '2024-2025',
     periodType: 'semester' as const,
-    morningStart: '08:00',
-    morningEnd: '14:00',
-    afternoonStart: '15:00',
-    afternoonEnd: '21:00',
+    breakDurationMinutes: 30,
+    centerOpeningTime: '08:00',
+    centerClosingTime: '22:00',
     slotDurationMinutes: 60,
     period0Start: '2024-09-01',
     period0End: '2024-12-31',

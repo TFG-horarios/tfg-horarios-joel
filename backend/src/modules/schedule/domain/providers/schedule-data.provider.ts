@@ -1,11 +1,10 @@
 import type { ScheduleEngineGroupData } from './schedule-engine.provider';
-import type { ClassroomType } from '@tfg-horarios/shared';
+import type { ClassroomType, Shift } from '@tfg-horarios/shared';
 
 export interface ScheduleOrganizationConstraints {
-  morningStart: string;
-  morningEnd: string;
-  afternoonStart: string;
-  afternoonEnd: string;
+  breakDurationMinutes: number;
+  centerOpeningTime: string;
+  centerClosingTime: string;
   slotDurationMinutes: number;
 }
 
@@ -14,6 +13,19 @@ export interface ScheduleClassroomData {
   capacity: number;
   type: ClassroomType;
   floor: number;
+}
+
+export interface ScheduleTimeConfigData {
+  id: string;
+  degreeId: string;
+  itineraryId: string | null;
+  courseYear: number;
+  period: number;
+  shift: Shift;
+  startTime: string;
+  endTime: string;
+  hasBreak: boolean;
+  breakAfterSlot: number | null;
 }
 
 export interface IScheduleDataProvider {
@@ -31,6 +43,10 @@ export interface IScheduleDataProvider {
   getAcademicYearConstraints(
     academicYearId: string
   ): Promise<ScheduleOrganizationConstraints | null>;
+  getScheduleTimeConfigs?(
+    organizationId: string,
+    academicYearId: string
+  ): Promise<ScheduleTimeConfigData[]>;
   getMatchingPeriods(academicYearId: string, date: Date): Promise<number[]>;
   rejectConflictingReservationsBatch(
     organizationId: string,
@@ -41,6 +57,9 @@ export interface IScheduleDataProvider {
       slotIndex: number;
       duration: number;
       period: number;
+      timeConfigId?: string;
+      startTimeMinutes?: number;
+      endTimeMinutes?: number;
     }[]
   ): Promise<void>;
 }

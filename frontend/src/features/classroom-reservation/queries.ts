@@ -6,6 +6,7 @@ import {
   createPaginatedSchema,
   type ClassroomReservationDTO,
   type ClassroomReservationListQueryDTO,
+  type OccupiedSlotDTO,
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 
@@ -50,7 +51,7 @@ export const fetchOccupiedSlots = cache(
     academicYearId: string,
     startDate: string,
     endDate: string
-  ): Promise<{ date: string; slotIndex: number; reason: string }[]> => {
+  ): Promise<OccupiedSlotDTO[]> => {
     const t = await getTranslations('Common.errors');
     const client = await getServerClient();
 

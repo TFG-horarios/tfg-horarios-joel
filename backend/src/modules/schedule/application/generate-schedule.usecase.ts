@@ -3,6 +3,11 @@ import type {
   GenerationScopeDTO,
   Shift,
 } from '@tfg-horarios/shared';
+import {
+  buildScheduleTimeGrid,
+  projectAssignmentInterval,
+  type ScheduleTimeGrid,
+} from '@tfg-horarios/shared';
 import { Schedule } from '../domain/schedule.entity';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleDataProvider } from '../domain/providers/schedule-data.provider';
@@ -10,7 +15,9 @@ import type { IScheduleMemberProvider } from '../domain/providers/schedule-membe
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
+// TODO: DESACOPLAR
 import { getUnassignedDiagnostics } from '../../schedule-slot/domain/unassigned-diagnostics';
+// TODO: DESACOPLAR
 import {
   countSchedulingConflicts,
   isUnassignedPlacement,
@@ -86,6 +93,9 @@ export class GenerateScheduleUseCase {
       slotIndex: number;
       duration: number;
       period: number;
+      timeConfigId: string;
+      startTimeMinutes: number;
+      endTimeMinutes: number;
     };
     type PeriodGenerationResult = {
       schedulesToPersist: PersistedScheduleItem[];
@@ -122,22 +132,78 @@ export class GenerateScheduleUseCase {
         throw new Error('Academic Year not found');
       }
 
-      const parseTime = (timeStr: string) => {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        return (hours || 0) * 60 + (minutes || 0);
+      const timeConfigs =
+        (await this.dataProvider.getScheduleTimeConfigs?.(
+          organizationId,
+          scope.academicYearId
+        )) ?? [];
+      const timeConfigKey = (
+        degreeId: string,
+        courseYear: number,
+        configPeriod: number,
+        shift: Shift,
+        itineraryId: string | null
+      ) =>
+        [
+          degreeId,
+          courseYear,
+          configPeriod,
+          shift,
+          itineraryId ?? 'common',
+        ].join(':');
+      const timeConfigByScope = new Map(
+        timeConfigs.map((config) => [
+          timeConfigKey(
+            config.degreeId,
+            config.courseYear,
+            config.period,
+            config.shift,
+            config.itineraryId
+          ),
+          config,
+        ])
+      );
+      const resolveTimeConfigId = (
+        degreeId: string,
+        courseYear: number,
+        shift: Shift,
+        itineraryId: string | null
+      ) => {
+        const specific = itineraryId
+          ? timeConfigByScope.get(
+              timeConfigKey(degreeId, courseYear, period, shift, itineraryId)
+            )
+          : null;
+        const base = timeConfigByScope.get(
+          timeConfigKey(degreeId, courseYear, period, shift, null)
+        );
+        const effective = specific ?? base;
+        if (!effective) {
+          throw new Error(
+            `Missing schedule time configuration for degree=${degreeId}, courseYear=${courseYear}, period=${period}, shift=${shift}, itinerary=${itineraryId ?? 'common'}`
+          );
+        }
+        return effective.id;
       };
 
-      const morningStart = parseTime(academicYearConstraints.morningStart);
-      const morningEnd = parseTime(academicYearConstraints.morningEnd);
-      const afternoonStart = parseTime(academicYearConstraints.afternoonStart);
-      const afternoonEnd = parseTime(academicYearConstraints.afternoonEnd);
-
       const slotDuration = academicYearConstraints.slotDurationMinutes;
-      const maxMorningSlots = Math.floor(
-        (morningEnd - morningStart) / slotDuration
-      );
-      const maxAfternoonSlots = Math.floor(
-        (afternoonEnd - afternoonStart) / slotDuration
+      const timeGrids: Record<string, ScheduleTimeGrid> = Object.fromEntries(
+        timeConfigs.map((config) => [
+          config.id,
+          buildScheduleTimeGrid(
+            {
+              slotDurationMinutes: academicYearConstraints.slotDurationMinutes,
+              breakDurationMinutes:
+                academicYearConstraints.breakDurationMinutes,
+            },
+            {
+              startTime: config.startTime,
+              endTime: config.endTime,
+              hasBreak: config.hasBreak,
+              breakAfterSlot: config.breakAfterSlot,
+            }
+          ),
+        ])
       );
 
       const itinerariesPerDegreeYearShift = new Map<string, Set<string>>();
@@ -236,23 +302,44 @@ export class GenerateScheduleUseCase {
         uniqueLockedAssignments.map((l) => l.subjectGroupId)
       );
 
-      const groupsToGenerate = groupsData.filter(
-        (g) => !alreadyLockedGroupIds.has(g.subjectGroupId)
+      const groupsToGenerate = groupsData
+        .filter((g) => !alreadyLockedGroupIds.has(g.subjectGroupId))
+        .map((group) => ({
+          ...group,
+          timeConfigId: resolveTimeConfigId(
+            group.degreeId,
+            group.courseYear,
+            group.shift,
+            group.itineraryId ?? null
+          ),
+        }));
+
+      const uniqueLockedAssignmentsWithTimeConfig = uniqueLockedAssignments.map(
+        (assignment) => ({
+          ...assignment,
+          timeConfigId:
+            assignment.timeConfigId ??
+            resolveTimeConfigId(
+              assignment.degreeId,
+              assignment.courseYear,
+              assignment.shift,
+              assignment.itineraryId ?? null
+            ),
+        })
       );
 
       const solution = await this.engineProvider.runGeneration(
         groupsToGenerate,
         classroomsCache,
         availableClassrooms,
-        maxMorningSlots,
-        maxAfternoonSlots,
+        timeGrids,
         slotDuration,
-        uniqueLockedAssignments,
+        uniqueLockedAssignmentsWithTimeConfig,
         scope.optimizations
       );
 
-      const inheritedAssignments = uniqueLockedAssignments.filter((l) =>
-        groupsData.some((g) => g.subjectGroupId === l.subjectGroupId)
+      const inheritedAssignments = uniqueLockedAssignmentsWithTimeConfig.filter(
+        (l) => groupsData.some((g) => g.subjectGroupId === l.subjectGroupId)
       );
 
       for (const inh of inheritedAssignments) {
@@ -436,6 +523,12 @@ export class GenerateScheduleUseCase {
             degreeId: sData.degreeId,
             itineraryId: sData.itineraryId,
             academicYearId: scope.academicYearId,
+            timeConfigId: resolveTimeConfigId(
+              sData.degreeId,
+              sData.courseYear,
+              sData.shift,
+              sData.itineraryId
+            ),
             courseYear: sData.courseYear,
             period: period,
             shift: sData.shift,
@@ -445,6 +538,14 @@ export class GenerateScheduleUseCase {
           });
 
         schedule.setCanonicalCommon(isCanonicalCommon);
+        schedule.setTimeConfigId(
+          resolveTimeConfigId(
+            sData.degreeId,
+            sData.courseYear,
+            sData.shift,
+            sData.itineraryId
+          )
+        );
         if (existingSchedule) {
           schedule.markAsDraft();
           schedule.updateConflictsAndUnassigned(0, 0);
@@ -572,7 +673,7 @@ export class GenerateScheduleUseCase {
 
         const scopeSubjectGroupIds = new Set([
           ...commonAssignments.map((assignment) => assignment.subjectGroupId),
-          ...uniqueLockedAssignments
+          ...uniqueLockedAssignmentsWithTimeConfig
             .filter(
               (assignment) =>
                 assignment.degreeId === existingSchedule.degreeId &&
@@ -607,13 +708,30 @@ export class GenerateScheduleUseCase {
             slot.dayOfWeek !== null &&
             slot.slotIndex !== null
         )
-        .map((slot) => ({
-          classroomId: slot.classroomId as string,
-          dayOfWeek: slot.dayOfWeek as number,
-          slotIndex: slot.slotIndex as number,
-          duration: slot.duration,
-          period,
-        }));
+        .flatMap((slot) => {
+          const schedule = schedulesToPersist.find(
+            (item) => item.schedule.id === slot.scheduleId
+          )?.schedule;
+          const timeConfigId = schedule?.timeConfigId;
+          const grid = timeConfigId ? timeGrids[timeConfigId] : undefined;
+          const interval =
+            grid && slot.slotIndex !== null
+              ? projectAssignmentInterval(grid, slot.slotIndex, slot.duration)
+              : null;
+          if (!timeConfigId || !interval) return [];
+          return [
+            {
+              classroomId: slot.classroomId as string,
+              dayOfWeek: slot.dayOfWeek as number,
+              slotIndex: slot.slotIndex as number,
+              duration: slot.duration,
+              period,
+              timeConfigId,
+              startTimeMinutes: interval.startMinutes,
+              endTimeMinutes: interval.endMinutes,
+            },
+          ];
+        });
 
       return {
         schedulesToPersist,

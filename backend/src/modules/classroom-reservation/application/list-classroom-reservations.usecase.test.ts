@@ -8,8 +8,6 @@ describe('ListClassroomReservationsUseCase', () => {
     findById: mock(),
     save: mock(),
     update: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
     delete: mock(),
   };

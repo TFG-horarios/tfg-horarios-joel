@@ -282,7 +282,8 @@
       "members": "Members",
       "classroomSchedules": "Classroom schedules",
       "reserve": "Reserve",
-      "academicYears": "Academic years"
+      "academicYears": "Academic years",
+      "timeConfigs": "Time configurations"
     },
     "dialog": {
       "title": "New organization",
@@ -692,6 +693,7 @@
           "ERR_OVERLAP_DUPLICATE_GROUP": "The same group appears more than once in this schedule.",
           "ERR_OVERLAP_COMMON_ITINERARY": "Common subjects cannot overlap with itinerary subjects.",
           "ERR_ROOM_OVERLAP": "The classroom is already occupied by another subject at this time.",
+          "ERR_BREAK_CROSSING": "The class cannot cross the configured break.",
           "ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT": "A classroom must be assigned before choosing a day and time.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "Cannot publish a schedule with active conflicts.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "Cannot publish a schedule with unassigned slots.",
@@ -967,6 +969,44 @@
           "5": "Friday"
         }
       }
+    },
+    "timeConfigs": {
+      "label": "Time configuration",
+      "title": "Schedule time configurations",
+      "description": "Define the real start and end time for each degree, course, period, shift and itinerary combination.",
+      "countLabel": "configurations",
+      "course": "Course",
+      "period": "Period",
+      "period3": "Period 3",
+      "degreePlaceholder": "Degree",
+      "itineraryPlaceholder": "Itinerary",
+      "coursePlaceholder": "Course",
+      "periodPlaceholder": "Period",
+      "shiftPlaceholder": "Shift",
+      "statusPlaceholder": "Status",
+      "status": {
+        "configured": "Configured",
+        "unconfigured": "Not configured"
+      },
+      "configure": "Configure",
+      "edit": "Edit",
+      "delete": "Delete",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "break": "Break",
+      "breakAfterSlot": "After slot",
+      "noBreak": "No break",
+      "slots": "slots",
+      "save": "Save configuration",
+      "cancel": "Cancel",
+      "empty": "There are no possible configurations yet. Create subjects and groups so the system can detect the required combinations.",
+      "modal": {
+        "createTitle": "Configure schedule time",
+        "editTitle": "Edit time configuration",
+        "description": "These limits are used to project logical schedule indexes into real clock times."
+      },
+      "success": "Configuration saved successfully.",
+      "error": "The configuration could not be saved."
     }
   }
 }

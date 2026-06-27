@@ -1,11 +1,12 @@
 export interface IClassroomReservationScheduleProvider {
-  hasSubjectInSlot(
+  hasSubjectInInterval(
     organizationId: string,
     academicYearId: string,
     periods: number[],
     classroomId: string,
     dayOfWeek: number,
-    slotIndex: number
+    startTimeMinutes: number,
+    endTimeMinutes: number
   ): Promise<boolean>;
   areAllSchedulesPublished(
     organizationId: string,
@@ -16,6 +17,13 @@ export interface IClassroomReservationScheduleProvider {
     academicYearId: string,
     classroomId: string
   ): Promise<
-    { dayOfWeek: number; slotIndex: number; duration: number; period: number }[]
+    {
+      dayOfWeek: number;
+      slotIndex: number;
+      duration: number;
+      period: number;
+      startTimeMinutes: number;
+      endTimeMinutes: number;
+    }[]
   >;
 }

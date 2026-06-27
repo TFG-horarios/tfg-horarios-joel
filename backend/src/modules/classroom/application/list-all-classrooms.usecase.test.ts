@@ -21,13 +21,21 @@ describe('ListAllClassroomsUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
   const useCase = new ListAllClassroomsUseCase(
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    academicYearProviderMock
   );
 
   test('should list all classrooms successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');
+    academicYearProviderMock.shouldIncludeSoftDeleted.mockResolvedValueOnce(
+      false
+    );
     const classroom = Classroom.reconstitute({
       id: 'classroom-1',
       organizationId: 'org-1',
@@ -43,7 +51,7 @@ describe('ListAllClassroomsUseCase', () => {
     const result = await useCase.execute('org-1', 'user-1', 'year-1');
     expect(result).toHaveLength(1);
     expect(result[0]?.id).toBe('classroom-1');
-    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1', 'year-1');
+    expect(repositoryMock.findAll).toHaveBeenCalledWith('org-1', false);
   });
 
   test('should throw ForbiddenError if user has no role', async () => {

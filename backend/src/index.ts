@@ -25,6 +25,7 @@ import { createAcademicYearModule } from './modules/academic-year/academic-year.
 import { DrizzleAcademicYearRepository } from './modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
 import { createNotificationModule } from './modules/notification/notification.module';
 import { ClassroomReservationReminderWorker } from './modules/classroom-reservation/infrastructure/workers/classroom-reservation-reminder.worker';
+import { createScheduleTimeConfigModule } from './modules/schedule-time-config/schedule-time-config.module';
 
 const api = new OpenAPIHono();
 const protectedApi = new OpenAPIHono();
@@ -68,8 +69,19 @@ const protectedRoutes = protectedApi
   .route('/', createSubjectModule(db, memberRepository))
   .route('/', createSubjectGroupModule(db, memberRepository, subjectRepository))
   .route('/', createScheduleModule(db, createNotificationUseCase))
-  .route('/', createAcademicYearModule(db, memberRepository))
+  .route(
+    '/',
+    createAcademicYearModule(db, memberRepository, createNotificationUseCase)
+  )
   .route('/', notificationRoutes)
+  .route(
+    '/',
+    createScheduleTimeConfigModule(
+      db,
+      memberRepository,
+      createNotificationUseCase
+    )
+  )
   .route(
     '/',
     createClassroomReservationModule(

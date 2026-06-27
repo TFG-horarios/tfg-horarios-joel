@@ -21,6 +21,7 @@ describe('ScheduleSlotDataAdapter', () => {
     getAvailableClassrooms: mock(),
     getGroupsInScope: mock(),
     getAcademicYearConstraints: mock(),
+    getScheduleTimeConfigs: mock(),
     getMatchingPeriods: mock(),
     rejectConflictingReservationsBatch: mock(),
   };
@@ -30,8 +31,6 @@ describe('ScheduleSlotDataAdapter', () => {
     save: mock(),
     update: mock(),
     findPaginated: mock(),
-    hasAcceptedFutureReservation: mock(),
-    hasAcceptedReservationOnDate: mock(),
     findReservationsInDateRange: mock(),
   };
 
@@ -63,6 +62,7 @@ describe('ScheduleSlotDataAdapter', () => {
       academicYearId: 'year-1',
       period: 1,
       shift: 'morning',
+      timeConfigId: null,
     });
   });
 
@@ -93,6 +93,8 @@ describe('ScheduleSlotDataAdapter', () => {
       academicYearId: 'year-1',
       date: '2025-01-01',
       slotIndex: 2,
+      startTimeMinutes: 600,
+      endTimeMinutes: 660,
       requesterUserId: 'user-1',
       reject: mock(),
     };
@@ -100,6 +102,19 @@ describe('ScheduleSlotDataAdapter', () => {
       reservation,
     ]);
     scheduleDataProviderMock.getMatchingPeriods.mockResolvedValue([1]);
+    scheduleDataProviderMock.getAcademicYearConstraints.mockResolvedValue({
+      slotDurationMinutes: 60,
+      breakDurationMinutes: 0,
+    });
+    scheduleDataProviderMock.getScheduleTimeConfigs.mockResolvedValue([
+      {
+        id: 'tc-1',
+        startTime: '09:00',
+        endTime: '14:00',
+        hasBreak: false,
+        breakAfterSlot: null,
+      },
+    ]);
 
     await adapter.rejectConflictingReservations(
       'org-1',
@@ -108,7 +123,8 @@ describe('ScheduleSlotDataAdapter', () => {
       'room-1',
       3,
       1,
-      2
+      2,
+      'tc-1'
     );
 
     expect(reservation.reject).toHaveBeenCalled();

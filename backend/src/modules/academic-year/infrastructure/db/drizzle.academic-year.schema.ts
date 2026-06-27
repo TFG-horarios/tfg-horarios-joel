@@ -9,7 +9,9 @@ import {
   time,
   pgEnum,
   uniqueIndex,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { organizationsTable } from '@/modules/organization/infrastructure/db/drizzle.organization.schema';
 
 export const periodTypeEnum = pgEnum('period_type', [
@@ -34,10 +36,9 @@ export const academicYearsTable = pgTable(
     period2Start: date('period_2_start'),
     period2End: date('period_2_end'),
     periodType: periodTypeEnum('period_type').notNull(),
-    morningStart: time('morning_start').notNull(),
-    morningEnd: time('morning_end').notNull(),
-    afternoonStart: time('afternoon_start').notNull(),
-    afternoonEnd: time('afternoon_end').notNull(),
+    breakDurationMinutes: integer('break_duration_minutes').notNull(),
+    centerOpeningTime: time('center_opening_time').notNull(),
+    centerClosingTime: time('center_closing_time').notNull(),
     slotDurationMinutes: integer('slot_duration_minutes').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at')
@@ -47,6 +48,18 @@ export const academicYearsTable = pgTable(
   },
   (table) => [
     uniqueIndex('unique_name_org').on(table.organizationId, table.name),
+    check(
+      'academic_year_slot_duration_positive',
+      sql`${table.slotDurationMinutes} > 0`
+    ),
+    check(
+      'academic_year_break_duration_nonnegative',
+      sql`${table.breakDurationMinutes} >= 0`
+    ),
+    check(
+      'academic_year_center_hours_order',
+      sql`${table.centerClosingTime} > ${table.centerOpeningTime}`
+    ),
   ]
 );
 

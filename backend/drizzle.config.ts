@@ -14,6 +14,7 @@ export default defineConfig({
     './src/modules/member/infrastructure/db/*.schema.ts',
     './src/modules/classroom-reservation/infrastructure/db/*.schema.ts',
     './src/modules/academic-year/infrastructure/db/*.schema.ts',
+    './src/modules/schedule-time-config/infrastructure/db/*.schema.ts',
     './src/modules/notification/infrastructure/db/*.schema.ts',
   ],
   out: './drizzle',

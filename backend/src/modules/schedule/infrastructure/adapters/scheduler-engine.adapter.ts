@@ -5,15 +5,14 @@ import type {
   ScheduleEngineSolution,
   ScheduleEngineAssignment,
 } from '../../domain/providers/schedule-engine.provider';
-import type { Optimization } from '@tfg-horarios/shared';
+import type { Optimization, ScheduleTimeGrid } from '@tfg-horarios/shared';
 
 export class SchedulerEngineAdapter implements IScheduleEngineProvider {
   runGeneration(
     groupsData: ScheduleEngineGroupData[],
     classroomsCache: ScheduleEngineClassroomMap,
     availableClassrooms: string[],
-    maxMorningSlots: number,
-    maxAfternoonSlots: number,
+    timeGrids: Record<string, ScheduleTimeGrid>,
     slotDuration: number,
     lockedAssignments?: ScheduleEngineAssignment[],
     optimizations?: Optimization[]
@@ -45,8 +44,7 @@ export class SchedulerEngineAdapter implements IScheduleEngineProvider {
         groupsData,
         classroomsCache,
         availableClassrooms,
-        maxMorningSlots,
-        maxAfternoonSlots,
+        timeGrids,
         slotDuration,
         lockedAssignments: lockedAssignments || [],
         optimizations,

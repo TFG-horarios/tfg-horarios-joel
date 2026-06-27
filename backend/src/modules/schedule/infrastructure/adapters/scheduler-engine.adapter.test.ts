@@ -53,8 +53,7 @@ describe('SchedulerEngineAdapter', () => {
       [],
       {},
       ['room-1'],
-      6,
-      6,
+      {},
       60,
       [],
       ['subjectDailyDispersion']
@@ -71,7 +70,7 @@ describe('SchedulerEngineAdapter', () => {
   });
 
   test('should reject on onerror', async () => {
-    expect(adapter.runGeneration([], {}, [], 6, 6, 60, [])).rejects.toThrow(
+    expect(adapter.runGeneration([], {}, [], {}, 60, [])).rejects.toThrow(
       'No classrooms'
     );
   });

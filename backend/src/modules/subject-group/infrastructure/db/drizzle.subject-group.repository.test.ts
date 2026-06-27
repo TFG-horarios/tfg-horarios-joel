@@ -10,7 +10,6 @@ import {
   testItineraryId,
   testSubjectId,
   seedTestSubject,
-  testPastAcademicYearId,
 } from '@/tests/seed-db';
 
 describe('DrizzleSubjectGroupRepository Integration', () => {
@@ -190,10 +189,7 @@ describe('DrizzleSubjectGroupRepository Integration', () => {
     expect(foundGroup).toBeNull();
     const allGroups = await repository.findAll(testOrgId);
     expect(allGroups.length).toBe(1);
-    const historicalGroups = await repository.findAll(
-      testOrgId,
-      testPastAcademicYearId
-    );
+    const historicalGroups = await repository.findAll(testOrgId, true);
     expect(
       historicalGroups.find((g) => g.id === group.id)?.deletedAt
     ).toBeInstanceOf(Date);

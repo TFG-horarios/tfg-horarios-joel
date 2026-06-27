@@ -7,11 +7,18 @@ import type {
 import { NotFoundError, ForbiddenError } from '@/core/errors/app.error';
 import type { IMemberProvider } from '../domain/providers/member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
+import type { IAcademicYearTimingChangeProvider } from '../domain/providers/timing-change.provider';
+import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { IAcademicYearNotificationProvider } from '../domain/providers/academic-year-notification.provider';
+import { SseService } from '@/core/services/sse.service';
 
 export class UpdateAcademicYearUseCase {
   constructor(
     private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly memberProvider: IMemberProvider
+    private readonly memberProvider: IMemberProvider,
+    private readonly notificationProvider: IAcademicYearNotificationProvider,
+    private readonly timingChangeProvider?: IAcademicYearTimingChangeProvider,
+    private readonly runInTransaction?: TransactionRunner,
   ) {}
 
   async execute(
@@ -36,6 +43,12 @@ export class UpdateAcademicYearUseCase {
       throw new NotFoundError('Academic Year', academicYearId);
     }
 
+    const timingChanged =
+      academicYear.slotDurationMinutes !== data.slotDurationMinutes ||
+      academicYear.breakDurationMinutes !== data.breakDurationMinutes ||
+      academicYear.centerOpeningTime !== data.centerOpeningTime ||
+      academicYear.centerClosingTime !== data.centerClosingTime;
+
     academicYear.update({
       name: data.name,
       period0Start: data.period0Start ?? null,
@@ -45,14 +58,55 @@ export class UpdateAcademicYearUseCase {
       period2Start: data.period2Start ?? null,
       period2End: data.period2End ?? null,
       periodType: data.periodType,
-      morningStart: data.morningStart,
-      morningEnd: data.morningEnd,
-      afternoonStart: data.afternoonStart,
-      afternoonEnd: data.afternoonEnd,
+      breakDurationMinutes: data.breakDurationMinutes,
+      centerOpeningTime: data.centerOpeningTime,
+      centerClosingTime: data.centerClosingTime,
       slotDurationMinutes: data.slotDurationMinutes,
     });
 
-    await this.academicYearRepository.update(academicYear);
+    const invalidation =
+      timingChanged && this.timingChangeProvider && this.runInTransaction
+        ? await this.runInTransaction(async (tx) => {
+            await this.academicYearRepository.update(academicYear, tx);
+            return this.timingChangeProvider!.invalidateForTimingChange(
+              organizationId,
+              academicYearId,
+              tx
+            );
+          })
+        : undefined;
+
+    if (!invalidation) {
+      await this.academicYearRepository.update(academicYear);
+    }
+
+    if (invalidation) {
+      if (this.notificationProvider) {
+        await Promise.allSettled(
+          invalidation.affectedUsers.map(({ userId, reservationCount }) =>
+            this.notificationProvider!.notifyReservationsCancelled(
+              userId,
+              organizationId,
+              reservationCount
+            )
+          )
+        );
+      }
+
+      const sse = SseService.getInstance();
+      for (const scheduleId of invalidation.scheduleIds) {
+        sse.broadcast(`schedule_${scheduleId}`, 'schedule_updated', {
+          scheduleId,
+          invalidated: true,
+        });
+      }
+      for (const classroomId of invalidation.classroomIds) {
+        sse.broadcast(`classroom_${classroomId}`, 'reservation_updated', {
+          classroomId,
+          invalidated: true,
+        });
+      }
+    }
 
     return AcademicYearMapper.toDTO(academicYear);
   }

@@ -30,58 +30,100 @@ describe('ClassroomReservationScheduleAdapter', () => {
     delete: mock(),
   };
 
+  const academicYearRepositoryMock = {
+    findById: mock(),
+  };
+
+  const scheduleTimeConfigRepositoryMock = {
+    findById: mock(),
+  };
+
   const adapter = new ClassroomReservationScheduleAdapter(
     scheduleRepositoryMock,
-    scheduleSlotRepositoryMock
+    scheduleSlotRepositoryMock,
+    academicYearRepositoryMock as any,
+    scheduleTimeConfigRepositoryMock as any
   );
 
-  test('hasSubjectInSlot should return false if no schedules found', async () => {
+  const mockTiming = () => {
+    academicYearRepositoryMock.findById.mockResolvedValue({
+      organizationId: 'org-1',
+      slotDurationMinutes: 60,
+      breakDurationMinutes: 0,
+    });
+    scheduleTimeConfigRepositoryMock.findById.mockResolvedValue({
+      id: 'config-1',
+      organizationId: 'org-1',
+      academicYearId: 'year-1',
+      startTime: '08:00',
+      endTime: '12:00',
+      hasBreak: false,
+      breakAfterSlot: null,
+    });
+  };
+
+  test('hasSubjectInInterval should return false if no schedules found', async () => {
     scheduleRepositoryMock.findAll.mockResolvedValue([]);
-    const result = await adapter.hasSubjectInSlot(
+    const result = await adapter.hasSubjectInInterval(
       'org-1',
       'year-1',
       [1],
       'room-1',
       1,
-      1
+      540,
+      600
     );
     expect(result).toBe(false);
   });
 
-  test('hasSubjectInSlot should return true if conflict exists', async () => {
+  test('hasSubjectInInterval should return true if conflict exists by real minutes', async () => {
+    mockTiming();
     scheduleRepositoryMock.findAll.mockResolvedValue([
-      { id: 'schedule-1', academicYearId: 'year-1', period: 1 },
+      {
+        id: 'schedule-1',
+        academicYearId: 'year-1',
+        period: 1,
+        timeConfigId: 'config-1',
+      },
     ]);
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
-      { classroomId: 'room-1', dayOfWeek: 1, slotIndex: 1, duration: 2 },
+      { classroomId: 'room-1', dayOfWeek: 1, slotIndex: 1, duration: 1 },
     ]);
 
-    const result = await adapter.hasSubjectInSlot(
+    const result = await adapter.hasSubjectInInterval(
       'org-1',
       'year-1',
       [1],
       'room-1',
       1,
-      2
+      510,
+      570
     );
     expect(result).toBe(true);
   });
 
-  test('hasSubjectInSlot should return false if no conflict', async () => {
+  test('hasSubjectInInterval should return false if no conflict', async () => {
+    mockTiming();
     scheduleRepositoryMock.findAll.mockResolvedValue([
-      { id: 'schedule-1', academicYearId: 'year-1', period: 1 },
+      {
+        id: 'schedule-1',
+        academicYearId: 'year-1',
+        period: 1,
+        timeConfigId: 'config-1',
+      },
     ]);
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
       { classroomId: 'room-1', dayOfWeek: 1, slotIndex: 1, duration: 2 },
     ]);
 
-    const result = await adapter.hasSubjectInSlot(
+    const result = await adapter.hasSubjectInInterval(
       'org-1',
       'year-1',
       [1],
       'room-1',
       1,
-      3
+      660,
+      720
     );
     expect(result).toBe(false);
   });
@@ -111,8 +153,14 @@ describe('ClassroomReservationScheduleAdapter', () => {
   });
 
   test('getClassroomScheduleSlots should return mapped slots', async () => {
+    mockTiming();
     scheduleRepositoryMock.findAll.mockResolvedValue([
-      { id: 'schedule-1', academicYearId: 'year-1', period: 1 },
+      {
+        id: 'schedule-1',
+        academicYearId: 'year-1',
+        period: 1,
+        timeConfigId: 'config-1',
+      },
     ]);
     scheduleSlotRepositoryMock.findByScheduleId.mockResolvedValue([
       { classroomId: 'room-1', dayOfWeek: 1, slotIndex: 2, duration: 2 },
@@ -125,7 +173,14 @@ describe('ClassroomReservationScheduleAdapter', () => {
       'room-1'
     );
     expect(result).toEqual([
-      { dayOfWeek: 1, slotIndex: 2, duration: 2, period: 1 },
+      {
+        dayOfWeek: 1,
+        slotIndex: 2,
+        duration: 2,
+        period: 1,
+        startTimeMinutes: 600,
+        endTimeMinutes: 720,
+      },
     ]);
   });
 });

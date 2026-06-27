@@ -7,10 +7,9 @@ describe('AcademicYear', () => {
       organizationId: 'org-1',
       name: '2024-2025',
       periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
       period0Start: '2024-09-01',
       period0End: '2025-06-30',
@@ -39,10 +38,9 @@ describe('AcademicYear', () => {
       period2Start: null,
       period2End: null,
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -57,10 +55,9 @@ describe('AcademicYear', () => {
       organizationId: 'org-1',
       name: '2024-2025',
       periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
       period0Start: '2024-09-01',
       period0End: '2025-06-30',
@@ -81,10 +78,9 @@ describe('AcademicYear', () => {
       period2Start: '2026-02-01',
       period2End: '2026-06-30',
       periodType: 'semester',
-      morningStart: '09:00',
-      morningEnd: '15:00',
-      afternoonStart: '16:00',
-      afternoonEnd: '22:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 45,
     });
 
@@ -96,10 +92,9 @@ describe('AcademicYear', () => {
     expect(year.period2Start).toBe('2026-02-01');
     expect(year.period2End).toBe('2026-06-30');
     expect(year.periodType).toBe('semester');
-    expect(year.morningStart).toBe('09:00');
-    expect(year.morningEnd).toBe('15:00');
-    expect(year.afternoonStart).toBe('16:00');
-    expect(year.afternoonEnd).toBe('22:00');
+    expect(year.breakDurationMinutes).toBe(30);
+    expect(year.centerOpeningTime).toBe('08:00');
+    expect(year.centerClosingTime).toBe('22:00');
     expect(year.slotDurationMinutes).toBe(45);
     expect(year.updatedAt.getTime()).toBeGreaterThanOrEqual(
       oldUpdatedAt.getTime()
@@ -111,10 +106,9 @@ describe('AcademicYear', () => {
       organizationId: 'org-1',
       name: '2024-2025',
       periodType: 'semester',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
       period0Start: '2024-09-01',
       period0End: '2025-06-30',

@@ -13,6 +13,10 @@ import * as scheduleSchema from '@/modules/schedule/infrastructure/db/drizzle.sc
 import * as scheduleSlotSchema from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
 import * as degreeSchema from '@/modules/degree/infrastructure/db/drizzle.degree.schema';
 import * as itinerarySchema from '@/modules/itinerary/infrastructure/db/drizzle.itinerary.schema';
+import * as academicYearSchema from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.schema';
+import * as classroomReservationSchema from '@/modules/classroom-reservation/infrastructure/db/drizzle.classroom-reservation.schema';
+import * as notificationSchema from '@/modules/notification/infrastructure/db/drizzle.notification.schema';
+import * as scheduleTimeConfigSchema from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 
 const schema = {
   ...userSchema,
@@ -25,6 +29,10 @@ const schema = {
   ...scheduleSlotSchema,
   ...degreeSchema,
   ...itinerarySchema,
+  ...academicYearSchema,
+  ...classroomReservationSchema,
+  ...notificationSchema,
+  ...scheduleTimeConfigSchema,
 };
 
 export const pgliteClient = new PGlite();
@@ -50,6 +58,10 @@ export const cleanTestDb = async () => {
   await pgliteClient.query('TRUNCATE TABLE "itinerary" CASCADE');
   await pgliteClient.query('TRUNCATE TABLE "classroom" CASCADE');
   await pgliteClient.query('TRUNCATE TABLE "degree" CASCADE');
+  await pgliteClient.query('TRUNCATE TABLE "academic_year" CASCADE');
+  await pgliteClient.query('TRUNCATE TABLE "classroom_reservations" CASCADE');
+  await pgliteClient.query('TRUNCATE TABLE "notifications" CASCADE');
+  await pgliteClient.query('TRUNCATE TABLE "schedule_time_config" CASCADE');
   await pgliteClient.query('TRUNCATE TABLE "member" CASCADE');
   await pgliteClient.query('TRUNCATE TABLE "organization" CASCADE');
   await pgliteClient.query('TRUNCATE TABLE "user" CASCADE');

@@ -72,14 +72,13 @@ export class GetClassroomAvailabilityUseCase {
         );
 
         for (const slot of slotsForDay) {
-          const durationSlots = Math.ceil(slot.duration);
-          for (let i = 0; i < durationSlots; i++) {
-            occupiedSlots.push({
-              date: dateStr,
-              slotIndex: slot.slotIndex + i,
-              reason: 'Ocupado por clase',
-            });
-          }
+          occupiedSlots.push({
+            date: dateStr,
+            slotIndex: slot.slotIndex,
+            startTimeMinutes: slot.startTimeMinutes,
+            endTimeMinutes: slot.endTimeMinutes,
+            reason: 'Ocupado por clase',
+          });
         }
       }
 
@@ -91,9 +90,15 @@ export class GetClassroomAvailabilityUseCase {
       );
 
       for (const res of dateReservations) {
+        if (res.startTimeMinutes === null || res.endTimeMinutes === null) {
+          continue;
+        }
+
         occupiedSlots.push({
           date: dateStr,
           slotIndex: res.slotIndex,
+          startTimeMinutes: res.startTimeMinutes,
+          endTimeMinutes: res.endTimeMinutes,
           reason: res.status === 'ACCEPTED' ? 'Reservado' : 'Reserva pendiente',
         });
       }

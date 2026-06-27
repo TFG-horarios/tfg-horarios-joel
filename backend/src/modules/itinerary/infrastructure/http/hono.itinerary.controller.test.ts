@@ -113,7 +113,12 @@ describe('HonoItineraryController Integration', () => {
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ id: itineraryId, name: 'Test' });
-    expect(getMock.execute).toHaveBeenCalledWith(orgId, itineraryId, 'u-admin');
+    expect(getMock.execute).toHaveBeenCalledWith(
+      orgId,
+      itineraryId,
+      'u-admin',
+      undefined
+    );
   });
 
   test('GET /organizations/:organizationId/itineraries should return 200 with list', async () => {

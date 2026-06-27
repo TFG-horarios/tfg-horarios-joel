@@ -5,6 +5,8 @@ import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchClassroomScheduleSlots } from '@/features/classroom-schedule/queries';
+import { fetchPaginatedSchedules } from '@/features/schedule/queries';
+import { fetchScheduleTimeConfigs } from '@/features/schedule-time-config/queries';
 import { ClassroomSchedulePlanner } from '@/features/classroom-schedule/components/classroom-schedule-planner';
 
 type ClassroomScheduleDetailPageProps = {
@@ -42,6 +44,8 @@ export default async function ClassroomScheduleDetailPage({
     slots,
     degrees,
     academicYearsList,
+    schedulesResult,
+    timeConfigs,
   ] = await Promise.all([
     fetchOrganizationById(id),
     fetchClassroomById(id, classroomId, academicYearId),
@@ -56,6 +60,13 @@ export default async function ClassroomScheduleDetailPage({
     import('@/features/academic-year/queries').then((m) =>
       m.fetchAcademicYears(id)
     ),
+    fetchPaginatedSchedules(id, {
+      academicYearId,
+      shift,
+      period,
+      limit: 500,
+    }).catch(() => ({ data: [] })),
+    fetchScheduleTimeConfigs(id, academicYearId).catch(() => []),
   ]);
 
   if (!organization || !classroom) {
@@ -78,6 +89,8 @@ export default async function ClassroomScheduleDetailPage({
         subjectGroups={subjectGroups}
         degrees={degrees}
         academicYear={academicYearObj}
+        schedules={schedulesResult.data}
+        timeConfigs={timeConfigs}
         shift={shift}
         period={period}
       />

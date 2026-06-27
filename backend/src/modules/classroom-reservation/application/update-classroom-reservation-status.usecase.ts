@@ -14,6 +14,7 @@ import {
   ValidationError,
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
+import { intervalsOverlap, parseTimeToMinutes } from '@tfg-horarios/shared';
 
 export class UpdateClassroomReservationStatusUseCase {
   constructor(
@@ -66,13 +67,54 @@ export class UpdateClassroomReservationStatusUseCase {
         throw new NotFoundError('AcademicYear', reservation.academicYearId);
       }
 
-      const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
+      if (
+        reservation.startTimeMinutes === null ||
+        reservation.endTimeMinutes === null
+      ) {
+        throw new ValidationError(
+          'No se puede aceptar la reserva porque no tiene un intervalo horario real.'
+        );
+      }
+
+      const academicYear = await this.academicYearProvider.getAcademicYear(
+        organizationId,
+        reservation.academicYearId
+      );
+
+      if (!academicYear) {
+        throw new NotFoundError('AcademicYear', reservation.academicYearId);
+      }
+
+      const centerOpeningMinutes = parseTimeToMinutes(
+        academicYear.centerOpeningTime
+      );
+      const centerClosingMinutes = parseTimeToMinutes(
+        academicYear.centerClosingTime
+      );
+
+      if (
+        reservation.startTimeMinutes < centerOpeningMinutes ||
+        reservation.endTimeMinutes > centerClosingMinutes ||
+        reservation.endTimeMinutes <= reservation.startTimeMinutes
+      ) {
+        throw new ValidationError(
+          'No se puede aceptar la reserva porque queda fuera del horario de apertura del centro.'
+        );
+      }
+
+      const interval = {
+        startTimeMinutes: reservation.startTimeMinutes,
+        endTimeMinutes: reservation.endTimeMinutes,
+      };
+
+      const hasSubject = await this.scheduleProvider.hasSubjectInInterval(
         organizationId,
         reservation.academicYearId,
         matchingPeriods,
         reservation.classroomId,
         systemDayOfWeek,
-        reservation.slotIndex
+        interval.startTimeMinutes,
+        interval.endTimeMinutes
       );
 
       if (hasSubject) {
@@ -81,13 +123,33 @@ export class UpdateClassroomReservationStatusUseCase {
         );
       }
 
-      const hasOtherReservation =
-        await this.repository.hasAcceptedReservationOnDate(
-          organizationId,
-          reservation.classroomId,
-          reservation.date,
-          reservation.slotIndex
-        );
+      const reservations = await this.repository.findReservationsInDateRange(
+        organizationId,
+        reservation.classroomId,
+        reservation.date,
+        reservation.date
+      );
+
+      const hasOtherReservation = reservations.some((other) => {
+        if (other.id === reservation.id || other.status !== 'ACCEPTED') {
+          return false;
+        }
+
+        if (other.startTimeMinutes !== null && other.endTimeMinutes !== null) {
+          return intervalsOverlap(
+            {
+              startMinutes: other.startTimeMinutes,
+              endMinutes: other.endTimeMinutes,
+            },
+            {
+              startMinutes: interval.startTimeMinutes,
+              endMinutes: interval.endTimeMinutes,
+            }
+          );
+        }
+
+        return false;
+      });
 
       if (hasOtherReservation) {
         throw new ValidationError(

@@ -21,7 +21,15 @@ describe('GetItineraryUseCase', () => {
     getMemberRole: mock(),
   };
 
-  const useCase = new GetItineraryUseCase(repositoryMock, memberProviderMock);
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+  };
+
+  const useCase = new GetItineraryUseCase(
+    repositoryMock,
+    memberProviderMock,
+    academicYearProviderMock
+  );
 
   test('should retrieve itinerary successfully', async () => {
     memberProviderMock.getMemberRole.mockResolvedValueOnce('viewer');

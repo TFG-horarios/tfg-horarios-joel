@@ -31,10 +31,9 @@ describe('DrizzleAcademicYearRepository Integration', () => {
       period2Start: '2025-02-01',
       period2End: '2025-06-30',
       periodType,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
 
@@ -79,10 +78,9 @@ describe('DrizzleAcademicYearRepository Integration', () => {
       period2Start: null,
       period2End: null,
       periodType: 'annual',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     await repository.save(ay);
@@ -104,10 +102,9 @@ describe('DrizzleAcademicYearRepository Integration', () => {
       period2Start: null,
       period2End: null,
       periodType: 'annual',
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     await repository.save(historical);

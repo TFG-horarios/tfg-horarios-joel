@@ -23,14 +23,13 @@ import type {
   ScheduleEngineClassroomMap,
   ScheduleEngineAssignment,
 } from '@/modules/schedule/domain/providers/schedule-engine.provider';
-import type { Optimization } from '@tfg-horarios/shared';
+import type { Optimization, ScheduleTimeGrid } from '@tfg-horarios/shared';
 
 export interface SchedulerWorkerMessage {
   groupsData: ScheduleEngineGroupData[];
   classroomsCache: ScheduleEngineClassroomMap;
   availableClassrooms: string[];
-  maxMorningSlots: number;
-  maxAfternoonSlots: number;
+  timeGrids: Record<string, ScheduleTimeGrid>;
   slotDuration: number;
   lockedAssignments?: ScheduleEngineAssignment[];
   optimizations?: Optimization[];
@@ -43,15 +42,13 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
     groupsData,
     classroomsCache,
     availableClassrooms,
-    maxMorningSlots,
-    maxAfternoonSlots,
+    timeGrids,
     slotDuration,
     lockedAssignments = [],
     optimizations,
   } = event.data;
 
   try {
-    const maxSlotsPerDay = maxMorningSlots + maxAfternoonSlots;
     const orderedClassrooms = [...availableClassrooms].sort((a, b) => {
       const classroomA = classroomsCache[a];
       const classroomB = classroomsCache[b];
@@ -98,16 +95,15 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
       hardConstraints,
       softConstraints,
       classroomsCache,
-      maxMorningSlots,
-      maxSlotsPerDay
+      timeGrids
     );
 
     const initialSolutionGen = new InitialSolution(
       penaltyCalculator,
       orderedClassrooms,
       classroomsCache,
-      maxSlotsPerDay,
-      maxMorningSlots,
+      timeGrids,
+      undefined,
       slotDuration,
       [1, 2, 3, 4, 5]
     );
@@ -120,8 +116,7 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
           initialSolutionGen,
           orderedClassrooms,
           classroomsCache,
-          maxMorningSlots,
-          maxSlotsPerDay,
+          timeGrids,
           new LCGGenerator(seed)
         ),
       groupsData,

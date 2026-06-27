@@ -36,13 +36,28 @@ import type {
   ClassroomDTO,
   OrganizationDTO,
   AcademicYearDTO,
+  OccupiedSlotDTO,
+  TimeGridSlot,
 } from '@tfg-horarios/shared';
+import { formatMinutesAsTime } from '@tfg-horarios/shared';
 
 type ReservationPlannerProps = {
   organization: OrganizationDTO;
   classrooms: ClassroomDTO[];
   academicYear: AcademicYearDTO;
 };
+
+const parseTimeInput = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return (hours ?? 0) * 60 + (minutes ?? 0);
+};
+
+const intervalsOverlap = (
+  first: Pick<TimeGridSlot, 'startMinutes' | 'endMinutes'>,
+  second: { startMinutes: number; endMinutes: number }
+) =>
+  first.startMinutes < second.endMinutes &&
+  second.startMinutes < first.endMinutes;
 
 export function ReservationPlanner({
   organization,
@@ -142,10 +157,18 @@ export function ReservationPlanner({
     day: number;
     index: number;
     date: Date;
+    startTimeMinutes: number;
+    endTimeMinutes: number;
   } | null>(null);
   const [reason, setReason] = useState('');
+  const [customStartTime, setCustomStartTime] = useState('');
+  const [customEndTime, setCustomEndTime] = useState('');
 
-  const { slotTimeLabels, numSlots } = useScheduleGrid(academicYear, 'global');
+  const {
+    slotTimeLabels,
+    numSlots,
+    slots: timeSlots,
+  } = useScheduleGrid(academicYear, 'global');
 
   const getMonday = (d: Date) => {
     const day = d.getDay();
@@ -174,7 +197,7 @@ export function ReservationPlanner({
   });
 
   const [occupiedSlots, setOccupiedSlots] = useState<
-    { day: number; slotIndex: number; reason: string }[]
+    (OccupiedSlotDTO & { day: number })[]
   >([]);
 
   useEffect(() => {
@@ -193,11 +216,7 @@ export function ReservationPlanner({
       );
 
       if (result.success && result.data) {
-        const newOccupied: {
-          day: number;
-          slotIndex: number;
-          reason: string;
-        }[] = [];
+        const newOccupied: (OccupiedSlotDTO & { day: number })[] = [];
 
         result.data.occupiedSlots.forEach((slot) => {
           const dateStr = slot.date;
@@ -207,9 +226,8 @@ export function ReservationPlanner({
 
           if (dayIndex !== -1) {
             newOccupied.push({
+              ...slot,
               day: daysOfWeek[dayIndex]!.value,
-              slotIndex: slot.slotIndex,
-              reason: slot.reason,
             });
           }
         });
@@ -255,7 +273,17 @@ export function ReservationPlanner({
     }
     const dayObj = daysOfWeek.find((d) => d.value === dayValue);
     if (dayObj) {
-      setSelectedSlot({ day: dayValue, index: slotIndex, date: dayObj.date });
+      const slot = timeSlots.find((item) => item.slotIndex === slotIndex);
+      if (!slot) return;
+      setSelectedSlot({
+        day: dayValue,
+        index: slotIndex,
+        date: dayObj.date,
+        startTimeMinutes: slot.startMinutes,
+        endTimeMinutes: slot.endMinutes,
+      });
+      setCustomStartTime(formatMinutesAsTime(slot.startMinutes));
+      setCustomEndTime(formatMinutesAsTime(slot.endMinutes));
       setReason('');
       setModalOpen(true);
     }
@@ -266,12 +294,15 @@ export function ReservationPlanner({
 
     startTransition(async () => {
       const formattedDate = format(selectedSlot.date, 'yyyy-MM-dd');
+      const startTimeMinutes = parseTimeInput(customStartTime);
+      const endTimeMinutes = parseTimeInput(customEndTime);
 
       const result = await requestReservationAction(organization.id, {
         classroomId: selectedClassroom,
         academicYearId: academicYear.id,
         date: formattedDate,
-        slotIndex: selectedSlot.index,
+        startTimeMinutes,
+        endTimeMinutes,
         reason: reason || undefined,
       });
 
@@ -382,8 +413,17 @@ export function ReservationPlanner({
           numSlots={numSlots}
           slotTimeLabels={slotTimeLabels}
           renderCell={(day, slotIndex) => {
+            const visualSlot = timeSlots.find(
+              (slot) => slot.slotIndex === slotIndex
+            );
             const occupied = occupiedSlots.find(
-              (o) => o.day === day && o.slotIndex === slotIndex
+              (o) =>
+                visualSlot &&
+                o.day === day &&
+                intervalsOverlap(visualSlot, {
+                  startMinutes: o.startTimeMinutes,
+                  endMinutes: o.endTimeMinutes,
+                })
             );
 
             if (occupied) {
@@ -411,6 +451,10 @@ export function ReservationPlanner({
                 >
                   <span className="text-[10px] font-medium text-center uppercase tracking-wider">
                     {occupied.reason}
+                  </span>
+                  <span className="text-[10px] font-mono opacity-80">
+                    {formatMinutesAsTime(occupied.startTimeMinutes)}–
+                    {formatMinutesAsTime(occupied.endTimeMinutes)}
                   </span>
                 </div>
               );
@@ -446,13 +490,36 @@ export function ReservationPlanner({
                     })}
                   </strong>{' '}
                   en el tramo horario de{' '}
-                  <strong>{slotTimeLabels[selectedSlot.index]}</strong>.
+                  <strong>
+                    {customStartTime}–{customEndTime}
+                  </strong>
+                  .
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Inicio</Label>
+                  <Input
+                    type="time"
+                    value={customStartTime}
+                    onChange={(e) => setCustomStartTime(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fin</Label>
+                  <Input
+                    type="time"
+                    value={customEndTime}
+                    onChange={(e) => setCustomEndTime(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Motivo de la reserva (opcional)</Label>
               <Input

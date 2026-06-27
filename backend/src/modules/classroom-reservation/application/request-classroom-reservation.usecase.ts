@@ -15,6 +15,7 @@ import {
   NotFoundError,
 } from '@/core/errors/app.error';
 import { ROLES } from '@/core/permissions/roles';
+import { intervalsOverlap, parseTimeToMinutes } from '@tfg-horarios/shared';
 
 export class RequestClassroomReservationUseCase {
   constructor(
@@ -108,13 +109,44 @@ export class RequestClassroomReservationUseCase {
     const jsDay = reservationDate.getDay();
     const systemDayOfWeek = jsDay === 0 ? 7 : jsDay;
 
-    const hasSubject = await this.scheduleProvider.hasSubjectInSlot(
+    if (dto.endTimeMinutes <= dto.startTimeMinutes) {
+      throw new ValidationError(
+        'La hora de fin de la reserva debe ser posterior a la hora de inicio.'
+      );
+    }
+
+    const centerOpeningMinutes = parseTimeToMinutes(
+      academicYear.centerOpeningTime
+    );
+    const centerClosingMinutes = parseTimeToMinutes(
+      academicYear.centerClosingTime
+    );
+
+    if (
+      dto.startTimeMinutes < centerOpeningMinutes ||
+      dto.endTimeMinutes > centerClosingMinutes
+    ) {
+      throw new ValidationError(
+        'La reserva debe estar dentro del horario de apertura del centro.'
+      );
+    }
+
+    const slotIndex = Math.max(
+      0,
+      Math.floor(
+        (dto.startTimeMinutes - centerOpeningMinutes) /
+          academicYear.slotDurationMinutes
+      )
+    );
+
+    const hasSubject = await this.scheduleProvider.hasSubjectInInterval(
       organizationId,
       dto.academicYearId,
       matchingPeriods,
       dto.classroomId,
       systemDayOfWeek,
-      dto.slotIndex
+      dto.startTimeMinutes,
+      dto.endTimeMinutes
     );
 
     if (hasSubject) {
@@ -123,12 +155,34 @@ export class RequestClassroomReservationUseCase {
       );
     }
 
-    const hasReservation = await this.repository.hasAcceptedReservationOnDate(
+    const reservations = await this.repository.findReservationsInDateRange(
       organizationId,
       dto.classroomId,
       dto.date,
-      dto.slotIndex
+      dto.date
     );
+
+    const hasReservation = reservations.some((reservation) => {
+      if (reservation.status !== 'ACCEPTED') return false;
+
+      if (
+        reservation.startTimeMinutes !== null &&
+        reservation.endTimeMinutes !== null
+      ) {
+        return intervalsOverlap(
+          {
+            startMinutes: reservation.startTimeMinutes,
+            endMinutes: reservation.endTimeMinutes,
+          },
+          {
+            startMinutes: dto.startTimeMinutes,
+            endMinutes: dto.endTimeMinutes,
+          }
+        );
+      }
+
+      return false;
+    });
 
     if (hasReservation) {
       throw new ValidationError(
@@ -144,7 +198,9 @@ export class RequestClassroomReservationUseCase {
       classroomId: dto.classroomId,
       academicYearId: dto.academicYearId,
       date: dto.date,
-      slotIndex: dto.slotIndex,
+      slotIndex,
+      startTimeMinutes: dto.startTimeMinutes,
+      endTimeMinutes: dto.endTimeMinutes,
       reason: dto.reason,
     });
 

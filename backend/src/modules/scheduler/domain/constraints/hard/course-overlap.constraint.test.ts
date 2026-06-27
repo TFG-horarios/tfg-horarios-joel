@@ -7,19 +7,18 @@ describe('CourseOverlapConstraint', () => {
   const constraint = new CourseOverlapConstraint();
 
   const createMockContext = (classes: Assignment[]): ConstraintContext => {
-    const timeSlotsForDegree = new Map<string, Assignment[]>();
-    timeSlotsForDegree.set('1', classes);
-    const degreeGroups = new Map<string, Map<string, Assignment[]>>();
-    degreeGroups.set('deg-1_1', timeSlotsForDegree);
-
     return {
-      degreeGroups,
-      timeSlots: new Map(),
-      assignments: [],
+      assignments: classes,
       classroomsCache: {},
-      maxMorningSlots: 6,
-      maxSlotsPerDay: 12,
-    };
+      projectedAssignments: classes.map((assignment) => ({
+        assignment,
+        dayOfWeek: 1,
+        startMinutes: 8 * 60,
+        endMinutes: 9 * 60,
+      })),
+      invalidAssignments: [],
+      timeGrids: {},
+    } as ConstraintContext;
   };
 
   test('should return 0 penalty if no overlap', () => {
@@ -82,7 +81,7 @@ describe('CourseOverlapConstraint', () => {
     expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_SAME_SUBJECT');
   });
 
-  test('should not return penalty if different subjects and different group types', () => {
+  test('should return penalty if same practice type has a single group', () => {
     const ctx = createMockContext([
       {
         id: '1',
@@ -100,7 +99,8 @@ describe('CourseOverlapConstraint', () => {
       } as Assignment,
     ]);
     const result = constraint.calculatePenalty(ctx);
-    expect(result.penalty).toBe(0);
+    expect(result.penalty).toBeGreaterThan(0);
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_SINGLE_GROUP');
   });
 
   test('should return penalty if common overlaps with itinerary', () => {
@@ -145,8 +145,6 @@ describe('CourseOverlapConstraint', () => {
     ]);
     const result = constraint.calculatePenalty(ctx);
     expect(result.penalty).toBeGreaterThan(0);
-    expect(result.conflicts[0]?.type).toBe(
-      'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES'
-    );
+    expect(result.conflicts[0]?.type).toBe('COURSE_OVERLAP_SINGLE_GROUP');
   });
 });

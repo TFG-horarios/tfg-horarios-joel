@@ -2,7 +2,12 @@ import {
   type Solution,
   type ClassroomMap,
   type Assignment,
+  type ScheduleTimeGridMap,
 } from '../domain/types';
+import {
+  projectAssignmentInterval,
+  type ScheduleTimeGrid,
+} from '@tfg-horarios/shared';
 import { PenaltyCalculator } from '../domain/penalty-calculator';
 import {
   InitialSolution,
@@ -32,15 +37,18 @@ export class TabuSearchEngine {
   private readonly MAX_REPAIR_TARGETS_PER_PASS = 8;
   private readonly MAX_REPAIR_CLASSROOMS = 8;
 
+  private readonly timeGrids: ScheduleTimeGridMap;
+
   constructor(
     private readonly penaltyCalculator: PenaltyCalculator,
     private readonly initialSolutionGen: InitialSolution,
     private readonly availableClassrooms: string[],
     private readonly classroomsCache: ClassroomMap,
-    private readonly maxMorningSlots: number,
-    private readonly maxSlotsPerDay: number,
+    timeGrids: ScheduleTimeGridMap,
     private readonly random: IRandomGenerator
-  ) {}
+  ) {
+    this.timeGrids = timeGrids;
+  }
 
   public run(
     groups: GroupInitialData[],
@@ -94,25 +102,10 @@ export class TabuSearchEngine {
         let forbiddenVal: string | number = '';
 
         if (moveAttribute === 'time' || moveAttribute === 'both') {
-          mutated.dayOfWeek = this.random.randomInt(5) + 1;
-
-          const spannedSlots = Math.ceil(original.duration) - 1;
-
-          if (original.shift === 'morning') {
-            mutated.slotIndex = this.random.randomInt(
-              this.maxMorningSlots - spannedSlots
-            );
-          } else if (original.shift === 'afternoon') {
-            mutated.slotIndex =
-              this.maxMorningSlots +
-              this.random.randomInt(
-                this.maxSlotsPerDay - this.maxMorningSlots - spannedSlots
-              );
-          } else {
-            mutated.slotIndex = this.random.randomInt(
-              this.maxSlotsPerDay - spannedSlots
-            );
-          }
+          const candidate = this.pickRandomTime(original);
+          if (!candidate) continue;
+          mutated.dayOfWeek = candidate.dayOfWeek;
+          mutated.slotIndex = candidate.slotIndex;
 
           if (moveAttribute === 'time') {
             tabuAttribute = 'time';
@@ -296,24 +289,10 @@ export class TabuSearchEngine {
         let forbiddenVal: string | number = '';
 
         if (moveAttribute === 'time' || moveAttribute === 'both') {
-          mutated.dayOfWeek = this.random.randomInt(5) + 1;
-          const spannedSlots = Math.ceil(original.duration) - 1;
-
-          if (original.shift === 'morning') {
-            mutated.slotIndex = this.random.randomInt(
-              this.maxMorningSlots - spannedSlots
-            );
-          } else if (original.shift === 'afternoon') {
-            mutated.slotIndex =
-              this.maxMorningSlots +
-              this.random.randomInt(
-                this.maxSlotsPerDay - this.maxMorningSlots - spannedSlots
-              );
-          } else {
-            mutated.slotIndex = this.random.randomInt(
-              this.maxSlotsPerDay - spannedSlots
-            );
-          }
+          const candidate = this.pickRandomTime(original);
+          if (!candidate) continue;
+          mutated.dayOfWeek = candidate.dayOfWeek;
+          mutated.slotIndex = candidate.slotIndex;
 
           if (moveAttribute === 'time') {
             tabuAttribute = 'time';
@@ -630,67 +609,59 @@ export class TabuSearchEngine {
       : fittingClassrooms.slice(0, this.MAX_REPAIR_CLASSROOMS);
     if (classroomsToSearch.length === 0) return null;
 
-    const spannedSlots = Math.ceil(original.duration);
-    const startLimit = original.shift === 'morning' ? 0 : this.maxMorningSlots;
-    const endLimit =
-      original.shift === 'morning' ? this.maxMorningSlots : this.maxSlotsPerDay;
+    const timeCandidates = this.getTimeCandidates(original);
+    if (timeCandidates.length === 0) return null;
 
     let bestSolution: Solution | null = null;
 
     for (const classroomId of classroomsToSearch) {
-      for (let dayOfWeek = 1; dayOfWeek <= 5; dayOfWeek++) {
-        for (
-          let slotIndex = startLimit;
-          slotIndex <= endLimit - spannedSlots;
-          slotIndex++
+      for (const { dayOfWeek, slotIndex } of timeCandidates) {
+        if (
+          original.classroomId === classroomId &&
+          original.dayOfWeek === dayOfWeek &&
+          original.slotIndex === slotIndex
         ) {
-          if (
-            original.classroomId === classroomId &&
-            original.dayOfWeek === dayOfWeek &&
-            original.slotIndex === slotIndex
-          ) {
-            continue;
-          }
+          continue;
+        }
 
-          const assignments = [...solution.assignments];
-          assignments[targetIndex] = {
-            ...original,
-            classroomId,
-            dayOfWeek,
-            slotIndex,
+        const assignments = [...solution.assignments];
+        assignments[targetIndex] = {
+          ...original,
+          classroomId,
+          dayOfWeek,
+          slotIndex,
+        };
+
+        const penalties = this.penaltyCalculator.evaluateHard(
+          assignments,
+          lockedAssignments
+        );
+
+        const introducesRoomOverlap = penalties.conflicts.some(
+          (conflict) =>
+            conflict.type === 'ROOM_OVERLAP' &&
+            (conflict.assignmentId === original.id ||
+              conflict.subjectGroupId === original.subjectGroupId)
+        );
+        if (introducesRoomOverlap) continue;
+
+        const candidate: Solution = {
+          assignments,
+          unassigned: assignments.filter(
+            (assignment) =>
+              assignment.classroomId === null ||
+              assignment.dayOfWeek === null ||
+              assignment.slotIndex === null
+          ).length,
+          penalty: penalties.hardPenalty,
+          hardPenalty: penalties.hardPenalty,
+          conflicts: penalties.conflicts,
+        };
+
+        if (!bestSolution || isBetterHardSolution(candidate, bestSolution)) {
+          bestSolution = {
+            ...candidate,
           };
-
-          const penalties = this.penaltyCalculator.evaluateHard(
-            assignments,
-            lockedAssignments
-          );
-
-          const introducesRoomOverlap = penalties.conflicts.some(
-            (conflict) =>
-              conflict.type === 'ROOM_OVERLAP' &&
-              (conflict.assignmentId === original.id ||
-                conflict.subjectGroupId === original.subjectGroupId)
-          );
-          if (introducesRoomOverlap) continue;
-
-          const candidate: Solution = {
-            assignments,
-            unassigned: assignments.filter(
-              (assignment) =>
-                assignment.classroomId === null ||
-                assignment.dayOfWeek === null ||
-                assignment.slotIndex === null
-            ).length,
-            penalty: penalties.hardPenalty,
-            hardPenalty: penalties.hardPenalty,
-            conflicts: penalties.conflicts,
-          };
-
-          if (!bestSolution || isBetterHardSolution(candidate, bestSolution)) {
-            bestSolution = {
-              ...candidate,
-            };
-          }
         }
       }
     }
@@ -737,5 +708,38 @@ export class TabuSearchEngine {
     }
 
     return classroomsToSearch;
+  }
+
+  private pickRandomTime(
+    assignment: Assignment
+  ): { dayOfWeek: number; slotIndex: number } | null {
+    const candidates = this.getTimeCandidates(assignment);
+    if (candidates.length === 0) return null;
+    return candidates[this.random.randomInt(candidates.length)]!;
+  }
+
+  private getTimeCandidates(
+    assignment: Assignment
+  ): { dayOfWeek: number; slotIndex: number }[] {
+    const grid = this.getGridForAssignment(assignment);
+    if (grid) {
+      return [1, 2, 3, 4, 5].flatMap((dayOfWeek) =>
+        grid.slots
+          .filter((slot) =>
+            projectAssignmentInterval(grid, slot.slotIndex, assignment.duration)
+          )
+          .map((slot) => ({ dayOfWeek, slotIndex: slot.slotIndex }))
+      );
+    }
+
+    return [];
+  }
+
+  private getGridForAssignment(
+    assignment: Assignment
+  ): ScheduleTimeGrid | undefined {
+    return assignment.timeConfigId
+      ? this.timeGrids[assignment.timeConfigId]
+      : undefined;
   }
 }

@@ -6,6 +6,7 @@ export interface ScheduleProps {
   degreeId: string;
   itineraryId?: string | null;
   academicYearId: string;
+  timeConfigId?: string | null;
   shift: Shift;
   courseYear: number;
   period: number;
@@ -78,6 +79,11 @@ export class Schedule {
     this.props.updatedAt = new Date();
   }
 
+  public setTimeConfigId(value: string | null): void {
+    this.props.timeConfigId = value;
+    this.props.updatedAt = new Date();
+  }
+
   get id() {
     return this.props.id;
   }
@@ -92,6 +98,9 @@ export class Schedule {
   }
   get academicYearId() {
     return this.props.academicYearId;
+  }
+  get timeConfigId() {
+    return this.props.timeConfigId ?? null;
   }
   get shift() {
     return this.props.shift;

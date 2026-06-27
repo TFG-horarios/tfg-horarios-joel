@@ -23,6 +23,7 @@ import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
+import { fetchScheduleTimeConfigs } from '@/features/schedule-time-config/queries';
 import { generateScheduleCsv } from './utils';
 
 import {
@@ -52,15 +53,25 @@ export async function exportScheduleCsvAction(
       return { success: false, message: tErrors('server') };
     }
 
-    const [slots, classrooms, subjects, subjectGroups, degrees, academicYears] =
-      await Promise.all([
-        fetchScheduleSlots(organizationId, scheduleId),
-        fetchAllClassrooms(organizationId, schedule.academicYearId),
-        fetchAllSubjects(organizationId, schedule.academicYearId),
-        fetchAllSubjectGroups(organizationId, schedule.academicYearId),
-        fetchAllDegrees(organizationId, schedule.academicYearId),
-        fetchAcademicYears(organizationId),
-      ]);
+    const [
+      slots,
+      classrooms,
+      subjects,
+      subjectGroups,
+      degrees,
+      academicYears,
+      timeConfigs,
+    ] = await Promise.all([
+      fetchScheduleSlots(organizationId, scheduleId),
+      fetchAllClassrooms(organizationId, schedule.academicYearId),
+      fetchAllSubjects(organizationId, schedule.academicYearId),
+      fetchAllSubjectGroups(organizationId, schedule.academicYearId),
+      fetchAllDegrees(organizationId, schedule.academicYearId),
+      fetchAcademicYears(organizationId),
+      fetchScheduleTimeConfigs(organizationId, schedule.academicYearId).catch(
+        () => []
+      ),
+    ]);
     if (!slots) {
       return { success: false, message: tErrors('server') };
     }
@@ -72,7 +83,11 @@ export async function exportScheduleCsvAction(
       subjects,
       subjectGroups,
       degrees,
-      academicYears
+      academicYears,
+      schedule.timeConfigId
+        ? (timeConfigs.find((config) => config.id === schedule.timeConfigId) ??
+            null)
+        : null
     );
 
     return { success: true, data: result };

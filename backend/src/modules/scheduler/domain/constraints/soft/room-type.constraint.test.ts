@@ -13,10 +13,9 @@ describe('RoomTypeConstraint', () => {
     return {
       assignments,
       classroomsCache,
-      degreeGroups: new Map(),
-      timeSlots: new Map(),
-      maxMorningSlots: 6,
-      maxSlotsPerDay: 12,
+      projectedAssignments: [],
+      invalidAssignments: [],
+      timeGrids: {},
     };
   };
 

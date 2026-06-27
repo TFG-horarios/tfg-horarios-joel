@@ -58,7 +58,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
   async findById(
     id: string,
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Itinerary | null> {
     const rows = await this.database
       .select()
@@ -81,7 +81,7 @@ export class DrizzleItineraryRepository implements IItineraryRepository {
 
   async findAll(
     organizationId: string,
-    includeSoftDeleted: boolean
+    includeSoftDeleted = false
   ): Promise<Itinerary[]> {
     const rows = await this.database
       .select()

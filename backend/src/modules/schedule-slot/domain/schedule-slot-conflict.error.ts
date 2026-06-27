@@ -24,12 +24,10 @@ export const conflictCodeToType = (
       return 'COURSE_OVERLAP_DIFFERENT_GROUP_TYPES';
     case 'ERR_OVERLAP_SAME_SUBJECT':
       return 'COURSE_OVERLAP_SAME_SUBJECT';
-    case 'ERR_SHIFT_MORNING':
-      return 'SHIFT_MORNING';
-    case 'ERR_SHIFT_AFTERNOON':
-      return 'SHIFT_AFTERNOON';
     case 'ERR_SHIFT_EXCEEDS_DAY':
       return 'SHIFT_EXCEEDS_DAY';
+    case 'ERR_BREAK_CROSSING':
+      return 'BREAK_CROSSING';
     case 'ERR_UNASSIGNED_NO_ROOMS_OF_TYPE':
       return 'UNASSIGNED_NO_ROOMS_OF_TYPE';
     case 'ERR_UNASSIGNED_ROOM_CAPACITY':

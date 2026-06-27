@@ -23,6 +23,18 @@ export const ClassroomReservationSchema = z
     academicYearId: z.uuid(),
     date: z.string().openapi({ example: '2026-11-15', format: 'date' }),
     slotIndex: z.number().int().openapi({ example: 0 }),
+    startTimeMinutes: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .openapi({ example: 540 }),
+    endTimeMinutes: z
+      .number()
+      .int()
+      .positive()
+      .nullable()
+      .openapi({ example: 595 }),
     status: ClassroomReservationStatusSchema.openapi({ example: 'PENDING' }),
     reason: z
       .string()
@@ -41,8 +53,18 @@ export const SaveClassroomReservationBodySchema = z
       .openapi({ example: '123e4567-e89b-12d3-a456-426614174003' }),
     academicYearId: z.string().uuid(),
     date: z.string().openapi({ example: '2026-11-15', format: 'date' }),
-    slotIndex: z.number().int().openapi({ example: 0 }),
+    startTimeMinutes: z
+      .number()
+      .int()
+      .min(0)
+      .max(1439)
+      .openapi({ example: 510 }),
+    endTimeMinutes: z.number().int().min(1).max(1440).openapi({ example: 570 }),
     reason: z.string().optional().openapi({ example: 'Examen final' }),
+  })
+  .refine((data) => data.endTimeMinutes > data.startTimeMinutes, {
+    message: 'Reservation end time must be after start time.',
+    path: ['endTimeMinutes'],
   })
   .openapi('SaveClassroomReservation');
 
@@ -98,7 +120,9 @@ export const ClassroomAvailabilityQuerySchema = z.object({
 
 export const OccupiedSlotSchema = z.object({
   date: z.string().openapi({ format: 'date' }),
-  slotIndex: z.number().int(),
+  slotIndex: z.number().int().optional(),
+  startTimeMinutes: z.number().int().nonnegative(),
+  endTimeMinutes: z.number().int().positive(),
   reason: z.string(),
 });
 

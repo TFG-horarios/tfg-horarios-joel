@@ -1,3 +1,5 @@
+export type DbTransaction = any;
+
 export type TransactionRunner = <T>(
-  work: (tx: any) => Promise<T>
+  work: (tx: DbTransaction) => Promise<T>
 ) => Promise<T>;

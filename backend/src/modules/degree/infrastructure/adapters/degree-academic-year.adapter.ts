@@ -9,7 +9,7 @@ export class DegreeAcademicYearAdapter implements IDegreeAcademicYearProvider {
   async shouldIncludeSoftDeleted(academicYearId: string): Promise<boolean> {
     if (!academicYearId) return false;
     const isHistoric =
-      await this.academicYearRepository.isHistoric(academicYearId);
+      (await this.academicYearRepository.isHistoric?.(academicYearId)) ?? false;
     return isHistoric;
   }
 }

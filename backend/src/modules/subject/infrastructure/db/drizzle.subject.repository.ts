@@ -85,7 +85,7 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
 
   async findAll(
     organizationId: string,
-    includeSoftDelete: boolean
+    includeSoftDelete = false
   ): Promise<Subject[]> {
     const rows = await this.database
       .select()

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   Building2,
   CalendarDays,
+  Clock3,
   BookOpen,
   GraduationCap,
   LayoutDashboard,
@@ -36,6 +37,7 @@ export type NavItem = {
     | 'itinerary'
     | 'subject'
     | 'subjectGroup'
+    | 'timeConfigs'
     | 'schedules'
     | 'members'
     | 'classroomSchedules'
@@ -84,6 +86,7 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
     itinerary: CalendarDays,
     subject: BookOpen,
     subjectGroup: Users,
+    timeConfigs: Clock3,
     schedules: CalendarDays,
     members: Users,
     classroomSchedules: CalendarDays,

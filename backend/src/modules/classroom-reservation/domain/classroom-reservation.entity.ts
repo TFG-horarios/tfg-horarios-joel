@@ -8,6 +8,8 @@ export interface ClassroomReservationProps {
   academicYearId: string;
   date: string;
   slotIndex: number;
+  startTimeMinutes?: number | null;
+  endTimeMinutes?: number | null;
   status: ClassroomReservationStatusDTO;
   reason?: string | null;
   createdAt: Date;
@@ -33,6 +35,8 @@ export class ClassroomReservation {
       createdAt: new Date(),
       updatedAt: new Date(),
       reason: props.reason ?? null,
+      startTimeMinutes: props.startTimeMinutes ?? null,
+      endTimeMinutes: props.endTimeMinutes ?? null,
     });
   }
 
@@ -96,6 +100,12 @@ export class ClassroomReservation {
   }
   get slotIndex() {
     return this.props.slotIndex;
+  }
+  get startTimeMinutes() {
+    return this.props.startTimeMinutes ?? null;
+  }
+  get endTimeMinutes() {
+    return this.props.endTimeMinutes ?? null;
   }
   get status() {
     return this.props.status;

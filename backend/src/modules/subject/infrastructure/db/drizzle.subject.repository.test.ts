@@ -12,7 +12,6 @@ import {
   testItineraryId,
   testSubjectId,
   testSubjectGroupId,
-  testPastAcademicYearId,
 } from '@/tests/seed-db';
 
 describe('DrizzleSubjectRepository Integration', () => {
@@ -244,10 +243,7 @@ describe('DrizzleSubjectRepository Integration', () => {
 
     const foundSubject = await repository.findById(testSubjectId, testOrgId);
     expect(foundSubject).toBeNull();
-    const historicalSubjects = await repository.findAll(
-      testOrgId,
-      testPastAcademicYearId
-    );
+    const historicalSubjects = await repository.findAll(testOrgId, true);
     expect(
       historicalSubjects.find((subject) => subject.id === testSubjectId)
         ?.deletedAt

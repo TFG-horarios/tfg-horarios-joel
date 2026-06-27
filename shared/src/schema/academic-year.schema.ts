@@ -20,22 +20,19 @@ export const AcademicYearSchema = z
     periodType: z
       .enum(['semester', 'trimester', 'annual'])
       .openapi({ example: 'semester' }),
-    morningStart: z
+    breakDurationMinutes: z
+      .number()
+      .int()
+      .nonnegative()
+      .openapi({ example: 30 }),
+    centerOpeningTime: z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
-    morningEnd: z
+    centerClosingTime: z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '20:00' }),
+      .openapi({ example: '22:00' }),
     slotDurationMinutes: z.number().int().positive().openapi({ example: 60 }),
     createdAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
     updatedAt: z.iso.datetime().openapi({ example: '2024-03-10T10:00:00Z' }),
@@ -56,22 +53,19 @@ export const SaveAcademicYearBodySchema = z
     periodType: z
       .enum(['semester', 'trimester', 'annual'])
       .openapi({ example: 'semester' }),
-    morningStart: z
+    breakDurationMinutes: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .openapi({ example: 30 }),
+    centerOpeningTime: z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .openapi({ example: '08:00' }),
-    morningEnd: z
+    centerClosingTime: z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonStart: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '14:00' }),
-    afternoonEnd: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .openapi({ example: '20:00' }),
+      .openapi({ example: '22:00' }),
     slotDurationMinutes: z.coerce
       .number()
       .int()
@@ -111,26 +105,14 @@ export const SaveAcademicYearBodySchema = z
   )
   .refine(
     (data) => {
-      if (data.afternoonStart && data.afternoonEnd) {
-        return data.afternoonEnd > data.afternoonStart;
+      if (data.centerOpeningTime && data.centerClosingTime) {
+        return data.centerClosingTime > data.centerOpeningTime;
       }
       return true;
     },
     {
-      message: 'The end time must be later than the start time',
-      path: ['afternoonEnd'],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.morningStart && data.morningEnd) {
-        return data.morningEnd > data.morningStart;
-      }
-      return true;
-    },
-    {
-      message: 'The end time must be later than the start time',
-      path: ['morningEnd'],
+      message: 'The closing time must be later than the opening time',
+      path: ['centerClosingTime'],
     }
   )
   .openapi('SaveAcademicYearBody');

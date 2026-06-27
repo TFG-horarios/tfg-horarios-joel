@@ -6,6 +6,11 @@ import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.rep
 import type { IScheduleDataProvider } from '@/modules/schedule/domain/providers/schedule-data.provider';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
+import {
+  buildScheduleTimeGrid,
+  intervalsOverlap,
+  projectAssignmentInterval,
+} from '@tfg-horarios/shared';
 
 export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
   constructor(
@@ -29,6 +34,7 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
       academicYearId: schedule.academicYearId,
       period: schedule.period,
       shift: schedule.shift,
+      timeConfigId: schedule.timeConfigId ?? null,
     };
   }
 
@@ -78,7 +84,8 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
     classroomId: string,
     dayOfWeek: number,
     slotIndex: number,
-    duration: number
+    duration: number,
+    timeConfigId?: string | null
   ): Promise<void> {
     const today = new Date().toISOString().split('T')[0]!;
     const endDate = new Date();
@@ -92,6 +99,38 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
         today,
         endStr
       );
+
+    let classStartTimeMinutes: number | null = null;
+    let classEndTimeMinutes: number | null = null;
+    if (timeConfigId) {
+      const orgConstraints =
+        await this.scheduleDataProvider.getAcademicYearConstraints(
+          academicYearId
+        );
+      const timeConfig = (
+        (await this.scheduleDataProvider.getScheduleTimeConfigs?.(
+          organizationId,
+          academicYearId
+        )) ?? []
+      ).find((config) => config.id === timeConfigId);
+      if (orgConstraints && timeConfig) {
+        const grid = buildScheduleTimeGrid(
+          {
+            slotDurationMinutes: orgConstraints.slotDurationMinutes,
+            breakDurationMinutes: orgConstraints.breakDurationMinutes,
+          },
+          {
+            startTime: timeConfig.startTime,
+            endTime: timeConfig.endTime,
+            hasBreak: timeConfig.hasBreak,
+            breakAfterSlot: timeConfig.breakAfterSlot,
+          }
+        );
+        const interval = projectAssignmentInterval(grid, slotIndex, duration);
+        classStartTimeMinutes = interval?.startMinutes ?? null;
+        classEndTimeMinutes = interval?.endMinutes ?? null;
+      }
+    }
 
     for (const res of allFutureReservations) {
       if (
@@ -111,10 +150,23 @@ export class ScheduleSlotDataAdapter implements IScheduleSlotDataProvider {
         );
 
       if (matchingPeriods.includes(period) && resDow === dayOfWeek) {
-        const startSlot = slotIndex;
-        const endSlot = slotIndex + Math.ceil(duration) - 1;
+        const overlapsBySnapshot =
+          classStartTimeMinutes !== null &&
+          classEndTimeMinutes !== null &&
+          res.startTimeMinutes !== null &&
+          res.endTimeMinutes !== null &&
+          intervalsOverlap(
+            {
+              startMinutes: classStartTimeMinutes,
+              endMinutes: classEndTimeMinutes,
+            },
+            {
+              startMinutes: res.startTimeMinutes,
+              endMinutes: res.endTimeMinutes,
+            }
+          );
 
-        if (res.slotIndex >= startSlot && res.slotIndex <= endSlot) {
+        if (overlapsBySnapshot) {
           res.reject(
             'Cancelada automáticamente por solapamiento con clase regular'
           );

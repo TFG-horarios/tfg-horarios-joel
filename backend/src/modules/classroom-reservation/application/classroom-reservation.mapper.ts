@@ -11,6 +11,8 @@ export class ClassroomReservationMapper {
       academicYearId: entity.academicYearId,
       date: entity.date,
       slotIndex: entity.slotIndex,
+      startTimeMinutes: entity.startTimeMinutes,
+      endTimeMinutes: entity.endTimeMinutes,
       status: entity.status,
       reason: entity.reason ?? undefined,
       createdAt: entity.createdAt.toISOString(),

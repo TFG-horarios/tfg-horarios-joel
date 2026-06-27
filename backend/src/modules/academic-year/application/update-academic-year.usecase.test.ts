@@ -17,9 +17,14 @@ describe('UpdateAcademicYearUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const notificationProviderMock = {
+    notifyReservationsCancelled: mock(),
+  };
+
   const useCase = new UpdateAcademicYearUseCase(
     repositoryMock,
-    memberProviderMock
+    memberProviderMock,
+    notificationProviderMock
   );
 
   test('should update academic year successfully', async () => {
@@ -35,10 +40,9 @@ describe('UpdateAcademicYearUseCase', () => {
       period1End: null,
       period2Start: null,
       period2End: null,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findById.mockResolvedValue(academicYear);
@@ -47,10 +51,9 @@ describe('UpdateAcademicYearUseCase', () => {
     const dto = {
       name: '2025-2026',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -71,10 +74,9 @@ describe('UpdateAcademicYearUseCase', () => {
     const dto = {
       name: '2025-2026',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -90,10 +92,9 @@ describe('UpdateAcademicYearUseCase', () => {
     const dto = {
       name: '2025-2026',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 
@@ -115,10 +116,9 @@ describe('UpdateAcademicYearUseCase', () => {
       period1End: null,
       period2Start: null,
       period2End: null,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     });
     repositoryMock.findById.mockResolvedValue(academicYear);
@@ -126,10 +126,9 @@ describe('UpdateAcademicYearUseCase', () => {
     const dto = {
       name: '2025-2026',
       periodType: 'semester' as const,
-      morningStart: '08:00',
-      morningEnd: '14:00',
-      afternoonStart: '15:00',
-      afternoonEnd: '21:00',
+      breakDurationMinutes: 30,
+      centerOpeningTime: '08:00',
+      centerClosingTime: '22:00',
       slotDurationMinutes: 60,
     };
 

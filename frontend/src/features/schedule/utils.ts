@@ -8,7 +8,9 @@ import type {
   SubjectGroupDTO,
   DegreeDTO,
   AcademicYearDTO,
+  ScheduleTimeConfigDTO,
 } from '@tfg-horarios/shared';
+import { buildScheduleTimeGrid } from '@tfg-horarios/shared';
 
 export async function generateScheduleCsv(
   schedule: ScheduleDTO,
@@ -17,7 +19,8 @@ export async function generateScheduleCsv(
   subjects: SubjectDTO[],
   subjectGroups: SubjectGroupDTO[],
   degrees: DegreeDTO[],
-  academicYears: AcademicYearDTO[]
+  academicYears: AcademicYearDTO[],
+  timeConfig?: ScheduleTimeConfigDTO | null
 ): Promise<{ csv: string; filename: string }> {
   const tErrors = await getTranslations('Common.errors');
 
@@ -26,49 +29,22 @@ export async function generateScheduleCsv(
   );
   if (!academicYear) throw new Error(tErrors('server'));
 
-  const parseTime = (timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
-  };
-  const formatTime = (minutesTotal: number) => {
-    const h = Math.floor(minutesTotal / 60)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor(minutesTotal % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${h}:${m}`;
-  };
-
-  const shift = schedule.shift || 'global';
-  let startMins, endMins;
-  if (shift === 'morning') {
-    startMins = parseTime(academicYear.morningStart);
-    endMins = parseTime(academicYear.morningEnd);
-  } else if (shift === 'afternoon') {
-    startMins = parseTime(academicYear.afternoonStart);
-    endMins = parseTime(academicYear.afternoonEnd);
-  } else {
-    startMins = parseTime(academicYear.morningStart);
-    endMins = parseTime(academicYear.afternoonEnd);
-  }
-
-  const count = Math.floor(
-    (endMins - startMins) / academicYear.slotDurationMinutes
+  const grid = buildScheduleTimeGrid(
+    {
+      slotDurationMinutes: academicYear.slotDurationMinutes,
+      breakDurationMinutes: academicYear.breakDurationMinutes,
+    },
+    timeConfig ?? {
+      startTime: academicYear.centerOpeningTime,
+      endTime: academicYear.centerClosingTime,
+      hasBreak: false,
+      breakAfterSlot: null,
+    }
   );
   const slotTimeLabels: Record<number, string> = {};
-  const afternoonOffset = Math.floor(
-    (parseTime(academicYear.morningEnd) -
-      parseTime(academicYear.morningStart)) /
-      academicYear.slotDurationMinutes
-  );
-  for (let i = 0; i < count; i++) {
-    const slotStart = startMins + i * academicYear.slotDurationMinutes;
-    const slotEnd = slotStart + academicYear.slotDurationMinutes;
-    const slotIndex = shift === 'afternoon' ? afternoonOffset + i : i;
-    slotTimeLabels[slotIndex] =
-      `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
-  }
+  grid.slots.forEach((slot) => {
+    slotTimeLabels[slot.slotIndex] = slot.label;
+  });
 
   const tCsv = await getTranslations('Organizations.schedules.csv');
   const tPlanner = await getTranslations('Organizations.schedules.planner');

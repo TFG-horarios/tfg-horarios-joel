@@ -25,6 +25,7 @@ import type { IAcademicYearRepository } from '@/modules/academic-year/domain/aca
 import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
 import { ClassroomReservationNotificationAdapter } from './infrastructure/adapters/classroom-reservation-notification.adapter';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
+import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
 
 export const createClassroomReservationModule = (
   db: DbConnection,
@@ -35,12 +36,17 @@ export const createClassroomReservationModule = (
   createNotificationUseCase: CreateNotificationUseCase
 ) => {
   const reservationRepository = new DrizzleClassroomReservationRepository(db);
+  const scheduleTimeConfigRepository = new DrizzleScheduleTimeConfigRepository(
+    db
+  );
   const memberProvider = new ClassroomReservationMemberAdapter(
     memberRepository
   );
   const scheduleProvider = new ClassroomReservationScheduleAdapter(
     scheduleRepository,
-    scheduleSlotRepository
+    scheduleSlotRepository,
+    academicYearRepository,
+    scheduleTimeConfigRepository
   );
 
   const academicYearProvider = new ClassroomReservationAcademicYearAdapter(

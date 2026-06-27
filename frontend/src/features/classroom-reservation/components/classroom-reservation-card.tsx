@@ -186,7 +186,7 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
               <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">
-                {getSlotTimeRange(reservation.slotIndex, academicYear)}
+                {getSlotTimeRange(reservation, academicYear)}
               </span>
             </div>
 

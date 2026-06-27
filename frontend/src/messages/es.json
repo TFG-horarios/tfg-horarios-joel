@@ -282,7 +282,8 @@
       "members": "Miembros",
       "classroomSchedules": "Horarios por aula",
       "reserve": "Reserva de aulas",
-      "academicYears": "Cursos académicos"
+      "academicYears": "Cursos académicos",
+      "timeConfigs": "Configuraciones horarias"
     },
     "dialog": {
       "title": "Nueva organización",
@@ -689,6 +690,7 @@
           "ERR_OVERLAP_DUPLICATE_GROUP": "El mismo grupo aparece más de una vez en este horario.",
           "ERR_OVERLAP_COMMON_ITINERARY": "Las asignaturas comunes no pueden solaparse con las de itinerario.",
           "ERR_ROOM_OVERLAP": "El aula ya está ocupada por otra asignatura en este horario.",
+          "ERR_BREAK_CROSSING": "La clase no puede atravesar el recreo configurado.",
           "ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT": "No se puede asignar un día y una hora sin asignar primero un aula.",
           "ERR_SCHEDULE_HAS_CONFLICTS": "No se puede publicar un horario con conflictos activos.",
           "ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS": "No se puede publicar un horario con slots descolocados.",
@@ -961,6 +963,44 @@
           "5": "Viernes"
         }
       }
+    },
+    "timeConfigs": {
+      "label": "Configuración horaria",
+      "title": "Configuraciones de horario",
+      "description": "Define la hora real de inicio y fin de cada combinación de grado, curso, periodo, turno e itinerario.",
+      "countLabel": "configuraciones",
+      "course": "Curso",
+      "period": "Periodo",
+      "period3": "Periodo 3",
+      "degreePlaceholder": "Grado",
+      "itineraryPlaceholder": "Itinerario",
+      "coursePlaceholder": "Curso",
+      "periodPlaceholder": "Periodo",
+      "shiftPlaceholder": "Turno",
+      "statusPlaceholder": "Estado",
+      "status": {
+        "configured": "Configurada",
+        "unconfigured": "Sin configurar"
+      },
+      "configure": "Configurar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "startTime": "Hora de inicio",
+      "endTime": "Hora de fin",
+      "break": "Recreo",
+      "breakAfterSlot": "Tras el slot",
+      "noBreak": "Sin recreo",
+      "slots": "slots",
+      "save": "Guardar configuración",
+      "cancel": "Cancelar",
+      "empty": "No hay configuraciones posibles todavía. Crea asignaturas y grupos para que el sistema detecte las combinaciones necesarias.",
+      "modal": {
+        "createTitle": "Configurar horario",
+        "editTitle": "Editar configuración horaria",
+        "description": "Estos límites se usan para proyectar los índices lógicos del horario a horas reales."
+      },
+      "success": "Configuración guardada correctamente.",
+      "error": "No se pudo guardar la configuración."
     }
   }
 }

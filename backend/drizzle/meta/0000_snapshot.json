@@ -1,5 +1,5 @@
 {
-  "id": "847b1fe0-a69f-4d2c-bec7-18bee87efae4",
+  "id": "e80dc55e-79cf-482c-8701-7ed66196503a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -695,6 +695,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "time_config_id": {
+          "name": "time_config_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "shift": {
           "name": "shift",
           "type": "shift",
@@ -909,6 +915,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_time_config_id_schedule_time_config_id_fk": {
+          "name": "schedule_time_config_id_schedule_time_config_id_fk",
+          "tableFrom": "schedule",
+          "tableTo": "schedule_time_config",
+          "columnsFrom": [
+            "time_config_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -1425,6 +1444,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "start_time_minutes": {
+          "name": "start_time_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_time_minutes": {
+          "name": "end_time_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status": {
           "name": "status",
           "type": "reservation_status",
@@ -1588,26 +1619,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "morning_start": {
-          "name": "morning_start",
+        "break_duration_minutes": {
+          "name": "break_duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "center_opening_time": {
+          "name": "center_opening_time",
           "type": "time",
           "primaryKey": false,
           "notNull": true
         },
-        "morning_end": {
-          "name": "morning_end",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "afternoon_start": {
-          "name": "afternoon_start",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "afternoon_end": {
-          "name": "afternoon_end",
+        "center_closing_time": {
+          "name": "center_closing_time",
           "type": "time",
           "primaryKey": false,
           "notNull": true
@@ -1674,7 +1699,283 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "academic_year_slot_duration_positive": {
+          "name": "academic_year_slot_duration_positive",
+          "value": "\"academic_year\".\"slot_duration_minutes\" > 0"
+        },
+        "academic_year_break_duration_nonnegative": {
+          "name": "academic_year_break_duration_nonnegative",
+          "value": "\"academic_year\".\"break_duration_minutes\" >= 0"
+        },
+        "academic_year_center_hours_order": {
+          "name": "academic_year_center_hours_order",
+          "value": "\"academic_year\".\"center_closing_time\" > \"academic_year\".\"center_opening_time\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.schedule_time_config": {
+      "name": "schedule_time_config",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "academic_year_id": {
+          "name": "academic_year_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "degree_id": {
+          "name": "degree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "itinerary_id": {
+          "name": "itinerary_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "course_year": {
+          "name": "course_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period": {
+          "name": "period",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shift": {
+          "name": "shift",
+          "type": "shift",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_time": {
+          "name": "start_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "has_break": {
+          "name": "has_break",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "break_after_slot": {
+          "name": "break_after_slot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "schedule_time_config_base_unique": {
+          "name": "schedule_time_config_base_unique",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "academic_year_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "degree_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "course_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "period",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shift",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "itinerary_id IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "schedule_time_config_itinerary_unique": {
+          "name": "schedule_time_config_itinerary_unique",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "academic_year_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "degree_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "course_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "period",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shift",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "itinerary_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "itinerary_id IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "schedule_time_config_organization_id_organization_id_fk": {
+          "name": "schedule_time_config_organization_id_organization_id_fk",
+          "tableFrom": "schedule_time_config",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_time_config_academic_year_id_academic_year_id_fk": {
+          "name": "schedule_time_config_academic_year_id_academic_year_id_fk",
+          "tableFrom": "schedule_time_config",
+          "tableTo": "academic_year",
+          "columnsFrom": [
+            "academic_year_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_time_config_degree_id_degree_id_fk": {
+          "name": "schedule_time_config_degree_id_degree_id_fk",
+          "tableFrom": "schedule_time_config",
+          "tableTo": "degree",
+          "columnsFrom": [
+            "degree_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "schedule_time_config_itinerary_id_itinerary_id_fk": {
+          "name": "schedule_time_config_itinerary_id_itinerary_id_fk",
+          "tableFrom": "schedule_time_config",
+          "tableTo": "itinerary",
+          "columnsFrom": [
+            "itinerary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "schedule_time_config_hours_order": {
+          "name": "schedule_time_config_hours_order",
+          "value": "\"schedule_time_config\".\"end_time\" > \"schedule_time_config\".\"start_time\""
+        },
+        "schedule_time_config_break_consistency": {
+          "name": "schedule_time_config_break_consistency",
+          "value": "(\"schedule_time_config\".\"has_break\" = false AND \"schedule_time_config\".\"break_after_slot\" IS NULL) OR (\"schedule_time_config\".\"has_break\" = true AND \"schedule_time_config\".\"break_after_slot\" IS NOT NULL AND \"schedule_time_config\".\"break_after_slot\" > 0)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.notifications": {

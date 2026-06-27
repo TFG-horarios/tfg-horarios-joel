@@ -1,5 +1,5 @@
 import type { GroupType } from '@tfg-horarios/shared';
-import type { Assignment } from '../../types';
+import type { Assignment, ProjectedAssignment } from '../../types';
 import type {
   ConstraintContext,
   IScheduleConstraint,
@@ -23,8 +23,22 @@ const getItineraryKey = (assignment: Assignment): string | null => {
   return null;
 };
 
+interface OrderedAssignment {
+  assignment: Assignment;
+  dayOfWeek: number;
+  startMinutes: number | null;
+}
+
 export class GroupTypeOrderConstraint implements IScheduleConstraint {
   calculatePenalty(context: ConstraintContext): PenaltyResult {
+    const projectedAssignments = context.projectedAssignments ?? [];
+    if (projectedAssignments.length > 0) {
+      return {
+        penalty: this.calculateProjectedPenalty(projectedAssignments),
+        conflicts: [],
+      };
+    }
+
     const assignmentsBySchedule = new Map<string, Assignment[]>();
 
     for (const assignment of context.assignments) {
@@ -76,17 +90,77 @@ export class GroupTypeOrderConstraint implements IScheduleConstraint {
     return { penalty, conflicts: [] };
   }
 
-  private calculateDayPenalty(assignments: Assignment[]): number {
+  private calculateProjectedPenalty(
+    projectedAssignments: ProjectedAssignment[]
+  ): number {
+    const assignmentsBySchedule = new Map<string, OrderedAssignment[]>();
+
+    for (const projected of projectedAssignments) {
+      const assignment = projected.assignment;
+      const scheduleKey = `${assignment.degreeId}-${assignment.courseYear}-${assignment.shift}`;
+      const scheduleAssignments = assignmentsBySchedule.get(scheduleKey) ?? [];
+      scheduleAssignments.push({
+        assignment,
+        dayOfWeek: projected.dayOfWeek,
+        startMinutes: projected.startMinutes,
+      });
+      assignmentsBySchedule.set(scheduleKey, scheduleAssignments);
+    }
+
+    let penalty = 0;
+
+    for (const scheduleAssignments of assignmentsBySchedule.values()) {
+      const itineraryKeys = new Set<string | null>();
+
+      for (const { assignment } of scheduleAssignments) {
+        if (!assignment.isCommon) {
+          itineraryKeys.add(getItineraryKey(assignment));
+        }
+      }
+
+      if (itineraryKeys.size === 0) {
+        itineraryKeys.add(null);
+      }
+
+      for (const itineraryKey of itineraryKeys) {
+        const cohortAssignments = scheduleAssignments.filter(
+          ({ assignment }) =>
+            assignment.isCommon || getItineraryKey(assignment) === itineraryKey
+        );
+        const assignmentsByDay = new Map<number, OrderedAssignment[]>();
+
+        for (const assignment of cohortAssignments) {
+          const dayAssignments =
+            assignmentsByDay.get(assignment.dayOfWeek) ?? [];
+          dayAssignments.push(assignment);
+          assignmentsByDay.set(assignment.dayOfWeek, dayAssignments);
+        }
+
+        for (const dayAssignments of assignmentsByDay.values()) {
+          penalty += this.calculateDayPenalty(dayAssignments);
+        }
+      }
+    }
+
+    return penalty;
+  }
+
+  private calculateDayPenalty(assignments: OrderedAssignment[]): number;
+  private calculateDayPenalty(assignments: Assignment[]): number;
+  private calculateDayPenalty(
+    assignments: Array<Assignment | OrderedAssignment>
+  ): number {
     const orderedAssignments = [...assignments].sort(
       (a, b) =>
-        a.slotIndex! - b.slotIndex! ||
-        getGroupTypeRank(a.groupType) - getGroupTypeRank(b.groupType) ||
-        a.id.localeCompare(b.id)
+        this.getOrderStart(a) - this.getOrderStart(b) ||
+        getGroupTypeRank(this.getAssignment(a).groupType) -
+          getGroupTypeRank(this.getAssignment(b).groupType) ||
+        this.getAssignment(a).id.localeCompare(this.getAssignment(b).id)
     );
     const blocks: GroupTypeRank[] = [];
 
-    for (const assignment of orderedAssignments) {
-      const rank = getGroupTypeRank(assignment.groupType);
+    for (const item of orderedAssignments) {
+      const rank = getGroupTypeRank(this.getAssignment(item).groupType);
       if (blocks.at(-1) !== rank) {
         blocks.push(rank);
       }
@@ -110,5 +184,16 @@ export class GroupTypeOrderConstraint implements IScheduleConstraint {
     }
 
     return penalty;
+  }
+
+  private getAssignment(item: Assignment | OrderedAssignment): Assignment {
+    return 'assignment' in item ? item.assignment : item;
+  }
+
+  private getOrderStart(item: Assignment | OrderedAssignment): number {
+    if ('startMinutes' in item && item.startMinutes !== null) {
+      return item.startMinutes;
+    }
+    return this.getAssignment(item).slotIndex ?? Number.POSITIVE_INFINITY;
   }
 }

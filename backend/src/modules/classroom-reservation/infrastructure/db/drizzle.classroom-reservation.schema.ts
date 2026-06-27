@@ -34,6 +34,8 @@ export const classroomReservations = pgTable('classroom_reservations', {
     .references(() => academicYearsTable.id, { onDelete: 'cascade' }),
   date: varchar('date', { length: 10 }).notNull(),
   slotIndex: integer('slot_index').notNull(),
+  startTimeMinutes: integer('start_time_minutes'),
+  endTimeMinutes: integer('end_time_minutes'),
   status: reservationStatusEnum('status').notNull().default('PENDING'),
   reason: varchar('reason', { length: 255 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),

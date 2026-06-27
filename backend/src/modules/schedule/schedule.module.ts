@@ -43,6 +43,7 @@ import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.ada
 import { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 import { DrizzleNotificationRepository } from '@/modules/notification/infrastructure/db/drizzle.notification.repository';
 import type { IScheduleSlotUnitOfWork } from '@/modules/schedule-slot/domain/schedule-slot-unit-of-work';
+import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
 
 export const createScheduleModule = (
   db: DbConnection,
@@ -56,6 +57,9 @@ export const createScheduleModule = (
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
   const reservationRepository = new DrizzleClassroomReservationRepository(db);
+  const scheduleTimeConfigRepository = new DrizzleScheduleTimeConfigRepository(
+    db
+  );
 
   const memberProvider = new ScheduleMemberAdapter(memberRepository);
   const slotMemberProvider = new ScheduleSlotMemberAdapter(memberRepository);
@@ -65,7 +69,8 @@ export const createScheduleModule = (
     subjectGroupRepository,
     academicYearRepository,
     reservationRepository,
-    createNotificationUseCase
+    createNotificationUseCase,
+    scheduleTimeConfigRepository
   );
 
   const engineProvider = new SchedulerEngineAdapter();
@@ -97,7 +102,8 @@ export const createScheduleModule = (
           new DrizzleSubjectGroupRepository(tx),
           new DrizzleAcademicYearRepository(tx),
           new DrizzleClassroomReservationRepository(tx),
-          new CreateNotificationUseCase(new DrizzleNotificationRepository(tx))
+          new CreateNotificationUseCase(new DrizzleNotificationRepository(tx)),
+          new DrizzleScheduleTimeConfigRepository(tx)
         );
         const txSlotDataProvider = new ScheduleSlotDataAdapter(
           txScheduleRepository,

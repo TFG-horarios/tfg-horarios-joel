@@ -64,6 +64,11 @@ export default async function AcademicYearLayout({
       icon: 'subjectGroup',
     },
     {
+      label: t('timeConfigs'),
+      href: `${basePath}/time-configs`,
+      icon: 'timeConfigs',
+    },
+    {
       label: t('schedules'),
       href: `${basePath}/schedules`,
       icon: 'schedules',
