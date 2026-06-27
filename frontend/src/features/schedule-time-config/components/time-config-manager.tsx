@@ -25,6 +25,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -92,6 +102,10 @@ type TimeConfigTranslations = {
   modalCreateTitle: string;
   modalEditTitle: string;
   modalDescription: string;
+  editConfirmTitle: string;
+  editConfirmDescription: string;
+  editConfirmConsequences: string[];
+  editConfirmAction: string;
   success: string;
   error: string;
 };
@@ -473,16 +487,11 @@ function TimeConfigFormModal({
     hasBreak: item.config?.hasBreak ?? true,
     breakAfterSlot: item.config?.breakAfterSlot ?? 3,
   });
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingTiming, setPendingTiming] =
+    useState<UpdateScheduleTimeConfigBodyDTO | null>(null);
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const timing: UpdateScheduleTimeConfigBodyDTO = {
-      startTime: form.startTime,
-      endTime: form.endTime,
-      hasBreak: form.hasBreak,
-      breakAfterSlot: form.hasBreak ? form.breakAfterSlot : null,
-    };
-
+  const saveTiming = (timing: UpdateScheduleTimeConfigBodyDTO) => {
     startTransition(async () => {
       const result = item.config
         ? await updateScheduleTimeConfigAction(
@@ -506,113 +515,177 @@ function TimeConfigFormModal({
       }
 
       toast.success(translations.success);
+      setPendingTiming(null);
+      setConfirmOpen(false);
       onOpenChange(false);
       router.refresh();
     });
   };
 
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const timing: UpdateScheduleTimeConfigBodyDTO = {
+      startTime: form.startTime,
+      endTime: form.endTime,
+      hasBreak: form.hasBreak,
+      breakAfterSlot: form.hasBreak ? form.breakAfterSlot : null,
+    };
+
+    if (item.config && hasTimingChanged(item.config, timing)) {
+      setPendingTiming(timing);
+      setConfirmOpen(true);
+      return;
+    }
+
+    saveTiming(timing);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {item.config
-              ? translations.modalEditTitle
-              : translations.modalCreateTitle}
-          </DialogTitle>
-          <DialogDescription>{translations.modalDescription}</DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {item.config
+                ? translations.modalEditTitle
+                : translations.modalCreateTitle}
+            </DialogTitle>
+            <DialogDescription>
+              {translations.modalDescription}
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="rounded-lg border border-border/60 bg-secondary/30 p-3 text-sm">
-          <div className="font-medium">{item.degreeName}</div>
-          <div className="text-muted-foreground">
-            {translations.course} {item.courseYear} ·{' '}
-            {periodLabel(item.period, translations)} ·{' '}
-            {shiftLabel(item.shift, translations)} · {item.itineraryName}
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{translations.startTime}</Label>
-              <Input
-                type="time"
-                required
-                value={form.startTime}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    startTime: event.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{translations.endTime}</Label>
-              <Input
-                type="time"
-                required
-                value={form.endTime}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    endTime: event.target.value,
-                  }))
-                }
-              />
+          <div className="rounded-lg border border-border/60 bg-secondary/30 p-3 text-sm">
+            <div className="font-medium">{item.degreeName}</div>
+            <div className="text-muted-foreground">
+              {translations.course} {item.courseYear} ·{' '}
+              {periodLabel(item.period, translations)} ·{' '}
+              {shiftLabel(item.shift, translations)} · {item.itineraryName}
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
-            <div>
-              <Label>{translations.break}</Label>
-              <p className="text-xs text-muted-foreground">
-                {translations.breakAfterSlot}
-              </p>
+          <form onSubmit={submit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{translations.startTime}</Label>
+                <Input
+                  type="time"
+                  required
+                  value={form.startTime}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      startTime: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{translations.endTime}</Label>
+                <Input
+                  type="time"
+                  required
+                  value={form.endTime}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      endTime: event.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
-            <Switch
-              checked={form.hasBreak}
-              onCheckedChange={(checked) =>
-                setForm((current) => ({ ...current, hasBreak: checked }))
-              }
-            />
-          </div>
 
-          {form.hasBreak && (
-            <div className="space-y-2">
-              <Label>{translations.breakAfterSlot}</Label>
-              <Input
-                type="number"
-                min={1}
-                required
-                value={form.breakAfterSlot}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    breakAfterSlot: Number(event.target.value) || 1,
-                  }))
+            <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+              <div>
+                <Label>{translations.break}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {translations.breakAfterSlot}
+                </p>
+              </div>
+              <Switch
+                checked={form.hasBreak}
+                onCheckedChange={(checked) =>
+                  setForm((current) => ({ ...current, hasBreak: checked }))
                 }
               />
             </div>
-          )}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={pending}
-            >
+            {form.hasBreak && (
+              <div className="space-y-2">
+                <Label>{translations.breakAfterSlot}</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  required
+                  value={form.breakAfterSlot}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      breakAfterSlot: Number(event.target.value) || 1,
+                    }))
+                  }
+                />
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={pending}
+              >
+                {translations.cancel}
+              </Button>
+              <Button type="submit" disabled={pending}>
+                {translations.save}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="max-w-2xl">
+          <AlertDialogHeader>
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 sm:mx-0">
+              <AlertTriangle className="size-6" />
+            </div>
+            <AlertDialogTitle>{translations.editConfirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4 text-left">
+                <p>{translations.editConfirmDescription}</p>
+                <ul className="space-y-2 rounded-xl border border-border/70 bg-background/70 p-3 text-sm">
+                  {translations.editConfirmConsequences.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber-500" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pending}>
               {translations.cancel}
-            </Button>
-            <Button type="submit" disabled={pending}>
-              {translations.save}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={pending || !pendingTiming}
+              onClick={(event) => {
+                event.preventDefault();
+                if (pendingTiming) {
+                  saveTiming(pendingTiming);
+                }
+              }}
+            >
+              {translations.editConfirmAction}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
@@ -677,6 +750,18 @@ function getGrid(
       hasBreak: config.hasBreak,
       breakAfterSlot: config.breakAfterSlot,
     }
+  );
+}
+
+function hasTimingChanged(
+  config: ScheduleTimeConfigDTO,
+  timing: UpdateScheduleTimeConfigBodyDTO
+) {
+  return (
+    config.startTime !== timing.startTime ||
+    config.endTime !== timing.endTime ||
+    config.hasBreak !== timing.hasBreak ||
+    (config.breakAfterSlot ?? null) !== (timing.breakAfterSlot ?? null)
   );
 }
 

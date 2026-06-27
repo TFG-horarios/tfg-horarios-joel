@@ -34,6 +34,20 @@ type ClassroomSchedulePlannerProps = {
 
 type PlannerEvent = ClassroomTimelineEvent & ClassroomOccupancyEventDTO;
 
+const subjectPalette = [
+  'border-sky-300 bg-sky-50/95 text-sky-950 dark:border-sky-800/70 dark:bg-sky-950/50 dark:text-sky-100',
+  'border-violet-300 bg-violet-50/95 text-violet-950 dark:border-violet-800/70 dark:bg-violet-950/50 dark:text-violet-100',
+  'border-emerald-300 bg-emerald-50/95 text-emerald-950 dark:border-emerald-800/70 dark:bg-emerald-950/50 dark:text-emerald-100',
+  'border-amber-300 bg-amber-50/95 text-amber-950 dark:border-amber-800/70 dark:bg-amber-950/50 dark:text-amber-100',
+  'border-rose-300 bg-rose-50/95 text-rose-950 dark:border-rose-800/70 dark:bg-rose-950/50 dark:text-rose-100',
+  'border-cyan-300 bg-cyan-50/95 text-cyan-950 dark:border-cyan-800/70 dark:bg-cyan-950/50 dark:text-cyan-100',
+  'border-fuchsia-300 bg-fuchsia-50/95 text-fuchsia-950 dark:border-fuchsia-800/70 dark:bg-fuchsia-950/50 dark:text-fuchsia-100',
+  'border-lime-300 bg-lime-50/95 text-lime-950 dark:border-lime-800/70 dark:bg-lime-950/50 dark:text-lime-100',
+];
+
+const hashString = (value: string) =>
+  value.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
 export function ClassroomSchedulePlanner({
   events,
   classroom,
@@ -142,17 +156,22 @@ export function ClassroomSchedulePlanner({
           const title = meta?.subject?.name ?? 'Clase';
           const group = meta?.group?.name;
           const degree = meta?.degree?.name;
+          const colorClass =
+            subjectPalette[
+              hashString(meta?.subject?.id ?? event.subjectGroupId) %
+                subjectPalette.length
+            ];
 
           return (
-            <div className="h-full rounded-lg border border-blue-200 bg-blue-50/90 p-2 shadow-sm dark:border-blue-900/50 dark:bg-blue-950/30 overflow-hidden">
-              <div className="text-[11px] font-mono text-blue-700 dark:text-blue-300">
+            <div
+              className={`h-full rounded-lg border p-2 shadow-sm overflow-hidden ${colorClass}`}
+            >
+              <div className="text-[11px] font-mono opacity-75">
                 {formatMinutesAsTime(event.startTimeMinutes)}–
                 {formatMinutesAsTime(event.endTimeMinutes)}
               </div>
-              <div className="text-sm font-semibold text-blue-950 dark:text-blue-100 line-clamp-2">
-                {title}
-              </div>
-              <div className="text-xs text-blue-800/80 dark:text-blue-200/80 line-clamp-2">
+              <div className="text-sm font-semibold line-clamp-2">{title}</div>
+              <div className="text-xs opacity-80 line-clamp-2">
                 {[group, degree].filter(Boolean).join(' · ')}
               </div>
             </div>

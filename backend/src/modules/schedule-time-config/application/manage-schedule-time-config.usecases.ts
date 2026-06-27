@@ -296,7 +296,7 @@ export class ManageScheduleTimeConfigUseCases {
     if (oppositeConfig) {
       if (
         data.shift === 'morning' &&
-        data.endTime >= oppositeConfig.startTime
+        data.endTime > oppositeConfig.startTime
       ) {
         throw new ValidationError(
           'Morning shift end time must be earlier than afternoon shift start time.'

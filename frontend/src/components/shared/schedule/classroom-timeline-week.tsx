@@ -2,6 +2,7 @@
 
 import { formatMinutesAsTime } from '@tfg-horarios/shared';
 import type { ReactNode, RefObject } from 'react';
+import { cn } from '@/lib/utils';
 
 export type ClassroomTimelineDay = {
   value: number;
@@ -150,7 +151,11 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
           {daysOfWeek.map((day) => (
             <div
               key={day.value}
-              className="relative border-r last:border-r-0 bg-background/40"
+              className={cn(
+                'relative border-r last:border-r-0 bg-background/40',
+                onEmptyClick &&
+                  'cursor-pointer hover:bg-muted/20 transition-colors'
+              )}
               style={{ height: timelineHeight }}
               onClick={(event) =>
                 handleEmptyClick(day, event.currentTarget, event.clientY)
@@ -169,8 +174,7 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
 
               {eventsByDay.get(day.value)?.map((event) => {
                 const top =
-                  ((event.startTimeMinutes - startTimeMinutes) /
-                    totalMinutes) *
+                  ((event.startTimeMinutes - startTimeMinutes) / totalMinutes) *
                   100;
                 const height =
                   ((event.endTimeMinutes - event.startTimeMinutes) /

@@ -193,7 +193,7 @@ export function SchedulePlanner({
     return localSchedule.shift ?? 'global';
   }, [localSchedule.shift]);
 
-  const { slotTimeLabels, numSlots, startSlotIndex } = useScheduleGrid(
+  const { slotTimeLabels, numSlots, startSlotIndex, rows } = useScheduleGrid(
     academicYear,
     effectiveShift,
     timeConfig
@@ -700,6 +700,7 @@ export function SchedulePlanner({
           gridRef={gridRef}
           daysOfWeek={daysOfWeek}
           numSlots={numSlots}
+          rows={rows}
           startSlotIndex={startSlotIndex}
           slotTimeLabels={slotTimeLabels}
           renderCell={(day, slotIndex) => {

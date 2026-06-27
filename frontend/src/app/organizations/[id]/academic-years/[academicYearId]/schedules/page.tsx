@@ -8,6 +8,10 @@ import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { fetchAllSubjects } from '@/features/subject/queries';
 import { fetchPaginatedSchedules } from '@/features/schedule/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
+import {
+  fetchScheduleTimeConfigs,
+  fetchTimeConfigPossibilities,
+} from '@/features/schedule-time-config/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
@@ -112,6 +116,8 @@ export default async function OrganizationSchedulesPage({
     historicalSubjects,
     academicYears,
     { data: schedules, meta },
+    timeConfigs,
+    timeConfigPossibilities,
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
@@ -120,6 +126,8 @@ export default async function OrganizationSchedulesPage({
     fetchAllSubjects(id, academicYearId),
     fetchAcademicYears(id),
     fetchPaginatedSchedules(id, query),
+    fetchScheduleTimeConfigs(id, academicYearId).catch(() => []),
+    fetchTimeConfigPossibilities(id, academicYearId).catch(() => []),
     getSessionUser(),
   ]);
 
@@ -294,7 +302,10 @@ export default async function OrganizationSchedulesPage({
                 periodType={currentAcademicYear?.periodType || 'semester'}
                 academicYearId={academicYearId}
                 degrees={activeDegrees}
+                itineraries={activeItineraries}
                 subjects={activeSubjects}
+                timeConfigs={timeConfigs}
+                timeConfigPossibilities={timeConfigPossibilities}
               />
             </ResourceActions>
           )

@@ -146,6 +146,16 @@ export default async function TimeConfigsPage({
     modalCreateTitle: t('modal.createTitle'),
     modalEditTitle: t('modal.editTitle'),
     modalDescription: t('modal.description'),
+    editConfirmTitle: t('modal.editConfirmTitle'),
+    editConfirmDescription: t('modal.editConfirmDescription'),
+    editConfirmConsequences: [
+      t('modal.editConfirmConsequences.draft'),
+      t('modal.editConfirmConsequences.unassign'),
+      t('modal.editConfirmConsequences.conflicts'),
+      t('modal.editConfirmConsequences.reservations'),
+      t('modal.editConfirmConsequences.regenerate'),
+    ],
+    editConfirmAction: t('modal.editConfirmAction'),
     success: t('success'),
     error: t('error'),
   };

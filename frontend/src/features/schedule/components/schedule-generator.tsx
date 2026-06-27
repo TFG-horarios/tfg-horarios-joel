@@ -32,10 +32,19 @@ import {
   OPTIMIZATIONS,
   type Optimization,
   type DegreeDTO,
+  type ItineraryDTO,
+  type ScheduleTimeConfigDTO,
+  type ScheduleTimeConfigPossibilityDTO,
   type SubjectDTO,
   type ScheduleDTO,
 } from '@tfg-horarios/shared';
-import { Loader2, Plus } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
+  Plus,
+  RotateCcw,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Tooltip,
@@ -47,15 +56,23 @@ import {
 type ScheduleGeneratorProps = {
   organizationId: string;
   degrees: DegreeDTO[];
+  itineraries?: ItineraryDTO[];
   subjects: SubjectDTO[];
+  timeConfigs?: ScheduleTimeConfigDTO[];
+  timeConfigPossibilities?: ScheduleTimeConfigPossibilityDTO[];
   periodType?: 'semester' | 'trimester' | 'annual';
   academicYearId: string;
 };
 
+type MissingTimeConfig = ScheduleTimeConfigPossibilityDTO;
+
 export function ScheduleGenerator({
   organizationId,
   degrees,
+  itineraries = [],
   subjects,
+  timeConfigs = [],
+  timeConfigPossibilities = [],
   periodType = 'semester',
   academicYearId,
 }: ScheduleGeneratorProps) {
@@ -81,24 +98,97 @@ export function ScheduleGenerator({
   const [overwrittenSchedules, setOverwrittenSchedules] = useState<
     ScheduleDTO[]
   >([]);
+  const [missingTimeConfigs, setMissingTimeConfigs] = useState<
+    MissingTimeConfig[]
+  >([]);
+  const [isMissingOpen, setIsMissingOpen] = useState(false);
+
+  const selectedPeriodNumbers =
+    periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number);
+  const selectedCourseYearNumbers =
+    selectedCourseYears.length > 0
+      ? selectedCourseYears.map(Number)
+      : undefined;
+
+  const buildScope = () => ({
+    academicYearId,
+    periods: selectedPeriodNumbers,
+    degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
+    courseYears: selectedCourseYearNumbers,
+    optimizations: selectedOptimizations as Optimization[],
+  });
+
+  const keyOf = (
+    item: Pick<
+      ScheduleTimeConfigPossibilityDTO,
+      'degreeId' | 'itineraryId' | 'courseYear' | 'period' | 'shift'
+    >
+  ) =>
+    [
+      item.degreeId,
+      item.itineraryId ?? 'common',
+      item.courseYear,
+      item.period,
+      item.shift,
+    ].join(':');
+
+  const findMissingTimeConfigs = (): MissingTimeConfig[] => {
+    if (timeConfigPossibilities.length === 0) return [];
+
+    const configKeys = new Set(timeConfigs.map(keyOf));
+    const missing = new Map<string, MissingTimeConfig>();
+
+    for (const possibility of timeConfigPossibilities) {
+      if (
+        selectedDegrees.length > 0 &&
+        !selectedDegrees.includes(possibility.degreeId)
+      ) {
+        continue;
+      }
+      if (!selectedPeriodNumbers.includes(possibility.period)) continue;
+      if (
+        selectedCourseYearNumbers &&
+        !selectedCourseYearNumbers.includes(possibility.courseYear)
+      ) {
+        continue;
+      }
+
+      const exactKey = keyOf(possibility);
+      const baseKey = keyOf({ ...possibility, itineraryId: null });
+      if (configKeys.has(exactKey) || configKeys.has(baseKey)) continue;
+
+      missing.set(baseKey, { ...possibility, itineraryId: null });
+    }
+
+    return [...missing.values()].sort((a, b) => {
+      const aDegree =
+        degrees.find((degree) => degree.id === a.degreeId)?.name ?? '';
+      const bDegree =
+        degrees.find((degree) => degree.id === b.degreeId)?.name ?? '';
+      return (
+        aDegree.localeCompare(bDegree) ||
+        a.courseYear - b.courseYear ||
+        a.period - b.period ||
+        a.shift.localeCompare(b.shift)
+      );
+    });
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
 
     try {
       const result = await generateSchedulesAction(organizationId, {
-        academicYearId,
-        periods:
-          periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
-        degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
-        courseYears:
-          selectedCourseYears.length > 0
-            ? selectedCourseYears.map(Number)
-            : undefined,
-        optimizations: selectedOptimizations as Optimization[],
+        ...buildScope(),
       });
 
       if (!result.success) {
+        const parsedMissing = parseMissingConfigMessage(result.message ?? '');
+        if (parsedMissing) {
+          setMissingTimeConfigs([parsedMissing]);
+          setIsMissingOpen(true);
+          return;
+        }
         throw new Error(result.message);
       }
 
@@ -117,18 +207,17 @@ export function ScheduleGenerator({
 
   const handleCheck = async (event: FormEvent) => {
     event.preventDefault();
+    const missing = findMissingTimeConfigs();
+    if (missing.length > 0) {
+      setMissingTimeConfigs(missing);
+      setIsMissingOpen(true);
+      return;
+    }
+
     setIsChecking(true);
     try {
       const result = await checkScheduleOverwriteAction(organizationId, {
-        academicYearId,
-        periods:
-          periods.length > 0 ? periods.map(Number) : initialPeriods.map(Number),
-        degreeIds: selectedDegrees.length > 0 ? selectedDegrees : undefined,
-        courseYears:
-          selectedCourseYears.length > 0
-            ? selectedCourseYears.map(Number)
-            : undefined,
-        optimizations: selectedOptimizations as Optimization[],
+        ...buildScope(),
       });
       if (result.success && result.data && result.data.length > 0) {
         setOverwrittenSchedules(result.data);
@@ -272,35 +361,58 @@ export function ScheduleGenerator({
               </div>
 
               <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-                <AlertDialogContent className="max-w-md">
+                <AlertDialogContent className="max-w-2xl">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>
+                    <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 sm:mx-0">
+                      <RotateCcw className="size-6" />
+                    </div>
+                    <AlertDialogTitle className="text-xl">
                       {t('form.overwriteTitle')}
                     </AlertDialogTitle>
                     <AlertDialogDescription asChild>
-                      <div>
-                        <span className="block mb-2 font-medium text-foreground">
-                          Se van a sobrescribir los siguientes horarios:
-                        </span>
-                        <ul className="list-disc list-inside space-y-1 text-sm max-h-40 overflow-y-auto">
-                          {overwrittenSchedules.map((s) => {
-                            const degree = degrees.find(
-                              (d) => d.id === s.degreeId
-                            );
-                            const degreeName = degree
-                              ? degree.code
-                              : 'Desconocido';
-                            return (
-                              <li key={s.id}>
-                                {degreeName} (Año {s.courseYear}, Período{' '}
-                                {s.period})
-                              </li>
-                            );
-                          })}
-                        </ul>
-                        <span className="block mt-4">
-                          {t('form.overwriteWarning')}
-                        </span>
+                      <div className="space-y-4 text-left">
+                        <p>{t('form.overwriteWarning')}</p>
+                        <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <AlertTriangle className="size-4 text-amber-500" />
+                            {t('form.overwriteListTitle', {
+                              count: overwrittenSchedules.length,
+                            })}
+                          </div>
+                          <ul className="grid max-h-64 gap-2 overflow-y-auto text-sm sm:grid-cols-2">
+                            {overwrittenSchedules.map((s) => {
+                              const degree = degrees.find(
+                                (d) => d.id === s.degreeId
+                              );
+                              const itinerary = s.itineraryId
+                                ? itineraries.find(
+                                    (i) => i.id === s.itineraryId
+                                  )
+                                : null;
+                              return (
+                                <li
+                                  key={s.id}
+                                  className="rounded-lg border border-border/60 bg-card px-3 py-2"
+                                >
+                                  <span className="block font-medium text-foreground">
+                                    {degree?.code ?? degree?.name ?? s.degreeId}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatScheduleScope(
+                                      s.courseYear,
+                                      s.period,
+                                      s.shift,
+                                      itinerary?.code ??
+                                        itinerary?.name ??
+                                        null,
+                                      t
+                                    )}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
                       </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -321,6 +433,99 @@ export function ScheduleGenerator({
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isMissingOpen} onOpenChange={setIsMissingOpen}>
+        <AlertDialogContent className="max-w-2xl">
+          <AlertDialogHeader>
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10 text-destructive sm:mx-0">
+              <AlertTriangle className="size-6" />
+            </div>
+            <AlertDialogTitle className="text-xl">
+              {t('form.missingConfigsTitle')}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4 text-left">
+                <p>{t('form.missingConfigsDescription')}</p>
+                <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <CheckCircle2 className="size-4 text-muted-foreground" />
+                    {t('form.missingConfigsListTitle', {
+                      count: missingTimeConfigs.length,
+                    })}
+                  </div>
+                  <ul className="grid max-h-72 gap-2 overflow-y-auto text-sm sm:grid-cols-2">
+                    {missingTimeConfigs.map((config) => {
+                      const degree = degrees.find(
+                        (d) => d.id === config.degreeId
+                      );
+                      const itinerary = config.itineraryId
+                        ? itineraries.find((i) => i.id === config.itineraryId)
+                        : null;
+                      return (
+                        <li
+                          key={keyOf(config)}
+                          className="rounded-lg border border-border/60 bg-card px-3 py-2"
+                        >
+                          <span className="block font-medium text-foreground">
+                            {degree?.name ?? config.degreeId}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatScheduleScope(
+                              config.courseYear,
+                              config.period,
+                              config.shift,
+                              itinerary?.code ?? itinerary?.name ?? null,
+                              t
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsMissingOpen(false)}>
+              {t('form.understood')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   );
+}
+
+function parseMissingConfigMessage(message: string): MissingTimeConfig | null {
+  const match = message.match(
+    /degree=(?<degreeId>[^,]+), courseYear=(?<courseYear>\d+), period=(?<period>\d+), shift=(?<shift>morning|afternoon), itinerary=(?<itineraryId>.+)$/
+  );
+  if (!match?.groups) return null;
+  const { degreeId, itineraryId, courseYear, period, shift } = match.groups;
+  if (!degreeId || !courseYear || !period || !shift) return null;
+  return {
+    degreeId,
+    itineraryId: !itineraryId || itineraryId === 'common' ? null : itineraryId,
+    courseYear: Number(courseYear),
+    period: Number(period),
+    shift: shift as 'morning' | 'afternoon',
+  };
+}
+
+function formatScheduleScope(
+  courseYear: number,
+  period: number,
+  shift: string | null,
+  itinerary: string | null,
+  t: ReturnType<typeof useTranslations>
+) {
+  return [
+    t('courseYear') + ` ${courseYear}`,
+    t(`periodOptions.${period}`),
+    shift ? t(`shiftOptions.${shift}`) : null,
+    itinerary ?? t('itineraryOptions.common'),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }

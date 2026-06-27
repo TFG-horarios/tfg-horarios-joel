@@ -707,6 +707,8 @@
         "weeklyView": "Vista Semanal",
         "time": "Hora",
         "block": "Bloque {index}",
+        "break": "Descanso",
+        "breakRow": "Descanso · {time}",
         "dropHere": "Soltar aquí",
         "students": "{count} estudiantes",
         "days": {
@@ -759,6 +761,11 @@
         "submit": "Generar",
         "overwriteTitle": "¿Generar nuevos horarios?",
         "overwriteWarning": "¡Atención! Si ya existen horarios generados para estos criterios, sus huecos se sobrescribirán y perderás cualquier modificación manual que hayas hecho. ¿Estás seguro de que quieres continuar?",
+        "overwriteListTitle": "{count, plural, one {Horario que se va a sobrescribir} other {Horarios que se van a sobrescribir}}",
+        "missingConfigsTitle": "Faltan configuraciones horarias",
+        "missingConfigsDescription": "Antes de generar, configura estas combinaciones. El motor necesita saber las horas reales de cada grado, curso, periodo y turno.",
+        "missingConfigsListTitle": "{count, plural, one {Configuración pendiente} other {Configuraciones pendientes}}",
+        "understood": "Entendido",
         "cancel": "Cancelar",
         "confirmOverwrite": "Sí, sobrescribir"
       },
@@ -997,7 +1004,17 @@
       "modal": {
         "createTitle": "Configurar horario",
         "editTitle": "Editar configuración horaria",
-        "description": "Estos límites se usan para proyectar los índices lógicos del horario a horas reales."
+        "description": "Estos límites se usan para proyectar los índices lógicos del horario a horas reales.",
+        "editConfirmTitle": "Confirmar cambio de configuración",
+        "editConfirmDescription": "Cambiar la configuración temporal puede invalidar horarios y reservas que ya dependían de ella.",
+        "editConfirmConsequences": {
+          "draft": "Los horarios que dependan de esta configuración pasarán a borrador y no se podrán publicar hasta revisarlos.",
+          "unassign": "Sus slots se descolocarán cuando el cambio temporal pueda hacer que aula, día o índice ya no sean válidos.",
+          "conflicts": "Se limpiarán conflictos y descolocados asociados para recalcularlos con la nueva configuración.",
+          "reservations": "Las reservas futuras pendientes o aceptadas que choquen con el cambio se cancelarán automáticamente.",
+          "regenerate": "Después tendrás que volver a generar el horario para que el algoritmo lo reconstruya."
+        },
+        "editConfirmAction": "Guardar e invalidar"
       },
       "success": "Configuración guardada correctamente.",
       "error": "No se pudo guardar la configuración."

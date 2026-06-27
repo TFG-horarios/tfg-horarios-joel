@@ -710,6 +710,8 @@
         "weeklyView": "Weekly Schedule View",
         "time": "Time",
         "block": "Block {index}",
+        "break": "Break",
+        "breakRow": "Break · {time}",
         "dropHere": "Drop Here",
         "students": "{count} students",
         "days": {
@@ -762,6 +764,11 @@
         "submit": "Generate",
         "overwriteTitle": "Generate new schedules?",
         "overwriteWarning": "Warning! If generated schedules already exist for these criteria, their slots will be overwritten and you will lose any manual modifications you have made. Are you sure you want to continue?",
+        "overwriteListTitle": "{count, plural, one {Schedule that will be overwritten} other {Schedules that will be overwritten}}",
+        "missingConfigsTitle": "Missing time configurations",
+        "missingConfigsDescription": "Before generating, configure these combinations. The engine needs the real clock times for every degree, course, period and shift.",
+        "missingConfigsListTitle": "{count, plural, one {Pending configuration} other {Pending configurations}}",
+        "understood": "Understood",
         "cancel": "Cancel",
         "confirmOverwrite": "Yes, overwrite"
       },
@@ -1003,7 +1010,17 @@
       "modal": {
         "createTitle": "Configure schedule time",
         "editTitle": "Edit time configuration",
-        "description": "These limits are used to project logical schedule indexes into real clock times."
+        "description": "These limits are used to project logical schedule indexes into real clock times.",
+        "editConfirmTitle": "Confirm configuration change",
+        "editConfirmDescription": "Changing the time configuration may invalidate schedules and reservations that already depend on it.",
+        "editConfirmConsequences": {
+          "draft": "Schedules that depend on this configuration will become drafts and cannot be published until reviewed.",
+          "unassign": "Their slots will be unassigned when the time change can make classroom, day or index invalid.",
+          "conflicts": "Related conflicts and unassigned metrics will be cleared so they can be recalculated with the new configuration.",
+          "reservations": "Future pending or accepted reservations that collide with the change will be cancelled automatically.",
+          "regenerate": "Afterwards, you must generate the schedule again so the algorithm can rebuild it."
+        },
+        "editConfirmAction": "Save and invalidate"
       },
       "success": "Configuration saved successfully.",
       "error": "The configuration could not be saved."
