@@ -83,6 +83,7 @@ export const OPTIMIZATIONS = [
   'studentGaps',
   'groupTypeOrder',
   'subjectDailyDispersion',
+  'overlapDistribution',
 ] as const;
 
 export type Optimization = (typeof OPTIMIZATIONS)[number];
@@ -112,7 +113,12 @@ export const GenerationScopeSchema = z
       .array(z.enum(OPTIMIZATIONS))
       .optional()
       .openapi({
-        example: ['studentGaps', 'groupTypeOrder', 'subjectDailyDispersion'],
+        example: [
+          'studentGaps',
+          'groupTypeOrder',
+          'subjectDailyDispersion',
+          'overlapDistribution',
+        ],
       }),
   })
   .openapi('GenerationScope');

@@ -744,7 +744,8 @@
         "classroomConsolidation": "Menos aulas con más grupos",
         "studentGaps": "Minimizar huecos entre clases",
         "groupTypeOrder": "Ordenar teoría, problemas y clases prácticas",
-        "subjectDailyDispersion": "Dispersar clases de una misma asignatura"
+        "subjectDailyDispersion": "Dispersar clases de una misma asignatura",
+        "overlapDistribution": "Distribuir los solapamientos"
       },
       "form": {
         "academicYear": "Año Académico",
