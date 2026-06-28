@@ -485,7 +485,7 @@ function TimeConfigFormModal({
     startTime: item.config?.startTime ?? defaultStart(item.shift),
     endTime: item.config?.endTime ?? defaultEnd(item.shift),
     hasBreak: item.config?.hasBreak ?? true,
-    breakAfterSlot: item.config?.breakAfterSlot ?? 3,
+    breakAfterSlot: String(item.config?.breakAfterSlot ?? 3),
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingTiming, setPendingTiming] =
@@ -524,11 +524,18 @@ function TimeConfigFormModal({
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    const breakAfterSlot = Number(form.breakAfterSlot);
+
+    if (form.hasBreak && !Number.isFinite(breakAfterSlot)) {
+      toast.error(translations.error);
+      return;
+    }
+
     const timing: UpdateScheduleTimeConfigBodyDTO = {
       startTime: form.startTime,
       endTime: form.endTime,
       hasBreak: form.hasBreak,
-      breakAfterSlot: form.hasBreak ? form.breakAfterSlot : null,
+      breakAfterSlot: form.hasBreak ? breakAfterSlot : null,
     };
 
     if (item.config && hasTimingChanged(item.config, timing)) {
@@ -622,7 +629,7 @@ function TimeConfigFormModal({
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      breakAfterSlot: Number(event.target.value) || 1,
+                      breakAfterSlot: event.target.value,
                     }))
                   }
                 />

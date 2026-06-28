@@ -256,16 +256,6 @@ export class ManageScheduleTimeConfigUseCases {
       throw new NotFoundError('AcademicYear', academicYearId);
     }
 
-    if (data.shift === 'morning') {
-      const startMinutes = data.startTime.split(':')[1];
-      const centerOpeningMinutes = academicYear.centerOpeningTime.split(':')[1];
-      if (startMinutes !== centerOpeningMinutes) {
-        throw new ValidationError(
-          `Morning shift start time minutes (${startMinutes}) must match center opening time minutes (${centerOpeningMinutes}).`
-        );
-      }
-    }
-
     if (data.startTime < academicYear.centerOpeningTime) {
       throw new ValidationError(
         'The configuration start time cannot be earlier than the center opening time.'
@@ -294,12 +284,9 @@ export class ManageScheduleTimeConfigUseCases {
     );
 
     if (oppositeConfig) {
-      if (
-        data.shift === 'morning' &&
-        data.endTime > oppositeConfig.startTime
-      ) {
+      if (data.shift === 'morning' && data.endTime > oppositeConfig.startTime) {
         throw new ValidationError(
-          'Morning shift end time must be earlier than afternoon shift start time.'
+          'Morning shift end time must be earlier than or equal to afternoon shift start time.'
         );
       }
       if (
@@ -307,7 +294,7 @@ export class ManageScheduleTimeConfigUseCases {
         data.startTime < oppositeConfig.endTime
       ) {
         throw new ValidationError(
-          'Afternoon shift start time must be later than morning shift end time.'
+          'Afternoon shift start time must be later than or equal to morning shift end time.'
         );
       }
     }

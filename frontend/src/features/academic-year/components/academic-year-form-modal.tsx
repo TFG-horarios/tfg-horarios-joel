@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Info, Plus, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { createAcademicYearAction, updateAcademicYearAction } from '../actions';
 import { useRouter } from 'next/navigation';
@@ -65,8 +70,8 @@ export function AcademicYearFormModal({
     periodType: academicYear?.periodType || 'semester',
     centerOpeningTime: academicYear?.centerOpeningTime || '08:00',
     centerClosingTime: academicYear?.centerClosingTime || '22:00',
-    breakDurationMinutes: academicYear?.breakDurationMinutes ?? 30,
-    slotDurationMinutes: academicYear?.slotDurationMinutes || 60,
+    breakDurationMinutes: String(academicYear?.breakDurationMinutes ?? 30),
+    slotDurationMinutes: String(academicYear?.slotDurationMinutes || 60),
   });
 
   const periodType = formData.periodType;
@@ -74,6 +79,17 @@ export function AcademicYearFormModal({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
+      const slotDurationMinutes = Number(formData.slotDurationMinutes);
+      const breakDurationMinutes = Number(formData.breakDurationMinutes);
+
+      if (
+        !Number.isFinite(slotDurationMinutes) ||
+        !Number.isFinite(breakDurationMinutes)
+      ) {
+        toast.error('Completa las duraciones con valores numéricos válidos');
+        return;
+      }
+
       const payload: SaveAcademicYearBodyDTO = {
         name: formData.name,
         period0Start: formData.period0Start || undefined,
@@ -85,8 +101,8 @@ export function AcademicYearFormModal({
         periodType: formData.periodType,
         centerOpeningTime: formData.centerOpeningTime,
         centerClosingTime: formData.centerClosingTime,
-        breakDurationMinutes: formData.breakDurationMinutes,
-        slotDurationMinutes: formData.slotDurationMinutes,
+        breakDurationMinutes,
+        slotDurationMinutes,
       };
 
       const result = academicYear
@@ -302,7 +318,34 @@ export function AcademicYearFormModal({
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
-                  <Label>Hora de apertura del centro</Label>
+                  <div className="flex items-center gap-2">
+                    <Label>Hora de apertura del centro</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label="Información sobre la hora de apertura"
+                        >
+                          <Info className="size-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="max-w-xs text-sm"
+                      >
+                        <div className="space-y-2">
+                          <p className="font-medium text-foreground">
+                            Límite inicial del centro.
+                          </p>
+                          <p className="text-muted-foreground">
+                            Ningún horario de clase ni reserva podrá comenzar
+                            antes de esta hora.
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <Input
                     type="time"
                     required
@@ -316,7 +359,34 @@ export function AcademicYearFormModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Hora de cierre del centro</Label>
+                  <div className="flex items-center gap-2">
+                    <Label>Hora de cierre del centro</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label="Información sobre la hora de cierre"
+                        >
+                          <Info className="size-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="max-w-xs text-sm"
+                      >
+                        <div className="space-y-2">
+                          <p className="font-medium text-foreground">
+                            Límite final del centro.
+                          </p>
+                          <p className="text-muted-foreground">
+                            Ningún horario de clase ni reserva podrá terminar
+                            después de esta hora.
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <Input
                     type="time"
                     required
@@ -332,7 +402,35 @@ export function AcademicYearFormModal({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
-                  <Label>Duración del slot (minutos)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label>Duración del slot (minutos)</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label="Información sobre la duración del slot"
+                        >
+                          <Info className="size-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="max-w-xs text-sm"
+                      >
+                        <div className="space-y-2">
+                          <p className="font-medium text-foreground">
+                            Incluye el descanso entre clases si lo hubiera.
+                          </p>
+                          <p className="text-muted-foreground">
+                            Si una clase dura 55 minutos y hay 5 minutos de
+                            descanso antes de la siguiente, configura el slot
+                            como 60 minutos. El recreo largo se define aparte.
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <Input
                     type="number"
                     min={15}
@@ -342,7 +440,7 @@ export function AcademicYearFormModal({
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        slotDurationMinutes: parseInt(e.target.value) || 60,
+                        slotDurationMinutes: e.target.value,
                       })
                     }
                   />
@@ -358,7 +456,7 @@ export function AcademicYearFormModal({
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        breakDurationMinutes: parseInt(e.target.value) || 0,
+                        breakDurationMinutes: e.target.value,
                       })
                     }
                   />
