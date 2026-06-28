@@ -6,6 +6,7 @@ import type { IRandomGenerator } from '../domain/random-generator';
 import type { Solution } from '../domain/types';
 import { CourseOverlapConstraint } from '../domain/constraints/hard/course-overlap.constraint';
 import { buildScheduleTimeGrid } from '@tfg-horarios/shared';
+import type { IScheduleConstraint } from '../domain/constraints/constraint.interface';
 
 describe('TabuSearchEngine', () => {
   const timeGrids = {
@@ -266,6 +267,39 @@ describe('TabuSearchEngine', () => {
   });
 
   test('runSoftPhase rejects neighbors with hard conflicts and stops at limit', () => {
+    const softConstraint: IScheduleConstraint = {
+      calculatePenalty: mock(() => ({ penalty: 100, conflicts: [] })),
+    };
+    const softCalculator = new PenaltyCalculator([], [softConstraint], {}, {});
+    const softGenerator = new InitialSolution(
+      softCalculator,
+      [],
+      {},
+      timeGrids,
+      undefined,
+      1
+    );
+    const softEvaluateHardSpy = spyOn(
+      softCalculator,
+      'evaluateHard'
+    ).mockReturnValue({
+      hardPenalty: 50,
+      conflicts: [],
+    });
+    spyOn(softCalculator, 'evaluate').mockReturnValueOnce({
+      hardPenalty: 0,
+      softPenalty: 100,
+      totalPenalty: 100,
+      conflicts: [],
+    });
+    const softEngine = new TabuSearchEngine(
+      softCalculator,
+      softGenerator,
+      ['c-1'],
+      {},
+      timeGrids,
+      randomGen
+    );
     const initialSol: Solution = {
       assignments: [
         {
@@ -293,21 +327,25 @@ describe('TabuSearchEngine', () => {
       conflicts: [],
     };
 
-    evaluateSpy.mockReturnValueOnce({
-      hardPenalty: 0,
-      softPenalty: 100,
-      totalPenalty: 100,
-      conflicts: [],
-    });
-
-    evaluateHardSpy.mockReturnValue({
-      hardPenalty: 50,
-      conflicts: [],
-    });
-
-    const result = engine.runSoftPhase(initialSol);
+    const result = softEngine.runSoftPhase(initialSol);
 
     expect(result.penalty).toBe(100);
     expect(result.hardPenalty).toBe(0);
+    expect(softEvaluateHardSpy).toHaveBeenCalled();
+  });
+
+  test('runSoftPhase returns immediately when there are no soft constraints', () => {
+    const initialSol: Solution = {
+      assignments: [],
+      unassigned: 0,
+      penalty: 0,
+      hardPenalty: 0,
+      conflicts: [],
+    };
+
+    const result = engine.runSoftPhase(initialSol);
+
+    expect(result).toBe(initialSol);
+    expect(evaluateSpy).not.toHaveBeenCalled();
   });
 });

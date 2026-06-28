@@ -4,6 +4,7 @@ import type {
   PenaltyResult,
   ConflictDetail,
 } from '../constraint.interface';
+import type { Assignment, ProjectedAssignment } from '../../types';
 import { intervalsOverlap } from '@tfg-horarios/shared';
 
 export class CourseOverlapConstraint implements IScheduleConstraint {
@@ -12,14 +13,9 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
     const conflicts: ConflictDetail[] = [];
     const registeredConflicts = new Set<string>();
 
-    const groupCountsPerSubjectType = new Map<string, Set<string>>();
-    for (const assignment of context.assignments) {
-      const key = `${assignment.subjectId}-${assignment.shift}-${assignment.groupType}`;
-      if (!groupCountsPerSubjectType.has(key)) {
-        groupCountsPerSubjectType.set(key, new Set());
-      }
-      groupCountsPerSubjectType.get(key)!.add(assignment.subjectGroupId);
-    }
+    const groupCountsPerSubjectType =
+      context.groupCountsPerSubjectType ??
+      this.buildGroupCountsPerSubjectType(context.assignments);
 
     const evaluatePair = (
       a: (typeof context.assignments)[number],
@@ -89,17 +85,59 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
       }
     };
 
-    const projectedAssignments = context.projectedAssignments ?? [];
-    for (let i = 0; i < projectedAssignments.length; i++) {
-      for (let j = i + 1; j < projectedAssignments.length; j++) {
-        const a = projectedAssignments[i]!;
-        const b = projectedAssignments[j]!;
-        if (a.dayOfWeek === b.dayOfWeek && intervalsOverlap(a, b)) {
+    const buckets =
+      context.courseBuckets ??
+      this.buildFallbackBuckets(context.projectedAssignments ?? []);
+    for (const bucket of buckets.values()) {
+      for (let i = 0; i < bucket.length; i++) {
+        const a = bucket[i]!;
+        for (let j = i + 1; j < bucket.length; j++) {
+          const b = bucket[j]!;
+          if (b.startMinutes >= a.endMinutes) break;
+          if (!intervalsOverlap(a, b)) continue;
           evaluatePair(a.assignment, b.assignment);
         }
       }
     }
 
     return { penalty, conflicts };
+  }
+
+  private buildGroupCountsPerSubjectType(
+    assignments: Assignment[]
+  ): Map<string, Set<string>> {
+    const groupCountsPerSubjectType = new Map<string, Set<string>>();
+    for (const assignment of assignments) {
+      const key = `${assignment.subjectId}-${assignment.shift}-${assignment.groupType}`;
+      if (!groupCountsPerSubjectType.has(key)) {
+        groupCountsPerSubjectType.set(key, new Set());
+      }
+      groupCountsPerSubjectType.get(key)!.add(assignment.subjectGroupId);
+    }
+    return groupCountsPerSubjectType;
+  }
+
+  private buildFallbackBuckets(
+    projectedAssignments: ProjectedAssignment[]
+  ): Map<string, ProjectedAssignment[]> {
+    const buckets = new Map<string, ProjectedAssignment[]>();
+    for (const assignment of projectedAssignments) {
+      const key = `${assignment.dayOfWeek}:${assignment.assignment.degreeId}:${assignment.assignment.courseYear}:${assignment.assignment.shift}`;
+      const bucket = buckets.get(key);
+      if (bucket) {
+        bucket.push(assignment);
+      } else {
+        buckets.set(key, [assignment]);
+      }
+    }
+    for (const bucket of buckets.values()) {
+      bucket.sort(
+        (a, b) =>
+          a.startMinutes - b.startMinutes ||
+          a.endMinutes - b.endMinutes ||
+          a.assignment.id.localeCompare(b.assignment.id)
+      );
+    }
+    return buckets;
   }
 }

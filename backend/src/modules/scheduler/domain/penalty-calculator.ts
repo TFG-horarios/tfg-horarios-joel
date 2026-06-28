@@ -28,6 +28,10 @@ export class PenaltyCalculator {
     return this.evaluate(assignments, lockedAssignments).totalPenalty;
   }
 
+  public hasSoftConstraints(): boolean {
+    return this.softConstraints.length > 0;
+  }
+
   public evaluateHard(
     assignments: Assignment[],
     lockedAssignments: Assignment[] = []

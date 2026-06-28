@@ -120,7 +120,8 @@ self.onmessage = (event: MessageEvent<SchedulerWorkerMessage>) => {
           new LCGGenerator(seed)
         ),
       groupsData,
-      orderedLockedAssignments
+      orderedLockedAssignments,
+      { enableSoftPhase: softConstraints.length > 0 }
     );
 
     const assignmentsMap = new Map<string, ScheduleEngineAssignment>();

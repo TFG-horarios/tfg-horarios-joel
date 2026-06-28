@@ -38,6 +38,11 @@ export class TabuSearchEngine {
   private readonly MAX_REPAIR_CLASSROOMS = 8;
 
   private readonly timeGrids: ScheduleTimeGridMap;
+  private readonly timeCandidatesCache = new Map<
+    string,
+    { dayOfWeek: number; slotIndex: number }[]
+  >();
+  private readonly classroomsForAssignmentCache = new Map<string, string[]>();
 
   constructor(
     private readonly penaltyCalculator: PenaltyCalculator,
@@ -245,6 +250,10 @@ export class TabuSearchEngine {
     solution: Solution,
     lockedAssignments: Assignment[] = []
   ): Solution {
+    if (!this.penaltyCalculator.hasSoftConstraints()) {
+      return solution;
+    }
+
     let currentSolution = { ...solution };
 
     const initialPenalties = this.penaltyCalculator.evaluate(
@@ -256,6 +265,10 @@ export class TabuSearchEngine {
     currentSolution.conflicts = initialPenalties.conflicts;
 
     let bestGlobalSolution = currentSolution;
+
+    if (currentSolution.hardPenalty === 0 && currentSolution.penalty === 0) {
+      return currentSolution;
+    }
 
     const MAX_SOFT_ITERATIONS = 200;
     const MAX_SOFT_STAGNANT = 50;
@@ -416,12 +429,13 @@ export class TabuSearchEngine {
 
   private getConflictAssignmentIds(solution: Solution): Set<string> {
     const ids = new Set<string>();
-    const assignmentIdsByGroup = new Map(
-      solution.assignments.map((assignment) => [
-        assignment.subjectGroupId,
-        assignment.id,
-      ])
-    );
+    const assignmentIdsByGroup = new Map<string, string[]>();
+    for (const assignment of solution.assignments) {
+      const groupAssignments =
+        assignmentIdsByGroup.get(assignment.subjectGroupId) ?? [];
+      groupAssignments.push(assignment.id);
+      assignmentIdsByGroup.set(assignment.subjectGroupId, groupAssignments);
+    }
 
     for (const assignment of solution.assignments) {
       if (
@@ -438,9 +452,11 @@ export class TabuSearchEngine {
         ids.add(conflict.assignmentId);
       }
 
-      const assignmentId = assignmentIdsByGroup.get(conflict.subjectGroupId);
-      if (assignmentId) {
-        ids.add(assignmentId);
+      const assignmentIds = assignmentIdsByGroup.get(conflict.subjectGroupId);
+      if (assignmentIds) {
+        for (const assignmentId of assignmentIds) {
+          ids.add(assignmentId);
+        }
       }
     }
 
@@ -670,6 +686,10 @@ export class TabuSearchEngine {
   }
 
   private getClassroomsForAssignment(assignment: Assignment): string[] {
+    const cacheKey = `${assignment.needsComputerLab}:${assignment.groupType}`;
+    const cached = this.classroomsForAssignmentCache.get(cacheKey);
+    if (cached) return cached;
+
     const requiredType = assignment.needsComputerLab
       ? 'computer_lab'
       : ['practices', 'reduced_practices', 'tutoring'].includes(
@@ -707,6 +727,7 @@ export class TabuSearchEngine {
       );
     }
 
+    this.classroomsForAssignmentCache.set(cacheKey, classroomsToSearch);
     return classroomsToSearch;
   }
 
@@ -721,17 +742,24 @@ export class TabuSearchEngine {
   private getTimeCandidates(
     assignment: Assignment
   ): { dayOfWeek: number; slotIndex: number }[] {
+    const cacheKey = `${assignment.timeConfigId ?? 'none'}:${assignment.duration}`;
+    const cached = this.timeCandidatesCache.get(cacheKey);
+    if (cached) return cached;
+
     const grid = this.getGridForAssignment(assignment);
     if (grid) {
-      return [1, 2, 3, 4, 5].flatMap((dayOfWeek) =>
+      const candidates = [1, 2, 3, 4, 5].flatMap((dayOfWeek) =>
         grid.slots
           .filter((slot) =>
             projectAssignmentInterval(grid, slot.slotIndex, assignment.duration)
           )
           .map((slot) => ({ dayOfWeek, slotIndex: slot.slotIndex }))
       );
+      this.timeCandidatesCache.set(cacheKey, candidates);
+      return candidates;
     }
 
+    this.timeCandidatesCache.set(cacheKey, []);
     return [];
   }
 

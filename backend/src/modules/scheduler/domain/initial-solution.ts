@@ -27,6 +27,11 @@ export interface GroupInitialData {
 
 export class InitialSolution {
   private readonly timeGrids: Record<string, ScheduleTimeGrid>;
+  private readonly classroomsForGroupCache = new Map<string, string[]>();
+  private readonly timeCandidatesCache = new Map<
+    string,
+    { day: number; slot: number; interval: AssignmentInterval }[]
+  >();
 
   constructor(
     private readonly penaltyCalculator: PenaltyCalculator,
@@ -150,18 +155,16 @@ export class InitialSolution {
           assignments,
           lockedAssignments
         );
-        const timeCandidates = this.days.flatMap((day) =>
-          grid.slots
-            .filter((slot: ScheduleTimeGrid['slots'][number]) =>
-              projectAssignmentInterval(grid, slot.slotIndex, sessionDuration)
-            )
-            .map((slot: ScheduleTimeGrid['slots'][number]) => ({
-              day,
-              slot: slot.slotIndex,
-            }))
+        const timeCandidates = this.getTimeCandidates(
+          group.timeConfigId,
+          sessionDuration,
+          grid
         );
 
-        const overlappingAssignments = (day: number, slot: number) =>
+        const overlappingAssignments = (
+          day: number,
+          candidateInterval: AssignmentInterval
+        ) =>
           assignments.filter((assignment) => {
             if (
               assignment.dayOfWeek !== day ||
@@ -183,21 +186,15 @@ export class InitialSolution {
                   assignment.duration
                 )
               : null;
-            const candidateInterval = projectAssignmentInterval(
-              grid,
-              slot,
-              sessionDuration
-            );
             return !!(
               assignmentInterval &&
-              candidateInterval &&
               intervalsOverlap(assignmentInterval, candidateInterval)
             );
           });
 
         timeCandidates.sort((a, b) => {
-          const assignmentsAtA = overlappingAssignments(a.day, a.slot);
-          const assignmentsAtB = overlappingAssignments(b.day, b.slot);
+          const assignmentsAtA = overlappingAssignments(a.day, a.interval);
+          const assignmentsAtB = overlappingAssignments(b.day, b.interval);
 
           if (group.isCommon) {
             const specificAtA = assignmentsAtA.filter(
@@ -240,14 +237,12 @@ export class InitialSolution {
           );
         });
 
-        candidateSearch: for (const { day, slot } of timeCandidates) {
+        candidateSearch: for (const {
+          day,
+          slot,
+          interval: candidateInterval,
+        } of timeCandidates) {
           for (const roomId of classroomsToSearch) {
-            const candidateInterval = projectAssignmentInterval(
-              grid,
-              slot,
-              sessionDuration
-            );
-            if (!candidateInterval) continue;
             const isOccupied = (occupiedClassrooms.get(roomId) ?? []).some(
               (entry) =>
                 entry.dayOfWeek === day &&
@@ -358,6 +353,10 @@ export class InitialSolution {
   }
 
   private getClassroomsForGroup(group: GroupInitialData): string[] {
+    const cacheKey = `${group.needsComputerLab}:${group.groupType}:${group.numberOfStudents}`;
+    const cached = this.classroomsForGroupCache.get(cacheKey);
+    if (cached) return cached;
+
     const requiredType = group.needsComputerLab
       ? 'computer_lab'
       : ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)
@@ -406,7 +405,32 @@ export class InitialSolution {
       });
     }
 
+    this.classroomsForGroupCache.set(cacheKey, classroomsToSearch);
     return classroomsToSearch;
+  }
+
+  private getTimeCandidates(
+    timeConfigId: string | undefined,
+    sessionDuration: number,
+    grid: ScheduleTimeGrid
+  ): { day: number; slot: number; interval: AssignmentInterval }[] {
+    const cacheKey = `${timeConfigId ?? 'none'}:${sessionDuration}`;
+    const cached = this.timeCandidatesCache.get(cacheKey);
+    if (cached) return cached;
+
+    const candidates = this.days.flatMap((day) =>
+      grid.slots.flatMap((slot: ScheduleTimeGrid['slots'][number]) => {
+        const interval = projectAssignmentInterval(
+          grid,
+          slot.slotIndex,
+          sessionDuration
+        );
+        return interval ? [{ day, slot: slot.slotIndex, interval }] : [];
+      })
+    );
+
+    this.timeCandidatesCache.set(cacheKey, candidates);
+    return candidates;
   }
 
   private createUnassignedAssignment(

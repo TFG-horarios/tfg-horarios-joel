@@ -4,6 +4,10 @@ import type { GroupInitialData } from '../domain/initial-solution';
 
 export const MAX_GENERATION_ATTEMPTS = 5;
 
+interface MultiStartOptions {
+  enableSoftPhase?: boolean;
+}
+
 export const buildSeeds = (
   attempts: number = MAX_GENERATION_ATTEMPTS
 ): number[] => {
@@ -44,7 +48,8 @@ export const runMultiStartTabuSearch = (
   seeds: number[],
   buildEngine: (seed: number) => TabuSearchEngine,
   groups: GroupInitialData[],
-  lockedAssignments: Assignment[] = []
+  lockedAssignments: Assignment[] = [],
+  options: MultiStartOptions = {}
 ): Solution => {
   if (seeds.length === 0) {
     throw new Error('At least one Tabu Search seed is required.');
@@ -60,9 +65,21 @@ export const runMultiStartTabuSearch = (
       bestSolution = candidate;
       bestEngine = engine;
     }
+
+    if (
+      options.enableSoftPhase === false &&
+      candidate.unassigned === 0 &&
+      candidate.hardPenalty === 0
+    ) {
+      return candidate;
+    }
   }
 
-  if (bestSolution!.unassigned === 0 && bestSolution!.hardPenalty === 0) {
+  if (
+    options.enableSoftPhase !== false &&
+    bestSolution!.unassigned === 0 &&
+    bestSolution!.hardPenalty === 0
+  ) {
     return bestEngine!.runSoftPhase(bestSolution!, lockedAssignments);
   }
 

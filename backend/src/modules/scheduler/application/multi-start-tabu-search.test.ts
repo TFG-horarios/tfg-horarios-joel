@@ -67,7 +67,9 @@ describe('runMultiStartTabuSearch Orchestrator', () => {
       return mockEngine3;
     });
 
-    const result = runMultiStartTabuSearch([1, 2, 3], buildEngine, []);
+    const result = runMultiStartTabuSearch([1, 2, 3], buildEngine, [], [], {
+      enableSoftPhase: true,
+    });
 
     expect(buildEngine).toHaveBeenCalledTimes(3);
     expect(mockEngine2.runSoftPhase).toHaveBeenCalledTimes(1);
@@ -95,5 +97,29 @@ describe('runMultiStartTabuSearch Orchestrator', () => {
     expect(mockEngine1.runSoftPhase).toHaveBeenCalledTimes(0);
     expect(mockEngine2.runSoftPhase).toHaveBeenCalledTimes(0);
     expect(result.hardPenalty).toBe(50);
+  });
+
+  test('stops after first hard-feasible seed when soft phase is disabled', () => {
+    const mockEngine1 = {
+      run: mock(() => solution(0)),
+      runSoftPhase: mock(),
+    } as unknown as TabuSearchEngine;
+    const mockEngine2 = {
+      run: mock(() => solution(0)),
+      runSoftPhase: mock(),
+    } as unknown as TabuSearchEngine;
+
+    const buildEngine = mock((seed: number) =>
+      seed === 1 ? mockEngine1 : mockEngine2
+    );
+
+    const result = runMultiStartTabuSearch([1, 2], buildEngine, [], [], {
+      enableSoftPhase: false,
+    });
+
+    expect(result.hardPenalty).toBe(0);
+    expect(buildEngine).toHaveBeenCalledTimes(1);
+    expect(mockEngine1.runSoftPhase).toHaveBeenCalledTimes(0);
+    expect(mockEngine2.runSoftPhase).toHaveBeenCalledTimes(0);
   });
 });
