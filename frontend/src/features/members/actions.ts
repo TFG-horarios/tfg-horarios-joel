@@ -11,7 +11,7 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { fetchPaginatedMembers, fetchAllMembers } from './queries';
+import { fetchPaginatedMembers, fetchAllMembers, getOrganizationMemberRole } from './queries';
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import { type ActionResponse } from '@/types/actions';
@@ -166,5 +166,17 @@ export async function removeMemberAction(
       success: false,
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
+  }
+}
+
+export async function getOrganizationMemberRoleAction(
+  organizationId: string,
+  userId: string
+): Promise<string | null> {
+  try {
+    return await getOrganizationMemberRole(organizationId, userId);
+  } catch (error) {
+    console.error('ERROR EN EL SERVER ACTION (Member Role):', error);
+    return null;
   }
 }

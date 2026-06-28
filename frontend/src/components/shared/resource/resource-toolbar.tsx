@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export interface ResourceToolbarProps {
   search?: ReactNode;
@@ -38,6 +39,25 @@ function getFilterElements(node: ReactNode): React.ReactElement[] {
   return elements;
 }
 
+function getSearchElements(node: ReactNode): React.ReactElement[] {
+  const elements: React.ReactElement[] = [];
+
+  React.Children.forEach(node, (child) => {
+    if (React.isValidElement(child)) {
+      const element = child as React.ReactElement<{
+        children?: React.ReactNode;
+      }>;
+      if (element.type === React.Fragment) {
+        elements.push(...getSearchElements(element.props.children));
+      } else {
+        elements.push(child);
+      }
+    }
+  });
+
+  return elements;
+}
+
 export function ResourceToolbar({
   search,
   filters,
@@ -48,6 +68,7 @@ export function ResourceToolbar({
   const [openDesktop, setOpenDesktop] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
 
+  const searchElements = getSearchElements(search);
   const filterElements = getFilterElements(filters).map(
     (el) => el as React.ReactElement<{ paramKey?: string }>
   );
@@ -82,92 +103,47 @@ export function ResourceToolbar({
   const hasActiveTotal = totalActiveCount > 0;
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 w-full pb-4 border-b border-border/50">
-      <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-        {search && <div className="w-full sm:w-72 flex-none">{search}</div>}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full pb-4 border-b border-border/50">
+      <div className="flex flex-col md:flex-row md:items-center gap-2 flex-1 min-w-0 w-full md:w-auto">
+        {searchElements.map((el, idx) => (
+          <div key={idx} className="w-full md:w-72 flex-none">
+            {el}
+          </div>
+        ))}
 
         {actualFilters.length > 0 && (
-          <>
-            <div className="hidden md:flex flex-wrap items-center gap-2">
-              {primaryFilters}
+          <div className="hidden md:flex flex-wrap items-center gap-2">
+            {primaryFilters}
 
-              {isThresholdExceeded && (
-                <Popover open={openDesktop} onOpenChange={setOpenDesktop}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        'h-9 gap-2 cursor-pointer font-normal border bg-card text-card-foreground hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50',
-                        hasActiveSecondary
-                          ? 'bg-brand-purple-bg text-brand-purple border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover'
-                          : 'border-border'
-                      )}
-                    >
-                      <SlidersHorizontal className="h-4 w-4 shrink-0" />
-                      <span>Filtros</span>
-                      {hasActiveSecondary && (
-                        <span className="font-semibold">
-                          ({activeSecondaryCount})
-                        </span>
-                      )}
-                      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-4" align="start">
-                    <div className="flex flex-col gap-3">
-                      <div className="text-sm font-semibold text-foreground border-b border-border/50 pb-2">
-                        Filtros Adicionales
-                      </div>
-                      <div className="flex flex-col gap-3">
-                        {secondaryFilters.map((el, idx) => (
-                          <div
-                            key={idx}
-                            className="w-full [&_button]:!w-full [&_button]:lg:!w-full [&_input]:!w-full [&_input]:lg:!w-full [&_select]:!w-full [&_.select-trigger]:!w-full [&_div]:!w-full"
-                          >
-                            {el}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-
-              {clearButton}
-            </div>
-
-            <div className="flex md:hidden items-center gap-2 w-full sm:w-auto">
-              <Popover open={openMobile} onOpenChange={setOpenMobile}>
+            {isThresholdExceeded && (
+              <Popover open={openDesktop} onOpenChange={setOpenDesktop}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
                     className={cn(
-                      'w-full sm:w-auto h-9 gap-2 cursor-pointer font-normal border bg-card text-card-foreground hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50',
-                      hasActiveTotal
+                      'h-9 gap-2 cursor-pointer font-normal border bg-card text-card-foreground hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50',
+                      hasActiveSecondary
                         ? 'bg-brand-purple-bg text-brand-purple border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover'
                         : 'border-border'
                     )}
                   >
                     <SlidersHorizontal className="h-4 w-4 shrink-0" />
                     <span>Filtros</span>
-                    {hasActiveTotal && (
+                    {hasActiveSecondary && (
                       <span className="font-semibold">
-                        ({totalActiveCount})
+                        ({activeSecondaryCount})
                       </span>
                     )}
                     <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className="w-[calc(100vw-2rem)] sm:w-80 p-4"
-                  align="start"
-                >
+                <PopoverContent className="w-72 p-4" align="start">
                   <div className="flex flex-col gap-3">
                     <div className="text-sm font-semibold text-foreground border-b border-border/50 pb-2">
-                      Filtros
+                      Filtros Adicionales
                     </div>
                     <div className="flex flex-col gap-3">
-                      {actualFilters.map((el, idx) => (
+                      {secondaryFilters.map((el, idx) => (
                         <div
                           key={idx}
                           className="w-full [&_button]:!w-full [&_button]:lg:!w-full [&_input]:!w-full [&_input]:lg:!w-full [&_select]:!w-full [&_.select-trigger]:!w-full [&_div]:!w-full"
@@ -176,23 +152,64 @@ export function ResourceToolbar({
                         </div>
                       ))}
                     </div>
-                    {clearButton && (
-                      <div className="border-t border-border/50 pt-2 mt-1 flex justify-end">
-                        {clearButton}
-                      </div>
-                    )}
                   </div>
                 </PopoverContent>
               </Popover>
-            </div>
-          </>
+            )}
+
+            {clearButton}
+          </div>
         )}
       </div>
 
-      {(viewToggle || actions) && (
-        <div className="flex items-center gap-2 flex-none">
-          {viewToggle}
-          {actions}
+      {(actualFilters.length > 0 || viewToggle || actions) && (
+        <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+          {actualFilters.length > 0 && (
+            <div className="flex md:hidden items-center">
+              <Dialog open={openMobile} onOpenChange={setOpenMobile}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'h-9 w-9 p-0 flex items-center justify-center cursor-pointer font-normal border bg-card text-card-foreground hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50',
+                      hasActiveTotal
+                        ? 'bg-brand-purple-bg text-brand-purple border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover'
+                        : 'border-border'
+                    )}
+                  >
+                    <SlidersHorizontal className="h-4 w-4 shrink-0" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-6 rounded-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-left">Filtros</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex flex-col gap-4 mt-2">
+                    {actualFilters.map((el, idx) => (
+                      <div
+                        key={idx}
+                        className="w-full [&_button]:!w-full [&_button]:lg:!w-full [&_input]:!w-full [&_input]:lg:!w-full [&_select]:!w-full [&_.select-trigger]:!w-full [&_div]:!w-full"
+                      >
+                        {el}
+                      </div>
+                    ))}
+                  </div>
+                  {clearButton && hasActiveTotal && (
+                    <div className="pt-3 mt-2 flex justify-end">
+                      {clearButton}
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
+
+          {(viewToggle || actions) && (
+            <div className="flex items-center gap-2">
+              {viewToggle}
+              {actions}
+            </div>
+          )}
         </div>
       )}
     </div>

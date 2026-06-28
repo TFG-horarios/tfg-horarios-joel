@@ -8,6 +8,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -131,80 +137,106 @@ export function NotificationBell() {
     );
   }
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+  const triggerButton = (
+    <Button
+      variant="outline"
+      size="icon"
+      className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+    >
+      <Bell className="size-4" />
+      {unreadCount > 0 && (
+        <Badge
+          variant="destructive"
+          className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
         >
-          <Bell className="size-4" />
-          {unreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h4 className="font-semibold">Notificaciones</h4>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
-              onClick={markAllAsRead}
-            >
-              <Check className="mr-1 h-3 w-3" />
-              Marcar todas
-            </Button>
-          )}
-        </div>
-        <ScrollArea className="h-[300px]">
-          {notifications.length === 0 ? (
-            <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
-              No tienes notificaciones
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1 p-2">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`flex cursor-pointer flex-col gap-1 rounded-md p-3 text-sm transition-colors hover:bg-muted ${
-                    !notification.isRead ? 'bg-muted/50' : ''
-                  }`}
-                  onClick={() => {
-                    if (!notification.isRead) markAsRead(notification.id);
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium leading-none">
-                      {notification.title}
-                    </span>
-                    {!notification.isRead && (
-                      <span className="flex h-2 w-2 rounded-full bg-blue-600" />
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {notification.message}
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </Badge>
+      )}
+    </Button>
+  );
+
+  const notificationContent = (
+    <>
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <h4 className="font-semibold">Notificaciones</h4>
+        {unreadCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
+            onClick={markAllAsRead}
+          >
+            <Check className="mr-1 h-3 w-3" />
+            Marcar todas
+          </Button>
+        )}
+      </div>
+      <ScrollArea className="h-[300px]">
+        {notifications.length === 0 ? (
+          <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
+            No tienes notificaciones
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1 p-2">
+            {notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`flex cursor-pointer flex-col gap-1 rounded-md p-3 text-sm transition-colors hover:bg-muted ${
+                  !notification.isRead ? 'bg-muted/50' : ''
+                }`}
+                onClick={() => {
+                  if (!notification.isRead) markAsRead(notification.id);
+                }}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-medium leading-none">
+                    {notification.title}
                   </span>
-                  <span className="text-[10px] text-muted-foreground/80 mt-1">
-                    {formatDistanceToNow(new Date(notification.createdAt), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </span>
+                  {!notification.isRead && (
+                    <span className="flex h-2 w-2 rounded-full bg-blue-600" />
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
+                <span className="text-xs text-muted-foreground">
+                  {notification.message}
+                </span>
+                <span className="text-[10px] text-muted-foreground/80 mt-1">
+                  {formatDistanceToNow(new Date(notification.createdAt), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </>
+  );
+
+  return (
+    <>
+      <div className="hidden md:block">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            {triggerButton}
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            {notificationContent}
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="block md:hidden">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            {triggerButton}
+          </DialogTrigger>
+          <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-0 rounded-2xl overflow-hidden gap-0">
+            <DialogTitle className="sr-only">Notificaciones</DialogTitle>
+            {notificationContent}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 }

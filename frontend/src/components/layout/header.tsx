@@ -118,7 +118,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
         )}
 
         {pathname === '/profile' && variant === 'inline' && (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4 pointer-events-none">
+          <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4 pointer-events-none">
             <div className="pointer-events-auto flex justify-center">
               <div className="flex h-9 items-center rounded-full border border-black/5 bg-black/5 px-4 shadow-inner dark:border-white/10 dark:bg-white/5">
                 <Breadcrumb>

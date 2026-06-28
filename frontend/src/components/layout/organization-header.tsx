@@ -10,7 +10,21 @@ import {
   Suspense,
   type ReactNode,
 } from 'react';
-import { LogOut, Search, Building2, User, X, ArrowLeft } from 'lucide-react';
+import {
+  LogOut,
+  Search,
+  Building2,
+  User,
+  X,
+  ArrowLeft,
+  Menu,
+  LayoutDashboard,
+  GraduationCap,
+  CalendarDays,
+  BookOpen,
+  Users,
+  Clock3,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '../providers/session-provider';
 import { NotificationBell } from '@/features/notification/components/notification-bell';
@@ -33,6 +47,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { logoutAction } from '@/features/auth/actions';
 import { getOrganizationNameAction } from '@/features/organizations/actions';
+import { getOrganizationMemberRoleAction } from '@/features/members/actions';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
@@ -41,6 +56,7 @@ function OrganizationHeaderInner() {
   const { user, isAuthenticated } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const t = useTranslations('Common.actions');
   const tNav = useTranslations('Organizations.navigation');
   const tProfile = useTranslations('Profile');
@@ -53,7 +69,11 @@ function OrganizationHeaderInner() {
   const isOrgDetail = isOrganizations && pathSegments.length >= 3;
   const orgId = isOrgDetail ? pathSegments[1] : null;
 
+  const hasAcademicYear = isOrgDetail && pathSegments.length >= 4 && pathSegments[2] === 'academic-years';
+  const academicYearId = hasAcademicYear ? pathSegments[3] : null;
+
   const [orgName, setOrgName] = useState<string | null>(null);
+  const [memberRole, setMemberRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (orgId) {
@@ -66,6 +86,16 @@ function OrganizationHeaderInner() {
       setOrgName(null);
     }
   }, [orgId]);
+
+  useEffect(() => {
+    if (orgId && user?.id) {
+      getOrganizationMemberRoleAction(orgId, user.id).then((res) => {
+        setMemberRole(res);
+      });
+    } else {
+      setMemberRole(null);
+    }
+  }, [orgId, user?.id]);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -103,6 +133,105 @@ function OrganizationHeaderInner() {
     setIsLoggingOut(true);
     await logoutAction();
   };
+
+  const basePath = `/organizations/${orgId}/academic-years/${academicYearId}`;
+
+  const navItems = hasAcademicYear
+    ? [
+        {
+          label: tNav('summary'),
+          href: basePath,
+          icon: 'dashboard' as const,
+          exact: true,
+        },
+        {
+          label: tNav('classrooms'),
+          href: `${basePath}/classrooms`,
+          icon: 'classroom' as const,
+        },
+        {
+          label: tNav('degrees'),
+          href: `${basePath}/degrees`,
+          icon: 'degree' as const,
+        },
+        {
+          label: tNav('itineraries'),
+          href: `${basePath}/itineraries`,
+          icon: 'itinerary' as const,
+        },
+        {
+          label: tNav('subjects'),
+          href: `${basePath}/subjects`,
+          icon: 'subject' as const,
+        },
+        {
+          label: tNav('subjectGroups'),
+          href: `${basePath}/subject-groups`,
+          icon: 'subjectGroup' as const,
+        },
+        {
+          label: tNav('timeConfigs'),
+          href: `${basePath}/time-configs`,
+          icon: 'timeConfigs' as const,
+        },
+        {
+          label: tNav('schedules'),
+          href: `${basePath}/schedules`,
+          icon: 'schedules' as const,
+        },
+        {
+          label: tNav('classroomSchedules'),
+          href: `${basePath}/classroom-schedules`,
+          icon: 'classroomSchedules' as const,
+        },
+        ...(memberRole && memberRole !== 'viewer'
+          ? [
+              {
+                label: tNav('members'),
+                href: `${basePath}/members`,
+                icon: 'members' as const,
+              },
+            ]
+          : []),
+        {
+          label: tNav('reserve'),
+          href: `${basePath}/classroom-reservations`,
+          icon: 'reserve' as const,
+        },
+      ]
+    : [];
+
+  const navIcons = {
+    dashboard: LayoutDashboard,
+    classroom: Building2,
+    degree: GraduationCap,
+    itinerary: CalendarDays,
+    subject: BookOpen,
+    subjectGroup: Users,
+    timeConfigs: Clock3,
+    schedules: CalendarDays,
+    members: Users,
+    classroomSchedules: CalendarDays,
+    reserve: CalendarDays,
+  };
+
+  let finalBackUrl: string | undefined;
+  let finalBackLabel: string | undefined;
+
+  if (pathSegments.length > 1) {
+    if (pathSegments.length === 3 && pathSegments[0] === 'organizations') {
+      finalBackUrl = `/${pathSegments[0]}`;
+    } else if (
+      pathSegments.length === 4 &&
+      pathSegments[0] === 'organizations' &&
+      pathSegments[2] === 'academic-years'
+    ) {
+      finalBackUrl = `/organizations/${pathSegments[1]}`;
+    } else {
+      finalBackUrl = `/${pathSegments.slice(0, -1).join('/')}`;
+    }
+    finalBackLabel = t('back');
+  }
 
   return (
     <header className="relative rounded-3xl border border-border bg-white/70 p-2 text-foreground dark:bg-white/5 dark:text-white">
@@ -151,15 +280,30 @@ function OrganizationHeaderInner() {
           isSearchOpen && showSearch && 'hidden md:flex'
         )}
       >
-        <div className="flex w-full justify-center md:w-auto md:justify-start">
+        <div className="flex w-full items-center justify-between md:w-auto md:justify-start gap-2">
+          {hasAcademicYear && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden size-9 rounded-lg"
+              aria-label="Abrir menú"
+            >
+              <Menu className="size-5" />
+            </Button>
+          )}
+
           <Link
             href="/organizations"
             className={cn(
-              'rounded-lg px-3 p-2 text-lg font-bold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10'
+              'rounded-lg px-3 p-2 text-lg font-bold tracking-tight text-foreground transition-colors hover:bg-black/5 dark:text-white dark:hover:bg-white/10',
+              !hasAcademicYear && 'mx-auto md:mx-0'
             )}
           >
             Sk<span className="text-brand-purple-solid">Edu</span>
           </Link>
+
+          {hasAcademicYear && <div className="size-9 lg:hidden" />}
         </div>
 
         <div className="flex items-center justify-center gap-3 md:hidden pb-2">
@@ -250,7 +394,7 @@ function OrganizationHeaderInner() {
         )}
 
         {isOrgDetail && (
-          <div className="w-full px-2 md:absolute md:left-1/2 md:top-1/2 md:w-full md:max-w-[50vw] md:-translate-x-1/2 md:-translate-y-1/2 md:px-4 lg:max-w-[60vw]">
+          <div className="hidden md:block md:absolute md:left-1/2 md:top-1/2 md:w-full md:max-w-[50vw] md:-translate-x-1/2 md:-translate-y-1/2 md:px-4 lg:max-w-[60vw]">
             <div className="flex justify-center">
               <div className="flex h-9 items-center rounded-full border border-black/5 bg-black/5 px-4 shadow-inner dark:border-white/10 dark:bg-white/5 max-w-full overflow-x-auto">
                 <Breadcrumb>
@@ -401,6 +545,85 @@ function OrganizationHeaderInner() {
           )}
         </div>
       </div>
+
+      {hasAcademicYear && (
+        <>
+          <div
+            className={cn(
+              "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+              isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            )}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          <div
+            className={cn(
+              "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-white/95 dark:bg-neutral-950/95 p-6 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out lg:hidden",
+              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
+              <span className="text-lg font-bold tracking-tight text-foreground dark:text-white">
+                Sk<span className="text-brand-purple-solid">Edu</span>
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="size-9 rounded-lg"
+                aria-label="Cerrar menú"
+              >
+                <X className="size-5" />
+              </Button>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto space-y-1 pr-1 scrollbar-hide">
+              {finalBackUrl && finalBackLabel && (
+                <div className="border-b border-border pb-3 mb-3">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="h-10 w-full justify-start gap-3 px-3 text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
+                  >
+                    <Link href={finalBackUrl}>
+                      <ArrowLeft className="size-4 shrink-0" />
+                      <span>{finalBackLabel}</span>
+                    </Link>
+                  </Button>
+                </div>
+              )}
+
+              {navItems.map((item) => {
+                const Icon = navIcons[item.icon] ?? GraduationCap;
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+                return (
+                  <Button
+                    key={item.href}
+                    asChild
+                    variant="ghost"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      'h-11 w-full justify-start gap-3 px-3 whitespace-nowrap transition-colors rounded-xl',
+                      isActive
+                        ? 'border border-brand-purple-border bg-brand-purple-bg text-brand-purple shadow-lg shadow-black/5 hover:bg-brand-purple-hover hover:text-brand-purple dark:hover:bg-brand-purple-hover'
+                        : 'text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white'
+                    )}
+                  >
+                    <Link href={item.href}>
+                      <Icon className="size-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
+        </>
+      )}
     </header>
   );
 }

@@ -97,8 +97,8 @@ export function Sidebar({ navItems, backUrl, backLabel }: SidebarProps) {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          'relative z-20 flex shrink-0 flex-col rounded-3xl border border-border bg-white/70 py-8 transition-all duration-300 dark:bg-white/5',
-          isCollapsed ? 'w-[88px] px-2' : 'w-full px-4 lg:w-[260px]'
+          'relative z-20 hidden lg:flex shrink-0 flex-col rounded-3xl border border-border bg-white/70 py-8 transition-all duration-300 dark:bg-white/5',
+          isCollapsed ? 'w-[88px] px-2' : 'w-[260px] px-4'
         )}
       >
         <Button
