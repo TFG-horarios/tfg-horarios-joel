@@ -129,6 +129,12 @@ export default async function OrganizationSubjectGroupsPage({
   const activeSubjects = historicalSubjects.filter(
     (subject) => !subject.deletedAt
   );
+  const courseYears =
+    activeSubjects.length > 0
+      ? Array.from(new Set(activeSubjects.map((s) => s.courseYear))).sort(
+          (a, b) => a - b
+        )
+      : [1, 2, 3, 4];
   const activeDegrees = historicalDegrees.filter((degree) => !degree.deletedAt);
   const activeItineraries = historicalItineraries.filter(
     (itinerary) => !itinerary.deletedAt
@@ -224,7 +230,7 @@ export default async function OrganizationSubjectGroupsPage({
             <ResourceFilterSelect
               paramKey="year"
               placeholder={tSubjects('coursePlaceholder')}
-              options={[1, 2, 3, 4, 5, 6].map((c) => ({
+              options={courseYears.map((c) => ({
                 label: `${c}º`,
                 value: c.toString(),
               }))}

@@ -8,7 +8,7 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchPaginatedSubjects } from '@/features/subject/queries';
+import { fetchPaginatedSubjects, fetchAllSubjects } from '@/features/subject/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';
@@ -93,6 +93,7 @@ export default async function OrganizationSubjectsPage({
     historicalDegrees,
     historicalItineraries,
     academicYears,
+    allSubjects,
     user,
   ] = await Promise.all([
     fetchOrganizationById(id),
@@ -100,6 +101,7 @@ export default async function OrganizationSubjectsPage({
     fetchAllDegrees(id, academicYearId),
     fetchAllItineraries(id, academicYearId),
     fetchAcademicYears(id),
+    fetchAllSubjects(id, academicYearId),
     getSessionUser(),
   ]);
 
@@ -126,6 +128,27 @@ export default async function OrganizationSubjectsPage({
   const activeItineraries = historicalItineraries.filter(
     (itinerary) => !itinerary.deletedAt
   );
+  const activeSubjects = allSubjects.filter((s) => !s.deletedAt);
+  const courseYears =
+    activeSubjects.length > 0
+      ? Array.from(new Set(activeSubjects.map((s) => s.courseYear))).sort(
+          (a, b) => a - b
+        )
+      : [1, 2, 3, 4];
+
+  const periodType = currentAcademicYear?.periodType || 'semester';
+  const showPeriodFilter = periodType !== 'annual';
+  const periodOptions =
+    periodType === 'trimester'
+      ? [
+          { label: 'Trimestre 1', value: '1' },
+          { label: 'Trimestre 2', value: '2' },
+          { label: 'Trimestre 3', value: '3' },
+        ]
+      : [
+          { label: 'Semestre 1', value: '1' },
+          { label: 'Semestre 2', value: '2' },
+        ];
   const degreeMap = new Map(
     historicalDegrees.map((degree) => [degree.id, degree])
   );
@@ -196,20 +219,19 @@ export default async function OrganizationSubjectsPage({
             <ResourceFilterSelect
               paramKey="courseYear"
               placeholder={t('coursePlaceholder')}
-              options={[1, 2, 3, 4, 5, 6].map((c) => ({
+              options={courseYears.map((c) => ({
                 label: `${c}º`,
                 value: c.toString(),
               }))}
             />
-            <ResourceFilterSelect
-              paramKey="period"
-              placeholder={t('periodPlaceholder')}
-              options={[0, 1, 2].map((p) => ({
-                label:
-                  p === 0 ? t('periodOptions.annual') : t(`periodOptions.${p}`),
-                value: p.toString(),
-              }))}
-            />
+            {showPeriodFilter && (
+              <ResourceFilterSelect
+                paramKey="period"
+                placeholder={t('periodPlaceholder')}
+                clearLabel="Todos"
+                options={periodOptions}
+              />
+            )}
             <ResourceFilterSelect
               paramKey="shift"
               placeholder={t('shiftPlaceholder')}

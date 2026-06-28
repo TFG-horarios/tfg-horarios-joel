@@ -190,16 +190,26 @@ export default async function OrganizationSchedulesPage({
   const currentAcademicYear = academicYears.find(
     (ay) => ay.id === academicYearId
   );
-  const numPeriods =
-    currentAcademicYear?.periodType === 'annual'
-      ? 1
-      : currentAcademicYear?.periodType === 'trimester'
-        ? 3
-        : 2;
-  const periodOptions = Array.from({ length: numPeriods }, (_, i) => {
-    const p = String(i + 1);
-    return { label: t(`periodOptions.${p}`), value: p };
-  });
+  const courseYears =
+    activeSubjects.length > 0
+      ? Array.from(new Set(activeSubjects.map((s) => s.courseYear))).sort(
+          (a, b) => a - b
+        )
+      : [1, 2, 3, 4];
+
+  const periodType = currentAcademicYear?.periodType || 'semester';
+  const showPeriodFilter = periodType !== 'annual';
+  const periodOptions =
+    periodType === 'trimester'
+      ? [
+          { label: 'Trimestre 1', value: '1' },
+          { label: 'Trimestre 2', value: '2' },
+          { label: 'Trimestre 3', value: '3' },
+        ]
+      : [
+          { label: 'Semestre 1', value: '1' },
+          { label: 'Semestre 2', value: '2' },
+        ];
 
   return (
     <OrganizationSectionShell
@@ -250,20 +260,19 @@ export default async function OrganizationSchedulesPage({
             <ResourceFilterSelect
               paramKey="courseYear"
               placeholder={t('courseYear')}
-              options={[
-                { label: '1º', value: '1' },
-                { label: '2º', value: '2' },
-                { label: '3º', value: '3' },
-                { label: '4º', value: '4' },
-                { label: '5º', value: '5' },
-                { label: '6º', value: '6' },
-              ]}
+              options={courseYears.map((c) => ({
+                label: `${c}º`,
+                value: c.toString(),
+              }))}
             />
-            <ResourceFilterSelect
-              paramKey="period"
-              placeholder={t('period')}
-              options={periodOptions}
-            />
+            {showPeriodFilter && (
+              <ResourceFilterSelect
+                paramKey="period"
+                placeholder={t('period')}
+                clearLabel="Todos"
+                options={periodOptions}
+              />
+            )}
             <ResourceFilterSelect
               paramKey="status"
               placeholder={t('statusLabel')}

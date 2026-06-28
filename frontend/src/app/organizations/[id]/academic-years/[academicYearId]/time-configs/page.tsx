@@ -70,6 +70,26 @@ export default async function TimeConfigsPage({
   const activeItineraries = allItineraries.filter(
     (itinerary) => !itinerary.deletedAt
   );
+  const courseYears =
+    possibilities.length > 0
+      ? Array.from(new Set(possibilities.map((p) => p.courseYear))).sort(
+          (a, b) => a - b
+        )
+      : [1, 2, 3, 4];
+
+  const periodType = academicYear.periodType;
+  const showPeriodFilter = periodType !== 'annual';
+  const periodOptions =
+    periodType === 'trimester'
+      ? [
+          { label: 'Trimestre 1', value: '1' },
+          { label: 'Trimestre 2', value: '2' },
+          { label: 'Trimestre 3', value: '3' },
+        ]
+      : [
+          { label: 'Semestre 1', value: '1' },
+          { label: 'Semestre 2', value: '2' },
+        ];
   const filteredPossibilities = possibilities.filter((possibility) => {
     const status = configs.some(
       (config) =>
@@ -204,24 +224,19 @@ export default async function TimeConfigsPage({
             <ResourceFilterSelect
               paramKey="courseYear"
               placeholder={t('coursePlaceholder')}
-              options={[1, 2, 3, 4, 5, 6].map((course) => ({
+              options={courseYears.map((course) => ({
                 label: `${course}º`,
                 value: String(course),
               }))}
             />
-            <ResourceFilterSelect
-              paramKey="period"
-              placeholder={t('periodPlaceholder')}
-              options={[0, 1, 2, 3].map((period) => ({
-                label:
-                  period === 0
-                    ? tSubjects('periodOptions.annual')
-                    : period === 3
-                      ? t('period3')
-                      : tSubjects(`periodOptions.${period}`),
-                value: String(period),
-              }))}
-            />
+            {showPeriodFilter && (
+              <ResourceFilterSelect
+                paramKey="period"
+                placeholder={t('periodPlaceholder')}
+                clearLabel="Todos"
+                options={periodOptions}
+              />
+            )}
             <ResourceFilterSelect
               paramKey="shift"
               placeholder={t('shiftPlaceholder')}
