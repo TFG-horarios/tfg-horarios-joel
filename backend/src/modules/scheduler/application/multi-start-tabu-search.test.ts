@@ -47,7 +47,7 @@ describe('multi-start Tabu Search Comparators', () => {
 });
 
 describe('runMultiStartTabuSearch Orchestrator', () => {
-  test('executes run for all seeds and runs soft phase ONLY on the best if feasible', () => {
+  test('stops early if a feasible hard solution is found and runs soft phase on it', () => {
     const mockEngine1 = {
       run: () => solution(100),
       runSoftPhase: mock(),
@@ -71,7 +71,7 @@ describe('runMultiStartTabuSearch Orchestrator', () => {
       enableSoftPhase: true,
     });
 
-    expect(buildEngine).toHaveBeenCalledTimes(3);
+    expect(buildEngine).toHaveBeenCalledTimes(2);
     expect(mockEngine2.runSoftPhase).toHaveBeenCalledTimes(1);
     expect(mockEngine1.runSoftPhase).toHaveBeenCalledTimes(0);
     expect(mockEngine3.runSoftPhase).toHaveBeenCalledTimes(0);

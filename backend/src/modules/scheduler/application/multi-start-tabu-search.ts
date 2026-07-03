@@ -66,12 +66,11 @@ export const runMultiStartTabuSearch = (
       bestEngine = engine;
     }
 
-    if (
-      options.enableSoftPhase === false &&
-      candidate.unassigned === 0 &&
-      candidate.hardPenalty === 0
-    ) {
-      return candidate;
+    if (candidate.unassigned === 0 && candidate.hardPenalty === 0) {
+      if (options.enableSoftPhase === false) {
+        return candidate;
+      }
+      break;
     }
   }
 

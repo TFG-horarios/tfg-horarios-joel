@@ -30,7 +30,7 @@ describe('AcademicYearMapper', () => {
       id: 'ay-1',
       organizationId: 'org-1',
       name: '2025-2026',
-      isActive: true,
+      isActive: dummyAcademicYear.isActive,
       period0Start: '2025-09-01',
       period0End: '2026-06-30',
       period1Start: '2024-09-01',

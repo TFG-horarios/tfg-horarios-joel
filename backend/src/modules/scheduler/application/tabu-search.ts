@@ -277,7 +277,11 @@ export class TabuSearchEngine {
     let i = 0;
     let stagnantIterations = 0;
 
-    while (i < MAX_SOFT_ITERATIONS && stagnantIterations < MAX_SOFT_STAGNANT) {
+    while (
+      i < MAX_SOFT_ITERATIONS &&
+      stagnantIterations < MAX_SOFT_STAGNANT &&
+      bestGlobalSolution.penalty > 0
+    ) {
       this.cleanTabuList(tabuList, i);
 
       let bestNeighbor: Solution | null = null;
