@@ -30,8 +30,9 @@ type MoveAttribute = TabuMove['attribute'];
 
 export class TabuSearchEngine {
   private readonly MAX_ITERATIONS = 1000;
-  private readonly NEIGHBORHOOD_SIZE = 60;
-  private readonly TABU_TENURE = 20;
+  private readonly NEIGHBORHOOD_SIZE = 150;
+  private readonly MIN_TABU_TENURE = 15;
+  private readonly MAX_TABU_TENURE = 25;
   private readonly MAX_STAGNANT_ITERATIONS = 200;
   private readonly MAX_INITIAL_REPAIR_PASSES = 12;
   private readonly MAX_REPAIR_TARGETS_PER_PASS = 8;
@@ -205,7 +206,12 @@ export class TabuSearchEngine {
               assignmentId: mutated.id,
               attribute: tabuAttribute,
               forbiddenValue: forbiddenVal,
-              expiresAtIteration: i + this.TABU_TENURE,
+              expiresAtIteration:
+                i +
+                this.MIN_TABU_TENURE +
+                this.random.randomInt(
+                  this.MAX_TABU_TENURE - this.MIN_TABU_TENURE + 1
+                ),
             };
           }
         }
@@ -270,8 +276,8 @@ export class TabuSearchEngine {
       return currentSolution;
     }
 
-    const MAX_SOFT_ITERATIONS = 200;
-    const MAX_SOFT_STAGNANT = 50;
+    const MAX_SOFT_ITERATIONS = 500;
+    const MAX_SOFT_STAGNANT = 150;
 
     const tabuList: TabuMove[] = [];
     let i = 0;
@@ -395,7 +401,12 @@ export class TabuSearchEngine {
               assignmentId: mutated.id,
               attribute: tabuAttribute,
               forbiddenValue: forbiddenVal,
-              expiresAtIteration: i + this.TABU_TENURE,
+              expiresAtIteration:
+                i +
+                this.MIN_TABU_TENURE +
+                this.random.randomInt(
+                  this.MAX_TABU_TENURE - this.MIN_TABU_TENURE + 1
+                ),
             };
           }
         }
