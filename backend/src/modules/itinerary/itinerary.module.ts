@@ -29,7 +29,7 @@ import type { IMemberRepository } from '@/modules/member/domain/member.repositor
 import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
 import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
 import { ItineraryScheduleAdapter } from './infrastructure/adapters/itinerary-schedule.adapter';
-import { ItineraryMemberAdapter } from './infrastructure/adapters/itinerary-member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 import { ItineraryAcademicYearAdapter } from './infrastructure/adapters/itinerary-academic-year.adapter';
 
 export const createItineraryModule = (
@@ -37,7 +37,7 @@ export const createItineraryModule = (
   memberRepository: IMemberRepository
 ) => {
   const itineraryRepository = new DrizzleItineraryRepository(db);
-  const memberProvider = new ItineraryMemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
   const scheduleProvider = new ItineraryScheduleAdapter(
     new DrizzleScheduleRepository(db)

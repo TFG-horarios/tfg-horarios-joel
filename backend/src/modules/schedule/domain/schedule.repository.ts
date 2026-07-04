@@ -49,13 +49,11 @@ export interface IScheduleRepository {
     period: number,
     shift: Shift
   ): Promise<Schedule | null>;
-  findDistinctAcademicYears(organizationId: string): Promise<string[]>;
   findAll(organizationId: string): Promise<Schedule[]>;
   findPaginated(
     organizationId: string,
     filters?: ScheduleListQueryDTO
   ): Promise<PaginatedResponse<Schedule>>;
-  create(schedule: Schedule): Promise<void>;
   update(schedule: Schedule): Promise<void>;
   updateConflictsAndUnassignedCount?(
     scheduleId: string,

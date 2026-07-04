@@ -5,9 +5,15 @@ import { getTranslations } from 'next-intl/server';
 import {
   ScheduleSchema,
   ScheduleSlotSchema,
+  ImportSchedulesBodySchema,
+  ImportSchedulesOverwriteSchema,
+  ImportSchedulesResultSchema,
   type ScheduleDTO,
   type ScheduleSlotDTO,
   type GenerationScopeDTO,
+  type ImportSchedulesBodyDTO,
+  type ImportSchedulesOverwriteDTO,
+  type ImportSchedulesResultDTO,
   type SaveScheduleSlotDTO,
   type ScheduleListQueryDTO,
   type PaginatedResponse,
@@ -174,6 +180,89 @@ export async function checkScheduleOverwriteAction(
     const schedules = ScheduleSchema.array().parse(payload);
 
     return { success: true, data: schedules };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function checkImportSchedulesOverwriteAction(
+  organizationId: string,
+  input: ImportSchedulesBodyDTO
+): Promise<ActionResponse<ImportSchedulesOverwriteDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = ImportSchedulesBodySchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return { success: false, message: tErrors('validation') };
+  }
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.schedules.import['check-overwrite'].$post({
+      param: { organizationId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      throw new Error(tErrors('server'));
+    }
+
+    const payload = await response.json();
+    const result = ImportSchedulesOverwriteSchema.parse(payload);
+
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : tErrors('generic'),
+    };
+  }
+}
+
+export async function importSchedulesAction(
+  organizationId: string,
+  input: ImportSchedulesBodyDTO
+): Promise<ActionResponse<ImportSchedulesResultDTO>> {
+  const tErrors = await getTranslations('Common.errors');
+  const parsedInput = ImportSchedulesBodySchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return { success: false, message: tErrors('validation') };
+  }
+
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[
+      ':organizationId'
+    ]!.schedules.import.$post({
+      param: { organizationId },
+      json: parsedInput.data,
+    });
+
+    if (!response.ok) {
+      let message = tErrors('server');
+      try {
+        const errorData = (await response.json()) as Record<string, unknown>;
+        if (typeof errorData.message === 'string') {
+          message = errorData.message;
+        }
+      } catch {
+        message = tErrors('server');
+      }
+      throw new Error(message);
+    }
+
+    const payload = await response.json();
+    const result = ImportSchedulesResultSchema.parse(payload);
+
+    revalidatePath(`/organizations/${organizationId}`, 'layout');
+
+    return { success: true, data: result };
   } catch (error) {
     return {
       success: false,

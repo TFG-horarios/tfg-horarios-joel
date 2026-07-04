@@ -83,6 +83,45 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     };
   }
 
+  private buildScheduleMetricsUpdate(scheduleId: string) {
+    return {
+      conflicts: sql<number>`
+        COALESCE((
+          SELECT COUNT(*)
+          FROM ${scheduleSlotsTable} AS own_slot,
+            LATERAL jsonb_array_elements(own_slot.conflicts) AS conflict
+          WHERE own_slot.schedule_id = ${scheduleId}
+            AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
+        ), 0)
+        +
+        COALESCE((
+          SELECT COUNT(*)
+          FROM ${scheduleSlotInclusionsTable} AS included_slot,
+            LATERAL jsonb_array_elements(included_slot.conflicts) AS conflict
+          WHERE included_slot.schedule_id = ${scheduleId}
+            AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
+        ), 0)
+      `,
+      unassigned: sql<number>`
+        COALESCE((
+          SELECT COUNT(*)
+          FROM ${scheduleSlotsTable}
+          WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
+            AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
+        ), 0)
+        +
+        COALESCE((
+          SELECT COUNT(*)
+          FROM ${scheduleSlotInclusionsTable}
+          INNER JOIN ${scheduleSlotsTable} ON ${scheduleSlotInclusionsTable.slotId} = ${scheduleSlotsTable.id}
+          WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
+            AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
+        ), 0)
+      `,
+      updatedAt: new Date(),
+    };
+  }
+
   private async withEffectiveTimeConfig(
     row: DrizzleSchedule
   ): Promise<DrizzleSchedule> {
@@ -159,16 +198,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
       .limit(1);
 
     return rows[0] ? this.mapToDomain(rows[0]) : null;
-  }
-
-  async findDistinctAcademicYears(organizationId: string): Promise<string[]> {
-    const rows = await this.database
-      .selectDistinct({ academicYearId: schedulesTable.academicYearId })
-      .from(schedulesTable)
-      .where(eq(schedulesTable.organizationId, organizationId))
-      .orderBy(desc(schedulesTable.academicYearId));
-
-    return rows.map((r) => r.academicYearId);
   }
 
   async findAll(organizationId: string): Promise<Schedule[]> {
@@ -275,21 +304,6 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     };
   }
 
-  async create(schedule: Schedule): Promise<void> {
-    try {
-      await this.database
-        .insert(schedulesTable)
-        .values(this.mapToPersistence(schedule));
-    } catch (error: unknown) {
-      if (getPostgresErrorCode(error) === '23505') {
-        throw new ConflictError(
-          'A schedule generation is already in progress or exists for this scope.'
-        );
-      }
-      throw error;
-    }
-  }
-
   async update(schedule: Schedule): Promise<void> {
     const rawData = this.mapToPersistence(schedule);
     await this.database
@@ -316,42 +330,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   ): Promise<void> {
     await this.database
       .update(schedulesTable)
-      .set({
-        conflicts: sql<number>`
-          COALESCE((
-            SELECT COUNT(*)
-            FROM ${scheduleSlotsTable} AS own_slot,
-              LATERAL jsonb_array_elements(own_slot.conflicts) AS conflict
-            WHERE own_slot.schedule_id = ${scheduleId}
-              AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
-          ), 0)
-          +
-          COALESCE((
-            SELECT COUNT(*)
-            FROM ${scheduleSlotInclusionsTable} AS included_slot,
-              LATERAL jsonb_array_elements(included_slot.conflicts) AS conflict
-            WHERE included_slot.schedule_id = ${scheduleId}
-              AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
-          ), 0)
-        `,
-        unassigned: sql<number>`
-          COALESCE((
-            SELECT COUNT(*)
-            FROM ${scheduleSlotsTable}
-            WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
-              AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
-          ), 0)
-          +
-          COALESCE((
-            SELECT COUNT(*)
-            FROM ${scheduleSlotInclusionsTable}
-            INNER JOIN ${scheduleSlotsTable} ON ${scheduleSlotInclusionsTable.slotId} = ${scheduleSlotsTable.id}
-            WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
-              AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
-          ), 0)
-        `,
-        updatedAt: new Date(),
-      })
+      .set(this.buildScheduleMetricsUpdate(scheduleId))
       .where(
         and(
           eq(schedulesTable.id, scheduleId),
@@ -465,42 +444,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
         for (const scheduleId of affectedScheduleIds) {
           await tx
             .update(schedulesTable)
-            .set({
-              conflicts: sql<number>`
-                COALESCE((
-                  SELECT COUNT(*)
-                  FROM ${scheduleSlotsTable} AS own_slot,
-                    LATERAL jsonb_array_elements(own_slot.conflicts) AS conflict
-                  WHERE own_slot.schedule_id = ${scheduleId}
-                    AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
-                ), 0)
-                +
-                COALESCE((
-                  SELECT COUNT(*)
-                  FROM ${scheduleSlotInclusionsTable} AS included_slot,
-                    LATERAL jsonb_array_elements(included_slot.conflicts) AS conflict
-                  WHERE included_slot.schedule_id = ${scheduleId}
-                    AND conflict->>'type' NOT LIKE 'UNASSIGNED%'
-                ), 0)
-              `,
-              unassigned: sql<number>`
-                COALESCE((
-                  SELECT COUNT(*)
-                  FROM ${scheduleSlotsTable}
-                  WHERE ${scheduleSlotsTable.scheduleId} = ${scheduleId}
-                    AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
-                ), 0)
-                +
-                COALESCE((
-                  SELECT COUNT(*)
-                  FROM ${scheduleSlotInclusionsTable}
-                  INNER JOIN ${scheduleSlotsTable} ON ${scheduleSlotInclusionsTable.slotId} = ${scheduleSlotsTable.id}
-                  WHERE ${scheduleSlotInclusionsTable.scheduleId} = ${scheduleId}
-                    AND (${scheduleSlotsTable.classroomId} IS NULL OR ${scheduleSlotsTable.dayOfWeek} IS NULL OR ${scheduleSlotsTable.slotIndex} IS NULL)
-                ), 0)
-              `,
-              updatedAt: new Date(),
-            })
+            .set(this.buildScheduleMetricsUpdate(scheduleId))
             .where(eq(schedulesTable.id, scheduleId));
         }
       });

@@ -14,6 +14,8 @@ import {
   unpublishScheduleRoute,
   deleteScheduleRoute,
   checkOverwriteScheduleRoute,
+  checkImportSchedulesOverwriteRoute,
+  importSchedulesRoute,
 } from './hono.schedule.routes';
 
 describe('HonoScheduleController Integration', () => {
@@ -25,6 +27,8 @@ describe('HonoScheduleController Integration', () => {
   const deleteMock = { execute: mock() };
   const generateMock = { execute: mock() };
   const checkOverwriteMock = { execute: mock() };
+  const checkImportOverwriteMock = { execute: mock() };
+  const importSchedulesMock = { execute: mock() };
   const listSlotsMock = { execute: mock() };
   const updateSlotMock = { execute: mock() };
 
@@ -38,8 +42,10 @@ describe('HonoScheduleController Integration', () => {
     deleteMock as unknown as Params[5],
     generateMock as unknown as Params[6],
     checkOverwriteMock as unknown as Params[7],
-    listSlotsMock as unknown as Params[8],
-    updateSlotMock as unknown as Params[9]
+    checkImportOverwriteMock as unknown as Params[8],
+    importSchedulesMock as unknown as Params[9],
+    listSlotsMock as unknown as Params[10],
+    updateSlotMock as unknown as Params[11]
   );
 
   const router = new OpenAPIHono<AppEnv>();
@@ -53,6 +59,11 @@ describe('HonoScheduleController Integration', () => {
   router.openapi(unpublishScheduleRoute, controller.unpublish);
   router.openapi(deleteScheduleRoute, controller.delete);
   router.openapi(checkOverwriteScheduleRoute, controller.checkOverwrite);
+  router.openapi(
+    checkImportSchedulesOverwriteRoute,
+    controller.checkImportOverwrite
+  );
+  router.openapi(importSchedulesRoute, controller.importSchedules);
 
   const app = createTestApp('/api', router, 'u-admin');
 
@@ -238,5 +249,57 @@ describe('HonoScheduleController Integration', () => {
       }
     );
     expect(res.status).toBe(200);
+  });
+
+  test('POST /organizations/:organizationId/schedules/import/check-overwrite should return 200', async () => {
+    const validBody = {
+      sourceAcademicYearId: '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+      targetAcademicYearId: '20eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+    };
+    checkImportOverwriteMock.execute.mockResolvedValueOnce({
+      schedules: [],
+      timeConfigs: [],
+    });
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/import/check-overwrite`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validBody),
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ schedules: [], timeConfigs: [] });
+    expect(checkImportOverwriteMock.execute).toHaveBeenCalledWith(
+      orgId,
+      'u-admin',
+      validBody
+    );
+  });
+
+  test('POST /organizations/:organizationId/schedules/import should return 201', async () => {
+    const validBody = {
+      sourceAcademicYearId: '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+      targetAcademicYearId: '20eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+    };
+    importSchedulesMock.execute.mockResolvedValueOnce({
+      schedules: [],
+      timeConfigs: [],
+    });
+    const res = await app.request(
+      `/api/organizations/${orgId}/schedules/import`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validBody),
+      }
+    );
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({ schedules: [], timeConfigs: [] });
+    expect(importSchedulesMock.execute).toHaveBeenCalledWith(
+      orgId,
+      'u-admin',
+      validBody
+    );
   });
 });

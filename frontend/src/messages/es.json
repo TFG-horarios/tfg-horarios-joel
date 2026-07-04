@@ -736,6 +736,8 @@
         "unpublishSuccess": "Horario despublicado correctamente.",
         "generateSuccess": "Horarios generados correctamente.",
         "generateError": "No se pudieron generar los horarios.",
+        "importSuccess": "Horarios importados correctamente.",
+        "importError": "No se pudieron importar los horarios.",
         "updateSuccess": "Aula actualizada correctamente."
       },
       "optimizations": {
@@ -746,6 +748,18 @@
         "groupTypeOrder": "Ordenar teoría, problemas y clases prácticas",
         "subjectDailyDispersion": "Dispersar clases de una misma asignatura",
         "overlapDistribution": "Distribuir los solapamientos"
+      },
+      "import": {
+        "title": "Importar horarios",
+        "description": "Copia horarios y configuraciones horarias desde otro curso académico al curso actual.",
+        "sourceAcademicYear": "Curso académico origen",
+        "sourcePlaceholder": "Selecciona un curso académico",
+        "submit": "Importar",
+        "overwriteTitle": "¿Importar horarios?",
+        "overwriteWarning": "Los horarios y configuraciones existentes con el mismo grado, itinerario, curso, periodo y turno se sobrescribirán.",
+        "overwriteSchedulesTitle": "{count, plural, one {Horario que se va a sobrescribir} other {Horarios que se van a sobrescribir}}",
+        "overwriteConfigsTitle": "{count, plural, one {Configuración que se va a sobrescribir} other {Configuraciones que se van a sobrescribir}}",
+        "confirmOverwrite": "Sí, importar y sobrescribir"
       },
       "form": {
         "academicYear": "Año Académico",

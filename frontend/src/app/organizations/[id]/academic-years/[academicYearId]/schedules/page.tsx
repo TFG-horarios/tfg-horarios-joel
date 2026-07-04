@@ -13,6 +13,7 @@ import {
   fetchTimeConfigPossibilities,
 } from '@/features/schedule-time-config/queries';
 import { ScheduleGenerator } from '@/features/schedule/components/schedule-generator';
+import { ScheduleImporter } from '@/features/schedule/components/schedule-importer';
 import { ResourceToolbar } from '@/components/shared/resource/resource-toolbar';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
@@ -306,6 +307,13 @@ export default async function OrganizationSchedulesPage({
         actions={
           canGenerate && (
             <ResourceActions>
+              <ScheduleImporter
+                organizationId={id}
+                academicYearId={academicYearId}
+                academicYears={academicYears}
+                degrees={historicalDegrees}
+                itineraries={historicalItineraries}
+              />
               <ScheduleGenerator
                 organizationId={id}
                 periodType={currentAcademicYear?.periodType || 'semester'}

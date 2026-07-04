@@ -8,6 +8,8 @@ import type {
   updateScheduleSlotRoute,
   generateScheduleRoute,
   checkOverwriteScheduleRoute,
+  checkImportSchedulesOverwriteRoute,
+  importSchedulesRoute,
   listAllSchedulesRoute,
   deleteScheduleRoute,
   unpublishScheduleRoute,
@@ -21,6 +23,8 @@ import type { UnpublishScheduleUseCase } from '../../application/unpublish-sched
 import type { DeleteScheduleUseCase } from '../../application/delete-schedule.usecase';
 import type { GenerateScheduleUseCase } from '../../application/generate-schedule.usecase';
 import type { CheckScheduleOverwriteUseCase } from '../../application/check-schedule-overwrite.usecase';
+import type { CheckImportSchedulesOverwriteUseCase } from '../../application/check-import-schedules-overwrite.usecase';
+import type { ImportSchedulesUseCase } from '../../application/import-schedules.usecase';
 import type { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import type { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
 import { SseService } from '@/core/services/sse.service';
@@ -36,6 +40,8 @@ export class HonoScheduleController {
     private readonly deleteScheduleUseCase: DeleteScheduleUseCase,
     private readonly generateScheduleUseCase: GenerateScheduleUseCase,
     private readonly checkScheduleOverwriteUseCase: CheckScheduleOverwriteUseCase,
+    private readonly checkImportSchedulesOverwriteUseCase: CheckImportSchedulesOverwriteUseCase,
+    private readonly importSchedulesUseCase: ImportSchedulesUseCase,
     private readonly listScheduleSlotsUseCase: ListScheduleSlotsUseCase,
     private readonly updateScheduleSlotUseCase: UpdateScheduleSlotUseCase
   ) {}
@@ -177,6 +183,35 @@ export class HonoScheduleController {
         );
       return c.json(overwrittenSchedules, 200);
     };
+
+  checkImportOverwrite: RouteHandler<
+    typeof checkImportSchedulesOverwriteRoute,
+    AppEnv
+  > = async (c) => {
+    const { organizationId } = c.req.valid('param');
+    const body = c.req.valid('json');
+    const requesterUserId = c.get('userId');
+    const result = await this.checkImportSchedulesOverwriteUseCase.execute(
+      organizationId,
+      requesterUserId,
+      body
+    );
+    return c.json(result, 200);
+  };
+
+  importSchedules: RouteHandler<typeof importSchedulesRoute, AppEnv> = async (
+    c
+  ) => {
+    const { organizationId } = c.req.valid('param');
+    const body = c.req.valid('json');
+    const requesterUserId = c.get('userId');
+    const result = await this.importSchedulesUseCase.execute(
+      organizationId,
+      requesterUserId,
+      body
+    );
+    return c.json(result, 201);
+  };
 
   streamEvents: RouteHandler<typeof streamScheduleEventsRoute, AppEnv> = async (
     c

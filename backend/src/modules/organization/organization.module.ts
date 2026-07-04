@@ -16,14 +16,14 @@ import type { AppEnv } from '@/core/types/app-types';
 import { UpdateOrganizationUseCase } from './application/update-organization.usecase';
 import { GetOrganizationUseCase } from './application/get-organization.usecase';
 import type { IMemberRepository } from '../member/domain/member.repository';
-import { OrganizationMemberAdapter } from './infrastructure/adapters/organization-member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 
 export const createOrganizationModule = (
   db: DbConnection,
   memberRepository: IMemberRepository
 ) => {
   const organizationRepository = new DrizzleOrganizationRepository(db);
-  const memberProvider = new OrganizationMemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
 
   const createUseCase = new CreateOrganizationUseCase(organizationRepository);
   const getUseCase = new GetOrganizationUseCase(

@@ -1,8 +1,7 @@
-import type { IItineraryMemberProvider } from '../../domain/providers/itinerary-member.provider';
-import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import type { AppRole } from '@/core/permissions/roles';
+import type { IMemberRepository } from '../../domain/member.repository';
 
-export class ItineraryMemberAdapter implements IItineraryMemberProvider {
+export class MemberRoleAdapter {
   constructor(private readonly memberRepository: IMemberRepository) {}
 
   async getMemberRole(
@@ -13,7 +12,6 @@ export class ItineraryMemberAdapter implements IItineraryMemberProvider {
       userId,
       organizationId
     );
-    if (!member) return null;
-    return member.role as AppRole;
+    return member?.role ?? null;
   }
 }

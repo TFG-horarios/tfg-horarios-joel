@@ -7,6 +7,9 @@ import {
   ScheduleSlotSchema,
   SaveScheduleSlotBodySchema,
   GenerationScopeSchema,
+  ImportSchedulesBodySchema,
+  ImportSchedulesOverwriteSchema,
+  ImportSchedulesResultSchema,
   ScheduleListQuerySchema,
   createPaginatedSchema,
 } from '@tfg-horarios/shared';
@@ -190,6 +193,56 @@ export const checkOverwriteScheduleRoute = createRoute({
     200: {
       description: 'Schedules that will be overwritten',
       content: { 'application/json': { schema: z.array(ScheduleSchema) } },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const checkImportSchedulesOverwriteRoute = createRoute({
+  method: 'post',
+  path: '/organizations/{organizationId}/schedules/import/check-overwrite',
+  request: {
+    params: ScheduleBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: ImportSchedulesBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Schedules and time configurations that will be overwritten',
+      content: {
+        'application/json': { schema: ImportSchedulesOverwriteSchema },
+      },
+    },
+    400: { description: 'Bad request' },
+    403: { description: 'Forbidden' },
+  },
+});
+
+export const importSchedulesRoute = createRoute({
+  method: 'post',
+  path: '/organizations/{organizationId}/schedules/import',
+  request: {
+    params: ScheduleBaseParamSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: ImportSchedulesBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Schedules and time configurations imported successfully',
+      content: {
+        'application/json': { schema: ImportSchedulesResultSchema },
+      },
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },

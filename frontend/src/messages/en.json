@@ -739,6 +739,8 @@
         "unpublishSuccess": "Schedule reverted to draft successfully.",
         "generateSuccess": "Schedules generated successfully.",
         "generateError": "Schedules could not be generated.",
+        "importSuccess": "Schedules imported successfully.",
+        "importError": "Schedules could not be imported.",
         "updateSuccess": "Classroom updated successfully."
       },
       "optimizations": {
@@ -749,6 +751,18 @@
         "groupTypeOrder": "Order theory, problems, and practical classes",
         "subjectDailyDispersion": "Spread classes of the same subject across days",
         "overlapDistribution": "Distribute overlapping classes"
+      },
+      "import": {
+        "title": "Import schedules",
+        "description": "Copy schedules and time configurations from another academic year into the current one.",
+        "sourceAcademicYear": "Source academic year",
+        "sourcePlaceholder": "Select an academic year",
+        "submit": "Import",
+        "overwriteTitle": "Import schedules?",
+        "overwriteWarning": "Existing schedules and configurations with the same degree, itinerary, course year, period and shift will be overwritten.",
+        "overwriteSchedulesTitle": "{count, plural, one {Schedule that will be overwritten} other {Schedules that will be overwritten}}",
+        "overwriteConfigsTitle": "{count, plural, one {Configuration that will be overwritten} other {Configurations that will be overwritten}}",
+        "confirmOverwrite": "Yes, import and overwrite"
       },
       "form": {
         "academicYear": "Academic Year",

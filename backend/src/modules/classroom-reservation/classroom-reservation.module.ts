@@ -5,7 +5,7 @@ import type { IMemberRepository } from '@/modules/member/domain/member.repositor
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
 import { DrizzleClassroomReservationRepository } from './infrastructure/db/drizzle.classroom-reservation.repository';
-import { ClassroomReservationMemberAdapter } from './infrastructure/adapters/classroom-reservation-member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 import { ClassroomReservationScheduleAdapter } from './infrastructure/adapters/classroom-reservation-schedule.adapter';
 import { RequestClassroomReservationUseCase } from './application/request-classroom-reservation.usecase';
 import { UpdateClassroomReservationStatusUseCase } from './application/update-classroom-reservation-status.usecase';
@@ -39,9 +39,7 @@ export const createClassroomReservationModule = (
   const scheduleTimeConfigRepository = new DrizzleScheduleTimeConfigRepository(
     db
   );
-  const memberProvider = new ClassroomReservationMemberAdapter(
-    memberRepository
-  );
+  const memberProvider = new MemberRoleAdapter(memberRepository);
   const scheduleProvider = new ClassroomReservationScheduleAdapter(
     scheduleRepository,
     scheduleSlotRepository,

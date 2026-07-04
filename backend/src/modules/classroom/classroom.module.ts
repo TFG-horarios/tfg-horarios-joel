@@ -32,7 +32,7 @@ import { GetActiveClassroomConfigurationsUseCase } from './application/get-activ
 import { GetClassroomScheduleSlotsUseCase } from './application/get-classroom-schedule-slots.usecase';
 import { GetClassroomOccupancyUseCase } from './application/get-classroom-occupancy.usecase';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
-import { MemberAdapter } from './infrastructure/adapters/member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 import { DrizzleScheduleSlotRepository } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.repository';
 import { ScheduleSlotAdapter } from './infrastructure/adapters/schedule-slot.adapter';
 import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
@@ -42,6 +42,7 @@ import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
 import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
+import { ScheduleIssueAdapter } from '@/modules/schedule/infrastructure/adapters/schedule-issue.adapter';
 
 export const createClassroomModule = (
   db: DbConnection,
@@ -56,7 +57,7 @@ export const createClassroomModule = (
     db
   );
 
-  const memberProvider = new MemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
   const scheduleProvider = new ScheduleAdapter(
     scheduleRepository,
     new DrizzleClassroomReservationRepository(db)
@@ -64,7 +65,8 @@ export const createClassroomModule = (
   const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
 
   const reevaluateSchedules = new ReevaluateSchedulesUseCase(
-    scheduleRepository
+    scheduleRepository,
+    new ScheduleIssueAdapter()
   );
   const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
     db.transaction(work);

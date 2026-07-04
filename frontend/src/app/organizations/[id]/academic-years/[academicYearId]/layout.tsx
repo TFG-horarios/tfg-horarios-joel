@@ -64,11 +64,6 @@ export default async function AcademicYearLayout({
       icon: 'subjectGroup',
     },
     {
-      label: t('timeConfigs'),
-      href: `${basePath}/time-configs`,
-      icon: 'timeConfigs',
-    },
-    {
       label: t('schedules'),
       href: `${basePath}/schedules`,
       icon: 'schedules',
@@ -80,6 +75,11 @@ export default async function AcademicYearLayout({
     },
     ...(memberRole && memberRole !== 'viewer'
       ? [
+          {
+            label: t('timeConfigs'),
+            href: `${basePath}/time-configs`,
+            icon: 'timeConfigs',
+          } as const,
           {
             label: t('members'),
             href: `${basePath}/members`,

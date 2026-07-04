@@ -17,11 +17,11 @@ import { UnpublishScheduleUseCase } from './application/unpublish-schedule.useca
 import { DeleteScheduleUseCase } from './application/delete-schedule.usecase';
 import { GenerateScheduleUseCase } from './application/generate-schedule.usecase';
 import { CheckScheduleOverwriteUseCase } from './application/check-schedule-overwrite.usecase';
+import { CheckImportSchedulesOverwriteUseCase } from './application/check-import-schedules-overwrite.usecase';
+import { ImportSchedulesUseCase } from './application/import-schedules.usecase';
 import { ListScheduleSlotsUseCase } from '@/modules/schedule-slot/application/list-schedule-slots.usecase';
 import { UpdateScheduleSlotUseCase } from '@/modules/schedule-slot/application/update-schedule-slot.usecase';
-import { ScheduleSlotMemberAdapter } from '@/modules/schedule-slot/infrastructure/adapters/schedule-slot-member.adapter';
 import { SchedulerEngineAdapter } from './infrastructure/adapters/scheduler-engine.adapter';
-import { ScheduleMemberAdapter } from './infrastructure/adapters/schedule-member.adapter';
 import { ScheduleDataAdapter } from './infrastructure/adapters/schedule-data.adapter';
 import { HonoScheduleController } from './infrastructure/http/hono.schedule.controller';
 import {
@@ -32,6 +32,8 @@ import {
   updateScheduleSlotRoute,
   generateScheduleRoute,
   checkOverwriteScheduleRoute,
+  checkImportSchedulesOverwriteRoute,
+  importSchedulesRoute,
   listAllSchedulesRoute,
   deleteScheduleRoute,
   unpublishScheduleRoute,
@@ -44,6 +46,9 @@ import { CreateNotificationUseCase } from '@/modules/notification/application/cr
 import { DrizzleNotificationRepository } from '@/modules/notification/infrastructure/db/drizzle.notification.repository';
 import type { IScheduleSlotUnitOfWork } from '@/modules/schedule-slot/domain/schedule-slot-unit-of-work';
 import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
+import { ScheduleIssueAdapter } from './infrastructure/adapters/schedule-issue.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
+import { ScheduleImportAdapter } from './infrastructure/adapters/schedule-import.adapter';
 
 export const createScheduleModule = (
   db: DbConnection,
@@ -61,8 +66,8 @@ export const createScheduleModule = (
     db
   );
 
-  const memberProvider = new ScheduleMemberAdapter(memberRepository);
-  const slotMemberProvider = new ScheduleSlotMemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
+  const slotMemberProvider = new MemberRoleAdapter(memberRepository);
   const dataProvider = new ScheduleDataAdapter(
     degreeRepository,
     classroomRepository,
@@ -74,6 +79,8 @@ export const createScheduleModule = (
   );
 
   const engineProvider = new SchedulerEngineAdapter();
+  const issueProvider = new ScheduleIssueAdapter();
+  const importProvider = new ScheduleImportAdapter(db);
 
   const slotValidationProvider = new ScheduleSlotValidationAdapter(
     scheduleSlotRepository,
@@ -140,13 +147,16 @@ export const createScheduleModule = (
       scheduleRepository,
       dataProvider,
       memberProvider,
-      engineProvider
+      engineProvider,
+      issueProvider
     ),
     new CheckScheduleOverwriteUseCase(
       scheduleRepository,
       dataProvider,
       memberProvider
     ),
+    new CheckImportSchedulesOverwriteUseCase(importProvider, memberProvider),
+    new ImportSchedulesUseCase(importProvider, memberProvider),
     new ListScheduleSlotsUseCase(scheduleSlotRepository, slotMemberProvider),
     new UpdateScheduleSlotUseCase(
       scheduleSlotRepository,
@@ -167,6 +177,11 @@ export const createScheduleModule = (
     .openapi(deleteScheduleRoute, controller.delete)
     .openapi(generateScheduleRoute, controller.generate)
     .openapi(checkOverwriteScheduleRoute, controller.checkOverwrite)
+    .openapi(
+      checkImportSchedulesOverwriteRoute,
+      controller.checkImportOverwrite
+    )
+    .openapi(importSchedulesRoute, controller.importSchedules)
     .openapi(listScheduleSlotsRoute, controller.listSlots)
     .openapi(updateScheduleSlotRoute, controller.updateSlot)
     .openapi(streamScheduleEventsRoute, controller.streamEvents);

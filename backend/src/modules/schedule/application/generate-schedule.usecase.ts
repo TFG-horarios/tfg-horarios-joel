@@ -15,25 +15,20 @@ import type { IScheduleMemberProvider } from '../domain/providers/schedule-membe
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
-// TODO: DESACOPLAR
-import { getUnassignedDiagnostics } from '../../schedule-slot/domain/unassigned-diagnostics';
-// TODO: DESACOPLAR
-import {
-  countSchedulingConflicts,
-  isUnassignedPlacement,
-} from '../../schedule-slot/domain/schedule-issues';
 import type { AppRole } from '@/core/permissions/roles';
 import type {
   IScheduleEngineProvider,
   ScheduleEngineClassroomMap,
 } from '../domain/providers/schedule-engine.provider';
+import type { IScheduleIssueProvider } from '../domain/providers/schedule-issue.provider';
 
 export class GenerateScheduleUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
     private readonly dataProvider: IScheduleDataProvider,
     private readonly memberProvider: IScheduleMemberProvider,
-    private readonly engineProvider: IScheduleEngineProvider
+    private readonly engineProvider: IScheduleEngineProvider,
+    private readonly issueProvider: IScheduleIssueProvider
   ) {}
 
   async execute(
@@ -449,8 +444,8 @@ export class GenerateScheduleUseCase {
       ) => {
         const conflicts = filterAssignmentConflicts(asm, scopeSubjectGroupIds);
 
-        if (isUnassignedPlacement(asm)) {
-          const diag = getUnassignedDiagnostics(
+        if (this.issueProvider.isUnassignedPlacement(asm)) {
+          const diag = this.issueProvider.getUnassignedDiagnostics(
             {
               needsComputerLab: asm.needsComputerLab,
               groupType: asm.groupType,
@@ -628,19 +623,25 @@ export class GenerateScheduleUseCase {
       for (const item of schedulesToPersist) {
         const conflictsCount =
           item.slots.reduce(
-            (acc, slot) => acc + countSchedulingConflicts(slot.conflicts),
+            (acc, slot) =>
+              acc + this.issueProvider.countSchedulingConflicts(slot.conflicts),
             0
           ) +
           item.inclusions.reduce(
             (acc, inclusion) =>
-              acc + countSchedulingConflicts(inclusion.conflicts),
+              acc +
+              this.issueProvider.countSchedulingConflicts(inclusion.conflicts),
             0
           );
         const unassignedCount =
-          item.slots.filter(isUnassignedPlacement).length +
+          item.slots.filter((slot) =>
+            this.issueProvider.isUnassignedPlacement(slot)
+          ).length +
           item.inclusions.filter((inclusion) => {
             const includedSlot = slotsById.get(inclusion.slotId);
-            return includedSlot ? isUnassignedPlacement(includedSlot) : false;
+            return includedSlot
+              ? this.issueProvider.isUnassignedPlacement(includedSlot)
+              : false;
           }).length;
 
         item.schedule.updateConflictsAndUnassigned(

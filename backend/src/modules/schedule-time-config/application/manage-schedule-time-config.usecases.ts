@@ -13,19 +13,14 @@ import {
   ValidationError,
 } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-// TODO: Desacoplar
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
-// TODO: Desacoplar
-import type { IMemberProvider } from '@/modules/academic-year/domain/providers/member.provider';
 import { ScheduleTimeConfig } from '../domain/schedule-time-config.entity';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 import { toScheduleTimeConfigDTO } from './schedule-time-config.mapper';
-// TODO: Desacoplar
-import type { IAcademicYearTimingChangeProvider } from '@/modules/academic-year/domain/providers/timing-change.provider';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
-// TODO: Desacoplar
-import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
-import { SseService } from '@/core/services/sse.service';
+import type { IScheduleTimeConfigAcademicYearProvider } from '../domain/providers/schedule-time-config-academic-year.provider';
+import type { IScheduleTimeConfigMemberProvider } from '../domain/providers/schedule-time-config-member.provider';
+import type { IScheduleTimeConfigTimingChangeProvider } from '../domain/providers/schedule-time-config-timing-change.provider';
+import type { IScheduleTimeConfigTimingChangeNotifierProvider } from '../domain/providers/schedule-time-config-timing-change-notifier.provider';
 
 type NormalizedScheduleTimeConfigInput = {
   startTime: string;
@@ -46,11 +41,11 @@ type NormalizedScheduleTimeConfigCreateInput =
 export class ManageScheduleTimeConfigUseCases {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly academicYearRepository: IAcademicYearRepository,
-    private readonly memberProvider: IMemberProvider,
-    private readonly timingChangeProvider?: IAcademicYearTimingChangeProvider,
+    private readonly academicYearProvider: IScheduleTimeConfigAcademicYearProvider,
+    private readonly memberProvider: IScheduleTimeConfigMemberProvider,
+    private readonly timingChangeProvider?: IScheduleTimeConfigTimingChangeProvider,
     private readonly runInTransaction?: TransactionRunner,
-    private readonly createNotificationUseCase?: CreateNotificationUseCase
+    private readonly timingChangeNotifier?: IScheduleTimeConfigTimingChangeNotifierProvider
   ) {}
 
   private async authorize(
@@ -186,32 +181,10 @@ export class ManageScheduleTimeConfigUseCases {
         : undefined;
     if (!invalidation) await this.repository.update(config);
     if (invalidation) {
-      if (this.createNotificationUseCase) {
-        await Promise.allSettled(
-          invalidation.affectedUsers.map(({ userId, reservationCount }) =>
-            this.createNotificationUseCase!.execute({
-              userId,
-              organizationId,
-              title: 'Reservas canceladas',
-              message: `${reservationCount} reserva${reservationCount === 1 ? '' : 's'} cancelada${reservationCount === 1 ? '' : 's'} por un cambio de configuración horaria.`,
-              type: 'WARNING',
-            })
-          )
-        );
-      }
-      const sse = SseService.getInstance();
-      for (const scheduleId of invalidation.scheduleIds) {
-        sse.broadcast(`schedule_${scheduleId}`, 'schedule_updated', {
-          scheduleId,
-          invalidated: true,
-        });
-      }
-      for (const classroomId of invalidation.classroomIds) {
-        sse.broadcast(`classroom_${classroomId}`, 'reservation_updated', {
-          classroomId,
-          invalidated: true,
-        });
-      }
+      await this.timingChangeNotifier?.notifyTimingChange(
+        organizationId,
+        invalidation
+      );
     }
     return toScheduleTimeConfigDTO(config);
   }
@@ -251,7 +224,7 @@ export class ManageScheduleTimeConfigUseCases {
     }
   ) {
     const academicYear =
-      await this.academicYearRepository.findById(academicYearId);
+      await this.academicYearProvider.getTiming(academicYearId);
     if (!academicYear || academicYear.organizationId !== organizationId) {
       throw new NotFoundError('AcademicYear', academicYearId);
     }

@@ -1,5 +1,6 @@
 import { z } from '@hono/zod-openapi';
 import { PaginationQuerySchema } from './pagination.schema';
+import { ScheduleTimeConfigSchema } from './schedule-time-config.schema';
 import { SHIFT_TYPES } from './subject.schema';
 
 export const ScheduleSchema = z
@@ -124,3 +125,36 @@ export const GenerationScopeSchema = z
   .openapi('GenerationScope');
 
 export type GenerationScopeDTO = z.infer<typeof GenerationScopeSchema>;
+
+export const ImportSchedulesBodySchema = z
+  .object({
+    sourceAcademicYearId: z.uuid(),
+    targetAcademicYearId: z.uuid(),
+  })
+  .refine((data) => data.sourceAcademicYearId !== data.targetAcademicYearId, {
+    message: 'Source and target academic years must be different.',
+    path: ['targetAcademicYearId'],
+  })
+  .openapi('ImportSchedulesBody');
+
+export const ImportSchedulesOverwriteSchema = z
+  .object({
+    schedules: z.array(ScheduleSchema),
+    timeConfigs: z.array(ScheduleTimeConfigSchema),
+  })
+  .openapi('ImportSchedulesOverwrite');
+
+export const ImportSchedulesResultSchema = z
+  .object({
+    schedules: z.array(ScheduleSchema),
+    timeConfigs: z.array(ScheduleTimeConfigSchema),
+  })
+  .openapi('ImportSchedulesResult');
+
+export type ImportSchedulesBodyDTO = z.infer<typeof ImportSchedulesBodySchema>;
+export type ImportSchedulesOverwriteDTO = z.infer<
+  typeof ImportSchedulesOverwriteSchema
+>;
+export type ImportSchedulesResultDTO = z.infer<
+  typeof ImportSchedulesResultSchema
+>;

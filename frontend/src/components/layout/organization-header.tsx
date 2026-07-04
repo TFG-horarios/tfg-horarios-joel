@@ -170,11 +170,6 @@ function OrganizationHeaderInner() {
           icon: 'subjectGroup' as const,
         },
         {
-          label: tNav('timeConfigs'),
-          href: `${basePath}/time-configs`,
-          icon: 'timeConfigs' as const,
-        },
-        {
           label: tNav('schedules'),
           href: `${basePath}/schedules`,
           icon: 'schedules' as const,
@@ -186,6 +181,11 @@ function OrganizationHeaderInner() {
         },
         ...(memberRole && memberRole !== 'viewer'
           ? [
+              {
+                label: tNav('timeConfigs'),
+                href: `${basePath}/time-configs`,
+                icon: 'timeConfigs' as const,
+              },
               {
                 label: tNav('members'),
                 href: `${basePath}/members`,

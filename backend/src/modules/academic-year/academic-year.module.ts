@@ -17,7 +17,7 @@ import {
   deleteAcademicYearRoute,
 } from './infrastructure/http/hono.academic-year.routes';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
-import { MemberAdapter } from './infrastructure/adapters/member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 import { OrganizationAdapter } from './infrastructure/adapters/organization.adapter';
 import { AcademicYearTimingChangeAdapter } from './infrastructure/adapters/timing-change.adapter';
 import type { CreateNotificationUseCase } from '../notification/application/create-notification.usecase';
@@ -30,9 +30,11 @@ export function createAcademicYearModule(
 ) {
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
   const organizationRepository = new DrizzleOrganizationRepository(db);
-  const memberProvider = new MemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
   const organizationProvider = new OrganizationAdapter(organizationRepository);
-  const notificationProvider = new AcademicYearNotificationAdapter(createNotificationUseCase);
+  const notificationProvider = new AcademicYearNotificationAdapter(
+    createNotificationUseCase
+  );
   const timingChangeProvider = new AcademicYearTimingChangeAdapter();
 
   const createUseCase = new CreateAcademicYearUseCase(

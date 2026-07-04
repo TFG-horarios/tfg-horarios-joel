@@ -31,9 +31,10 @@ import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/
 import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
 import { SubjectGroupScheduleAdapter } from './infrastructure/adapters/subject-group-schedule.adapter';
 import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
-import { SubjectGroupMemberAdapter } from './infrastructure/adapters/subject-group-member.adapter';
+import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 import { SubjectAdapter } from './infrastructure/adapters/subject.adapter';
 import { SubjectGroupAcademicYearAdapter } from './infrastructure/adapters/subject-group-academic-year.adapter';
+import { ScheduleIssueAdapter } from '@/modules/schedule/infrastructure/adapters/schedule-issue.adapter';
 
 export const createSubjectGroupModule = (
   db: DbConnection,
@@ -41,7 +42,7 @@ export const createSubjectGroupModule = (
   subjectRepository: ISubjectRepository
 ) => {
   const subjectGroupRepository = new DrizzleSubjectGroupRepository(db);
-  const memberProvider = new SubjectGroupMemberAdapter(memberRepository);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
   const subjectProvider = new SubjectAdapter(subjectRepository);
   const scheduleRepository = new DrizzleScheduleRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
@@ -50,7 +51,8 @@ export const createSubjectGroupModule = (
     academicYearRepository
   );
   const reevaluateSchedules = new ReevaluateSchedulesUseCase(
-    scheduleRepository
+    scheduleRepository,
+    new ScheduleIssueAdapter()
   );
   const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
     db.transaction(work);

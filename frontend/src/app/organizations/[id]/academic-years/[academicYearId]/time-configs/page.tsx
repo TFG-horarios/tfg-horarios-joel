@@ -41,6 +41,11 @@ export default async function TimeConfigsPage({
   const user = await getSessionUser();
   const role = user ? await getOrganizationMemberRole(id, user.id) : null;
   const isAdminOrEditor = role === 'admin' || role === 'editor';
+
+  if (!isAdminOrEditor) {
+    notFound();
+  }
+
   const t = await getTranslations('Organizations.timeConfigs');
   const tSubjects = await getTranslations('Organizations.subjects');
 
