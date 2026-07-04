@@ -1,13 +1,17 @@
-import { ConflictError, ForbiddenError, NotFoundError } from '@/core/errors/app.error';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IScheduleTimeConfigMemberProvider } from '../domain/providers/schedule-time-config-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 
 export class DeleteScheduleTimeConfigUseCase {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly memberProvider: IScheduleTimeConfigMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

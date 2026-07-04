@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type {
   SaveSubjectGroupDTO,
   SubjectGroupDTO,
@@ -17,7 +17,7 @@ export class UpdateSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly subjectProvider: ISubjectProvider,
-    private readonly memberProvider: ISubjectGroupMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

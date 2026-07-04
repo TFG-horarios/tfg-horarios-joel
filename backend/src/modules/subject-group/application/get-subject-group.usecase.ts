@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { SubjectGroupDTO } from '@tfg-horarios/shared';
 import { SubjectGroupMapper } from './subject-group.mapper';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
@@ -7,7 +7,7 @@ import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 export class GetSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberProvider: ISubjectGroupMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

@@ -4,10 +4,10 @@ import type {
 } from '@tfg-horarios/shared';
 import { ClassroomReservation } from '../domain/classroom-reservation.entity';
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
-import type { IClassroomReservationScheduleProvider } from '../domain/providers/classroom-reservation-schedule.provider';
-import type { IClassroomReservationMemberProvider } from '../domain/providers/classroom-reservation-member.provider';
-import type { IClassroomReservationAcademicYearProvider } from '../domain/providers/classroom-reservation-academic-year.provider';
-import type { IClassroomReservationNotificationProvider } from '../domain/providers/classroom-reservation-notification.provider';
+import type { IScheduleProvider } from '../domain/providers/schedule.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
+import type { INotificationProvider } from '../domain/providers/notification.provider';
 import { ClassroomReservationMapper } from './classroom-reservation.mapper';
 import {
   ForbiddenError,
@@ -20,10 +20,10 @@ import { intervalsOverlap, parseTimeToMinutes } from '@tfg-horarios/shared';
 export class RequestClassroomReservationUseCase {
   constructor(
     private readonly repository: IClassroomReservationRepository,
-    private readonly scheduleProvider: IClassroomReservationScheduleProvider,
-    private readonly memberProvider: IClassroomReservationMemberProvider,
-    private readonly academicYearProvider: IClassroomReservationAcademicYearProvider,
-    private readonly notificationProvider: IClassroomReservationNotificationProvider
+    private readonly scheduleProvider: IScheduleProvider,
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider: IAcademicYearProvider,
+    private readonly notificationProvider: INotificationProvider
   ) {}
 
   async execute(

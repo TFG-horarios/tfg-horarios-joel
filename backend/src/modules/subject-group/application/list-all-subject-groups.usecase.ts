@@ -1,15 +1,15 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { SubjectGroupDTO } from '@tfg-horarios/shared';
 import { SubjectGroupMapper } from './subject-group.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
-import type { ISubjectGroupAcademicYearProvider } from '../domain/providers/subject-group-academic-year.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
 
 export class ListAllSubjectGroupsUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberProvider: ISubjectGroupMemberProvider,
-    private readonly academicYearProvider: ISubjectGroupAcademicYearProvider
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider: IAcademicYearProvider
   ) {}
 
   async execute(

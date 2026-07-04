@@ -5,13 +5,13 @@ import type {
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleImportProvider } from '../domain/providers/schedule-import.provider';
 
 export class ImportSchedulesUseCase {
   constructor(
     private readonly importProvider: IScheduleImportProvider,
-    private readonly memberProvider: IScheduleMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

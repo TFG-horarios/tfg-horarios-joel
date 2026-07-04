@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { SubjectDTO } from '@tfg-horarios/shared';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { SubjectMapper } from './subject.mapper';
@@ -7,7 +7,7 @@ import { SubjectMapper } from './subject.mapper';
 export class GetSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberProvider: ISubjectMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

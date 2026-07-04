@@ -1,17 +1,17 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { ISubjectRepository } from '../domain/subject.repository';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
-import type { ISubjectAcademicYearProvider } from '../domain/providers/subject-academic-year.provider';
-import type { ISubjectScheduleProvider } from '../domain/providers/subject-schedule.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
+import type { IScheduleProvider } from '../domain/providers/schedule.provider';
 
 export class DeleteSubjectUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberProvider: ISubjectMemberProvider,
-    private readonly academicYearProvider?: ISubjectAcademicYearProvider,
-    private readonly scheduleProvider?: ISubjectScheduleProvider,
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider?: IAcademicYearProvider,
+    private readonly scheduleProvider?: IScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 

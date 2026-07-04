@@ -4,14 +4,14 @@ import type {
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { ScheduleMapper } from './schedule.mapper';
 
 export class ListSchedulesUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
-    private readonly memberProvider: IScheduleMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

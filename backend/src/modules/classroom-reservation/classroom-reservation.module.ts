@@ -6,7 +6,7 @@ import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.rep
 import type { IScheduleSlotRepository } from '@/modules/schedule-slot/domain/schedule-slot.repository';
 import { DrizzleClassroomReservationRepository } from './infrastructure/db/drizzle.classroom-reservation.repository';
 import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
-import { ClassroomReservationScheduleAdapter } from './infrastructure/adapters/classroom-reservation-schedule.adapter';
+import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
 import { RequestClassroomReservationUseCase } from './application/request-classroom-reservation.usecase';
 import { UpdateClassroomReservationStatusUseCase } from './application/update-classroom-reservation-status.usecase';
 import { ListClassroomReservationsUseCase } from './application/list-classroom-reservations.usecase';
@@ -22,8 +22,8 @@ import {
   cancelReservationRoute,
 } from './infrastructure/http/hono.classroom-reservation.routes';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
-import { ClassroomReservationAcademicYearAdapter } from './infrastructure/adapters/classroom-reservation-academic-year.adapter';
-import { ClassroomReservationNotificationAdapter } from './infrastructure/adapters/classroom-reservation-notification.adapter';
+import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
+import { NotificationAdapter } from './infrastructure/adapters/notification.adapter';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
 
@@ -40,18 +40,16 @@ export const createClassroomReservationModule = (
     db
   );
   const memberProvider = new MemberRoleAdapter(memberRepository);
-  const scheduleProvider = new ClassroomReservationScheduleAdapter(
+  const scheduleProvider = new ScheduleAdapter(
     scheduleRepository,
     scheduleSlotRepository,
     academicYearRepository,
     scheduleTimeConfigRepository
   );
 
-  const academicYearProvider = new ClassroomReservationAcademicYearAdapter(
-    academicYearRepository
-  );
+  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
 
-  const notificationProvider = new ClassroomReservationNotificationAdapter(
+  const notificationProvider = new NotificationAdapter(
     createNotificationUseCase
   );
 

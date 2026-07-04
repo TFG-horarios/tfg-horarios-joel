@@ -29,10 +29,10 @@ import {
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
 import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
-import { SubjectScheduleAdapter } from './infrastructure/adapters/subject-schedule.adapter';
+import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
 import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
-import { SubjectAcademicYearAdapter } from './infrastructure/adapters/subject-academic-year.adapter';
+import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 import { ScheduleIssueAdapter } from '@/modules/schedule/infrastructure/adapters/schedule-issue.adapter';
 
 export const createSubjectModule = (
@@ -47,13 +47,11 @@ export const createSubjectModule = (
     scheduleRepository,
     new ScheduleIssueAdapter()
   );
-  const scheduleProvider = new SubjectScheduleAdapter(
+  const scheduleProvider = new ScheduleAdapter(
     scheduleRepository,
     reevaluateSchedules
   );
-  const academicYearProvider = new SubjectAcademicYearAdapter(
-    academicYearRepository
-  );
+  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
   const runInTransaction: TransactionRunner = (work) => db.transaction(work);
 
   const controller = new HonoSubjectController(

@@ -1,13 +1,13 @@
 import { type IOrganizationRepository } from '../domain/organization.repository';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { OrganizationMapper } from './organization.mapper';
-import type { IOrganizationMemberProvider } from '../domain/providers/organization-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 
 export class GetOrganizationUseCase {
   constructor(
     private readonly organizationRepository: IOrganizationRepository,
-    private readonly memberProvider: IOrganizationMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(id: string, requesterUserId: string): Promise<OrganizationDTO> {

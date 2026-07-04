@@ -1,5 +1,5 @@
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
-import type { IClassroomReservationMemberProvider } from '../domain/providers/classroom-reservation-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { ClassroomReservationDTO } from '@tfg-horarios/shared';
@@ -7,7 +7,7 @@ import type { ClassroomReservationDTO } from '@tfg-horarios/shared';
 export class CancelClassroomReservationUseCase {
   constructor(
     private readonly repository: IClassroomReservationRepository,
-    private readonly memberProvider: IClassroomReservationMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

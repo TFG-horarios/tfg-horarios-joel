@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type {
   SubjectGroupDTO,
   SubjectGroupListQueryDTO,
@@ -11,7 +11,7 @@ import { ForbiddenError } from '@/core/errors/app.error';
 export class ListSubjectGroupsUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberProvider: ISubjectGroupMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

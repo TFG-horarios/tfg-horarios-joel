@@ -2,11 +2,15 @@ import type {
   SaveScheduleTimeConfigBodyDTO,
   ScheduleTimeConfigDTO,
 } from '@tfg-horarios/shared';
-import { ConflictError, ForbiddenError, ValidationError } from '@/core/errors/app.error';
+import {
+  ConflictError,
+  ForbiddenError,
+  ValidationError,
+} from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
 import { ScheduleTimeConfig } from '../domain/schedule-time-config.entity';
-import type { IScheduleTimeConfigMemberProvider } from '../domain/providers/schedule-time-config-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 import {
   normalizeCreateScheduleTimeConfigInput,
@@ -18,7 +22,7 @@ import { toScheduleTimeConfigDTO } from './schedule-time-config.mapper';
 export class CreateScheduleTimeConfigUseCase {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly memberProvider: IScheduleTimeConfigMemberProvider,
+    private readonly memberProvider: IMemberProvider,
     private readonly gridValidator: ScheduleTimeConfigGridValidator
   ) {}
 

@@ -1,6 +1,6 @@
 import type { DegreeDTO, SaveDegreeDTO } from '@tfg-horarios/shared';
 import type { IDegreeRepository } from '../domain/degree.repository';
-import type { IDegreeMemberProvider } from '../domain/providers/degree-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
@@ -9,7 +9,7 @@ import { DegreeMapper } from './degree.mapper';
 export class UpdateDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
-    private readonly memberProvider: IDegreeMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

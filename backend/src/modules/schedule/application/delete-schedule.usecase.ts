@@ -1,12 +1,12 @@
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteScheduleUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
-    private readonly memberProvider: IScheduleMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

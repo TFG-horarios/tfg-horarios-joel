@@ -1,13 +1,13 @@
 import type { ScheduleTimeConfigPossibilityDTO } from '@tfg-horarios/shared';
 import { ForbiddenError } from '@/core/errors/app.error';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IScheduleTimeConfigMemberProvider } from '../domain/providers/schedule-time-config-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 
 export class GetScheduleTimeConfigPossibilitiesUseCase {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly memberProvider: IScheduleTimeConfigMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

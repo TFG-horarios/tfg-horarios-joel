@@ -5,7 +5,7 @@ import type {
 } from '@tfg-horarios/shared';
 import type { IScheduleSlotRepository } from '../domain/schedule-slot.repository';
 import type { IScheduleSlotDataProvider } from '../domain/providers/schedule-slot-data.provider';
-import type { IScheduleSlotMemberProvider } from '../domain/providers/schedule-slot-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleSlotValidationProvider } from '../domain/providers/schedule-slot-validation.provider';
 import {
   ConflictError,
@@ -30,7 +30,7 @@ export class UpdateScheduleSlotUseCase {
   constructor(
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly dataProvider: IScheduleSlotDataProvider,
-    private readonly memberProvider: IScheduleSlotMemberProvider,
+    private readonly memberProvider: IMemberProvider,
     private readonly validationProvider: IScheduleSlotValidationProvider,
     private readonly unitOfWork?: IScheduleSlotUnitOfWork
   ) {}

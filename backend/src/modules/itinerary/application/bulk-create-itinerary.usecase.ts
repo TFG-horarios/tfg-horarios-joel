@@ -1,7 +1,7 @@
 import type { ItineraryDTO, BulkSaveItineraryDTO } from '@tfg-horarios/shared';
 import { Itinerary } from '../domain/itinerary.entity';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IItineraryMemberProvider } from '../domain/providers/itinerary-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
@@ -10,7 +10,7 @@ import { ItineraryMapper } from './itinerary.mapper';
 export class BulkCreateItinerariesUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberProvider: IItineraryMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

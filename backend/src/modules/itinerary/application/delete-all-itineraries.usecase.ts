@@ -1,18 +1,18 @@
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IItineraryMemberProvider } from '../domain/providers/itinerary-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
-import type { IItineraryAcademicYearProvider } from '../domain/providers/itinerary-academic-year.provider';
-import type { IItineraryScheduleProvider } from '../domain/providers/itinerary-schedule.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
+import type { IScheduleProvider } from '../domain/providers/schedule.provider';
 
 export class DeleteAllItinerariesUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberProvider: IItineraryMemberProvider,
-    private readonly academicYearProvider?: IItineraryAcademicYearProvider,
-    private readonly scheduleProvider?: IItineraryScheduleProvider,
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider?: IAcademicYearProvider,
+    private readonly scheduleProvider?: IScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 

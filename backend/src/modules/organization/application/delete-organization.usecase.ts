@@ -1,12 +1,12 @@
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { type IOrganizationRepository } from '../domain/organization.repository';
-import type { IOrganizationMemberProvider } from '../domain/providers/organization-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { hasPermission } from '@/core/permissions/authorization';
 
 export class DeleteOrganizationUseCase {
   constructor(
     private readonly organizationRepository: IOrganizationRepository,
-    private readonly memberProvider: IOrganizationMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

@@ -1,5 +1,5 @@
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IItineraryMemberProvider } from '../domain/providers/itinerary-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import type { AppRole } from '@/core/permissions/roles';
 import type { ItineraryIdentifierDTO } from '@tfg-horarios/shared';
@@ -7,7 +7,7 @@ import type { ItineraryIdentifierDTO } from '@tfg-horarios/shared';
 export class GetItineraryIdentifiersUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberProvider: IItineraryMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

@@ -1,11 +1,11 @@
 import { type IUserRepository } from '../domain/user.repository';
-import type { IUserMemberProvider } from '../domain/providers/user-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ValidationError } from '@/core/errors/app.error';
 
 export class DeleteUserUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly memberProvider: IUserMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(userId: string): Promise<void> {

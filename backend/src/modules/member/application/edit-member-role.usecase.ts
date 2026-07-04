@@ -7,12 +7,12 @@ import {
 import { hasPermission } from '@/core/permissions/authorization';
 import { ROLES, type AppRole } from '@/core/permissions/roles';
 import type { Member } from '../domain/member.entity';
-import type { IMemberNotificationProvider } from '../domain/providers/member-notification.provider';
+import type { INotificationProvider } from '../domain/providers/notification.provider';
 
 export class EditMemberRoleUseCase {
   constructor(
     private readonly memberRepository: IMemberRepository,
-    private readonly notificationProvider: IMemberNotificationProvider
+    private readonly notificationProvider: INotificationProvider
   ) {}
 
   async execute(

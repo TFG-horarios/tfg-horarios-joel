@@ -29,9 +29,9 @@ import {
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { DrizzleScheduleRepository } from '@/modules/schedule/infrastructure/db/drizzle.schedule.repository';
 import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
-import { ItineraryScheduleAdapter } from './infrastructure/adapters/itinerary-schedule.adapter';
+import { ScheduleAdapter } from './infrastructure/adapters/schedule.adapter';
 import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
-import { ItineraryAcademicYearAdapter } from './infrastructure/adapters/itinerary-academic-year.adapter';
+import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 
 export const createItineraryModule = (
   db: DbConnection,
@@ -40,12 +40,10 @@ export const createItineraryModule = (
   const itineraryRepository = new DrizzleItineraryRepository(db);
   const memberProvider = new MemberRoleAdapter(memberRepository);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
-  const scheduleProvider = new ItineraryScheduleAdapter(
+  const scheduleProvider = new ScheduleAdapter(
     new DrizzleScheduleRepository(db)
   );
-  const academicYearProvider = new ItineraryAcademicYearAdapter(
-    academicYearRepository
-  );
+  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
 
   const runInTransaction: TransactionRunner = (work) => db.transaction(work);
 

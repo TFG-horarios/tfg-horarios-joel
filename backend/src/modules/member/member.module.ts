@@ -18,8 +18,8 @@ import {
 } from './infrastructure/http/hono.member.routes';
 import type { AppEnv } from '@/core/types/app-types';
 import type { IUserRepository } from '@/modules/user/domain/user.repository';
-import { MemberUserAdapter } from './infrastructure/adapters/member-user.adapter';
-import { MemberNotificationAdapter } from './infrastructure/adapters/member-notification.adapter';
+import { UserAdapter } from './infrastructure/adapters/user.adapter';
+import { NotificationAdapter } from './infrastructure/adapters/notification.adapter';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
 
 export const createMemberModule = (
@@ -28,8 +28,8 @@ export const createMemberModule = (
   createNotificationUseCase: CreateNotificationUseCase
 ) => {
   const memberRepository = new DrizzleMemberRepository(db);
-  const userProvider = new MemberUserAdapter(userRepository);
-  const notificationProvider = new MemberNotificationAdapter(
+  const userProvider = new UserAdapter(userRepository);
+  const notificationProvider = new NotificationAdapter(
     createNotificationUseCase
   );
 

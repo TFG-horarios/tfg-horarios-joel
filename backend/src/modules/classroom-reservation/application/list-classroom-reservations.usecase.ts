@@ -4,7 +4,7 @@ import type {
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { IClassroomReservationRepository } from '../domain/classroom-reservation.repository';
-import type { IClassroomReservationMemberProvider } from '../domain/providers/classroom-reservation-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ClassroomReservationMapper } from './classroom-reservation.mapper';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
@@ -12,7 +12,7 @@ import { hasPermission } from '@/core/permissions/authorization';
 export class ListClassroomReservationsUseCase {
   constructor(
     private readonly repository: IClassroomReservationRepository,
-    private readonly memberProvider: IClassroomReservationMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

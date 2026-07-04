@@ -21,9 +21,9 @@ import {
 } from './infrastructure/http/hono.schedule-time-config.routes';
 import { AcademicYearTimingChangeAdapter } from '@/modules/academic-year/infrastructure/adapters/timing-change.adapter';
 import type { CreateNotificationUseCase } from '@/modules/notification/application/create-notification.usecase';
-import { ScheduleTimeConfigAcademicYearAdapter } from './infrastructure/adapters/schedule-time-config-academic-year.adapter';
+import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 import { ScheduleTimeConfigTimingChangeAdapter } from './infrastructure/adapters/schedule-time-config-timing-change.adapter';
-import { ScheduleTimeConfigTimingChangeNotifierAdapter } from './infrastructure/adapters/schedule-time-config-timing-change-notifier.adapter';
+import { NotificationAdapter } from './infrastructure/adapters/notification.adapter';
 import { MemberRoleAdapter } from '@/modules/member/infrastructure/adapters/member-role.adapter';
 
 export const createScheduleTimeConfigModule = (
@@ -33,7 +33,7 @@ export const createScheduleTimeConfigModule = (
 ) => {
   const repository = new DrizzleScheduleTimeConfigRepository(db);
   const memberProvider = new MemberRoleAdapter(memberRepository);
-  const academicYearProvider = new ScheduleTimeConfigAcademicYearAdapter(
+  const academicYearProvider = new AcademicYearAdapter(
     new DrizzleAcademicYearRepository(db)
   );
   const gridValidator = new ScheduleTimeConfigGridValidator(
@@ -46,9 +46,7 @@ export const createScheduleTimeConfigModule = (
     new ScheduleTimeConfigTimingChangeAdapter(academicYearTimingChangeProvider);
   const runInTransaction: TransactionRunner = (work) => db.transaction(work);
   const scheduleTimeConfigTimingChangeNotifierProvider =
-    new ScheduleTimeConfigTimingChangeNotifierAdapter(
-      createNotificationUseCase
-    );
+    new NotificationAdapter(createNotificationUseCase);
   const updateScheduleTimeConfigUseCase = new UpdateScheduleTimeConfigUseCase(
     repository,
     memberProvider,

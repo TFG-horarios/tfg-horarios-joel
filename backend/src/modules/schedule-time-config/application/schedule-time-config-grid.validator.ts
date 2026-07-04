@@ -1,6 +1,6 @@
 import { buildScheduleTimeGrid, type Shift } from '@tfg-horarios/shared';
 import { NotFoundError, ValidationError } from '@/core/errors/app.error';
-import type { IScheduleTimeConfigAcademicYearProvider } from '../domain/providers/schedule-time-config-academic-year.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 import type { NormalizedScheduleTimeConfigInput } from './schedule-time-config-input';
 
@@ -15,7 +15,7 @@ type ValidationInput = NormalizedScheduleTimeConfigInput & {
 export class ScheduleTimeConfigGridValidator {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly academicYearProvider: IScheduleTimeConfigAcademicYearProvider
+    private readonly academicYearProvider: IAcademicYearProvider
   ) {}
 
   async validate(

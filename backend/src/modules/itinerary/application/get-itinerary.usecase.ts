@@ -1,16 +1,16 @@
 import type { ItineraryDTO } from '@tfg-horarios/shared';
 import type { IItineraryRepository } from '../domain/itinerary.repository';
-import type { IItineraryMemberProvider } from '../domain/providers/itinerary-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { ItineraryMapper } from './itinerary.mapper';
-import type { IItineraryAcademicYearProvider } from '../domain/providers/itinerary-academic-year.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
 
 export class GetItineraryUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
-    private readonly memberProvider: IItineraryMemberProvider,
-    private readonly academicYearProvider: IItineraryAcademicYearProvider
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider: IAcademicYearProvider
   ) {}
 
   async execute(

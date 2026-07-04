@@ -1,6 +1,6 @@
 import type { ScheduleDTO } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleSlotProvider } from '../domain/providers/schedule-slot.provider';
 import {
   ForbiddenError,
@@ -14,7 +14,7 @@ export class PublishScheduleUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
     private readonly scheduleSlotProvider: IScheduleSlotProvider,
-    private readonly memberProvider: IScheduleMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

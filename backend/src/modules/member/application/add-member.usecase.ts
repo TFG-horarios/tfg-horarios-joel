@@ -1,4 +1,4 @@
-import type { IMemberUserProvider } from '../domain/providers/member-user.provider';
+import type { IUserProvider } from '../domain/providers/user.provider';
 import type { IMemberRepository } from '../domain/member.repository';
 import type { MemberDTO as MemberDTO } from '@tfg-horarios/shared';
 import { type AppRole } from '@/core/permissions/roles';
@@ -10,13 +10,13 @@ import {
 import { Member } from '../domain/member.entity';
 import { MemberMapper } from './member.mapper';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { IMemberNotificationProvider } from '../domain/providers/member-notification.provider';
+import type { INotificationProvider } from '../domain/providers/notification.provider';
 
 export class AddMemberUseCase {
   constructor(
     private readonly memberRepository: IMemberRepository,
-    private readonly userProvider: IMemberUserProvider,
-    private readonly notificationProvider: IMemberNotificationProvider
+    private readonly userProvider: IUserProvider,
+    private readonly notificationProvider: INotificationProvider
   ) {}
 
   async execute(

@@ -8,7 +8,7 @@ import type {
   ScheduleEngineClassroomMap,
 } from '../domain/providers/schedule-engine.provider';
 import type { IScheduleIssueProvider } from '../domain/providers/schedule-issue.provider';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import { generateSchedulePeriod } from './generation/period-schedule-generator';
 import { ScheduleMapper } from './schedule.mapper';
@@ -17,7 +17,7 @@ export class GenerateScheduleUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
     private readonly dataProvider: IScheduleDataProvider,
-    private readonly memberProvider: IScheduleMemberProvider,
+    private readonly memberProvider: IMemberProvider,
     private readonly engineProvider: IScheduleEngineProvider,
     private readonly issueProvider: IScheduleIssueProvider
   ) {}

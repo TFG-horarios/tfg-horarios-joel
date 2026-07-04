@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import type { AppRole } from '@/core/permissions/roles';
 import type { SubjectGroupIdentifierDTO } from '@tfg-horarios/shared';
@@ -7,7 +7,7 @@ import type { SubjectGroupIdentifierDTO } from '@tfg-horarios/shared';
 export class GetSubjectGroupIdentifiersUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberProvider: ISubjectGroupMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

@@ -5,7 +5,7 @@ import type {
 } from '@tfg-horarios/shared';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleDataProvider } from '../domain/providers/schedule-data.provider';
-import type { IScheduleMemberProvider } from '../domain/providers/schedule-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import { ScheduleMapper } from './schedule.mapper';
@@ -15,7 +15,7 @@ export class CheckScheduleOverwriteUseCase {
   constructor(
     private readonly scheduleRepository: IScheduleRepository,
     private readonly dataProvider: IScheduleDataProvider,
-    private readonly memberProvider: IScheduleMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

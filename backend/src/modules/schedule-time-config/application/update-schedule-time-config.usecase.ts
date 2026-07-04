@@ -6,8 +6,8 @@ import type { TransactionRunner } from '@/core/db/transaction-runner';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IScheduleTimeConfigMemberProvider } from '../domain/providers/schedule-time-config-member.provider';
-import type { IScheduleTimeConfigTimingChangeNotifierProvider } from '../domain/providers/schedule-time-config-timing-change-notifier.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
+import type { INotificationProvider } from '../domain/providers/notification.provider';
 import type { IScheduleTimeConfigTimingChangeProvider } from '../domain/providers/schedule-time-config-timing-change.provider';
 import type { IScheduleTimeConfigRepository } from '../domain/schedule-time-config.repository';
 import { normalizeUpdateScheduleTimeConfigInput } from './schedule-time-config-input';
@@ -17,11 +17,11 @@ import { toScheduleTimeConfigDTO } from './schedule-time-config.mapper';
 export class UpdateScheduleTimeConfigUseCase {
   constructor(
     private readonly repository: IScheduleTimeConfigRepository,
-    private readonly memberProvider: IScheduleTimeConfigMemberProvider,
+    private readonly memberProvider: IMemberProvider,
     private readonly gridValidator: ScheduleTimeConfigGridValidator,
     private readonly timingChangeProvider?: IScheduleTimeConfigTimingChangeProvider,
     private readonly runInTransaction?: TransactionRunner,
-    private readonly timingChangeNotifier?: IScheduleTimeConfigTimingChangeNotifierProvider
+    private readonly timingChangeNotifier?: INotificationProvider
   ) {}
 
   async execute(

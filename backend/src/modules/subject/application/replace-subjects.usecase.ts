@@ -1,5 +1,5 @@
 import type { ISubjectRepository } from '../domain/subject.repository';
-import type { ISubjectMemberProvider } from '../domain/providers/subject-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type { BulkSaveSubjectDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { Subject } from '../domain/subject.entity';
 import { SubjectMapper } from './subject.mapper';
@@ -9,7 +9,7 @@ import { hasPermission } from '@/core/permissions/authorization';
 export class ReplaceSubjectsUseCase {
   constructor(
     private readonly subjectRepository: ISubjectRepository,
-    private readonly memberProvider: ISubjectMemberProvider
+    private readonly memberProvider: IMemberProvider
   ) {}
 
   async execute(

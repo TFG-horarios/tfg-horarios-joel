@@ -1,17 +1,17 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
-import type { ISubjectGroupAcademicYearProvider } from '../domain/providers/subject-group-academic-year.provider';
-import type { ISubjectGroupScheduleProvider } from '../domain/providers/subject-group-schedule.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
+import type { IScheduleProvider } from '../domain/providers/schedule.provider';
 
 export class DeleteSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
-    private readonly memberProvider: ISubjectGroupMemberProvider,
-    private readonly academicYearProvider?: ISubjectGroupAcademicYearProvider,
-    private readonly scheduleProvider?: ISubjectGroupScheduleProvider,
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider?: IAcademicYearProvider,
+    private readonly scheduleProvider?: IScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 
@@ -53,11 +53,11 @@ export class DeleteSubjectGroupUseCase {
     await this.runInTransaction(async (tx) => {
       await this.subjectGroupRepository.delete(id, organizationId, tx);
       await this.scheduleProvider!.handleSubjectGroupsDeletion(
-          [id],
-          organizationId,
-          yearIds,
-          tx
-        );
+        [id],
+        organizationId,
+        yearIds,
+        tx
+      );
     });
   }
 }

@@ -1,5 +1,5 @@
 import type { ISubjectGroupRepository } from '../domain/subject-group.repository';
-import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
+import type { IMemberProvider } from '../domain/providers/member.provider';
 import type {
   BulkSaveSubjectGroupDTO,
   SubjectGroupDTO,
@@ -14,16 +14,16 @@ import {
 import { hasPermission } from '@/core/permissions/authorization';
 import type { ISubjectProvider } from '../domain/providers/subject.provider';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
-import type { ISubjectGroupAcademicYearProvider } from '../domain/providers/subject-group-academic-year.provider';
-import type { ISubjectGroupScheduleProvider } from '../domain/providers/subject-group-schedule.provider';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
+import type { IScheduleProvider } from '../domain/providers/schedule.provider';
 
 export class BulkCreateSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly subjectProvider: ISubjectProvider,
-    private readonly memberProvider: ISubjectGroupMemberProvider,
-    private readonly academicYearProvider?: ISubjectGroupAcademicYearProvider,
-    private readonly scheduleProvider?: ISubjectGroupScheduleProvider,
+    private readonly memberProvider: IMemberProvider,
+    private readonly academicYearProvider?: IAcademicYearProvider,
+    private readonly scheduleProvider?: IScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 
