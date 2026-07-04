@@ -200,19 +200,17 @@ export class HonoClassroomController {
     return c.json(slots, 200);
   };
 
-  getOccupancy: RouteHandler<
-    typeof getClassroomOccupancyRoute,
-    AppEnv
-  > = async (c) => {
-    const { organizationId, id } = c.req.valid('param');
-    const query = c.req.valid('query');
-    const requesterUserId = c.get('userId');
-    const events = await this.getClassroomOccupancyUseCase.execute(
-      organizationId,
-      id,
-      requesterUserId,
-      query
-    );
-    return c.json(events, 200);
-  };
+  getOccupancy: RouteHandler<typeof getClassroomOccupancyRoute, AppEnv> =
+    async (c) => {
+      const { organizationId, id } = c.req.valid('param');
+      const query = c.req.valid('query');
+      const requesterUserId = c.get('userId');
+      const events = await this.getClassroomOccupancyUseCase.execute(
+        organizationId,
+        id,
+        requesterUserId,
+        query
+      );
+      return c.json(events, 200);
+    };
 }

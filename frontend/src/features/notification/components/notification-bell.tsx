@@ -217,9 +217,7 @@ export function NotificationBell() {
     <>
       <div className="hidden md:block">
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            {triggerButton}
-          </PopoverTrigger>
+          <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
           <PopoverContent className="w-80 p-0" align="end">
             {notificationContent}
           </PopoverContent>
@@ -228,9 +226,7 @@ export function NotificationBell() {
 
       <div className="block md:hidden">
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            {triggerButton}
-          </DialogTrigger>
+          <DialogTrigger asChild>{triggerButton}</DialogTrigger>
           <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-0 rounded-2xl overflow-hidden gap-0">
             <DialogTitle className="sr-only">Notificaciones</DialogTitle>
             {notificationContent}

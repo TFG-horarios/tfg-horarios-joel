@@ -81,13 +81,13 @@ export const InteractiveCard = React.forwardRef<
           style={{
             ...(maskSvgUri
               ? {
-                WebkitMaskImage: `url("${maskSvgUri}")`,
-                maskImage: `url("${maskSvgUri}")`,
-                WebkitMaskSize: '100% 100%',
-                maskSize: '100% 100%',
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-              }
+                  WebkitMaskImage: `url("${maskSvgUri}")`,
+                  maskImage: `url("${maskSvgUri}")`,
+                  WebkitMaskSize: '100% 100%',
+                  maskSize: '100% 100%',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                }
               : {}),
           }}
           {...props}

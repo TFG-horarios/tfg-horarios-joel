@@ -69,7 +69,10 @@ function OrganizationHeaderInner() {
   const isOrgDetail = isOrganizations && pathSegments.length >= 3;
   const orgId = isOrgDetail ? pathSegments[1] : null;
 
-  const hasAcademicYear = isOrgDetail && pathSegments.length >= 4 && pathSegments[2] === 'academic-years';
+  const hasAcademicYear =
+    isOrgDetail &&
+    pathSegments.length >= 4 &&
+    pathSegments[2] === 'academic-years';
   const academicYearId = hasAcademicYear ? pathSegments[3] : null;
 
   const [orgName, setOrgName] = useState<string | null>(null);
@@ -550,16 +553,18 @@ function OrganizationHeaderInner() {
         <>
           <div
             className={cn(
-              "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
-              isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
+              isMobileMenuOpen
+                ? 'opacity-100 pointer-events-auto'
+                : 'opacity-0 pointer-events-none'
             )}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           <div
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-white/95 dark:bg-neutral-950/95 p-6 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out lg:hidden",
-              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+              'fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-white/95 dark:bg-neutral-950/95 p-6 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out lg:hidden',
+              isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
             )}
           >
             <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
@@ -598,7 +603,8 @@ function OrganizationHeaderInner() {
                 const Icon = navIcons[item.icon] ?? GraduationCap;
                 const isActive = item.exact
                   ? pathname === item.href
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  : pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
 
                 return (
                   <Button

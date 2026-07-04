@@ -134,9 +134,10 @@ describe('ScheduleSlotDataAdapter', () => {
 
   test('rejectConflictingReservations should keep already started reservations', async () => {
     const now = new Date();
-    const today = `${now.getFullYear()}-${String(
-      now.getMonth() + 1
-    ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(now.getDate()).padStart(2, '0')}`;
     const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
     const reservation = {
       status: 'ACCEPTED',

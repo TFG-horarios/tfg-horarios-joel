@@ -352,11 +352,7 @@ export class InitialSolution {
     const cached = this.timeCandidatesCache.get(cacheKey);
     if (cached) return cached;
 
-    const candidates = buildTimeCandidates(
-      sessionDuration,
-      grid,
-      this.days
-    );
+    const candidates = buildTimeCandidates(sessionDuration, grid, this.days);
 
     this.timeCandidatesCache.set(cacheKey, candidates);
     return candidates;

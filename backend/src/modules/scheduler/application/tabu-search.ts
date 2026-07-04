@@ -4,9 +4,7 @@ import {
   type Assignment,
   type ScheduleTimeGridMap,
 } from '../domain/types';
-import {
-  type ScheduleTimeGrid,
-} from '@tfg-horarios/shared';
+import { type ScheduleTimeGrid } from '@tfg-horarios/shared';
 import { PenaltyCalculator } from '../domain/penalty-calculator';
 import {
   InitialSolution,

@@ -21,6 +21,11 @@ describe('DeleteClassroomUseCase', () => {
     getMemberRole: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+    findActiveAndFutureIds: mock(),
+  };
+
   const useCase = new DeleteClassroomUseCase(
     repositoryMock,
     memberProviderMock
@@ -52,35 +57,34 @@ describe('DeleteClassroomUseCase', () => {
 
   test('should propagate deletion and reevaluate affected schedules atomically', async () => {
     const tx = { id: 'tx' };
-    const repository = {
-      ...repositoryMock,
-      findById: mock(async () => ({ id: 'classroom-1' })),
-      delete: mock(async () => undefined),
-    };
-    const memberProvider = {
+    const memberProviderMock = {
       getMemberRole: mock(async () => 'admin' as const),
     };
-    const academicYearRepository = {
-      findActiveAndFutureIds: mock(async () => ['year-1']),
-    };
+
     const scheduleProvider = {
       handleClassroomsDeletion: mock(async () => undefined),
     };
-    const runInTransaction = mock(
-      async (work: (tx: DbTransaction) => Promise<void>) =>
+    const transactionalUseCase = new DeleteClassroomUseCase(
+      repositoryMock,
+      memberProviderMock,
+      academicYearProviderMock,
+      scheduleProvider,
+      async <T>(work: (tx: DbTransaction) => Promise<T>) =>
         work(tx as unknown as DbTransaction)
     );
-    const transactionalUseCase = new DeleteClassroomUseCase(
-      repository as any,
-      memberProvider,
-      academicYearRepository as any,
-      scheduleProvider,
-      runInTransaction as any
-    );
+
+    repositoryMock.findById.mockResolvedValueOnce({ id: 'classroom-1' });
+    academicYearProviderMock.findActiveAndFutureIds.mockResolvedValueOnce([
+      'year-1',
+    ]);
 
     await transactionalUseCase.execute('org-1', 'classroom-1', 'user-1');
 
-    expect(repository.delete).toHaveBeenCalledWith('classroom-1', 'org-1', tx);
+    expect(repositoryMock.delete).toHaveBeenCalledWith(
+      'classroom-1',
+      'org-1',
+      tx
+    );
     expect(scheduleProvider.handleClassroomsDeletion).toHaveBeenCalledWith(
       ['classroom-1'],
       'org-1',

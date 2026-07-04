@@ -11,7 +11,11 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import { fetchPaginatedMembers, fetchAllMembers, getOrganizationMemberRole } from './queries';
+import {
+  fetchPaginatedMembers,
+  fetchAllMembers,
+  getOrganizationMemberRole,
+} from './queries';
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import { type ActionResponse } from '@/types/actions';

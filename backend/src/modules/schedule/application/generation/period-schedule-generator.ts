@@ -17,10 +17,7 @@ import {
   type ScheduleTimeConfigIndex,
 } from './time-config-index';
 import { prepareLockedAssignments } from './locked-assignments';
-import {
-  emptyPeriodResult,
-  type PeriodGenerationResult,
-} from './types';
+import { emptyPeriodResult, type PeriodGenerationResult } from './types';
 import { buildPeriodGenerationResult } from './schedule-generation-result.builder';
 
 type GeneratePeriodInput = {

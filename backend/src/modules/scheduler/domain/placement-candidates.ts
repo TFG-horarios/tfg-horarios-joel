@@ -111,7 +111,9 @@ export const getTabuSearchClassrooms = (
     const labRooms = availableClassrooms.filter(
       (id) => classroomsCache[id]?.type === 'lab'
     );
-    classroomsToSearch = Array.from(new Set([...classroomsToSearch, ...labRooms]));
+    classroomsToSearch = Array.from(
+      new Set([...classroomsToSearch, ...labRooms])
+    );
   }
 
   return classroomsToSearch;

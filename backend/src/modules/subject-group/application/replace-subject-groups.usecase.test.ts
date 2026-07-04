@@ -27,6 +27,11 @@ describe('ReplaceSubjectGroupsUseCase', () => {
     getAvailableShifts: mock(),
   };
 
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+    findActiveAndFutureIds: mock(),
+  };
+
   const useCase = new ReplaceSubjectGroupsUseCase(
     repositoryMock,
     memberProviderMock,
@@ -144,13 +149,16 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       repositoryMock,
       memberProviderMock,
       subjectProviderMock,
-      { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
+      academicYearProviderMock,
       scheduleProvider,
       async <T>(work: (tx: DbTransaction) => Promise<T>) =>
         work(tx as unknown as DbTransaction)
     );
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
+    academicYearProviderMock.findActiveAndFutureIds.mockResolvedValueOnce([
+      'year-1',
+    ]);
 
     const result = await transactionalUseCase.execute('org-1', 'user-1', [
       {

@@ -7,14 +7,20 @@ import type {
   ScheduleDTO,
   ScheduleTimeConfigDTO,
 } from '@tfg-horarios/shared';
-import { schedulesTable, type DrizzleSchedule } from '../db/drizzle.schedule.schema';
+import {
+  schedulesTable,
+  type DrizzleSchedule,
+} from '../db/drizzle.schedule.schema';
 import {
   type NewDrizzleScheduleSlotInclusion,
   scheduleSlotInclusionsTable,
   scheduleSlotsTable,
-  type DrizzleScheduleSlotInclusion
+  type DrizzleScheduleSlotInclusion,
 } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
-import { scheduleTimeConfigsTable, type DrizzleScheduleTimeConfig } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
+import {
+  scheduleTimeConfigsTable,
+  type DrizzleScheduleTimeConfig,
+} from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 import type { IScheduleImportProvider } from '../../domain/providers/schedule-import.provider';
 
 export class ScheduleImportAdapter implements IScheduleImportProvider {
@@ -554,7 +560,9 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
     };
   }
 
-  private timeConfigToDTO(row: DrizzleScheduleTimeConfig): ScheduleTimeConfigDTO {
+  private timeConfigToDTO(
+    row: DrizzleScheduleTimeConfig
+  ): ScheduleTimeConfigDTO {
     return {
       id: row.id,
       organizationId: row.organizationId,

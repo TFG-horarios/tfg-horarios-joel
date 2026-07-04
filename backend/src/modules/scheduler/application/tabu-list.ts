@@ -25,22 +25,13 @@ export class TabuList {
   public contains(move: Omit<TabuMove, 'expiresAtIteration'>) {
     return this.moves.some((tabuMove) => {
       if (tabuMove.assignmentId !== move.assignmentId) return false;
-      if (
-        tabuMove.attribute === 'time' &&
-        move.attribute === 'time'
-      ) {
+      if (tabuMove.attribute === 'time' && move.attribute === 'time') {
         return tabuMove.forbiddenValue === move.forbiddenValue;
       }
-      if (
-        tabuMove.attribute === 'room' &&
-        move.attribute === 'room'
-      ) {
+      if (tabuMove.attribute === 'room' && move.attribute === 'room') {
         return tabuMove.forbiddenValue === move.forbiddenValue;
       }
-      if (
-        tabuMove.attribute === 'both' &&
-        move.attribute === 'both'
-      ) {
+      if (tabuMove.attribute === 'both' && move.attribute === 'both') {
         return tabuMove.forbiddenValue === move.forbiddenValue;
       }
       return false;

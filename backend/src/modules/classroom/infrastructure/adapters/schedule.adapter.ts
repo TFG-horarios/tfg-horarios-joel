@@ -19,11 +19,11 @@ export class ScheduleAdapter implements IScheduleProvider {
   ): Promise<void> {
     const scheduleIds = await this.scheduleRepository
       .unassignClassroomsFromSlots!(
-        classroomIds,
-        organizationId,
-        activeAndFutureYearIds,
-        tx
-      );
+      classroomIds,
+      organizationId,
+      activeAndFutureYearIds,
+      tx
+    );
     await this.reservationRepository.rejectFutureReservationsForClassrooms!(
       classroomIds,
       organizationId,

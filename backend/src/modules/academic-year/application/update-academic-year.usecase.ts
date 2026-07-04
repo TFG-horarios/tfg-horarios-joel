@@ -18,7 +18,7 @@ export class UpdateAcademicYearUseCase {
     private readonly memberProvider: IMemberProvider,
     private readonly notificationProvider: IAcademicYearNotificationProvider,
     private readonly timingChangeProvider?: IAcademicYearTimingChangeProvider,
-    private readonly runInTransaction?: TransactionRunner,
+    private readonly runInTransaction?: TransactionRunner
   ) {}
 
   async execute(

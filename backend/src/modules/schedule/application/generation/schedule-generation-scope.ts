@@ -128,13 +128,17 @@ export const buildScopeAssignments = (
     const itineraries = itinerariesPerDegreeYearShift.get(baseKey);
 
     if (!itineraries || itineraries.size === 0) {
-      ensureScopeAssignment(scopeAssignments, assignment, null).assignments.push(
-        assignment
-      );
+      ensureScopeAssignment(
+        scopeAssignments,
+        assignment,
+        null
+      ).assignments.push(assignment);
     } else if (group.isCommon) {
-      ensureScopeAssignment(scopeAssignments, assignment, null).assignments.push(
-        assignment
-      );
+      ensureScopeAssignment(
+        scopeAssignments,
+        assignment,
+        null
+      ).assignments.push(assignment);
     } else if (group.itineraryId) {
       ensureScopeAssignment(
         scopeAssignments,

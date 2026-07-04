@@ -8,7 +8,10 @@ import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
 import { fetchOrganizationById } from '@/features/organizations/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchPaginatedSubjects, fetchAllSubjects } from '@/features/subject/queries';
+import {
+  fetchPaginatedSubjects,
+  fetchAllSubjects,
+} from '@/features/subject/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { SubjectCard } from '@/features/subject/components/subject-card';

@@ -31,18 +31,32 @@ describe('ScheduleAdapter', () => {
   };
 
   const academicYearRepositoryMock = {
+    save: mock(),
+    update: mock(),
     findById: mock(),
+    findByOrganizationId: mock(),
+    findActiveAndFutureIds: mock(),
+    isHistoric: mock(),
+    delete: mock(),
   };
 
   const scheduleTimeConfigRepositoryMock = {
     findById: mock(),
+    findAll: mock(),
+    findEffective: mock(),
+    save: mock(),
+    update: mock(),
+    delete: mock(),
+    validateScope: mock(),
+    isReferenced: mock(),
+    findPossibilities: mock(),
   };
 
   const adapter = new ScheduleAdapter(
     scheduleRepositoryMock,
     scheduleSlotRepositoryMock,
-    academicYearRepositoryMock as any,
-    scheduleTimeConfigRepositoryMock as any
+    academicYearRepositoryMock,
+    scheduleTimeConfigRepositoryMock
   );
 
   const mockTiming = () => {

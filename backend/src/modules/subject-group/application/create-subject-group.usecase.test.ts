@@ -20,6 +20,10 @@ describe('CreateSubjectGroupUseCase', () => {
 
   const subjectProviderMock = { getAvailableShifts: mock() };
   const memberProviderMock = { getMemberRole: mock() };
+  const academicYearProviderMock = {
+    shouldIncludeSoftDeleted: mock(),
+    findActiveAndFutureIds: mock(),
+  };
 
   const useCase = new CreateSubjectGroupUseCase(
     repositoryMock,
@@ -72,13 +76,16 @@ describe('CreateSubjectGroupUseCase', () => {
       repositoryMock,
       subjectProviderMock,
       memberProviderMock,
-      { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
+      academicYearProviderMock,
       scheduleProvider,
       async <T>(work: (tx: DbTransaction) => Promise<T>) =>
         work(tx as unknown as DbTransaction)
     );
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
+    academicYearProviderMock.findActiveAndFutureIds.mockResolvedValueOnce([
+      'year-1',
+    ]);
 
     const result = await transactionalUseCase.execute(
       'org-1',

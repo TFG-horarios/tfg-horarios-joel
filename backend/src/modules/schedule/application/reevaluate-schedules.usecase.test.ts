@@ -5,27 +5,34 @@ import { ReevaluateSchedulesUseCase } from './reevaluate-schedules.usecase';
 describe('ReevaluateSchedulesUseCase', () => {
   test('should recalculate conflict and unassigned metrics in given transaction', async () => {
     const tx = { id: 'tx' };
-    const repository = {
-      findScheduleIssueData: mock(async () => [
+    const scheduleRepositoryMock = {
+      updateSchedulesMetrics: mock(),
+      findById: mock(),
+      findByScope: mock(),
+      findDistinctAcademicYears: mock(),
+      findAll: mock(),
+      findPaginated: mock(),
+      create: mock(),
+      update: mock(),
+      createSchedulesWithSlots: mock(),
+      findLockedAssignments: mock(),
+      delete: mock(),
+      findScheduleIssueData: mock().mockResolvedValue([
         {
           scheduleId: 'schedule-1',
           classroomId: null,
-          dayOfWeek: 1,
-          slotIndex: 1,
-          conflicts: [
-            { type: 'ROOM_OVERLAP', message: 'ERR_ROOM_OVERLAP' },
-            { type: 'UNASSIGNED', message: 'ERR_UNASSIGNED' },
-          ],
+          dayOfWeek: null,
+          slotIndex: null,
+          conflicts: [],
         },
         {
           scheduleId: 'schedule-1',
-          classroomId: 'classroom-1',
-          dayOfWeek: 2,
+          classroomId: 'c1',
+          dayOfWeek: 1,
           slotIndex: 1,
-          conflicts: [],
+          conflicts: [{ type: 'OVERLAP' }],
         },
       ]),
-      updateSchedulesMetrics: mock(async () => undefined),
     };
     const issueProvider = {
       countSchedulingConflicts: mock(
@@ -50,7 +57,7 @@ describe('ReevaluateSchedulesUseCase', () => {
       })),
     };
     const useCase = new ReevaluateSchedulesUseCase(
-      repository as any,
+      scheduleRepositoryMock,
       issueProvider
     );
 
@@ -60,12 +67,12 @@ describe('ReevaluateSchedulesUseCase', () => {
       tx as unknown as DbTransaction
     );
 
-    expect(repository.findScheduleIssueData).toHaveBeenCalledWith(
+    expect(scheduleRepositoryMock.findScheduleIssueData).toHaveBeenCalledWith(
       ['schedule-1'],
       'organization-1',
       tx
     );
-    expect(repository.updateSchedulesMetrics).toHaveBeenCalledWith(
+    expect(scheduleRepositoryMock.updateSchedulesMetrics).toHaveBeenCalledWith(
       [{ scheduleId: 'schedule-1', conflicts: 1, unassigned: 1 }],
       'organization-1',
       tx
