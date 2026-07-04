@@ -63,10 +63,7 @@ describe('DeleteClassroomUseCase', () => {
       findActiveAndFutureIds: mock(async () => ['year-1']),
     };
     const scheduleProvider = {
-      handleClassroomsDeletion: mock(async () => ['schedule-1']),
-    };
-    const reevaluateSchedules = {
-      execute: mock(async () => undefined),
+      handleClassroomsDeletion: mock(async () => undefined),
     };
     const runInTransaction = mock(async (work: (tx: any) => Promise<void>) =>
       work(tx)
@@ -76,7 +73,6 @@ describe('DeleteClassroomUseCase', () => {
       memberProvider,
       academicYearRepository as any,
       scheduleProvider,
-      reevaluateSchedules as any,
       runInTransaction as any
     );
 
@@ -87,11 +83,6 @@ describe('DeleteClassroomUseCase', () => {
       ['classroom-1'],
       'org-1',
       ['year-1'],
-      tx
-    );
-    expect(reevaluateSchedules.execute).toHaveBeenCalledWith(
-      ['schedule-1'],
-      'org-1',
       tx
     );
   });

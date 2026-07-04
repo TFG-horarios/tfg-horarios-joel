@@ -43,6 +43,7 @@ import { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reeva
 import { AcademicYearAdapter } from './infrastructure/adapters/academic-year.adapter';
 import { DrizzleScheduleTimeConfigRepository } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.repository';
 import { ScheduleIssueAdapter } from '@/modules/schedule/infrastructure/adapters/schedule-issue.adapter';
+import { ClassroomOccupancyAdapter } from './infrastructure/adapters/classroom-occupancy.adapter';
 
 export const createClassroomModule = (
   db: DbConnection,
@@ -58,15 +59,21 @@ export const createClassroomModule = (
   );
 
   const memberProvider = new MemberRoleAdapter(memberRepository);
-  const scheduleProvider = new ScheduleAdapter(
-    scheduleRepository,
-    new DrizzleClassroomReservationRepository(db)
-  );
-  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
-
   const reevaluateSchedules = new ReevaluateSchedulesUseCase(
     scheduleRepository,
     new ScheduleIssueAdapter()
+  );
+  const scheduleProvider = new ScheduleAdapter(
+    scheduleRepository,
+    new DrizzleClassroomReservationRepository(db),
+    reevaluateSchedules
+  );
+  const academicYearProvider = new AcademicYearAdapter(academicYearRepository);
+  const occupancyProvider = new ClassroomOccupancyAdapter(
+    scheduleRepository,
+    scheduleSlotRepository,
+    scheduleTimeConfigRepository,
+    academicYearRepository
   );
   const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
     db.transaction(work);
@@ -100,9 +107,8 @@ export const createClassroomModule = (
   const deleteUseCase = new DeleteClassroomUseCase(
     classroomRepository,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
@@ -120,9 +126,8 @@ export const createClassroomModule = (
   const deleteAllUseCase = new DeleteAllClassroomsUseCase(
     classroomRepository,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
@@ -145,10 +150,7 @@ export const createClassroomModule = (
   );
 
   const getClassroomOccupancyUseCase = new GetClassroomOccupancyUseCase(
-    scheduleRepository,
-    scheduleSlotRepository,
-    scheduleTimeConfigRepository,
-    academicYearRepository,
+    occupancyProvider,
     classroomRepository,
     memberProvider,
     academicYearProvider

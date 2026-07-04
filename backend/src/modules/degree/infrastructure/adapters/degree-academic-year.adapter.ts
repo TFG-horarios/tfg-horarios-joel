@@ -12,4 +12,8 @@ export class DegreeAcademicYearAdapter implements IDegreeAcademicYearProvider {
       (await this.academicYearRepository.isHistoric?.(academicYearId)) ?? false;
     return isHistoric;
   }
+
+  findActiveAndFutureIds(organizationId: string): Promise<string[]> {
+    return this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+  }
 }

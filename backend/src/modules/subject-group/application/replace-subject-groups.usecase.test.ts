@@ -134,10 +134,10 @@ describe('ReplaceSubjectGroupsUseCase', () => {
   test('should replace the slots of existing schedules', async () => {
     const tx = { id: 'tx-1' };
     const scheduleProvider = {
-      handleSubjectGroupsDeletion: mock(async () => ['schedule-1']),
-      handleSubjectGroupsCreation: mock(async () => ['schedule-1']),
+      handleSubjectGroupsDeletion: mock(),
+      handleSubjectGroupsCreation: mock(),
+      replaceSubjectGroups: mock(async () => undefined),
     };
-    const reevaluateSchedules = { execute: mock(async () => {}) };
     repositoryMock.findAll.mockResolvedValueOnce([{ id: 'old-group' }]);
     const transactionalUseCase = new ReplaceSubjectGroupsUseCase(
       repositoryMock,
@@ -145,8 +145,7 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       subjectProviderMock,
       { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
       scheduleProvider,
-      reevaluateSchedules as any,
-      async (work) => work(tx)
+      async <T>(work: (tx: any) => Promise<T>) => work(tx)
     );
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
@@ -169,21 +168,11 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       'org-1',
       tx
     );
-    expect(scheduleProvider.handleSubjectGroupsDeletion).toHaveBeenCalledWith(
+    expect(scheduleProvider.replaceSubjectGroups).toHaveBeenCalledWith(
       ['old-group'],
-      'org-1',
-      ['year-1'],
-      tx
-    );
-    expect(scheduleProvider.handleSubjectGroupsCreation).toHaveBeenCalledWith(
       [result[0]!.id],
       'org-1',
       ['year-1'],
-      tx
-    );
-    expect(reevaluateSchedules.execute).toHaveBeenCalledWith(
-      ['schedule-1'],
-      'org-1',
       tx
     );
   });

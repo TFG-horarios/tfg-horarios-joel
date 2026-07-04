@@ -46,13 +46,16 @@ export const createSubjectGroupModule = (
   const subjectProvider = new SubjectAdapter(subjectRepository);
   const scheduleRepository = new DrizzleScheduleRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
-  const scheduleProvider = new SubjectGroupScheduleAdapter(scheduleRepository);
-  const academicYearProvider = new SubjectGroupAcademicYearAdapter(
-    academicYearRepository
-  );
   const reevaluateSchedules = new ReevaluateSchedulesUseCase(
     scheduleRepository,
     new ScheduleIssueAdapter()
+  );
+  const scheduleProvider = new SubjectGroupScheduleAdapter(
+    scheduleRepository,
+    reevaluateSchedules
+  );
+  const academicYearProvider = new SubjectGroupAcademicYearAdapter(
+    academicYearRepository
   );
   const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
     db.transaction(work);
@@ -77,9 +80,8 @@ export const createSubjectGroupModule = (
     subjectGroupRepository,
     subjectProvider,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
@@ -87,9 +89,8 @@ export const createSubjectGroupModule = (
     subjectGroupRepository,
     subjectProvider,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
@@ -102,18 +103,16 @@ export const createSubjectGroupModule = (
   const deleteUseCase = new DeleteSubjectGroupUseCase(
     subjectGroupRepository,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
   const deleteAllUseCase = new DeleteAllSubjectGroupsUseCase(
     subjectGroupRepository,
     memberProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 
@@ -121,9 +120,8 @@ export const createSubjectGroupModule = (
     subjectGroupRepository,
     memberProvider,
     subjectProvider,
-    academicYearRepository,
+    academicYearProvider,
     scheduleProvider,
-    reevaluateSchedules,
     runInTransaction
   );
 

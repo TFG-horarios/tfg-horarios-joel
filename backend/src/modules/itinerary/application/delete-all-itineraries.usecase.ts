@@ -3,15 +3,15 @@ import type { IItineraryMemberProvider } from '../domain/providers/itinerary-mem
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { IItineraryAcademicYearProvider } from '../domain/providers/itinerary-academic-year.provider';
 import type { IItineraryScheduleProvider } from '../domain/providers/itinerary-schedule.provider';
 
 export class DeleteAllItinerariesUseCase {
   constructor(
     private readonly itineraryRepository: IItineraryRepository,
     private readonly memberProvider: IItineraryMemberProvider,
-    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly academicYearProvider?: IItineraryAcademicYearProvider,
     private readonly scheduleProvider?: IItineraryScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
@@ -31,7 +31,8 @@ export class DeleteAllItinerariesUseCase {
     }
 
     if (
-      !this.academicYearRepository ||
+      !this.academicYearProvider ||
+      !this.academicYearProvider.findActiveAndFutureIds ||
       !this.scheduleProvider ||
       !this.runInTransaction
     ) {
@@ -43,7 +44,7 @@ export class DeleteAllItinerariesUseCase {
       false
     );
     const yearIds =
-      await this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+      await this.academicYearProvider.findActiveAndFutureIds(organizationId);
     await this.runInTransaction(async (tx) => {
       await this.itineraryRepository.deleteAll(organizationId, tx);
       await this.scheduleProvider!.handleItinerariesDeletion(

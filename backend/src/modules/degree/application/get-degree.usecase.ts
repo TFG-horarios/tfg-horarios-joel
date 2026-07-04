@@ -4,13 +4,13 @@ import type { IDegreeMemberProvider } from '../domain/providers/degree-member.pr
 import type { AppRole } from '@/core/permissions/roles';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { DegreeMapper } from './degree.mapper';
-import type { IAcademicYearProvider } from '@/modules/classroom/domain/providers/academic-year.provider';
+import type { IDegreeAcademicYearProvider } from '../domain/providers/degree-academic-year.provider';
 
 export class GetDegreeUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
     private readonly memberProvider: IDegreeMemberProvider,
-    private readonly academicYearProvider: IAcademicYearProvider
+    private readonly academicYearProvider: IDegreeAcademicYearProvider
   ) {}
 
   async execute(

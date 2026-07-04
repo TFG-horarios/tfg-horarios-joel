@@ -3,18 +3,16 @@ import type { IMemberProvider } from '../domain/providers/member.provider';
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
-import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { IAcademicYearProvider } from '../domain/providers/academic-year.provider';
 import type { IScheduleProvider } from '../domain/providers/schedule.provider';
 
 export class DeleteAllClassroomsUseCase {
   constructor(
     private readonly classroomRepository: IClassroomRepository,
     private readonly memberProvider: IMemberProvider,
-    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly academicYearProvider?: IAcademicYearProvider,
     private readonly scheduleProvider?: IScheduleProvider,
-    private readonly reevaluateSchedules?: ReevaluateSchedulesUseCase,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 
@@ -33,9 +31,9 @@ export class DeleteAllClassroomsUseCase {
     }
 
     if (
-      !this.academicYearRepository ||
+      !this.academicYearProvider ||
+      !this.academicYearProvider.findActiveAndFutureIds ||
       !this.scheduleProvider ||
-      !this.reevaluateSchedules ||
       !this.runInTransaction
     ) {
       await this.classroomRepository.deleteAll(organizationId);
@@ -48,16 +46,15 @@ export class DeleteAllClassroomsUseCase {
     );
     const classroomIds = classrooms.map((classroom) => classroom.id);
     const yearIds =
-      await this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+      await this.academicYearProvider.findActiveAndFutureIds(organizationId);
     await this.runInTransaction(async (tx) => {
       await this.classroomRepository.deleteAll(organizationId, tx);
-      const scheduleIds = await this.scheduleProvider!.handleClassroomsDeletion(
+      await this.scheduleProvider!.handleClassroomsDeletion(
         classroomIds,
         organizationId,
         yearIds,
         tx
       );
-      await this.reevaluateSchedules!.execute(scheduleIds, organizationId, tx);
     });
   }
 }

@@ -4,5 +4,5 @@ export interface IScheduleProvider {
     organizationId: string,
     activeAndFutureYearIds: string[],
     tx: any
-  ): Promise<string[]>;
+  ): Promise<void>;
 }

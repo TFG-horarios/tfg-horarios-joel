@@ -62,14 +62,14 @@ export const createDegreeModule = (
     new DeleteDegreeUseCase(
       degreeRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
       runInTransaction
     ),
     new DeleteAllDegreesUseCase(
       degreeRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
       runInTransaction
     ),

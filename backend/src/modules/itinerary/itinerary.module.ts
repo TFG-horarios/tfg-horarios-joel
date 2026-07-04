@@ -62,14 +62,14 @@ export const createItineraryModule = (
     new DeleteItineraryUseCase(
       itineraryRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
       runInTransaction
     ),
     new DeleteAllItinerariesUseCase(
       itineraryRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
       runInTransaction
     ),

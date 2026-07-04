@@ -42,13 +42,16 @@ export const createSubjectModule = (
   const memberProvider = new MemberRoleAdapter(memberRepository);
   const scheduleRepository = new DrizzleScheduleRepository(db);
   const academicYearRepository = new DrizzleAcademicYearRepository(db);
-  const scheduleProvider = new SubjectScheduleAdapter(scheduleRepository);
-  const academicYearProvider = new SubjectAcademicYearAdapter(
-    academicYearRepository
-  );
   const reevaluateSchedules = new ReevaluateSchedulesUseCase(
     scheduleRepository,
     new ScheduleIssueAdapter()
+  );
+  const scheduleProvider = new SubjectScheduleAdapter(
+    scheduleRepository,
+    reevaluateSchedules
+  );
+  const academicYearProvider = new SubjectAcademicYearAdapter(
+    academicYearRepository
   );
   const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
     db.transaction(work);
@@ -62,17 +65,15 @@ export const createSubjectModule = (
     new DeleteSubjectUseCase(
       subjectRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
-      reevaluateSchedules,
       runInTransaction
     ),
     new DeleteAllSubjectsUseCase(
       subjectRepository,
       memberProvider,
-      academicYearRepository,
+      academicYearProvider,
       scheduleProvider,
-      reevaluateSchedules,
       runInTransaction
     ),
     new ReplaceSubjectsUseCase(subjectRepository, memberProvider),

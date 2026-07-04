@@ -1,20 +1,25 @@
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
+import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { ISubjectScheduleProvider } from '../../domain/providers/subject-schedule.provider';
 
 export class SubjectScheduleAdapter implements ISubjectScheduleProvider {
-  constructor(private readonly scheduleRepository: IScheduleRepository) {}
+  constructor(
+    private readonly scheduleRepository: IScheduleRepository,
+    private readonly reevaluateSchedules: ReevaluateSchedulesUseCase
+  ) {}
 
-  handleSubjectsDeletion(
+  async handleSubjectsDeletion(
     subjectIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
     tx: any
-  ): Promise<string[]> {
-    return this.scheduleRepository.deleteSlotsBySubjects!(
+  ): Promise<void> {
+    const scheduleIds = await this.scheduleRepository.deleteSlotsBySubjects!(
       subjectIds,
       organizationId,
       activeAndFutureYearIds,
       tx
     );
+    await this.reevaluateSchedules.execute(scheduleIds, organizationId, tx);
   }
 }

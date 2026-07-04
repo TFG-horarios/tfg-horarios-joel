@@ -63,18 +63,17 @@ describe('CreateSubjectGroupUseCase', () => {
   test('should add the new group to existing schedules as unassigned', async () => {
     const tx = { id: 'tx-1' };
     const scheduleProvider = {
-      handleSubjectGroupsCreation: mock(async () => ['schedule-1']),
+      handleSubjectGroupsCreation: mock(async () => undefined),
       handleSubjectGroupsDeletion: mock(),
+      replaceSubjectGroups: mock(),
     };
-    const reevaluateSchedules = { execute: mock(async () => {}) };
     const transactionalUseCase = new CreateSubjectGroupUseCase(
       repositoryMock,
       subjectProviderMock,
       memberProviderMock,
       { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
       scheduleProvider,
-      reevaluateSchedules as any,
-      async (work) => work(tx)
+      async <T>(work: (tx: any) => Promise<T>) => work(tx)
     );
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);
@@ -99,11 +98,6 @@ describe('CreateSubjectGroupUseCase', () => {
       [result.id],
       'org-1',
       ['year-1'],
-      tx
-    );
-    expect(reevaluateSchedules.execute).toHaveBeenCalledWith(
-      ['schedule-1'],
-      'org-1',
       tx
     );
   });

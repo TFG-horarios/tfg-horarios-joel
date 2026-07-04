@@ -4,5 +4,5 @@ export interface ISubjectScheduleProvider {
     organizationId: string,
     activeAndFutureYearIds: string[],
     tx: any
-  ): Promise<string[]>;
+  ): Promise<void>;
 }

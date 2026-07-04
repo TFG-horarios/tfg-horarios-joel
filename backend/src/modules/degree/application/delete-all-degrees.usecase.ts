@@ -3,15 +3,15 @@ import type { IDegreeMemberProvider } from '../domain/providers/degree-member.pr
 import { ForbiddenError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
 import type { AppRole } from '@/core/permissions/roles';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { IDegreeAcademicYearProvider } from '../domain/providers/degree-academic-year.provider';
 import type { IDegreeScheduleProvider } from '../domain/providers/degree-schedule.provider';
 
 export class DeleteAllDegreesUseCase {
   constructor(
     private readonly degreeRepository: IDegreeRepository,
     private readonly memberProvider: IDegreeMemberProvider,
-    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly academicYearProvider?: IDegreeAcademicYearProvider,
     private readonly scheduleProvider?: IDegreeScheduleProvider,
     private readonly runInTransaction?: TransactionRunner
   ) {}
@@ -31,7 +31,8 @@ export class DeleteAllDegreesUseCase {
     }
 
     if (
-      !this.academicYearRepository ||
+      !this.academicYearProvider ||
+      !this.academicYearProvider.findActiveAndFutureIds ||
       !this.scheduleProvider ||
       !this.runInTransaction
     ) {
@@ -40,7 +41,7 @@ export class DeleteAllDegreesUseCase {
     }
     const degrees = await this.degreeRepository.findAll(organizationId, false);
     const yearIds =
-      await this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+      await this.academicYearProvider.findActiveAndFutureIds(organizationId);
     await this.runInTransaction(async (tx) => {
       await this.degreeRepository.deleteAll(organizationId, tx);
       await this.scheduleProvider!.handleDegreesDeletion(

@@ -2,18 +2,16 @@ import type { ISubjectGroupRepository } from '../domain/subject-group.repository
 import type { ISubjectGroupMemberProvider } from '../domain/providers/subject-group-member.provider';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 import { hasPermission } from '@/core/permissions/authorization';
-import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
-import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { TransactionRunner } from '@/core/db/transaction-runner';
+import type { ISubjectGroupAcademicYearProvider } from '../domain/providers/subject-group-academic-year.provider';
 import type { ISubjectGroupScheduleProvider } from '../domain/providers/subject-group-schedule.provider';
 
 export class DeleteSubjectGroupUseCase {
   constructor(
     private readonly subjectGroupRepository: ISubjectGroupRepository,
     private readonly memberProvider: ISubjectGroupMemberProvider,
-    private readonly academicYearRepository?: IAcademicYearRepository,
+    private readonly academicYearProvider?: ISubjectGroupAcademicYearProvider,
     private readonly scheduleProvider?: ISubjectGroupScheduleProvider,
-    private readonly reevaluateSchedules?: ReevaluateSchedulesUseCase,
     private readonly runInTransaction?: TransactionRunner
   ) {}
 
@@ -42,26 +40,24 @@ export class DeleteSubjectGroupUseCase {
     }
 
     if (
-      !this.academicYearRepository ||
+      !this.academicYearProvider ||
+      !this.academicYearProvider.findActiveAndFutureIds ||
       !this.scheduleProvider ||
-      !this.reevaluateSchedules ||
       !this.runInTransaction
     ) {
       await this.subjectGroupRepository.delete(id, organizationId);
       return;
     }
     const yearIds =
-      await this.academicYearRepository.findActiveAndFutureIds!(organizationId);
+      await this.academicYearProvider.findActiveAndFutureIds(organizationId);
     await this.runInTransaction(async (tx) => {
       await this.subjectGroupRepository.delete(id, organizationId, tx);
-      const scheduleIds =
-        await this.scheduleProvider!.handleSubjectGroupsDeletion(
+      await this.scheduleProvider!.handleSubjectGroupsDeletion(
           [id],
           organizationId,
           yearIds,
           tx
         );
-      await this.reevaluateSchedules!.execute(scheduleIds, organizationId, tx);
     });
   }
 }
