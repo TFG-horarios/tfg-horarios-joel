@@ -28,6 +28,8 @@ export const listItinerariesRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -44,6 +46,8 @@ export const listAllItinerariesRoute = createRoute({
       content: { 'application/json': { schema: z.array(ItinerarySchema) } },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -61,6 +65,8 @@ export const getItineraryIdentifiersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -78,6 +84,8 @@ export const getItineraryRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Itinerary not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -100,6 +108,8 @@ export const createItineraryRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -124,6 +134,8 @@ export const bulkCreateItinerariesRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -148,6 +160,8 @@ export const replaceItinerariesRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -171,6 +185,8 @@ export const updateItineraryRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Itinerary not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -182,6 +198,8 @@ export const deleteItineraryRoute = createRoute({
     204: { description: 'Itinerary deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Itinerary not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -192,5 +210,7 @@ export const deleteAllItinerariesRoute = createRoute({
   responses: {
     204: { description: 'All itineraries deleted' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

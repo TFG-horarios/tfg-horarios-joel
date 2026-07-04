@@ -28,6 +28,8 @@ export const listSubjectsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -44,6 +46,8 @@ export const listAllSubjectsRoute = createRoute({
       content: { 'application/json': { schema: z.array(SubjectSchema) } },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -61,6 +65,8 @@ export const getSubjectIdentifiersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -75,6 +81,8 @@ export const getSubjectRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -95,6 +103,8 @@ export const createSubjectRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -117,6 +127,8 @@ export const bulkCreateSubjectsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -139,6 +151,8 @@ export const replaceSubjectsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -160,6 +174,8 @@ export const updateSubjectRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -171,6 +187,8 @@ export const deleteSubjectRoute = createRoute({
     204: { description: 'Deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -181,5 +199,7 @@ export const deleteAllSubjectsRoute = createRoute({
   responses: {
     204: { description: 'All subjects deleted' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

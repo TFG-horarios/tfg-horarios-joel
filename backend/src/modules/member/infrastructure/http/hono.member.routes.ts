@@ -26,6 +26,7 @@ export const listMembersRoute = createRoute({
     },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Not a member)' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -43,6 +44,8 @@ export const listAllMembersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -60,6 +63,8 @@ export const getMeRoute = createRoute({
       },
     },
     403: { description: 'Forbidden (Not a member)' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -81,6 +86,7 @@ export const addMemberRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Requires admin role)' },
     404: { description: 'Not Found (User email does not exist)' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -108,6 +114,7 @@ export const updateMemberRoleRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Requires admin role)' },
     404: { description: 'Not Found (Member not in organization)' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -125,5 +132,6 @@ export const removeMemberRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Requires admin role or self-removal)' },
     404: { description: 'Not Found (Member not in organization)' },
+    500: { description: 'Internal server error' },
   },
 });

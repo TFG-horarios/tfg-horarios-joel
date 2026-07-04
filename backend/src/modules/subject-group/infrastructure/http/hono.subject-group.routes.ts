@@ -30,6 +30,8 @@ export const listSubjectGroupsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -48,6 +50,8 @@ export const listAllSubjectGroupsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -65,6 +69,8 @@ export const getSubjectGroupIdentifiersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -79,6 +85,8 @@ export const getSubjectGroupRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -100,6 +108,8 @@ export const createSubjectGroupRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -123,6 +133,8 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -145,6 +157,8 @@ export const replaceSubjectGroupsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -166,6 +180,8 @@ export const updateSubjectGroupRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -177,6 +193,8 @@ export const deleteSubjectGroupRoute = createRoute({
     204: { description: 'Group deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -187,5 +205,7 @@ export const deleteAllSubjectGroupsRoute = createRoute({
   responses: {
     204: { description: 'All groups deleted' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

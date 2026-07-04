@@ -29,6 +29,11 @@ export const createAcademicYearRoute = createRoute({
         },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    409: { description: 'Conflict' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -49,6 +54,10 @@ export const listAcademicYearsRoute = createRoute({
         },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -77,6 +86,12 @@ export const updateAcademicYearRoute = createRoute({
         },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -93,5 +108,10 @@ export const deleteAcademicYearRoute = createRoute({
     204: {
       description: 'Academic Year deleted',
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    500: { description: 'Internal server error' },
   },
 });

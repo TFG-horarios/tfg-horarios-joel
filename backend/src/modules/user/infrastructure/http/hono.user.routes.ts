@@ -14,6 +14,7 @@ export const getMeRoute = createRoute({
       content: { 'application/json': { schema: UserSchema } },
     },
     401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -35,6 +36,7 @@ export const updateMeRoute = createRoute({
     400: { description: 'Invalid update data' },
     401: { description: 'Unauthorized' },
     404: { description: 'User not found' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -55,6 +57,7 @@ export const updatePasswordRoute = createRoute({
     400: { description: 'Invalid update data' },
     401: { description: 'Unauthorized' },
     404: { description: 'User not found' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -65,7 +68,9 @@ export const deleteMeRoute = createRoute({
     204: {
       description: 'User deleted successfully',
     },
+    400: { description: 'Invalid delete request' },
     401: { description: 'Unauthorized' },
     404: { description: 'User not found' },
+    500: { description: 'Internal server error' },
   },
 });

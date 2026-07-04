@@ -34,6 +34,8 @@ export const listNotificationsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -55,6 +57,8 @@ export const markNotificationReadRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -70,6 +74,8 @@ export const markAllNotificationsReadRoute = createRoute({
       description: 'All notifications marked as read',
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -83,7 +89,14 @@ export const streamUserNotificationsRoute = createRoute({
   responses: {
     200: {
       description: 'SSE notifications stream',
+      content: {
+        'text/event-stream': {
+          schema: z.string(),
+        },
+      },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

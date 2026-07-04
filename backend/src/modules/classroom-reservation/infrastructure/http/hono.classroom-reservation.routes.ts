@@ -43,6 +43,8 @@ export const createReservationRoute = createRoute({
     403: {
       description: 'Forbidden',
     },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -63,6 +65,9 @@ export const listReservationsRoute = createRoute({
         },
       },
     },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -98,6 +103,8 @@ export const updateReservationStatusRoute = createRoute({
     404: {
       description: 'Not found',
     },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -118,6 +125,10 @@ export const getAvailabilityRoute = createRoute({
         },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    404: { description: 'Not found' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -134,9 +145,16 @@ export const streamClassroomReservationEventsRoute = createRoute({
   responses: {
     200: {
       description: 'SSE events stream for classroom reservations',
+      content: {
+        'text/event-stream': {
+          schema: z.string(),
+        },
+      },
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -165,5 +183,7 @@ export const cancelReservationRoute = createRoute({
     404: {
       description: 'Not found',
     },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

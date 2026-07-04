@@ -26,6 +26,8 @@ export const listDegreesRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -42,6 +44,8 @@ export const listAllDegreesRoute = createRoute({
       content: { 'application/json': { schema: z.array(DegreeSchema) } },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -59,6 +63,8 @@ export const getDegreeIdentifiersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -76,6 +82,8 @@ export const getDegreeRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Grado no encontrado' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -98,6 +106,8 @@ export const createDegreeRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -122,6 +132,8 @@ export const bulkCreateDegreesRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -146,6 +158,8 @@ export const replaceDegreesRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -169,6 +183,8 @@ export const updateDegreeRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Grado no encontrado' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -180,6 +196,8 @@ export const deleteDegreeRoute = createRoute({
     204: { description: 'Degree deleted' },
     403: { description: 'Forbidden' },
     404: { description: 'Grado no encontrado' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -190,5 +208,7 @@ export const deleteAllDegreesRoute = createRoute({
   responses: {
     204: { description: 'All degrees deleted' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

@@ -31,6 +31,8 @@ export const listSchedulesRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -46,6 +48,8 @@ export const getScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -58,6 +62,8 @@ export const deleteScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -73,6 +79,8 @@ export const publishScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -88,6 +96,8 @@ export const unpublishScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -101,6 +111,8 @@ export const listScheduleSlotsRoute = createRoute({
       content: { 'application/json': { schema: z.array(ScheduleSlotSchema) } },
     },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -132,6 +144,8 @@ export const updateScheduleSlotRoute = createRoute({
       description:
         'Conflict validation errors during slot movement. Possible error codes (can be multiple separated by \\n):\n- ERR_ROOM_CAPACITY: Classroom capacity is lower than the number of students.\n- ERR_SHIFT_EXCEEDS_DAY: Subject duration exceeds the configured time grid.\n- ERR_BREAK_CROSSING: Subject duration crosses a configured break.\n- ERR_OVERLAP_THEORY: Theory classes for the same students overlap.\n- ERR_OVERLAP_PRACTICES: Practice/Problem classes for the same students overlap.\n- ERR_OVERLAP_SAME_SUBJECT: Two groups of the same subject overlap.\n- ERR_ROOM_OVERLAP: Physical classroom is already occupied at this time.',
     },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -156,6 +170,8 @@ export const generateScheduleRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict: Generation already exists or in progress' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -179,6 +195,8 @@ export const checkOverwriteScheduleRoute = createRoute({
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -204,6 +222,8 @@ export const checkImportSchedulesOverwriteRoute = createRoute({
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -229,6 +249,8 @@ export const importSchedulesRoute = createRoute({
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -239,9 +261,16 @@ export const streamScheduleEventsRoute = createRoute({
   responses: {
     200: {
       description: 'SSE events stream for a schedule',
+      content: {
+        'text/event-stream': {
+          schema: z.string(),
+        },
+      },
     },
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     404: { description: 'Schedule not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

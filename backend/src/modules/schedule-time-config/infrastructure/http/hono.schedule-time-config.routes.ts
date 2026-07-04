@@ -24,6 +24,10 @@ export const listTimeConfigsRoute = createRoute({
         'application/json': { schema: z.array(ScheduleTimeConfigSchema) },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -43,6 +47,12 @@ export const createTimeConfigRoute = createRoute({
       description: 'Created',
       content: { 'application/json': { schema: ScheduleTimeConfigSchema } },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -62,6 +72,12 @@ export const updateTimeConfigRoute = createRoute({
       description: 'Updated',
       content: { 'application/json': { schema: ScheduleTimeConfigSchema } },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    409: { description: 'Conflict' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -69,7 +85,14 @@ export const deleteTimeConfigRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs/{id}',
   request: { params: idParams },
-  responses: { 204: { description: 'Deleted' } },
+  responses: {
+    204: { description: 'Deleted' },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    500: { description: 'Internal server error' },
+  },
 });
 
 export const getPossibilitiesRoute = createRoute({
@@ -85,5 +108,10 @@ export const getPossibilitiesRoute = createRoute({
         },
       },
     },
+    400: { description: 'Bad request' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    404: { description: 'Not found' },
+    500: { description: 'Internal server error' },
   },
 });

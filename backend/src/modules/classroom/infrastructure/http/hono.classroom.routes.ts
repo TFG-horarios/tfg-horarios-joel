@@ -30,6 +30,8 @@ export const listClassroomsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -46,6 +48,8 @@ export const listAllClassroomsRoute = createRoute({
       content: { 'application/json': { schema: z.array(ClassroomSchema) } },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -63,6 +67,8 @@ export const getClassroomIdentifiersRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -80,6 +86,8 @@ export const getClassroomRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -102,6 +110,8 @@ export const createClassroomRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -126,6 +136,8 @@ export const createManyClassroomsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -150,6 +162,8 @@ export const replaceClassroomsRoute = createRoute({
     400: { description: 'Bad request' },
     403: { description: 'Forbidden' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -173,6 +187,8 @@ export const updateClassroomRoute = createRoute({
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
     409: { description: 'Conflict' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -181,9 +197,18 @@ export const deleteClassroomRoute = createRoute({
   path: '/organizations/{organizationId}/classrooms/{id}',
   request: { params: ClassroomIdParamSchema },
   responses: {
-    204: { description: 'Classroom deleted' },
+    200: {
+      description: 'Classroom deleted',
+      content: {
+        'application/json': {
+          schema: z.object({ message: z.string() }),
+        },
+      },
+    },
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -192,8 +217,17 @@ export const deleteAllClassroomsRoute = createRoute({
   path: '/organizations/{organizationId}/classrooms',
   request: { params: ClassroomBaseParamSchema },
   responses: {
-    204: { description: 'All classrooms deleted' },
+    200: {
+      description: 'All classrooms deleted',
+      content: {
+        'application/json': {
+          schema: z.object({ message: z.string() }),
+        },
+      },
+    },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -221,6 +255,8 @@ export const getActiveClassroomConfigurationsRoute = createRoute({
       },
     },
     403: { description: 'Forbidden' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -240,6 +276,8 @@ export const getClassroomScheduleSlotsRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -261,5 +299,7 @@ export const getClassroomOccupancyRoute = createRoute({
     },
     403: { description: 'Forbidden' },
     404: { description: 'Classroom not found' },
+    401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });

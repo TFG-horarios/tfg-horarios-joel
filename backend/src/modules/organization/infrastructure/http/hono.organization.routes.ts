@@ -25,6 +25,7 @@ export const createOrgRoute = createRoute({
     },
     400: { description: 'Validation or business rule error' },
     401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -44,6 +45,7 @@ export const getOrgRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden' },
     404: { description: 'Organization not found' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -59,6 +61,7 @@ export const listOrgRoute = createRoute({
     },
     400: { description: 'Bad request' },
     401: { description: 'Unauthorized' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -80,6 +83,7 @@ export const updateOrgRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden' },
     404: { description: 'Organization not found' },
+    500: { description: 'Internal server error' },
   },
 });
 
@@ -97,5 +101,6 @@ export const deleteOrgRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden' },
     404: { description: 'Organization not found' },
+    500: { description: 'Internal server error' },
   },
 });
