@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 
-import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
+import {
+  ResourceActionsToolbar,
+  useResourceActionsToolbarTranslations,
+} from '@/components/shared/resource/resource-actions-toolbar';
 import { ItineraryBulkUploader } from '@/features/itinerary/components/itinerary-bulk-uploader';
 import type { DegreeDTO } from '@tfg-horarios/shared';
-import { useTranslations } from 'next-intl';
 import {
   deleteAllItinerariesAction,
   fetchAllItinerariesAction,
@@ -30,8 +32,9 @@ export function ItineraryActions({
   canImport,
   canReplaceAll,
 }: ItineraryActionsProps) {
-  const t = useTranslations('Organizations.itineraries.actions');
-  const tCommon = useTranslations('Common.actions');
+  const translations = useResourceActionsToolbarTranslations(
+    'Organizations.itineraries.actions'
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleExportCsv = async () => {
@@ -55,19 +58,7 @@ export function ItineraryActions({
             ? () => deleteAllItinerariesAction(organizationId)
             : undefined
         }
-        translations={{
-          deleteAllConfirm: t('deleteAllConfirm'),
-          deleteAllTitle: t('deleteAllTitle'),
-          deleteAllDescription: t('deleteAllDescription'),
-          deleting: t('deleting'),
-          cancel: t('cancel'),
-          import: t('import'),
-          addFromCsv: t('addFromCsv'),
-          replaceAll: t('replaceAll'),
-          replaceAllWarning: t('replaceAllWarning'),
-          create: t('create'),
-          exportCsv: tCommon('exportCsv'),
-        }}
+        translations={translations}
         onExportCsv={handleExportCsv}
         appendModalContent={
           canImport ? (

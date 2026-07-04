@@ -1,7 +1,24 @@
 import { describe, expect, test, mock } from 'bun:test';
+import type { ReservationAcademicYear } from '../../domain/providers/academic-year.provider';
 import { AcademicYearAdapter } from './academic-year.adapter';
 
 describe('AcademicYearAdapter', () => {
+  const createAcademicYear = (
+    organizationId = 'org-1'
+  ): ReservationAcademicYear => ({
+    organizationId,
+    period0Start: '2026-09-01',
+    period0End: '2027-06-30',
+    period1Start: null,
+    period1End: null,
+    period2Start: null,
+    period2End: null,
+    centerOpeningTime: '08:00',
+    centerClosingTime: '21:00',
+    slotDurationMinutes: 60,
+    getMatchingPeriods: mock().mockReturnValue([0]),
+  });
+
   const academicYearRepositoryMock = {
     findById: mock(),
     save: mock(),
@@ -63,7 +80,7 @@ describe('AcademicYearAdapter', () => {
   });
 
   test('getAcademicYear should return academic year', async () => {
-    const ayMock = { organizationId: 'org-1', name: 'Test' };
+    const ayMock = createAcademicYear();
     academicYearRepositoryMock.findById.mockResolvedValue(ayMock);
     const result = await adapter.getAcademicYear('org-1', 'year-1');
     expect(result).toEqual(ayMock);

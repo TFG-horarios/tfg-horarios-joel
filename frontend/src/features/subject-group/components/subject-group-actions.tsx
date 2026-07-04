@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
+import {
+  ResourceActionsToolbar,
+  useResourceActionsToolbarTranslations,
+} from '@/components/shared/resource/resource-actions-toolbar';
 import { SubjectGroupBulkUploader } from '@/features/subject-group/components/subject-group-bulk-uploader';
 import { SubjectGroupFormModal } from './subject-group-form-modal';
 import type { SubjectDTO } from '@tfg-horarios/shared';
-import { useTranslations } from 'next-intl';
 import {
   deleteAllSubjectGroupsAction,
   fetchAllSubjectGroupsAction,
@@ -29,8 +31,9 @@ export function SubjectGroupActions({
   canImport,
   canReplaceAll,
 }: SubjectGroupActionsProps) {
-  const t = useTranslations('Organizations.subjectGroups.actions');
-  const tCommon = useTranslations('Common.actions');
+  const translations = useResourceActionsToolbarTranslations(
+    'Organizations.subjectGroups.actions'
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleExportCsv = async () => {
@@ -58,19 +61,7 @@ export function SubjectGroupActions({
             ? () => deleteAllSubjectGroupsAction(organizationId)
             : undefined
         }
-        translations={{
-          deleteAllConfirm: t('deleteAllConfirm'),
-          deleteAllTitle: t('deleteAllTitle'),
-          deleteAllDescription: t('deleteAllDescription'),
-          deleting: t('deleting'),
-          cancel: t('cancel'),
-          import: t('import'),
-          addFromCsv: t('addFromCsv'),
-          replaceAll: t('replaceAll'),
-          replaceAllWarning: t('replaceAllWarning'),
-          create: t('create'),
-          exportCsv: tCommon('exportCsv'),
-        }}
+        translations={translations}
         onExportCsv={handleExportCsv}
         appendModalContent={
           canImport ? (

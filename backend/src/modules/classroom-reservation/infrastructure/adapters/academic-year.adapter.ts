@@ -1,4 +1,7 @@
-import type { IAcademicYearProvider } from '../../domain/providers/academic-year.provider';
+import type {
+  IAcademicYearProvider,
+  ReservationAcademicYear,
+} from '../../domain/providers/academic-year.provider';
 import type { IAcademicYearRepository } from '@/modules/academic-year/domain/academic-year.repository';
 
 export class AcademicYearAdapter implements IAcademicYearProvider {
@@ -24,7 +27,7 @@ export class AcademicYearAdapter implements IAcademicYearProvider {
   async getAcademicYear(
     organizationId: string,
     academicYearId: string
-  ): Promise<any | null> {
+  ): Promise<ReservationAcademicYear | null> {
     const academicYear =
       await this.academicYearRepository.findById(academicYearId);
 

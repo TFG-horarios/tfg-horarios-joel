@@ -14,7 +14,7 @@ export function useZodErrorMap() {
         issue.message &&
         issue.message !== 'Invalid input'
       ) {
-        return { message: t(issue.message as any) || issue.message };
+        return { message: t(issue.message as TranslationKey) || issue.message };
       }
       return {
         message: translatedMessage || issue.message || 'Validation error',

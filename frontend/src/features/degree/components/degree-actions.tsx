@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 
-import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
+import {
+  ResourceActionsToolbar,
+  useResourceActionsToolbarTranslations,
+} from '@/components/shared/resource/resource-actions-toolbar';
 import { DegreeBulkUploader } from '@/features/degree/components/degree-bulk-uploader';
-import { useTranslations } from 'next-intl';
 import {
   deleteAllDegreesAction,
   fetchAllDegreesAction,
@@ -27,8 +29,9 @@ export function DegreeActions({
   canImport,
   canReplaceAll,
 }: DegreeActionsProps) {
-  const t = useTranslations('Organizations.degrees.actions');
-  const tCommon = useTranslations('Common.actions');
+  const translations = useResourceActionsToolbarTranslations(
+    'Organizations.degrees.actions'
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleExportCsv = async () => {
@@ -49,19 +52,7 @@ export function DegreeActions({
             ? () => deleteAllDegreesAction(organizationId)
             : undefined
         }
-        translations={{
-          deleteAllConfirm: t('deleteAllConfirm'),
-          deleteAllTitle: t('deleteAllTitle'),
-          deleteAllDescription: t('deleteAllDescription'),
-          deleting: t('deleting'),
-          cancel: t('cancel'),
-          import: t('import'),
-          addFromCsv: t('addFromCsv'),
-          replaceAll: t('replaceAll'),
-          replaceAllWarning: t('replaceAllWarning'),
-          create: t('create'),
-          exportCsv: tCommon('exportCsv'),
-        }}
+        translations={translations}
         onExportCsv={handleExportCsv}
         appendModalContent={
           canImport ? (

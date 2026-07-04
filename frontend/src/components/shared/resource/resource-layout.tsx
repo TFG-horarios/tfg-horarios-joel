@@ -11,25 +11,35 @@ import {
 } from '@/components/ui/table';
 import type { ComponentType, ReactNode } from 'react';
 
-export interface ResourceLayoutProps<T> {
+export interface ResourceLayoutProps<
+  T,
+  TGridProps extends object = Record<string, never>,
+  TRowProps extends object = Record<string, never>,
+  TQuery = unknown,
+> {
   view: 'grid' | 'table';
   items: T[];
   meta: PaginationMetaDTO;
-  query: any;
+  query: TQuery;
   loadMore: (page: number) => Promise<{ data: T[]; meta: PaginationMetaDTO }>;
   emptyState: ReactNode;
 
-  GridItemComponent: ComponentType<{ item: T } & any>;
-  gridItemProps?: Record<string, any>;
+  GridItemComponent: ComponentType<{ item: T } & TGridProps>;
+  gridItemProps?: TGridProps;
 
   tableHeaders: ReactNode[];
-  TableRowComponent: ComponentType<{ item: T } & any>;
-  tableRowProps?: Record<string, any>;
+  TableRowComponent: ComponentType<{ item: T } & TRowProps>;
+  tableRowProps?: TRowProps;
 
   keyProp?: keyof T;
 }
 
-export function ResourceLayout<T>({
+export function ResourceLayout<
+  T,
+  TGridProps extends object = Record<string, never>,
+  TRowProps extends object = Record<string, never>,
+  TQuery = unknown,
+>({
   view,
   items,
   meta,
@@ -37,12 +47,12 @@ export function ResourceLayout<T>({
   loadMore,
   emptyState,
   GridItemComponent,
-  gridItemProps = {},
+  gridItemProps,
   tableHeaders,
   TableRowComponent,
-  tableRowProps = {},
+  tableRowProps,
   keyProp = 'id' as keyof T,
-}: ResourceLayoutProps<T>) {
+}: ResourceLayoutProps<T, TGridProps, TRowProps, TQuery>) {
   if (!items || items.length === 0) {
     return <>{emptyState}</>;
   }
@@ -70,8 +80,9 @@ export function ResourceLayout<T>({
             <TableBody>
               {items.map((item, index) => {
                 const key = item[keyProp] ? String(item[keyProp]) : index;
+                const props = { item, ...tableRowProps } as { item: T } & TRowProps;
                 return (
-                  <TableRowComponent key={key} item={item} {...tableRowProps} />
+                  <TableRowComponent key={key} {...props} />
                 );
               })}
             </TableBody>

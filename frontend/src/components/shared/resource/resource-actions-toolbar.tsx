@@ -34,6 +34,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ResourceActions } from '@/components/shared/resource/resource-actions';
+import { useTranslations } from 'next-intl';
 
 export interface ResourceActionsToolbarProps {
   onDeleteAll?: () => Promise<{ success: boolean; message?: string }>;
@@ -53,6 +54,25 @@ export interface ResourceActionsToolbarProps {
     replaceAllWarning: string;
     create: string;
     exportCsv?: string;
+  };
+}
+
+export function useResourceActionsToolbarTranslations(namespace: string) {
+  const t = useTranslations(namespace);
+  const tCommon = useTranslations('Common.actions');
+
+  return {
+    deleteAllConfirm: t('deleteAllConfirm'),
+    deleteAllTitle: t('deleteAllTitle'),
+    deleteAllDescription: t('deleteAllDescription'),
+    deleting: t('deleting'),
+    cancel: t('cancel'),
+    import: t('import'),
+    addFromCsv: t('addFromCsv'),
+    replaceAll: t('replaceAll'),
+    replaceAllWarning: t('replaceAllWarning'),
+    create: t('create'),
+    exportCsv: tCommon('exportCsv'),
   };
 }
 

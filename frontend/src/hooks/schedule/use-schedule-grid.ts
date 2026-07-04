@@ -3,12 +3,10 @@ import {
   buildScheduleTimeGrid,
   type AcademicYearDTO,
   type ScheduleTimeConfigDTO,
-  type Shift,
 } from '@tfg-horarios/shared';
 
 export function useScheduleGrid(
   academicYear: AcademicYearDTO,
-  shift: Shift | 'global' | string,
   timeConfig?: Pick<
     ScheduleTimeConfigDTO,
     'startTime' | 'endTime' | 'hasBreak' | 'breakAfterSlot'

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { ResourceActionsToolbar } from '@/components/shared/resource/resource-actions-toolbar';
+import {
+  ResourceActionsToolbar,
+  useResourceActionsToolbarTranslations,
+} from '@/components/shared/resource/resource-actions-toolbar';
 import { ClassroomBulkUploader } from '@/features/classroom/components/classroom-bulk-uploader';
-import { useTranslations } from 'next-intl';
 import {
   deleteAllClassroomsAction,
   fetchAllClassroomsAction,
@@ -26,8 +28,9 @@ export function ClassroomActions({
   canImport,
   canReplaceAll,
 }: ClassroomActionsProps) {
-  const t = useTranslations('Organizations.classrooms.actions');
-  const tCommon = useTranslations('Common.actions');
+  const translations = useResourceActionsToolbarTranslations(
+    'Organizations.classrooms.actions'
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleExportCsv = async () => {
@@ -50,19 +53,7 @@ export function ClassroomActions({
             ? () => deleteAllClassroomsAction(organizationId)
             : undefined
         }
-        translations={{
-          deleteAllConfirm: t('deleteAllConfirm'),
-          deleteAllTitle: t('deleteAllTitle'),
-          deleteAllDescription: t('deleteAllDescription'),
-          deleting: t('deleting'),
-          cancel: t('cancel'),
-          import: t('import'),
-          addFromCsv: t('addFromCsv'),
-          replaceAll: t('replaceAll'),
-          replaceAllWarning: t('replaceAllWarning'),
-          create: t('create'),
-          exportCsv: tCommon('exportCsv'),
-        }}
+        translations={translations}
         onExportCsv={handleExportCsv}
         appendModalContent={
           canImport ? (

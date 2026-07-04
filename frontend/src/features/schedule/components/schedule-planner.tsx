@@ -189,13 +189,8 @@ export function SchedulePlanner({
 
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
 
-  const effectiveShift = useMemo(() => {
-    return localSchedule.shift ?? 'global';
-  }, [localSchedule.shift]);
-
   const { slotTimeLabels, numSlots, startSlotIndex, rows } = useScheduleGrid(
     academicYear,
-    effectiveShift,
     timeConfig
   );
 

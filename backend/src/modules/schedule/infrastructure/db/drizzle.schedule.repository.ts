@@ -5,6 +5,7 @@ import {
   isNull,
   count,
   type SQL,
+  type SQLWrapper,
   notInArray,
   gt,
   sql,
@@ -845,7 +846,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   }
 
   private async deleteSlotsByGroupQuery(
-    groupIds: string[] | any,
+    groupIds: string[] | SQLWrapper,
     organizationId: string,
     activeAndFutureYearIds: string[],
     tx: DbConnection | DbTransaction

@@ -11,6 +11,7 @@ import {
   type DefaultValues,
   type FieldValues,
   type Path,
+  type Resolver,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType } from 'zod';
@@ -19,10 +20,10 @@ import { useZodErrorMap } from '@/lib/i18n/zod-errors';
 
 export interface UseActionFormOptions<
   TFieldValues extends FieldValues,
-  TData = any,
+  TData = unknown,
 > {
   action: (formData: TFieldValues) => Promise<ActionResponse<TData>>;
-  schema: ZodType<TFieldValues, any, any>;
+  schema: ZodType<TFieldValues, FieldValues>;
   defaultValues?: DefaultValues<TFieldValues>;
   onSuccess?: (data?: TData) => void;
   onError?: (message?: string, errors?: Record<string, string[]>) => void;
@@ -30,7 +31,7 @@ export interface UseActionFormOptions<
 
 export interface UseActionFormReturn<
   TFieldValues extends FieldValues,
-  TData = any,
+  TData = unknown,
 > {
   form: UseFormReturn<TFieldValues>;
   state: ActionResponse<TData> | null;
@@ -38,7 +39,7 @@ export interface UseActionFormReturn<
   handleSubmit: (e?: BaseSyntheticEvent) => Promise<void>;
 }
 
-export function useActionForm<TFieldValues extends FieldValues, TData = any>({
+export function useActionForm<TFieldValues extends FieldValues, TData = unknown>({
   action,
   schema,
   defaultValues,
@@ -61,7 +62,7 @@ export function useActionForm<TFieldValues extends FieldValues, TData = any>({
   );
 
   const form = useForm<TFieldValues>({
-    resolver: zodResolver(schema, { error: zodErrorMap }) as any,
+    resolver: zodResolver(schema, { error: zodErrorMap }) as Resolver<TFieldValues>,
     mode: 'onChange',
     defaultValues,
   });
