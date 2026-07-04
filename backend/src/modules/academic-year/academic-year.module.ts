@@ -6,13 +6,11 @@ import { DrizzleOrganizationRepository } from '@/modules/organization/infrastruc
 import { CreateAcademicYearUseCase } from './application/create-academic-year.usecase';
 import { UpdateAcademicYearUseCase } from './application/update-academic-year.usecase';
 import { ListAcademicYearsUseCase } from './application/list-academic-years.usecase';
-import { GetActiveAcademicYearUseCase } from './application/get-active-academic-year.usecase';
 import { DeleteAcademicYearUseCase } from './application/delete-academic-year.usecase';
 import { HonoAcademicYearController } from './infrastructure/http/hono.academic-year.controller';
 import {
   createAcademicYearRoute,
   listAcademicYearsRoute,
-  getActiveAcademicYearRoute,
   updateAcademicYearRoute,
   deleteAcademicYearRoute,
 } from './infrastructure/http/hono.academic-year.routes';
@@ -53,10 +51,6 @@ export function createAcademicYearModule(
     academicYearRepository,
     memberProvider
   );
-  const getActiveUseCase = new GetActiveAcademicYearUseCase(
-    academicYearRepository,
-    memberProvider
-  );
   const deleteUseCase = new DeleteAcademicYearUseCase(
     academicYearRepository,
     memberProvider
@@ -65,7 +59,6 @@ export function createAcademicYearModule(
   const controller = new HonoAcademicYearController(
     createUseCase,
     listUseCase,
-    getActiveUseCase,
     updateUseCase,
     deleteUseCase
   );
@@ -74,7 +67,6 @@ export function createAcademicYearModule(
   const routes = app
     .openapi(createAcademicYearRoute, controller.create)
     .openapi(listAcademicYearsRoute, controller.list)
-    .openapi(getActiveAcademicYearRoute, controller.getActive)
     .openapi(updateAcademicYearRoute, controller.update)
     .openapi(deleteAcademicYearRoute, controller.delete);
 

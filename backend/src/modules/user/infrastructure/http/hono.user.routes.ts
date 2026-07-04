@@ -1,6 +1,5 @@
 import { createRoute } from '@hono/zod-openapi';
 import {
-  SearchUserQuerySchema,
   SaveUserBodySchema,
   UserSchema,
   UpdatePasswordBodySchema,
@@ -68,21 +67,5 @@ export const deleteMeRoute = createRoute({
     },
     401: { description: 'Unauthorized' },
     404: { description: 'User not found' },
-  },
-});
-
-export const getUserByEmailRoute = createRoute({
-  method: 'get',
-  path: '/users/search',
-  request: {
-    query: SearchUserQuerySchema,
-  },
-  responses: {
-    200: {
-      description: 'User found',
-      content: { 'application/json': { schema: UserSchema } },
-    },
-    404: { description: 'User not found' },
-    401: { description: 'Unauthorized' },
   },
 });

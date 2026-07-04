@@ -2,13 +2,11 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import type { AppEnv } from '@/core/types/app-types';
 import { CreateAcademicYearUseCase } from '../../application/create-academic-year.usecase';
 import { ListAcademicYearsUseCase } from '../../application/list-academic-years.usecase';
-import { GetActiveAcademicYearUseCase } from '../../application/get-active-academic-year.usecase';
 import { UpdateAcademicYearUseCase } from '../../application/update-academic-year.usecase';
 import { DeleteAcademicYearUseCase } from '../../application/delete-academic-year.usecase';
 import {
   createAcademicYearRoute,
   listAcademicYearsRoute,
-  getActiveAcademicYearRoute,
   updateAcademicYearRoute,
   deleteAcademicYearRoute,
 } from './hono.academic-year.routes';
@@ -17,7 +15,6 @@ export class HonoAcademicYearController {
   constructor(
     private readonly createAcademicYearUseCase: CreateAcademicYearUseCase,
     private readonly listAcademicYearsUseCase: ListAcademicYearsUseCase,
-    private readonly getActiveAcademicYearUseCase: GetActiveAcademicYearUseCase,
     private readonly updateAcademicYearUseCase: UpdateAcademicYearUseCase,
     private readonly deleteAcademicYearUseCase: DeleteAcademicYearUseCase
   ) {}
@@ -38,18 +35,6 @@ export class HonoAcademicYearController {
     const { organizationId } = c.req.valid('param');
     const requesterUserId = c.get('userId');
     const result = await this.listAcademicYearsUseCase.execute(
-      organizationId,
-      requesterUserId
-    );
-    return c.json(result, 200);
-  };
-
-  getActive: RouteHandler<typeof getActiveAcademicYearRoute, AppEnv> = async (
-    c
-  ) => {
-    const { organizationId } = c.req.valid('param');
-    const requesterUserId = c.get('userId');
-    const result = await this.getActiveAcademicYearUseCase.execute(
       organizationId,
       requesterUserId
     );

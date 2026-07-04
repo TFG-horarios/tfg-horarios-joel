@@ -49,7 +49,6 @@ describe('ScheduleDataAdapter', () => {
     update: mock(),
     findById: mock(),
     findByOrganizationId: mock(),
-    findActiveByOrganizationId: mock(),
     delete: mock(),
   };
 

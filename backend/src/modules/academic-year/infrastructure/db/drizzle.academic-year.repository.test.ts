@@ -67,29 +67,6 @@ describe('DrizzleAcademicYearRepository Integration', () => {
     expect(foundAy).toBeNull();
   });
 
-  test('should find active academic year by organization ID', async () => {
-    const ay = AcademicYear.create({
-      organizationId: testOrgId,
-      name: 'Active Year',
-      period0Start: '1900-01-01',
-      period0End: '2999-12-31',
-      period1Start: null,
-      period1End: null,
-      period2Start: null,
-      period2End: null,
-      periodType: 'annual',
-      breakDurationMinutes: 30,
-      centerOpeningTime: '08:00',
-      centerClosingTime: '22:00',
-      slotDurationMinutes: 60,
-    });
-    await repository.save(ay);
-
-    const activeAy = await repository.findActiveByOrganizationId(testOrgId);
-    expect(activeAy).not.toBeNull();
-    expect(activeAy?.id).toBe(ay.id);
-  });
-
   test('should find active and future academic year IDs without historical years', async () => {
     const historical = createValidAcademicYear('Historical');
     const future = AcademicYear.create({

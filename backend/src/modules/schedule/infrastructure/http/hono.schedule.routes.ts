@@ -34,23 +34,6 @@ export const listSchedulesRoute = createRoute({
   },
 });
 
-export const listAllSchedulesRoute = createRoute({
-  method: 'get',
-  path: '/organizations/{organizationId}/schedules/all',
-  request: {
-    params: ScheduleBaseParamSchema,
-  },
-  responses: {
-    200: {
-      description: 'Listado completo de horarios',
-      content: {
-        'application/json': { schema: z.array(ScheduleSchema) },
-      },
-    },
-    403: { description: 'Forbidden' },
-  },
-});
-
 export const getScheduleRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules/{id}',

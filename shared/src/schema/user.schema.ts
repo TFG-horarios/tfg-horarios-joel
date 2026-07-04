@@ -16,12 +16,6 @@ export const SaveUserBodySchema = z
   })
   .openapi('SaveUser');
 
-export const SearchUserQuerySchema = z
-  .object({
-    email: z.email().openapi({ example: 'john.doe@example.com' }),
-  })
-  .openapi('SearchUserQuery');
-
 export const UpdatePasswordBodySchema = z
   .object({
     currentPassword: z.string().openapi({ example: 'OldPassword123!' }),
@@ -31,5 +25,4 @@ export const UpdatePasswordBodySchema = z
 
 export type UserDTO = z.infer<typeof UserSchema>;
 export type SaveUserDTO = z.infer<typeof SaveUserBodySchema>;
-export type SearchUserQueryDTO = z.infer<typeof SearchUserQuerySchema>;
 export type UpdatePasswordDTO = z.infer<typeof UpdatePasswordBodySchema>;

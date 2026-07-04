@@ -10,7 +10,6 @@ import {
   listScheduleSlotsRoute,
   updateScheduleSlotRoute,
   generateScheduleRoute,
-  listAllSchedulesRoute,
   unpublishScheduleRoute,
   deleteScheduleRoute,
   checkOverwriteScheduleRoute,
@@ -20,7 +19,6 @@ import {
 
 describe('HonoScheduleController Integration', () => {
   const listMock = { execute: mock() };
-  const listAllMock = { execute: mock() };
   const getMock = { execute: mock() };
   const publishMock = { execute: mock() };
   const unpublishMock = { execute: mock() };
@@ -35,22 +33,20 @@ describe('HonoScheduleController Integration', () => {
   type Params = ConstructorParameters<typeof HonoScheduleController>;
   const controller = new HonoScheduleController(
     listMock as unknown as Params[0],
-    listAllMock as unknown as Params[1],
-    getMock as unknown as Params[2],
-    publishMock as unknown as Params[3],
-    unpublishMock as unknown as Params[4],
-    deleteMock as unknown as Params[5],
-    generateMock as unknown as Params[6],
-    checkOverwriteMock as unknown as Params[7],
-    checkImportOverwriteMock as unknown as Params[8],
-    importSchedulesMock as unknown as Params[9],
-    listSlotsMock as unknown as Params[10],
-    updateSlotMock as unknown as Params[11]
+    getMock as unknown as Params[1],
+    publishMock as unknown as Params[2],
+    unpublishMock as unknown as Params[3],
+    deleteMock as unknown as Params[4],
+    generateMock as unknown as Params[5],
+    checkOverwriteMock as unknown as Params[6],
+    checkImportOverwriteMock as unknown as Params[7],
+    importSchedulesMock as unknown as Params[8],
+    listSlotsMock as unknown as Params[9],
+    updateSlotMock as unknown as Params[10]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(listSchedulesRoute, controller.list);
-  router.openapi(listAllSchedulesRoute, controller.listAll);
   router.openapi(getScheduleRoute, controller.get);
   router.openapi(publishScheduleRoute, controller.publish);
   router.openapi(listScheduleSlotsRoute, controller.listSlots);
@@ -198,13 +194,6 @@ describe('HonoScheduleController Integration', () => {
     );
 
     expect(res.status).toBe(400);
-  });
-
-  test('GET /organizations/:organizationId/schedules/all should return 200', async () => {
-    listAllMock.execute.mockResolvedValueOnce([{ id: scheduleId }]);
-    const res = await app.request(`/api/organizations/${orgId}/schedules/all`);
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([{ id: scheduleId }]);
   });
 
   test('DELETE /organizations/:organizationId/schedules/:id should return 204', async () => {

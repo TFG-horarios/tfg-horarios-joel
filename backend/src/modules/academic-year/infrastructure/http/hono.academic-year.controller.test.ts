@@ -6,7 +6,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import {
   createAcademicYearRoute,
   listAcademicYearsRoute,
-  getActiveAcademicYearRoute,
   updateAcademicYearRoute,
   deleteAcademicYearRoute,
 } from './hono.academic-year.routes';
@@ -14,7 +13,6 @@ import {
 describe('HonoAcademicYearController Integration', () => {
   const createMock = { execute: mock() };
   const listMock = { execute: mock() };
-  const getActiveMock = { execute: mock() };
   const updateMock = { execute: mock() };
   const deleteMock = { execute: mock() };
 
@@ -22,15 +20,13 @@ describe('HonoAcademicYearController Integration', () => {
   const controller = new HonoAcademicYearController(
     createMock as unknown as Params[0],
     listMock as unknown as Params[1],
-    getActiveMock as unknown as Params[2],
-    updateMock as unknown as Params[3],
-    deleteMock as unknown as Params[4]
+    updateMock as unknown as Params[2],
+    deleteMock as unknown as Params[3]
   );
 
   const router = new OpenAPIHono<AppEnv>();
   router.openapi(createAcademicYearRoute, controller.create);
   router.openapi(listAcademicYearsRoute, controller.list);
-  router.openapi(getActiveAcademicYearRoute, controller.getActive);
   router.openapi(updateAcademicYearRoute, controller.update);
   router.openapi(deleteAcademicYearRoute, controller.delete);
 
@@ -85,22 +81,6 @@ describe('HonoAcademicYearController Integration', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([{ id: yearId, name: '2024-2025' }]);
     expect(listMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
-  });
-
-  test('GET /organizations/:organizationId/academic-years/active should return 200', async () => {
-    getActiveMock.execute.mockResolvedValueOnce({
-      id: yearId,
-      name: '2024-2025',
-    });
-    const res = await app.request(
-      `/api/organizations/${orgId}/academic-years/active`
-    );
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      id: yearId,
-      name: '2024-2025',
-    });
-    expect(getActiveMock.execute).toHaveBeenCalledWith(orgId, 'u-admin');
   });
 
   test('PUT /organizations/:organizationId/academic-years/:id should return 200', async () => {

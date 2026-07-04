@@ -27,8 +27,8 @@ describe('ManageScheduleTimeConfigUseCases', () => {
       update: mock(),
       delete: mock(),
       findActiveAndFutureIds: mock(),
-      findActiveByOrganizationId: mock(),
       findByOrganizationId: mock(),
+      getTiming: mock(),
     };
 
     memberProvider = {
@@ -102,6 +102,7 @@ describe('ManageScheduleTimeConfigUseCases', () => {
       repository.validateScope.mockResolvedValue(true);
       repository.findAll.mockResolvedValue([]);
       academicYearRepository.findById.mockResolvedValue(baseAcademicYear);
+      academicYearRepository.getTiming.mockResolvedValue(baseAcademicYear);
       repository.save.mockResolvedValue(undefined);
     });
 

@@ -97,13 +97,6 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
     return rows.map(this.mapToDomain);
   }
 
-  async findActiveByOrganizationId(
-    organizationId: string
-  ): Promise<AcademicYear | null> {
-    const all = await this.findByOrganizationId(organizationId);
-    return all.find((ay) => ay.isActive) || null;
-  }
-
   async findActiveAndFutureIds(organizationId: string): Promise<string[]> {
     const today = new Date().toISOString().slice(0, 10);
     const rows = await this.db

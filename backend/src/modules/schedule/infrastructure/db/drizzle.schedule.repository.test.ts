@@ -48,7 +48,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
   test('should create and retrieve a schedule by ID', async () => {
     const schedule = createValidSchedule();
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
     const foundSchedule = await repository.findById(schedule.id, testOrgId);
     expect(foundSchedule).not.toBeNull();
     expect(foundSchedule?.id).toBe(schedule.id);
@@ -57,7 +59,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
   test('should find schedule by scope', async () => {
     const schedule = createValidSchedule();
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
     const foundSchedule = await repository.findByScope(
       testOrgId,
       testDegreeId,
@@ -83,8 +87,8 @@ describe('DrizzleScheduleRepository Integration', () => {
       itineraryId: null,
     });
     s2.publish();
-    await repository.create(s1);
-    await repository.create(s2);
+    await repository.createSchedulesWithSlots([{ schedule: s1, slots: [] }]);
+    await repository.createSchedulesWithSlots([{ schedule: s2, slots: [] }]);
     const all = await repository.findAll(testOrgId);
     expect(all.length).toBeGreaterThanOrEqual(2);
     const morningSchedules = await repository.findPaginated(testOrgId, {
@@ -151,10 +155,57 @@ describe('DrizzleScheduleRepository Integration', () => {
       itineraryId: null,
       conflicts: 0,
     });
-    await repository.create(conflictOnly);
-    await repository.create(unassignedOnly);
-    await repository.create(conflictsAndUnassigned);
-    await repository.create(cleanSchedule);
+    await repository.createSchedulesWithSlots([
+      {
+        schedule: conflictOnly,
+        slots: [
+          {
+            scheduleId: conflictOnly.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: testClassroomId,
+            dayOfWeek: 1,
+            slotIndex: 1,
+            duration: 1,
+            conflicts: [{ type: 'ROOM_OVERLAP', message: 'ERR_ROOM_OVERLAP' }],
+          },
+        ],
+      },
+    ]);
+    await repository.createSchedulesWithSlots([
+      {
+        schedule: unassignedOnly,
+        slots: [
+          {
+            scheduleId: unassignedOnly.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: null,
+            dayOfWeek: null,
+            slotIndex: null,
+            duration: 1,
+            conflicts: [],
+          },
+        ],
+      },
+    ]);
+    await repository.createSchedulesWithSlots([
+      {
+        schedule: conflictsAndUnassigned,
+        slots: [
+          {
+            scheduleId: conflictsAndUnassigned.id,
+            subjectGroupId: testSubjectGroupId,
+            classroomId: null,
+            dayOfWeek: null,
+            slotIndex: null,
+            duration: 1,
+            conflicts: [{ type: 'ROOM_OVERLAP', message: 'ERR_ROOM_OVERLAP' }],
+          },
+        ],
+      },
+    ]);
+    await repository.createSchedulesWithSlots([
+      { schedule: cleanSchedule, slots: [] },
+    ]);
 
     const allSchedules = await repository.findPaginated(testOrgId, {
       hasConflicts: 'all',
@@ -203,7 +254,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
   test('should update a schedule successfully', async () => {
     const schedule = createValidSchedule();
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
     schedule.publish();
     await repository.update(schedule);
     const updated = await repository.findById(schedule.id, testOrgId);
@@ -264,7 +317,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
     const schedule = createValidSchedule();
     schedule.setTimeConfigId(wrongSemesterConfigId);
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
 
     const autoCorrected = await repository.findById(schedule.id, testOrgId);
     expect(autoCorrected?.timeConfigId).toBe(correctSemesterConfigId);
@@ -394,13 +449,6 @@ describe('DrizzleScheduleRepository Integration', () => {
     ).not.toBeNull();
   });
 
-  test('should find distinct academic years', async () => {
-    const schedule = createValidSchedule();
-    await repository.create(schedule);
-    const years = await repository.findDistinctAcademicYears(testOrgId);
-    expect(years.includes(testAcademicYearId)).toBe(true);
-  });
-
   test('should find locked assignments', async () => {
     const schedule = createValidSchedule();
     const slots = [
@@ -448,7 +496,9 @@ describe('DrizzleScheduleRepository Integration', () => {
       period: 1,
       itineraryId: testItineraryId,
     });
-    await repository.create(itinerarySchedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: itinerarySchedule, slots: [] },
+    ]);
 
     const affected = await repository.addUnassignedSlotsForSubjectGroups(
       [testSubjectGroupId],
@@ -487,7 +537,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
   test('should delete schedule successfully', async () => {
     const schedule = createValidSchedule();
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
     await repository.delete(schedule.id, testOrgId);
     const found = await repository.findById(schedule.id, testOrgId);
     expect(found).toBeNull();
@@ -589,7 +641,9 @@ describe('DrizzleScheduleRepository Integration', () => {
 
   test('should delete schedules by degree only in allowed academic years', async () => {
     const schedule = createValidSchedule();
-    await repository.create(schedule);
+    await repository.createSchedulesWithSlots([
+      { schedule: schedule, slots: [] },
+    ]);
 
     await repository.deleteSchedulesByDegreesOrItineraries(
       [testDegreeId],

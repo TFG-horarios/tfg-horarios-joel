@@ -10,7 +10,6 @@ describe('UpdateAcademicYearUseCase', () => {
     findByOrganizationId: mock(),
     delete: mock(),
     update: mock(),
-    findActiveByOrganizationId: mock(),
   };
 
   const memberProviderMock = {

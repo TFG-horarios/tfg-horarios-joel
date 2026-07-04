@@ -52,26 +52,6 @@ export const listAcademicYearsRoute = createRoute({
   },
 });
 
-export const getActiveAcademicYearRoute = createRoute({
-  method: 'get',
-  path: '/organizations/{organizationId}/academic-years/active',
-  request: {
-    params: z.object({
-      organizationId: z.string().uuid(),
-    }),
-  },
-  responses: {
-    200: {
-      description: 'Active academic year',
-      content: {
-        'application/json': {
-          schema: AcademicYearSchema,
-        },
-      },
-    },
-  },
-});
-
 export const updateAcademicYearRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/academic-years/{id}',

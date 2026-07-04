@@ -50,11 +50,34 @@ describe('GenerateScheduleUseCase', () => {
     runGeneration: mock(),
   };
 
+  const issueProviderMock = {
+    countSchedulingConflicts: mock(
+      (conflicts: { type: string }[]) =>
+        conflicts.filter((conflict) => !conflict.type.startsWith('UNASSIGNED'))
+          .length
+    ),
+    isUnassignedPlacement: mock(
+      (placement: {
+        classroomId: string | null;
+        dayOfWeek: number | null;
+        slotIndex: number | null;
+      }) =>
+        placement.classroomId === null ||
+        placement.dayOfWeek === null ||
+        placement.slotIndex === null
+    ),
+    getUnassignedDiagnostics: mock(() => ({
+      type: 'UNASSIGNED_ROOM_CAPACITY' as const,
+      message: 'ERR_UNASSIGNED_ROOM_CAPACITY',
+    })),
+  };
+
   const useCase = new GenerateScheduleUseCase(
     repositoryMock,
     dataProviderMock,
     memberProviderMock,
-    engineProviderMock
+    engineProviderMock,
+    issueProviderMock
   );
 
   test('should generate schedule successfully', async () => {

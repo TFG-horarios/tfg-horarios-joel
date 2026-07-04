@@ -7,7 +7,6 @@ describe('ClassroomReservationAcademicYearAdapter', () => {
     save: mock(),
     update: mock(),
     findByOrganizationId: mock(),
-    findActiveByOrganizationId: mock(),
     delete: mock(),
   };
 

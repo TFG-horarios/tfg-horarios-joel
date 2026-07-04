@@ -26,7 +26,32 @@ describe('ReevaluateSchedulesUseCase', () => {
       ]),
       updateSchedulesMetrics: mock(async () => undefined),
     };
-    const useCase = new ReevaluateSchedulesUseCase(repository as any);
+    const issueProvider = {
+      countSchedulingConflicts: mock(
+        (conflicts: { type: string }[]) =>
+          conflicts.filter(
+            (conflict) => !conflict.type.startsWith('UNASSIGNED')
+          ).length
+      ),
+      isUnassignedPlacement: mock(
+        (row: {
+          classroomId: string | null;
+          dayOfWeek: number | null;
+          slotIndex: number | null;
+        }) =>
+          row.classroomId === null ||
+          row.dayOfWeek === null ||
+          row.slotIndex === null
+      ),
+      getUnassignedDiagnostics: mock(() => ({
+        type: 'UNASSIGNED' as const,
+        message: 'ERR_UNASSIGNED',
+      })),
+    };
+    const useCase = new ReevaluateSchedulesUseCase(
+      repository as any,
+      issueProvider
+    );
 
     await useCase.execute(['schedule-1', 'schedule-1'], 'organization-1', tx);
 

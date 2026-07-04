@@ -7,19 +7,15 @@ import type {
   ScheduleDTO,
   ScheduleTimeConfigDTO,
 } from '@tfg-horarios/shared';
-import { schedulesTable } from '../db/drizzle.schedule.schema';
+import { schedulesTable, type DrizzleSchedule } from '../db/drizzle.schedule.schema';
 import {
   type NewDrizzleScheduleSlotInclusion,
   scheduleSlotInclusionsTable,
   scheduleSlotsTable,
+  type DrizzleScheduleSlotInclusion
 } from '@/modules/schedule-slot/infrastructure/db/drizzle.schedule-slot.schema';
-import { scheduleTimeConfigsTable } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
+import { scheduleTimeConfigsTable, type DrizzleScheduleTimeConfig } from '@/modules/schedule-time-config/infrastructure/db/drizzle.schedule-time-config.schema';
 import type { IScheduleImportProvider } from '../../domain/providers/schedule-import.provider';
-
-type Db = DbConnection;
-type ScheduleRow = typeof schedulesTable.$inferSelect;
-type TimeConfigRow = typeof scheduleTimeConfigsTable.$inferSelect;
-type InclusionRow = typeof scheduleSlotInclusionsTable.$inferSelect;
 
 export class ScheduleImportAdapter implements IScheduleImportProvider {
   constructor(private readonly db: DbConnection) {}
@@ -241,12 +237,12 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
     });
   }
 
-  private asDb(value: unknown): Db {
-    return value as Db;
+  private asDb(value: unknown): DbConnection {
+    return value as DbConnection;
   }
 
   private async findSchedulesByYear(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     academicYearId: string
   ) {
@@ -262,7 +258,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findTimeConfigsByYear(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     academicYearId: string
   ) {
@@ -278,12 +274,12 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findMatchingTargetSchedules(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     targetAcademicYearId: string,
-    sourceSchedules: ScheduleRow[]
+    sourceSchedules: DrizzleSchedule[]
   ) {
-    const result: ScheduleRow[] = [];
+    const result: DrizzleSchedule[] = [];
     for (const source of sourceSchedules) {
       const found = await this.findScheduleByScope(
         db,
@@ -299,12 +295,12 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findMatchingTargetConfigs(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     targetAcademicYearId: string,
-    sourceConfigs: TimeConfigRow[]
+    sourceConfigs: DrizzleScheduleTimeConfig[]
   ) {
-    const result: TimeConfigRow[] = [];
+    const result: DrizzleScheduleTimeConfig[] = [];
     for (const source of sourceConfigs) {
       const found = await this.findTimeConfigByScope(
         db,
@@ -320,10 +316,10 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async upsertTimeConfigs(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     targetAcademicYearId: string,
-    sourceConfigs: TimeConfigRow[]
+    sourceConfigs: DrizzleScheduleTimeConfig[]
   ) {
     const sourceToTarget = new Map<string, string>();
     for (const source of sourceConfigs) {
@@ -371,11 +367,11 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findScheduleByScope(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     academicYearId: string,
     scope: Pick<
-      ScheduleRow,
+      DrizzleSchedule,
       'degreeId' | 'itineraryId' | 'courseYear' | 'period' | 'shift'
     >
   ) {
@@ -402,11 +398,11 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findTimeConfigByScope(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     academicYearId: string,
     scope: Pick<
-      TimeConfigRow,
+      DrizzleScheduleTimeConfig,
       'degreeId' | 'itineraryId' | 'courseYear' | 'period' | 'shift'
     >
   ) {
@@ -433,10 +429,10 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private async findEffectiveTargetConfigId(
-    db: Db,
+    db: DbConnection,
     organizationId: string,
     academicYearId: string,
-    schedule: ScheduleRow
+    schedule: DrizzleSchedule
   ) {
     if (schedule.itineraryId) {
       const specific = await this.findTimeConfigByScope(
@@ -460,7 +456,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
   }
 
   private copyInclusion(
-    inclusion: InclusionRow,
+    inclusion: DrizzleScheduleSlotInclusion,
     targetScheduleIdBySource: Map<string, string>,
     slotIdBySource: Map<string, string>,
     now: Date
@@ -479,7 +475,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
     };
   }
 
-  private async recalculateMetrics(db: Db, scheduleId: string) {
+  private async recalculateMetrics(db: DbConnection, scheduleId: string) {
     const slots = await db
       .select()
       .from(scheduleSlotsTable)
@@ -525,7 +521,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
       .where(eq(schedulesTable.id, scheduleId));
   }
 
-  private scheduleScopeKey(schedule: ScheduleRow) {
+  private scheduleScopeKey(schedule: DrizzleSchedule) {
     return [
       schedule.degreeId,
       schedule.itineraryId ?? 'common',
@@ -539,7 +535,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
     return value.slice(0, 5);
   }
 
-  private scheduleToDTO(row: ScheduleRow): ScheduleDTO {
+  private scheduleToDTO(row: DrizzleSchedule): ScheduleDTO {
     return {
       id: row.id,
       organizationId: row.organizationId,
@@ -558,7 +554,7 @@ export class ScheduleImportAdapter implements IScheduleImportProvider {
     };
   }
 
-  private timeConfigToDTO(row: TimeConfigRow): ScheduleTimeConfigDTO {
+  private timeConfigToDTO(row: DrizzleScheduleTimeConfig): ScheduleTimeConfigDTO {
     return {
       id: row.id,
       organizationId: row.organizationId,
