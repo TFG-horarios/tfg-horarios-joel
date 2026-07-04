@@ -8,6 +8,7 @@ import type {
   PaginatedResponse,
 } from '@tfg-horarios/shared';
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { DrizzleClassroomReservation } from './drizzle.classroom-reservation.schema';
 
 export class DrizzleClassroomReservationRepository implements IClassroomReservationRepository {
@@ -161,7 +162,7 @@ export class DrizzleClassroomReservationRepository implements IClassroomReservat
     classroomIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.db
+    tx: DbConnection | DbTransaction = this.db
   ): Promise<void> {
     if (classroomIds.length === 0 || activeAndFutureYearIds.length === 0) {
       return;

@@ -1,3 +1,5 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
+
 export interface TimingChangeResult {
   scheduleIds: string[];
   classroomIds: string[];
@@ -8,7 +10,7 @@ export interface IAcademicYearTimingChangeProvider {
   invalidateForTimingChange(
     organizationId: string,
     academicYearId: string,
-    tx: any,
+    tx: DbTransaction,
     timeConfigId?: string
   ): Promise<TimingChangeResult>;
 }

@@ -1,4 +1,5 @@
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { and, eq, gte, or, sql } from 'drizzle-orm';
 import { AcademicYear } from '../../domain/academic-year.entity';
 import type { IAcademicYearRepository } from '../../domain/academic-year.repository';
@@ -55,7 +56,7 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
 
   async update(
     academicYear: AcademicYear,
-    tx: DbConnection = this.db
+    tx: DbConnection | DbTransaction = this.db
   ): Promise<void> {
     await tx
       .update(academicYearsTable)

@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { ISubjectScheduleProvider } from '../../domain/providers/subject-schedule.provider';
@@ -12,7 +13,7 @@ export class SubjectScheduleAdapter implements ISubjectScheduleProvider {
     subjectIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     const scheduleIds = await this.scheduleRepository.deleteSlotsBySubjects!(
       subjectIds,

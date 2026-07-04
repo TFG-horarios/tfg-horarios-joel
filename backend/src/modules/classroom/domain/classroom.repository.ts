@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { Classroom } from './classroom.entity';
 import type {
   ClassroomIdentifierDTO,
@@ -23,7 +24,7 @@ export interface IClassroomRepository {
   create(classroom: Classroom): Promise<void>;
   createMany(classrooms: Classroom[]): Promise<void>;
   update(classroom: Classroom): Promise<void>;
-  delete(id: string, organizationId: string, tx?: any): Promise<void>;
-  deleteAll(organizationId: string, tx?: any): Promise<void>;
+  delete(id: string, organizationId: string, tx?: DbTransaction): Promise<void>;
+  deleteAll(organizationId: string, tx?: DbTransaction): Promise<void>;
   replace(classrooms: Classroom[], organizationId: string): Promise<void>;
 }

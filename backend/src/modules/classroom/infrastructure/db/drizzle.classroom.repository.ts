@@ -1,5 +1,6 @@
 import { eq, and, isNull, ilike, gte, lte, count, type SQL } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
@@ -214,7 +215,7 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
   async delete(
     id: string,
     organizationId: string,
-    tx: any = this.db
+    tx: DbConnection | DbTransaction = this.db
   ): Promise<void> {
     await tx
       .update(classroomsTable)
@@ -227,7 +228,10 @@ export class DrizzleClassroomRepository implements IClassroomRepository {
       );
   }
 
-  async deleteAll(organizationId: string, tx: any = this.db): Promise<void> {
+  async deleteAll(
+    organizationId: string,
+    tx: DbConnection | DbTransaction = this.db
+  ): Promise<void> {
     await tx
       .update(classroomsTable)
       .set({ deletedAt: new Date() })

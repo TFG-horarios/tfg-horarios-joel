@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { Degree } from './degree.entity';
 import type {
   DegreeIdentifierDTO,
@@ -23,7 +24,7 @@ export interface IDegreeRepository {
   create(degree: Degree): Promise<void>;
   createMany(degrees: Degree[]): Promise<void>;
   update(degree: Degree): Promise<void>;
-  delete(id: string, organizationId: string, tx?: any): Promise<void>;
-  deleteAll(organizationId: string, tx?: any): Promise<void>;
+  delete(id: string, organizationId: string, tx?: DbTransaction): Promise<void>;
+  deleteAll(organizationId: string, tx?: DbTransaction): Promise<void>;
   replace(degrees: Degree[], organizationId: string): Promise<void>;
 }

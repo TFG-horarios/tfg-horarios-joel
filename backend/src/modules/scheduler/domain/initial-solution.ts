@@ -8,6 +8,11 @@ import {
   type Shift,
 } from '@tfg-horarios/shared';
 import { PenaltyCalculator } from './penalty-calculator';
+import { createAssignmentFromGroup } from './assignment-factory';
+import {
+  buildTimeCandidates,
+  getInitialSolutionClassrooms,
+} from './placement-candidates';
 
 export interface GroupInitialData {
   subjectGroupId: string;
@@ -250,25 +255,12 @@ export class InitialSolution {
             );
             if (isOccupied) continue;
 
-            const tempAssignment: Assignment = {
-              id: `${group.subjectGroupId}_${h}`,
-              subjectGroupId: group.subjectGroupId,
-              subjectId: group.subjectId,
-              shift: group.shift,
-              groupType: group.groupType,
-              isCommon: group.isCommon,
-              itineraryName: group.itineraryName ?? null,
-              itineraryId: group.itineraryId ?? null,
-              numberOfStudents: group.numberOfStudents,
-              needsComputerLab: group.needsComputerLab,
-              degreeId: group.degreeId,
-              courseYear: group.courseYear,
-              timeConfigId: group.timeConfigId,
-              classroomId: roomId,
-              dayOfWeek: day,
-              slotIndex: slot,
-              duration: sessionDuration,
-            };
+            const tempAssignment = createAssignmentFromGroup(
+              group,
+              sessionDuration,
+              { classroomId: roomId, dayOfWeek: day, slotIndex: slot },
+              `${group.subjectGroupId}_${h}`
+            );
 
             assignments.push(tempAssignment);
             const currentPenalty = this.penaltyCalculator.evaluateHard(
@@ -307,25 +299,9 @@ export class InitialSolution {
             });
             occupiedClassrooms.set(bestPlacement.classroomId, roomEntries);
           }
-          assignments.push({
-            id: crypto.randomUUID(),
-            subjectGroupId: group.subjectGroupId,
-            subjectId: group.subjectId,
-            shift: group.shift,
-            groupType: group.groupType,
-            isCommon: group.isCommon,
-            itineraryName: group.itineraryName ?? null,
-            itineraryId: group.itineraryId ?? null,
-            numberOfStudents: group.numberOfStudents,
-            needsComputerLab: group.needsComputerLab,
-            degreeId: group.degreeId,
-            courseYear: group.courseYear,
-            timeConfigId: group.timeConfigId,
-            classroomId: bestPlacement.classroomId,
-            dayOfWeek: bestPlacement.dayOfWeek,
-            slotIndex: bestPlacement.slotIndex,
-            duration: sessionDuration,
-          });
+          assignments.push(
+            createAssignmentFromGroup(group, sessionDuration, bestPlacement)
+          );
         } else {
           assignments.push(
             this.createUnassignedAssignment(group, sessionDuration)
@@ -357,53 +333,11 @@ export class InitialSolution {
     const cached = this.classroomsForGroupCache.get(cacheKey);
     if (cached) return cached;
 
-    const requiredType = group.needsComputerLab
-      ? 'computer_lab'
-      : ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)
-        ? 'lab'
-        : 'theory';
-
-    const compatibleClassrooms = this.availableClassrooms.filter((id) => {
-      const cls = this.classroomsCache[id];
-      return (
-        cls &&
-        cls.type === requiredType &&
-        cls.capacity >= group.numberOfStudents
-      );
-    });
-
-    let classroomsToSearch = compatibleClassrooms;
-
-    if (
-      !group.needsComputerLab &&
-      ['practices', 'reduced_practices', 'tutoring'].includes(group.groupType)
-    ) {
-      const fallbackRooms = this.availableClassrooms.filter((id) => {
-        const cls = this.classroomsCache[id];
-        return (
-          cls && cls.type === 'theory' && cls.capacity >= group.numberOfStudents
-        );
-      });
-
-      classroomsToSearch = [...classroomsToSearch, ...fallbackRooms];
-    } else if (!group.needsComputerLab) {
-      const fallbackRooms = this.availableClassrooms.filter((id) => {
-        const cls = this.classroomsCache[id];
-        return (
-          cls && cls.type === 'lab' && cls.capacity >= group.numberOfStudents
-        );
-      });
-
-      classroomsToSearch = [...classroomsToSearch, ...fallbackRooms];
-    }
-
-    if (group.groupType === 'reduced_practices') {
-      classroomsToSearch.sort((a, b) => {
-        const capA = this.classroomsCache[a]?.capacity || 0;
-        const capB = this.classroomsCache[b]?.capacity || 0;
-        return capA - capB;
-      });
-    }
+    const classroomsToSearch = getInitialSolutionClassrooms(
+      group,
+      this.availableClassrooms,
+      this.classroomsCache
+    );
 
     this.classroomsForGroupCache.set(cacheKey, classroomsToSearch);
     return classroomsToSearch;
@@ -418,15 +352,10 @@ export class InitialSolution {
     const cached = this.timeCandidatesCache.get(cacheKey);
     if (cached) return cached;
 
-    const candidates = this.days.flatMap((day) =>
-      grid.slots.flatMap((slot: ScheduleTimeGrid['slots'][number]) => {
-        const interval = projectAssignmentInterval(
-          grid,
-          slot.slotIndex,
-          sessionDuration
-        );
-        return interval ? [{ day, slot: slot.slotIndex, interval }] : [];
-      })
+    const candidates = buildTimeCandidates(
+      sessionDuration,
+      grid,
+      this.days
     );
 
     this.timeCandidatesCache.set(cacheKey, candidates);
@@ -437,24 +366,10 @@ export class InitialSolution {
     group: GroupInitialData,
     duration: number
   ): Assignment {
-    return {
-      id: crypto.randomUUID(),
-      subjectGroupId: group.subjectGroupId,
-      subjectId: group.subjectId,
-      shift: group.shift,
-      groupType: group.groupType,
-      isCommon: group.isCommon,
-      itineraryName: group.itineraryName ?? null,
-      itineraryId: group.itineraryId ?? null,
-      numberOfStudents: group.numberOfStudents,
-      needsComputerLab: group.needsComputerLab,
-      degreeId: group.degreeId,
-      courseYear: group.courseYear,
-      timeConfigId: group.timeConfigId,
+    return createAssignmentFromGroup(group, duration, {
       classroomId: null,
       dayOfWeek: null,
       slotIndex: null,
-      duration,
-    };
+    });
   }
 }

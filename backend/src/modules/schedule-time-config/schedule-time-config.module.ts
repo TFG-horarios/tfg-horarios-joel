@@ -1,9 +1,15 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
+import type { TransactionRunner } from '@/core/db/transaction-runner';
 import type { AppEnv } from '@/core/types/app-types';
 import type { IMemberRepository } from '@/modules/member/domain/member.repository';
 import { DrizzleAcademicYearRepository } from '@/modules/academic-year/infrastructure/db/drizzle.academic-year.repository';
-import { ManageScheduleTimeConfigUseCases } from './application/manage-schedule-time-config.usecases';
+import { CreateScheduleTimeConfigUseCase } from './application/create-schedule-time-config.usecase';
+import { DeleteScheduleTimeConfigUseCase } from './application/delete-schedule-time-config.usecase';
+import { GetScheduleTimeConfigPossibilitiesUseCase } from './application/get-schedule-time-config-possibilities.usecase';
+import { ListScheduleTimeConfigsUseCase } from './application/list-schedule-time-configs.usecase';
+import { ScheduleTimeConfigGridValidator } from './application/schedule-time-config-grid.validator';
+import { UpdateScheduleTimeConfigUseCase } from './application/update-schedule-time-config.usecase';
 import { DrizzleScheduleTimeConfigRepository } from './infrastructure/db/drizzle.schedule-time-config.repository';
 import { HonoScheduleTimeConfigController } from './infrastructure/http/hono.schedule-time-config.controller';
 import {
@@ -25,19 +31,54 @@ export const createScheduleTimeConfigModule = (
   memberRepository: IMemberRepository,
   createNotificationUseCase?: CreateNotificationUseCase
 ) => {
-  const useCases = new ManageScheduleTimeConfigUseCases(
-    new DrizzleScheduleTimeConfigRepository(db),
-    new ScheduleTimeConfigAcademicYearAdapter(
-      new DrizzleAcademicYearRepository(db)
-    ),
-    new MemberRoleAdapter(memberRepository),
-    new ScheduleTimeConfigTimingChangeAdapter(
-      new AcademicYearTimingChangeAdapter()
-    ),
-    (work) => db.transaction(work),
-    new ScheduleTimeConfigTimingChangeNotifierAdapter(createNotificationUseCase)
+  const repository = new DrizzleScheduleTimeConfigRepository(db);
+  const memberProvider = new MemberRoleAdapter(memberRepository);
+  const academicYearProvider = new ScheduleTimeConfigAcademicYearAdapter(
+    new DrizzleAcademicYearRepository(db)
   );
-  const controller = new HonoScheduleTimeConfigController(useCases);
+  const gridValidator = new ScheduleTimeConfigGridValidator(
+    repository,
+    academicYearProvider
+  );
+  const academicYearTimingChangeProvider =
+    new AcademicYearTimingChangeAdapter();
+  const scheduleTimeConfigTimingChangeProvider =
+    new ScheduleTimeConfigTimingChangeAdapter(academicYearTimingChangeProvider);
+  const runInTransaction: TransactionRunner = (work) => db.transaction(work);
+  const scheduleTimeConfigTimingChangeNotifierProvider =
+    new ScheduleTimeConfigTimingChangeNotifierAdapter(
+      createNotificationUseCase
+    );
+  const updateScheduleTimeConfigUseCase = new UpdateScheduleTimeConfigUseCase(
+    repository,
+    memberProvider,
+    gridValidator,
+    scheduleTimeConfigTimingChangeProvider,
+    runInTransaction,
+    scheduleTimeConfigTimingChangeNotifierProvider
+  );
+  const createScheduleTimeConfigUseCase = new CreateScheduleTimeConfigUseCase(
+    repository,
+    memberProvider,
+    gridValidator
+  );
+  const deleteScheduleTimeConfigUseCase = new DeleteScheduleTimeConfigUseCase(
+    repository,
+    memberProvider
+  );
+  const getScheduleTimeConfigPossibilitiesUseCase =
+    new GetScheduleTimeConfigPossibilitiesUseCase(repository, memberProvider);
+  const listScheduleTimeConfigsUseCase = new ListScheduleTimeConfigsUseCase(
+    repository,
+    memberProvider
+  );
+  const controller = new HonoScheduleTimeConfigController(
+    listScheduleTimeConfigsUseCase,
+    createScheduleTimeConfigUseCase,
+    updateScheduleTimeConfigUseCase,
+    deleteScheduleTimeConfigUseCase,
+    getScheduleTimeConfigPossibilitiesUseCase
+  );
   const app = new OpenAPIHono<AppEnv>();
   const routes = app
     .openapi(getPossibilitiesRoute, controller.getPossibilities)

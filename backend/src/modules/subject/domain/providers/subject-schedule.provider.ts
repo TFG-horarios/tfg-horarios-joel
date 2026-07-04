@@ -1,8 +1,10 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
+
 export interface ISubjectScheduleProvider {
   handleSubjectsDeletion(
     subjectIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void>;
 }

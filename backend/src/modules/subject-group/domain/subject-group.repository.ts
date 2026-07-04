@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { SubjectGroup } from './subject-group.entity';
 import type {
   GroupType,
@@ -41,14 +42,14 @@ export interface ISubjectGroupRepository {
     itineraryIds?: string[],
     courseYears?: number[]
   ): Promise<GroupWithSubjectAndItinerary[]>;
-  create(subjectGroup: SubjectGroup, tx?: any): Promise<void>;
-  createMany(subjectGroups: SubjectGroup[], tx?: any): Promise<void>;
+  create(subjectGroup: SubjectGroup, tx?: DbTransaction): Promise<void>;
+  createMany(subjectGroups: SubjectGroup[], tx?: DbTransaction): Promise<void>;
   update(subjectGroup: SubjectGroup): Promise<void>;
-  delete(id: string, organizationId: string, tx?: any): Promise<void>;
-  deleteAll(organizationId: string, tx?: any): Promise<void>;
+  delete(id: string, organizationId: string, tx?: DbTransaction): Promise<void>;
+  deleteAll(organizationId: string, tx?: DbTransaction): Promise<void>;
   replace(
     subjectGroups: SubjectGroup[],
     organizationId: string,
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void>;
 }

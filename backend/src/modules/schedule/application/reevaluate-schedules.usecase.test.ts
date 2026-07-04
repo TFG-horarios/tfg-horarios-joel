@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ReevaluateSchedulesUseCase } from './reevaluate-schedules.usecase';
 
 describe('ReevaluateSchedulesUseCase', () => {
@@ -53,7 +54,11 @@ describe('ReevaluateSchedulesUseCase', () => {
       issueProvider
     );
 
-    await useCase.execute(['schedule-1', 'schedule-1'], 'organization-1', tx);
+    await useCase.execute(
+      ['schedule-1', 'schedule-1'],
+      'organization-1',
+      tx as unknown as DbTransaction
+    );
 
     expect(repository.findScheduleIssueData).toHaveBeenCalledWith(
       ['schedule-1'],

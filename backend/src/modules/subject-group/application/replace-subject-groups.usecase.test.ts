@@ -1,5 +1,6 @@
 import type { Shift } from '@tfg-horarios/shared';
 import { describe, expect, test, mock } from 'bun:test';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ReplaceSubjectGroupsUseCase } from './replace-subject-groups.usecase';
 import { ForbiddenError, ValidationError } from '@/core/errors/app.error';
 
@@ -145,7 +146,8 @@ describe('ReplaceSubjectGroupsUseCase', () => {
       subjectProviderMock,
       { findActiveAndFutureIds: mock(async () => ['year-1']) } as any,
       scheduleProvider,
-      async <T>(work: (tx: any) => Promise<T>) => work(tx)
+      async <T>(work: (tx: DbTransaction) => Promise<T>) =>
+        work(tx as unknown as DbTransaction)
     );
     memberProviderMock.getMemberRole.mockResolvedValueOnce('admin');
     subjectProviderMock.getAvailableShifts.mockResolvedValueOnce(['morning']);

@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { IDegreeScheduleProvider } from '../../domain/providers/degree-schedule.provider';
 
@@ -8,7 +9,7 @@ export class DegreeScheduleAdapter implements IDegreeScheduleProvider {
     degreeIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     return this.scheduleRepository.deleteSchedulesByDegreesOrItineraries!(
       degreeIds,

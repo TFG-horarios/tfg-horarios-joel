@@ -5,7 +5,6 @@ import {
   type ScheduleTimeGridMap,
 } from '../domain/types';
 import {
-  projectAssignmentInterval,
   type ScheduleTimeGrid,
 } from '@tfg-horarios/shared';
 import { PenaltyCalculator } from '../domain/penalty-calculator';
@@ -18,15 +17,16 @@ import {
   isBetterSolution,
   isBetterHardSolution,
 } from './multi-start-tabu-search';
+import { TabuList, type MoveAttribute, type TabuMove } from './tabu-list';
+import {
+  buildAssignmentTimeCandidates,
+  getTabuSearchClassrooms,
+} from '../domain/placement-candidates';
 
-interface TabuMove {
-  assignmentId: string;
-  attribute: 'room' | 'time' | 'both';
-  forbiddenValue: string | number;
-  expiresAtIteration: number;
-}
-
-type MoveAttribute = TabuMove['attribute'];
+type ProposedMove = {
+  assignment: Assignment;
+  tabu: Omit<TabuMove, 'expiresAtIteration'>;
+};
 
 export class TabuSearchEngine {
   private readonly MAX_ITERATIONS = 1000;
@@ -74,7 +74,7 @@ export class TabuSearchEngine {
       bestGlobalSolution = currentSolution;
     }
 
-    const tabuList: TabuMove[] = [];
+    const tabuList = new TabuList();
     let i = 0;
     let stagnantIterations = 0;
 
@@ -85,7 +85,7 @@ export class TabuSearchEngine {
         bestGlobalSolution.hardPenalty > 0) &&
       currentSolution.assignments.length > 0
     ) {
-      this.cleanTabuList(tabuList, i);
+      tabuList.expire(i);
 
       let bestNeighbor: Solution | null = null;
       let bestMoveData: TabuMove | null = null;
@@ -102,43 +102,12 @@ export class TabuSearchEngine {
         if (original.dayOfWeek === null || original.slotIndex === null)
           continue;
 
-        const moveAttribute = this.pickMoveAttribute(original, currentSolution);
-        const mutated = { ...original };
-        let tabuAttribute = moveAttribute;
-        let forbiddenVal: string | number = '';
-
-        if (moveAttribute === 'time' || moveAttribute === 'both') {
-          const candidate = this.pickRandomTime(original);
-          if (!candidate) continue;
-          mutated.dayOfWeek = candidate.dayOfWeek;
-          mutated.slotIndex = candidate.slotIndex;
-
-          if (moveAttribute === 'time') {
-            tabuAttribute = 'time';
-            forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}`;
-          }
-        }
-
-        if (moveAttribute === 'room' || moveAttribute === 'both') {
-          const classroomsToSearch = this.getClassroomsForAssignment(original);
-
-          if (classroomsToSearch.length === 0) continue;
-
-          const classroomIndex = this.random.randomInt(
-            classroomsToSearch.length
-          );
-          mutated.classroomId = classroomsToSearch[classroomIndex]!;
-
-          if (moveAttribute === 'room') {
-            tabuAttribute = 'room';
-            forbiddenVal = original.classroomId ?? '';
-          }
-        }
-
-        if (moveAttribute === 'both') {
-          tabuAttribute = 'both';
-          forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}-${original.classroomId}`;
-        }
+        const proposedMove = this.proposeMove(
+          original,
+          this.pickMoveAttribute(original, currentSolution)
+        );
+        if (!proposedMove) continue;
+        const mutated = proposedMove.assignment;
 
         currentSolution.assignments[targetIndex] = mutated;
 
@@ -171,24 +140,7 @@ export class TabuSearchEngine {
           conflicts: penalties.conflicts,
         };
 
-        const isTabu = tabuList.some((t) => {
-          if (t.assignmentId !== mutated.id) return false;
-          if (t.attribute === 'time' && tabuAttribute === 'time') {
-            return (
-              `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue
-            );
-          }
-          if (t.attribute === 'room' && tabuAttribute === 'room') {
-            return mutated.classroomId === t.forbiddenValue;
-          }
-          if (t.attribute === 'both' && tabuAttribute === 'both') {
-            return (
-              `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` ===
-              t.forbiddenValue
-            );
-          }
-          return false;
-        });
+        const isTabu = tabuList.contains(proposedMove.tabu);
 
         const isTabuButBestMove =
           isTabu && isBetterHardSolution(neighbor, bestGlobalSolution);
@@ -203,9 +155,7 @@ export class TabuSearchEngine {
               conflicts: neighbor.conflicts,
             };
             bestMoveData = {
-              assignmentId: mutated.id,
-              attribute: tabuAttribute,
-              forbiddenValue: forbiddenVal,
+              ...proposedMove.tabu,
               expiresAtIteration:
                 i +
                 this.MIN_TABU_TENURE +
@@ -221,7 +171,7 @@ export class TabuSearchEngine {
 
       if (bestNeighbor && bestMoveData) {
         currentSolution = bestNeighbor;
-        tabuList.push(bestMoveData);
+        tabuList.add(bestMoveData);
 
         if (isBetterHardSolution(currentSolution, bestGlobalSolution)) {
           bestGlobalSolution = currentSolution;
@@ -279,7 +229,7 @@ export class TabuSearchEngine {
     const MAX_SOFT_ITERATIONS = 500;
     const MAX_SOFT_STAGNANT = 150;
 
-    const tabuList: TabuMove[] = [];
+    const tabuList = new TabuList();
     let i = 0;
     let stagnantIterations = 0;
 
@@ -288,7 +238,7 @@ export class TabuSearchEngine {
       stagnantIterations < MAX_SOFT_STAGNANT &&
       bestGlobalSolution.penalty > 0
     ) {
-      this.cleanTabuList(tabuList, i);
+      tabuList.expire(i);
 
       let bestNeighbor: Solution | null = null;
       let bestMoveData: TabuMove | null = null;
@@ -302,47 +252,12 @@ export class TabuSearchEngine {
         if (original.dayOfWeek === null || original.slotIndex === null)
           continue;
 
-        const moveType = this.random.random();
-        let moveAttribute: MoveAttribute = 'both';
-        if (moveType < 0.33) moveAttribute = 'time';
-        else if (moveType < 0.66) moveAttribute = 'room';
-
-        const mutated = { ...original };
-        let tabuAttribute = moveAttribute;
-        let forbiddenVal: string | number = '';
-
-        if (moveAttribute === 'time' || moveAttribute === 'both') {
-          const candidate = this.pickRandomTime(original);
-          if (!candidate) continue;
-          mutated.dayOfWeek = candidate.dayOfWeek;
-          mutated.slotIndex = candidate.slotIndex;
-
-          if (moveAttribute === 'time') {
-            tabuAttribute = 'time';
-            forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}`;
-          }
-        }
-
-        if (moveAttribute === 'room' || moveAttribute === 'both') {
-          const classroomsToSearch = this.getClassroomsForAssignment(original);
-
-          if (classroomsToSearch.length === 0) continue;
-
-          const classroomIndex = this.random.randomInt(
-            classroomsToSearch.length
-          );
-          mutated.classroomId = classroomsToSearch[classroomIndex]!;
-
-          if (moveAttribute === 'room') {
-            tabuAttribute = 'room';
-            forbiddenVal = original.classroomId ?? '';
-          }
-        }
-
-        if (moveAttribute === 'both') {
-          tabuAttribute = 'both';
-          forbiddenVal = `${original.dayOfWeek}-${original.slotIndex}-${original.classroomId}`;
-        }
+        const proposedMove = this.proposeMove(
+          original,
+          this.pickRandomMoveAttribute()
+        );
+        if (!proposedMove) continue;
+        const mutated = proposedMove.assignment;
 
         currentSolution.assignments[targetIndex] = mutated;
 
@@ -369,21 +284,7 @@ export class TabuSearchEngine {
           conflicts: [],
         };
 
-        const isTabu = tabuList.some((t) => {
-          if (t.assignmentId !== mutated.id) return false;
-          if (t.attribute === 'time' && tabuAttribute === 'time')
-            return (
-              `${mutated.dayOfWeek}-${mutated.slotIndex}` === t.forbiddenValue
-            );
-          if (t.attribute === 'room' && tabuAttribute === 'room')
-            return mutated.classroomId === t.forbiddenValue;
-          if (t.attribute === 'both' && tabuAttribute === 'both')
-            return (
-              `${mutated.dayOfWeek}-${mutated.slotIndex}-${mutated.classroomId}` ===
-              t.forbiddenValue
-            );
-          return false;
-        });
+        const isTabu = tabuList.contains(proposedMove.tabu);
 
         const isTabuButBestMove =
           isTabu && isBetterSolution(neighbor, bestGlobalSolution);
@@ -398,9 +299,7 @@ export class TabuSearchEngine {
               conflicts: [],
             };
             bestMoveData = {
-              assignmentId: mutated.id,
-              attribute: tabuAttribute,
-              forbiddenValue: forbiddenVal,
+              ...proposedMove.tabu,
               expiresAtIteration:
                 i +
                 this.MIN_TABU_TENURE +
@@ -416,7 +315,7 @@ export class TabuSearchEngine {
 
       if (bestNeighbor && bestMoveData) {
         currentSolution = bestNeighbor;
-        tabuList.push(bestMoveData);
+        tabuList.add(bestMoveData);
 
         if (isBetterSolution(currentSolution, bestGlobalSolution)) {
           bestGlobalSolution = currentSolution;
@@ -432,14 +331,6 @@ export class TabuSearchEngine {
     }
 
     return bestGlobalSolution;
-  }
-
-  private cleanTabuList(tabuList: TabuMove[], currentIteration: number) {
-    for (let i = tabuList.length - 1; i >= 0; i--) {
-      if (tabuList[i]!.expiresAtIteration <= currentIteration) {
-        tabuList.splice(i, 1);
-      }
-    }
   }
 
   private getConflictAssignmentIds(solution: Solution): Set<string> {
@@ -532,6 +423,62 @@ export class TabuSearchEngine {
     if (moveType < 0.45) return 'time';
     if (moveType < 0.8) return 'room';
     return 'both';
+  }
+
+  private pickRandomMoveAttribute(): MoveAttribute {
+    const moveType = this.random.random();
+    if (moveType < 0.33) return 'time';
+    if (moveType < 0.66) return 'room';
+    return 'both';
+  }
+
+  private proposeMove(
+    original: Assignment,
+    moveAttribute: MoveAttribute
+  ): ProposedMove | null {
+    const mutated = { ...original };
+    let tabuAttribute = moveAttribute;
+    let forbiddenValue: string | number = '';
+
+    if (moveAttribute === 'time' || moveAttribute === 'both') {
+      const candidate = this.pickRandomTime(original);
+      if (!candidate) return null;
+      mutated.dayOfWeek = candidate.dayOfWeek;
+      mutated.slotIndex = candidate.slotIndex;
+
+      if (moveAttribute === 'time') {
+        tabuAttribute = 'time';
+        forbiddenValue = `${original.dayOfWeek}-${original.slotIndex}`;
+      }
+    }
+
+    if (moveAttribute === 'room' || moveAttribute === 'both') {
+      const classroomsToSearch = this.getClassroomsForAssignment(original);
+
+      if (classroomsToSearch.length === 0) return null;
+
+      const classroomIndex = this.random.randomInt(classroomsToSearch.length);
+      mutated.classroomId = classroomsToSearch[classroomIndex]!;
+
+      if (moveAttribute === 'room') {
+        tabuAttribute = 'room';
+        forbiddenValue = original.classroomId ?? '';
+      }
+    }
+
+    if (moveAttribute === 'both') {
+      tabuAttribute = 'both';
+      forbiddenValue = `${original.dayOfWeek}-${original.slotIndex}-${original.classroomId}`;
+    }
+
+    return {
+      assignment: mutated,
+      tabu: {
+        assignmentId: mutated.id,
+        attribute: tabuAttribute,
+        forbiddenValue,
+      },
+    };
   }
 
   private improveConflictedAssignments(
@@ -705,42 +652,11 @@ export class TabuSearchEngine {
     const cached = this.classroomsForAssignmentCache.get(cacheKey);
     if (cached) return cached;
 
-    const requiredType = assignment.needsComputerLab
-      ? 'computer_lab'
-      : ['practices', 'reduced_practices', 'tutoring'].includes(
-            assignment.groupType
-          )
-        ? 'lab'
-        : 'theory';
-    const compatibleClassrooms = this.availableClassrooms.filter(
-      (id) => this.classroomsCache[id]?.type === requiredType
+    const classroomsToSearch = getTabuSearchClassrooms(
+      assignment,
+      this.availableClassrooms,
+      this.classroomsCache
     );
-    let classroomsToSearch = assignment.needsComputerLab
-      ? compatibleClassrooms
-      : compatibleClassrooms.length > 0
-        ? compatibleClassrooms
-        : this.availableClassrooms;
-
-    if (
-      !assignment.needsComputerLab &&
-      ['practices', 'reduced_practices', 'tutoring'].includes(
-        assignment.groupType
-      )
-    ) {
-      const theoryRooms = this.availableClassrooms.filter(
-        (id) => this.classroomsCache[id]?.type === 'theory'
-      );
-      classroomsToSearch = Array.from(
-        new Set([...classroomsToSearch, ...theoryRooms])
-      );
-    } else if (!assignment.needsComputerLab) {
-      const labRooms = this.availableClassrooms.filter(
-        (id) => this.classroomsCache[id]?.type === 'lab'
-      );
-      classroomsToSearch = Array.from(
-        new Set([...classroomsToSearch, ...labRooms])
-      );
-    }
 
     this.classroomsForAssignmentCache.set(cacheKey, classroomsToSearch);
     return classroomsToSearch;
@@ -762,20 +678,13 @@ export class TabuSearchEngine {
     if (cached) return cached;
 
     const grid = this.getGridForAssignment(assignment);
-    if (grid) {
-      const candidates = [1, 2, 3, 4, 5].flatMap((dayOfWeek) =>
-        grid.slots
-          .filter((slot) =>
-            projectAssignmentInterval(grid, slot.slotIndex, assignment.duration)
-          )
-          .map((slot) => ({ dayOfWeek, slotIndex: slot.slotIndex }))
-      );
-      this.timeCandidatesCache.set(cacheKey, candidates);
-      return candidates;
-    }
-
-    this.timeCandidatesCache.set(cacheKey, []);
-    return [];
+    const candidates = buildAssignmentTimeCandidates(
+      assignment,
+      grid,
+      [1, 2, 3, 4, 5]
+    );
+    this.timeCandidatesCache.set(cacheKey, candidates);
+    return candidates;
   }
 
   private getGridForAssignment(

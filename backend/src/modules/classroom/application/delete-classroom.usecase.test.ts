@@ -1,4 +1,5 @@
 import { describe, expect, test, mock } from 'bun:test';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { DeleteClassroomUseCase } from './delete-classroom.usecase';
 import { ForbiddenError, NotFoundError } from '@/core/errors/app.error';
 
@@ -65,8 +66,9 @@ describe('DeleteClassroomUseCase', () => {
     const scheduleProvider = {
       handleClassroomsDeletion: mock(async () => undefined),
     };
-    const runInTransaction = mock(async (work: (tx: any) => Promise<void>) =>
-      work(tx)
+    const runInTransaction = mock(
+      async (work: (tx: DbTransaction) => Promise<void>) =>
+        work(tx as unknown as DbTransaction)
     );
     const transactionalUseCase = new DeleteClassroomUseCase(
       repository as any,

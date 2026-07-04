@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { Schedule } from './schedule.entity';
 import type {
   ScheduleListQueryDTO,
@@ -78,41 +79,41 @@ export interface IScheduleRepository {
     classroomIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<string[]>;
   deleteSchedulesByDegreesOrItineraries?(
     degreeIds: string[],
     itineraryIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void>;
   deleteSlotsBySubjects?(
     subjectIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<string[]>;
   deleteSlotsBySubjectGroups?(
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<string[]>;
   addUnassignedSlotsForSubjectGroups?(
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<string[]>;
   findScheduleIssueData?(
     scheduleIds: string[],
     organizationId: string,
-    tx?: any
+    tx?: DbTransaction
   ): Promise<ScheduleIssueData[]>;
   updateSchedulesMetrics?(
     metrics: ScheduleMetrics[],
     organizationId: string,
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void>;
 }

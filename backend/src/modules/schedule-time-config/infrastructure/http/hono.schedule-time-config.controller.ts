@@ -1,6 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi';
 import type { AppEnv } from '@/core/types/app-types';
-import type { ManageScheduleTimeConfigUseCases } from '../../application/manage-schedule-time-config.usecases';
+import type { CreateScheduleTimeConfigUseCase } from '../../application/create-schedule-time-config.usecase';
+import type { DeleteScheduleTimeConfigUseCase } from '../../application/delete-schedule-time-config.usecase';
+import type { GetScheduleTimeConfigPossibilitiesUseCase } from '../../application/get-schedule-time-config-possibilities.usecase';
+import type { ListScheduleTimeConfigsUseCase } from '../../application/list-schedule-time-configs.usecase';
+import type { UpdateScheduleTimeConfigUseCase } from '../../application/update-schedule-time-config.usecase';
 import {
   createTimeConfigRoute,
   deleteTimeConfigRoute,
@@ -10,12 +14,18 @@ import {
 } from './hono.schedule-time-config.routes';
 
 export class HonoScheduleTimeConfigController {
-  constructor(private readonly useCases: ManageScheduleTimeConfigUseCases) {}
+  constructor(
+    private readonly listScheduleTimeConfigs: ListScheduleTimeConfigsUseCase,
+    private readonly createScheduleTimeConfig: CreateScheduleTimeConfigUseCase,
+    private readonly updateScheduleTimeConfig: UpdateScheduleTimeConfigUseCase,
+    private readonly deleteScheduleTimeConfig: DeleteScheduleTimeConfigUseCase,
+    private readonly getScheduleTimeConfigPossibilities: GetScheduleTimeConfigPossibilitiesUseCase
+  ) {}
 
   list: RouteHandler<typeof listTimeConfigsRoute, AppEnv> = async (c) => {
     const { organizationId, academicYearId } = c.req.valid('param');
     return c.json(
-      await this.useCases.list(
+      await this.listScheduleTimeConfigs.execute(
         organizationId,
         academicYearId,
         c.get('userId'),
@@ -28,7 +38,7 @@ export class HonoScheduleTimeConfigController {
   create: RouteHandler<typeof createTimeConfigRoute, AppEnv> = async (c) => {
     const { organizationId, academicYearId } = c.req.valid('param');
     return c.json(
-      await this.useCases.create(
+      await this.createScheduleTimeConfig.execute(
         organizationId,
         academicYearId,
         c.get('userId'),
@@ -41,7 +51,7 @@ export class HonoScheduleTimeConfigController {
   update: RouteHandler<typeof updateTimeConfigRoute, AppEnv> = async (c) => {
     const { organizationId, academicYearId, id } = c.req.valid('param');
     return c.json(
-      await this.useCases.update(
+      await this.updateScheduleTimeConfig.execute(
         organizationId,
         academicYearId,
         id,
@@ -54,7 +64,7 @@ export class HonoScheduleTimeConfigController {
 
   delete: RouteHandler<typeof deleteTimeConfigRoute, AppEnv> = async (c) => {
     const { organizationId, academicYearId, id } = c.req.valid('param');
-    await this.useCases.delete(
+    await this.deleteScheduleTimeConfig.execute(
       organizationId,
       academicYearId,
       id,
@@ -68,7 +78,7 @@ export class HonoScheduleTimeConfigController {
   ) => {
     const { organizationId, academicYearId } = c.req.valid('param');
     return c.json(
-      await this.useCases.getPossibilities(
+      await this.getScheduleTimeConfigPossibilities.execute(
         organizationId,
         academicYearId,
         c.get('userId')

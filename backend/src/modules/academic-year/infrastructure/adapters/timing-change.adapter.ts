@@ -1,4 +1,5 @@
 import { and, count, eq, gte, inArray } from 'drizzle-orm';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IAcademicYearTimingChangeProvider } from '../../domain/providers/timing-change.provider';
 import { schedulesTable } from '@/modules/schedule/infrastructure/db/drizzle.schedule.schema';
 import {
@@ -11,7 +12,7 @@ export class AcademicYearTimingChangeAdapter implements IAcademicYearTimingChang
   async invalidateForTimingChange(
     organizationId: string,
     academicYearId: string,
-    tx: any,
+    tx: DbTransaction,
     timeConfigId?: string
   ) {
     const scheduleConditions = [

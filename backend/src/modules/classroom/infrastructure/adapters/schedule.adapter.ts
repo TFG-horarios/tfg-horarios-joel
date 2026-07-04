@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IClassroomReservationRepository } from '@/modules/classroom-reservation/domain/classroom-reservation.repository';
 import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
@@ -14,7 +15,7 @@ export class ScheduleAdapter implements IScheduleProvider {
     classroomIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     const scheduleIds = await this.scheduleRepository
       .unassignClassroomsFromSlots!(

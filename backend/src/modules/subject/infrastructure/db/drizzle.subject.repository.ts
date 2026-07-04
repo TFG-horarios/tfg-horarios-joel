@@ -8,6 +8,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
@@ -249,9 +250,9 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
   async delete(
     id: string,
     organizationId: string,
-    externalTx?: any
+    externalTx?: DbTransaction
   ): Promise<void> {
-    const execute = async (tx: any) => {
+    const execute = async (tx: DbTransaction) => {
       await tx
         .update(subjectsTable)
         .set({ deletedAt: new Date() })
@@ -277,8 +278,11 @@ export class DrizzleSubjectRepository implements ISubjectRepository {
     await this.database.transaction(execute);
   }
 
-  async deleteAll(organizationId: string, externalTx?: any): Promise<void> {
-    const execute = async (tx: any) => {
+  async deleteAll(
+    organizationId: string,
+    externalTx?: DbTransaction
+  ): Promise<void> {
+    const execute = async (tx: DbTransaction) => {
       await tx
         .update(subjectsTable)
         .set({ deletedAt: new Date() })

@@ -12,6 +12,7 @@ import {
   or,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
@@ -566,7 +567,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     classroomIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<string[]> {
     if (classroomIds.length === 0 || activeAndFutureYearIds.length === 0) {
       return [];
@@ -640,7 +641,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     itineraryIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     if (
       activeAndFutureYearIds.length === 0 ||
@@ -672,7 +673,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     subjectIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<string[]> {
     if (subjectIds.length === 0 || activeAndFutureYearIds.length === 0) {
       return [];
@@ -700,7 +701,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<string[]> {
     if (subjectGroupIds.length === 0 || activeAndFutureYearIds.length === 0) {
       return [];
@@ -718,7 +719,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<string[]> {
     if (subjectGroupIds.length === 0 || activeAndFutureYearIds.length === 0) {
       return [];
@@ -847,7 +848,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
     groupIds: string[] | any,
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbConnection | DbTransaction
   ): Promise<string[]> {
     const allowedSchedules = tx
       .select({ id: schedulesTable.id })
@@ -903,7 +904,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   async findScheduleIssueData(
     scheduleIds: string[],
     organizationId: string,
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ) {
     if (scheduleIds.length === 0) return [];
 
@@ -957,7 +958,7 @@ export class DrizzleScheduleRepository implements IScheduleRepository {
   async updateSchedulesMetrics(
     metrics: { scheduleId: string; conflicts: number; unassigned: number }[],
     organizationId: string,
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     for (const metric of metrics) {
       await tx

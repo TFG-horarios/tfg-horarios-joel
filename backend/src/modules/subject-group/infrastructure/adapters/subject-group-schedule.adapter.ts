@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IScheduleRepository } from '@/modules/schedule/domain/schedule.repository';
 import type { ReevaluateSchedulesUseCase } from '@/modules/schedule/application/reevaluate-schedules.usecase';
 import type { ISubjectGroupScheduleProvider } from '../../domain/providers/subject-group-schedule.provider';
@@ -12,7 +13,7 @@ export class SubjectGroupScheduleAdapter implements ISubjectGroupScheduleProvide
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     const scheduleIds =
       await this.scheduleRepository.addUnassignedSlotsForSubjectGroups!(
@@ -28,7 +29,7 @@ export class SubjectGroupScheduleAdapter implements ISubjectGroupScheduleProvide
     subjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     const scheduleIds =
       await this.scheduleRepository.deleteSlotsBySubjectGroups!(
@@ -45,7 +46,7 @@ export class SubjectGroupScheduleAdapter implements ISubjectGroupScheduleProvide
     createdSubjectGroupIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx: any
+    tx: DbTransaction
   ): Promise<void> {
     const deletedFrom =
       await this.scheduleRepository.deleteSlotsBySubjectGroups!(

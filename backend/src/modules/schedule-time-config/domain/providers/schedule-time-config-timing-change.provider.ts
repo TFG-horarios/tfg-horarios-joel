@@ -1,3 +1,5 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
+
 export interface ScheduleTimeConfigTimingChangeResult {
   scheduleIds: string[];
   classroomIds: string[];
@@ -8,7 +10,7 @@ export interface IScheduleTimeConfigTimingChangeProvider {
   invalidateForTimingChange(
     organizationId: string,
     academicYearId: string,
-    tx: any,
+    tx: DbTransaction,
     timeConfigId?: string
   ): Promise<ScheduleTimeConfigTimingChangeResult>;
 }

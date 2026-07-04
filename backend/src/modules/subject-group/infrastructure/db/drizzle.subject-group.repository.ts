@@ -9,6 +9,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import type { DbConnection } from '@/core/db/connection';
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import { ConflictError } from '@/core/errors/app.error';
 import { getPostgresErrorCode } from '@/core/db/db-errors';
 import {
@@ -235,7 +236,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
 
   async create(
     subjectGroup: SubjectGroup,
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     try {
       await tx
@@ -253,7 +254,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
 
   async createMany(
     subjectGroups: SubjectGroup[],
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     if (subjectGroups.length === 0) return;
     const valuesToInsert = subjectGroups.map((g) => this.mapToPersistence(g));
@@ -303,7 +304,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
   async delete(
     id: string,
     organizationId: string,
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     await tx
       .update(subjectGroupsTable)
@@ -318,7 +319,7 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
 
   async deleteAll(
     organizationId: string,
-    tx: any = this.database
+    tx: DbConnection | DbTransaction = this.database
   ): Promise<void> {
     await tx
       .update(subjectGroupsTable)
@@ -334,9 +335,9 @@ export class DrizzleSubjectGroupRepository implements ISubjectGroupRepository {
   async replace(
     subjectGroups: SubjectGroup[],
     organizationId: string,
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void> {
-    const replaceWith = async (executor: any) => {
+    const replaceWith = async (executor: DbTransaction) => {
       await executor
         .update(subjectGroupsTable)
         .set({ deletedAt: new Date() })

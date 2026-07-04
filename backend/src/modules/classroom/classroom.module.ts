@@ -1,5 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { DbConnection } from '@/core/db/connection';
+import type { TransactionRunner } from '@/core/db/transaction-runner';
 import type { AppEnv } from '@/core/types/app-types';
 import { DrizzleClassroomRepository } from './infrastructure/db/drizzle.classroom.repository';
 import { CreateClassroomUseCase } from './application/create-classroom.usecase';
@@ -75,8 +76,7 @@ export const createClassroomModule = (
     scheduleTimeConfigRepository,
     academicYearRepository
   );
-  const runInTransaction = <T>(work: (tx: any) => Promise<T>) =>
-    db.transaction(work);
+  const runInTransaction: TransactionRunner = (work) => db.transaction(work);
 
   const createUseCase = new CreateClassroomUseCase(
     classroomRepository,

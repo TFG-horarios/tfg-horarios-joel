@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type { IScheduleRepository } from '../domain/schedule.repository';
 import type { IScheduleIssueProvider } from '../domain/providers/schedule-issue.provider';
 
@@ -10,7 +11,7 @@ export class ReevaluateSchedulesUseCase {
   async execute(
     scheduleIds: string[],
     organizationId: string,
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void> {
     const uniqueIds = [...new Set(scheduleIds)];
     if (uniqueIds.length === 0) return;

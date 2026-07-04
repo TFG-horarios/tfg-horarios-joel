@@ -1,3 +1,4 @@
+import type { DbTransaction } from '@/core/db/transaction-runner';
 import type {
   ClassroomReservationListQueryDTO,
   PaginatedResponse,
@@ -23,6 +24,6 @@ export interface IClassroomReservationRepository {
     classroomIds: string[],
     organizationId: string,
     activeAndFutureYearIds: string[],
-    tx?: any
+    tx?: DbTransaction
   ): Promise<void>;
 }
