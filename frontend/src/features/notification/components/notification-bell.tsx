@@ -33,6 +33,7 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -43,18 +44,21 @@ export function NotificationBell() {
     try {
       const res = await fetchPaginatedNotificationsAction(user.id, {
         page: 1,
-        limit: 50,
+        limit: 10,
       });
       setNotifications(res.data);
       setUnreadCount(res.data.filter((n) => !n.isRead).length);
+      setHasFetched(true);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   }, [user]);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (open && !hasFetched) {
+      void fetchNotifications();
+    }
+  }, [fetchNotifications, hasFetched, open]);
 
   useEffect(() => {
     if (!user) return;
@@ -172,7 +176,11 @@ export function NotificationBell() {
         )}
       </div>
       <ScrollArea className="h-[300px]">
-        {notifications.length === 0 ? (
+        {!hasFetched ? (
+          <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
+            Cargando notificaciones...
+          </div>
+        ) : notifications.length === 0 ? (
           <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
             No tienes notificaciones
           </div>

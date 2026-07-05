@@ -55,12 +55,14 @@ export const ClassroomRow = memo(function ClassroomRow({
           />
         )}
       </TableRow>
-      <ClassroomFormModal
-        organizationId={classroom.organizationId}
-        classroom={classroom}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
+      {isEditOpen && (
+        <ClassroomFormModal
+          organizationId={classroom.organizationId}
+          classroom={classroom}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </>
   );
 });

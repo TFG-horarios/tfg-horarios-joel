@@ -40,11 +40,13 @@ function ResourceInfiniteScrollBase<
   const [loading, setLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  if (initialItems !== prevInitialItems) {
-    setPrevInitialItems(initialItems);
-    setItems(initialItems);
-    setMeta(initialMeta);
-  }
+  useEffect(() => {
+    if (initialItems !== prevInitialItems) {
+      setPrevInitialItems(initialItems);
+      setItems(initialItems);
+      setMeta(initialMeta);
+    }
+  }, [initialItems, initialMeta, prevInitialItems]);
 
   const handleLoadMore = useCallback(async () => {
     if (loading || meta.page >= meta.totalPages) return;

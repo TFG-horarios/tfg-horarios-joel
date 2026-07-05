@@ -71,12 +71,14 @@ export const DegreeCard = memo(function DegreeCard({
         </div>
       </InteractiveCard>
 
-      <DegreeFormModal
-        organizationId={degree.organizationId}
-        degree={degree}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
+      {isEditOpen && (
+        <DegreeFormModal
+          organizationId={degree.organizationId}
+          degree={degree}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </>
   );
 });

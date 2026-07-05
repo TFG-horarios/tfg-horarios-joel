@@ -162,15 +162,17 @@ export const SubjectCard = memo(function SubjectCard({
         </div>
       </InteractiveCard>
 
-      <SubjectFormModal
-        organization={organization}
-        academicYear={academicYear}
-        degrees={Array.from(degreeMap.values())}
-        itineraries={Array.from(itineraryMap.values())}
-        subject={subject}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
+      {isEditOpen && (
+        <SubjectFormModal
+          organization={organization}
+          academicYear={academicYear}
+          degrees={Array.from(degreeMap.values())}
+          itineraries={Array.from(itineraryMap.values())}
+          subject={subject}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </>
   );
 });

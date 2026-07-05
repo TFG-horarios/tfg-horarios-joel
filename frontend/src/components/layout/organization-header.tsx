@@ -309,8 +309,8 @@ function OrganizationHeaderInner() {
           {hasAcademicYear && <div className="size-9 lg:hidden" />}
         </div>
 
-        <div className="flex items-center justify-center gap-3 md:hidden pb-2">
-          {showSearch && (
+        {showSearch && (
+          <div className="flex items-center justify-center gap-3 md:hidden pb-2">
             <Button
               variant="outline"
               size="icon"
@@ -319,8 +319,10 @@ function OrganizationHeaderInner() {
             >
               <Search className="size-4" />
             </Button>
-          )}
+          </div>
+        )}
 
+        <div className="flex items-center justify-center gap-3 pb-2 md:justify-end md:gap-4 md:pb-0">
           {isAuthenticated && <NotificationBell />}
           <LanguageToggle />
           <ThemeToggle />
@@ -494,59 +496,6 @@ function OrganizationHeaderInner() {
             </div>
           </div>
         )}
-
-        <div className="hidden md:flex items-center gap-4">
-          {isAuthenticated && <NotificationBell />}
-          <LanguageToggle />
-          <ThemeToggle />
-
-          {!isLoggingOut && isAuthenticated && user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t('signOut')}
-                  className="relative size-9 cursor-pointer rounded-full bg-card border-border dark:border-border dark:bg-input/30 text-sm font-medium"
-                >
-                  {(user.name || user.email)?.charAt(0).toUpperCase()}
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent
-                align="end"
-                className="w-56 border border-border bg-white/85 text-foreground backdrop-blur-lg dark:bg-black/60 dark:text-neutral-200"
-              >
-                <div className="px-3 py-2">
-                  <p className="text-sm font-medium text-foreground">
-                    {user.name ?? ''}
-                  </p>
-                  <p className="mt-1 break-all text-xs text-muted-foreground dark:text-neutral-300">
-                    {user.email}
-                  </p>
-                </div>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="w-full cursor-pointer">
-                    <User className="mr-2 size-4" />
-                    {tProfile('title')}
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => handleLogout()}
-                  data-variant="destructive"
-                >
-                  <LogOut className="mr-2 size-4" />
-                  {t('signOut')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
       </div>
 
       {hasAcademicYear && (

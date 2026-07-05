@@ -1,6 +1,4 @@
 import { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
-import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 
 export function useScheduleExport() {
@@ -17,6 +15,10 @@ export function useScheduleExport() {
 
     try {
       setIsExportingPDF(true);
+      const [{ toPng }, { default: jsPDF }] = await Promise.all([
+        import('html-to-image'),
+        import('jspdf'),
+      ]);
 
       const node = gridRef.current;
       const width = Math.max(node.scrollWidth, node.clientWidth);
