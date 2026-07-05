@@ -23,7 +23,7 @@ export async function getApiErrorMessage(
         return errorPayload.error;
       }
     }
-  } catch  {
+  } catch {
     return fallbackMessage;
   }
 
