@@ -60,6 +60,7 @@ function OrganizationHeaderInner() {
   const t = useTranslations('Common.actions');
   const tNav = useTranslations('Organizations.navigation');
   const tProfile = useTranslations('Profile');
+  const tSearch = useTranslations('Common.search');
 
   const isOrganizations = pathname?.startsWith('/organizations');
   const pathSegments = pathname?.split('/').filter(Boolean) || [];
@@ -258,8 +259,8 @@ function OrganizationHeaderInner() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder={
                 isOrganizationsList
-                  ? 'Buscar organización...'
-                  : 'Buscar curso académico...'
+                  ? tSearch('organizationsPlaceholder')
+                  : tSearch('academicYearsPlaceholder')
               }
               className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
             />
@@ -378,7 +379,7 @@ function OrganizationHeaderInner() {
         {showSearch && (
           <div className="hidden md:absolute md:left-1/2 md:top-1/2 md:block md:w-full md:max-w-[14rem] lg:max-w-xs xl:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:px-4">
             <div>
-              <label className="sr-only">Buscar organizaciones</label>
+              <label className="sr-only">{tSearch('organizationsLabel')}</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   <Search className="size-4" />
@@ -388,8 +389,8 @@ function OrganizationHeaderInner() {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={
                     isOrganizationsList
-                      ? 'Buscar organización...'
-                      : 'Buscar curso académico...'
+                      ? tSearch('organizationsPlaceholder')
+                      : tSearch('academicYearsPlaceholder')
                   }
                   className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
@@ -412,7 +413,7 @@ function OrganizationHeaderInner() {
                         >
                           <Building2 className="size-4" />
                           <span className="hidden sm:inline">
-                            Organizaciones
+                            {tSearch('organizations')}
                           </span>
                         </Link>
                       </BreadcrumbLink>

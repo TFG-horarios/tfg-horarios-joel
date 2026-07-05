@@ -51,11 +51,7 @@ export function DegreeFormModal({
 
   const handleSuccess = () => {
     setIsOpen(false);
-    toast.success(
-      isEditing
-        ? 'Grado actualizado correctamente'
-        : 'Grado creado correctamente'
-    );
+    toast.success(isEditing ? t('messages.updated') : t('messages.created'));
   };
 
   return (
@@ -64,7 +60,7 @@ export function DegreeFormModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Grado' : t('actions.create')}
+            {isEditing ? t('actions.edit') : t('actions.create')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">

@@ -26,10 +26,14 @@ import {
 import { NotificationSchema, type NotificationDTO } from '@tfg-horarios/shared';
 import { createApiEventSource, parseEventData } from '@/lib/api/realtime';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS, es } from 'date-fns/locale';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function NotificationBell() {
   const { user } = useSession();
+  const locale = useLocale();
+  const t = useTranslations('Notifications');
+  const dateFnsLocale = locale === 'en' ? enUS : es;
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -110,7 +114,7 @@ export function NotificationBell() {
       );
     } catch (error) {
       console.error(error);
-      toast.error('Error al marcar como leída');
+      toast.error(t('markReadError'));
     }
   };
 
@@ -122,7 +126,7 @@ export function NotificationBell() {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
       console.error(error);
-      toast.error('Error al marcar todas como leídas');
+      toast.error(t('markAllReadError'));
     }
   };
 
@@ -161,7 +165,7 @@ export function NotificationBell() {
   const notificationContent = (
     <>
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <h4 className="font-semibold">Notificaciones</h4>
+        <h4 className="font-semibold">{t('title')}</h4>
         {unreadCount > 0 && (
           <Button
             variant="ghost"
@@ -170,18 +174,18 @@ export function NotificationBell() {
             onClick={markAllAsRead}
           >
             <Check className="mr-1 h-3 w-3" />
-            Marcar todas
+            {t('markAll')}
           </Button>
         )}
       </div>
       <ScrollArea className="h-[300px]">
         {!hasFetched ? (
           <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
-            Cargando notificaciones...
+            {t('loading')}
           </div>
         ) : notifications.length === 0 ? (
           <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
-            No tienes notificaciones
+            {t('empty')}
           </div>
         ) : (
           <div className="flex flex-col gap-1 p-2">
@@ -209,7 +213,7 @@ export function NotificationBell() {
                 <span className="text-[10px] text-muted-foreground/80 mt-1">
                   {formatDistanceToNow(new Date(notification.createdAt), {
                     addSuffix: true,
-                    locale: es,
+                    locale: dateFnsLocale,
                   })}
                 </span>
               </div>
@@ -235,7 +239,7 @@ export function NotificationBell() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>{triggerButton}</DialogTrigger>
           <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-0 rounded-2xl overflow-hidden gap-0">
-            <DialogTitle className="sr-only">Notificaciones</DialogTitle>
+            <DialogTitle className="sr-only">{t('title')}</DialogTitle>
             {notificationContent}
           </DialogContent>
         </Dialog>

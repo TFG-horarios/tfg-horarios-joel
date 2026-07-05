@@ -1,6 +1,6 @@
+'use client';
+
 import * as React from 'react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils/styles';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface DatePickerProps {
   value?: Date;
@@ -22,10 +23,14 @@ interface DatePickerProps {
 export function DatePicker({
   value,
   onChange,
-  placeholder = 'Seleccionar fecha',
+  placeholder,
   className,
   disabled,
 }: DatePickerProps) {
+  const locale = useLocale();
+  const t = useTranslations('Common.date');
+  const resolvedPlaceholder = placeholder ?? t('selectDate');
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -39,9 +44,9 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (
-            format(value, 'PPP', { locale: es })
+            value.toLocaleDateString(locale, { dateStyle: 'long' })
           ) : (
-            <span>{placeholder}</span>
+            <span>{resolvedPlaceholder}</span>
           )}
         </Button>
       </PopoverTrigger>

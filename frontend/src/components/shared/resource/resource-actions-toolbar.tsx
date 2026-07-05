@@ -84,6 +84,7 @@ export function ResourceActionsToolbar({
   onExportCsv,
   translations,
 }: ResourceActionsToolbarProps) {
+  const tCommonErrors = useTranslations('Common.errors');
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -100,7 +101,7 @@ export function ResourceActionsToolbar({
       }
     } catch (err) {
       console.error(err);
-      setError('An error occurred while deleting.');
+      setError(tCommonErrors('delete'));
     } finally {
       setIsDeleting(false);
     }
@@ -147,7 +148,7 @@ export function ResourceActionsToolbar({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               {error && (
-                <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -216,7 +217,7 @@ export function ResourceActionsToolbar({
                     <DialogHeader>
                       <DialogTitle>{translations.replaceAll}</DialogTitle>
                     </DialogHeader>
-                    <div className="mt-2 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                    <div className="mt-2 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
                       {translations.replaceAllWarning}
                     </div>
                     <div className="pt-4">{overwriteModalContent}</div>

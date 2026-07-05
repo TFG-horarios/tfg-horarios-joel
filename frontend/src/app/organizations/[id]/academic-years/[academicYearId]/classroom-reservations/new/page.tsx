@@ -7,6 +7,7 @@ import { ReservationPlanner } from '@/features/classroom-reservation/components/
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 type OrganizationNewReservationPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -16,6 +17,7 @@ export default async function OrganizationNewReservationPage({
   params,
 }: OrganizationNewReservationPageProps) {
   const { id, academicYearId } = await params;
+  const t = await getTranslations('Organizations.classroomReservations');
 
   const [organization, classrooms, academicYears] = await Promise.all([
     fetchOrganizationById(id),
@@ -34,9 +36,9 @@ export default async function OrganizationNewReservationPage({
 
   return (
     <OrganizationSectionShell
-      label="Gestión de Espacios"
-      title="Nueva Reserva de Aula"
-      description="Selecciona un aula y haz clic en el horario para solicitar una reserva."
+      label={t('label')}
+      title={t('newPage.title')}
+      description={t('newPage.description')}
     >
       <div className="mb-4">
         <Button
@@ -48,7 +50,7 @@ export default async function OrganizationNewReservationPage({
             href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations`}
           >
             <ArrowLeft className="mr-2 size-4" />
-            Volver a Reservas
+            {t('newPage.back')}
           </Link>
         </Button>
       </div>

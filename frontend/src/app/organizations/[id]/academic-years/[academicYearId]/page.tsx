@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import { fetchAcademicYears } from '@/features/academic-year/queries';
 import { fetchOrganizationById } from '@/features/organizations/queries';
@@ -18,7 +18,6 @@ import { fetchPaginatedActiveClassroomConfigurations } from '@/features/classroo
 import { fetchPaginatedReservations } from '@/features/classroom-reservation/queries';
 
 import { OrganizationSectionShell } from '@/features/organizations/components/organization-section-shell';
-import { format } from 'date-fns';
 import {
   Calendar,
   Clock,
@@ -50,7 +49,9 @@ export default async function AcademicYearSummaryPage({
   const tOrg = await getTranslations('Organizations.detail');
   const tForms = await getTranslations('Organizations.form.periodType.options');
   const tNav = await getTranslations('Organizations.navigation');
+  const tSummary = await getTranslations('Organizations.academicYearSummary');
   const statusTranslations = await getTranslations('Common.status');
+  const locale = await getLocale();
 
   const user = await getSessionUser();
   const role = user ? await getOrganizationMemberRole(id) : null;
@@ -119,11 +120,16 @@ export default async function AcademicYearSummaryPage({
     notFound();
   }
 
+  const formatDate = (date: string) =>
+    new Intl.DateTimeFormat(locale, { dateStyle: 'short' }).format(
+      new Date(date)
+    );
+
   return (
     <OrganizationSectionShell
       label={tNav('summary')}
       title={academicYear.name}
-      description={`Panel de control general y estado del curso ${academicYear.name}`}
+      description={tSummary('description', { name: academicYear.name })}
       headerAction={
         <div className="flex items-center gap-3">
           <div
@@ -158,7 +164,7 @@ export default async function AcademicYearSummaryPage({
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-foreground">
-                  Estado del Curso
+                  {tSummary('statusTitle')}
                 </h3>
                 <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <Activity className="w-4 h-4" />
@@ -193,8 +199,8 @@ export default async function AcademicYearSummaryPage({
                 </div>
                 <p className="text-sm text-muted-foreground px-4">
                   {academicYear.isActive
-                    ? 'El sistema está operando y generando horarios bajo esta configuración.'
-                    : 'Este curso se encuentra actualmente inactivo.'}
+                    ? tSummary('activeDescription')
+                    : tSummary('inactiveDescription')}
                 </p>
               </div>
             </div>
@@ -204,7 +210,7 @@ export default async function AcademicYearSummaryPage({
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-foreground">
-                  Calendario Lectivo
+                  {tSummary('calendarTitle')}
                 </h3>
                 <div className="p-2 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                   <CalendarRange className="w-4 h-4" />
@@ -215,7 +221,9 @@ export default async function AcademicYearSummaryPage({
                 <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="w-4 h-4 text-violet-500/70" />
-                    <span className="text-sm font-medium">Tipo de período</span>
+                    <span className="text-sm font-medium">
+                      {tSummary('periodType')}
+                    </span>
                   </div>
                   <span className="font-semibold text-sm text-foreground capitalize">
                     {tForms(academicYear.periodType)}
@@ -226,20 +234,19 @@ export default async function AcademicYearSummaryPage({
                   <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarRange className="w-4 h-4 text-blue-500/70" />
-                      <span className="text-sm font-medium">Período 1</span>
+                      <span className="text-sm font-medium">
+                        {tSummary('period', { period: 1 })}
+                      </span>
                     </div>
                     <span
                       className="font-semibold text-sm text-foreground"
                       suppressHydrationWarning
                     >
-                      {format(
-                        new Date(academicYear.period0Start),
-                        'dd/MM/yyyy'
-                      )}{' '}
+                      {formatDate(academicYear.period0Start)}{' '}
                       <span className="text-muted-foreground font-normal mx-1">
                         -
                       </span>{' '}
-                      {format(new Date(academicYear.period0End), 'dd/MM/yyyy')}
+                      {formatDate(academicYear.period0End)}
                     </span>
                   </div>
                 )}
@@ -248,20 +255,19 @@ export default async function AcademicYearSummaryPage({
                   <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarRange className="w-4 h-4 text-blue-500/70" />
-                      <span className="text-sm font-medium">Período 2</span>
+                      <span className="text-sm font-medium">
+                        {tSummary('period', { period: 2 })}
+                      </span>
                     </div>
                     <span
                       className="font-semibold text-sm text-foreground"
                       suppressHydrationWarning
                     >
-                      {format(
-                        new Date(academicYear.period1Start),
-                        'dd/MM/yyyy'
-                      )}{' '}
+                      {formatDate(academicYear.period1Start)}{' '}
                       <span className="text-muted-foreground font-normal mx-1">
                         -
                       </span>{' '}
-                      {format(new Date(academicYear.period1End), 'dd/MM/yyyy')}
+                      {formatDate(academicYear.period1End)}
                     </span>
                   </div>
                 )}
@@ -270,20 +276,19 @@ export default async function AcademicYearSummaryPage({
                   <div className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 border-b border-border/50 last:border-0">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarRange className="w-4 h-4 text-blue-500/70" />
-                      <span className="text-sm font-medium">Período 3</span>
+                      <span className="text-sm font-medium">
+                        {tSummary('period', { period: 3 })}
+                      </span>
                     </div>
                     <span
                       className="font-semibold text-sm text-foreground"
                       suppressHydrationWarning
                     >
-                      {format(
-                        new Date(academicYear.period2Start),
-                        'dd/MM/yyyy'
-                      )}{' '}
+                      {formatDate(academicYear.period2Start)}{' '}
                       <span className="text-muted-foreground font-normal mx-1">
                         -
                       </span>{' '}
-                      {format(new Date(academicYear.period2End), 'dd/MM/yyyy')}
+                      {formatDate(academicYear.period2End)}
                     </span>
                   </div>
                 )}
@@ -295,7 +300,7 @@ export default async function AcademicYearSummaryPage({
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-foreground">
-                  Estructura Horaria
+                  {tSummary('timeStructureTitle')}
                 </h3>
                 <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                   <Clock className="w-4 h-4" />
@@ -307,7 +312,7 @@ export default async function AcademicYearSummaryPage({
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <ClockAlert className="w-4 h-4 text-amber-500/70" />
                     <span className="text-sm font-medium">
-                      Apertura del centro
+                      {tSummary('centerOpening')}
                     </span>
                   </div>
                   <span className="font-semibold text-sm text-foreground">

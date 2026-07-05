@@ -58,7 +58,7 @@ export function ProfilePageClient({ user }: { user: UserDTO }) {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Interfaz de Usuario</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('interface')}</h2>
           <div className="rounded-xl border border-black/10 bg-white/50 p-6 dark:border-white/10 dark:bg-white/5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
               <div className="flex flex-col gap-1">
@@ -118,15 +118,14 @@ export function ProfilePageClient({ user }: { user: UserDTO }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cuenta Eliminada</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteSuccessTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tu cuenta ha sido eliminada correctamente. Serás redirigido a la
-              página principal.
+              {t('deleteSuccessDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => endProfileSessionAction('/')}>
-              Aceptar
+              {tCommon('continue')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useQueryFilters } from '@/hooks/use-query-filters';
+import { useTranslations } from 'next-intl';
 
 interface Option {
   label: string;
@@ -43,15 +44,20 @@ interface ResourceFilterSelectProps {
 
 export function ResourceFilterSelect({
   paramKey,
-  placeholder = 'Filter...',
+  placeholder,
   options,
   clearable = true,
-  clearLabel = 'All',
+  clearLabel,
   searchable = false,
-  searchPlaceholder = 'Buscar...',
-  emptyMessage = 'No hay resultados.',
+  searchPlaceholder,
+  emptyMessage,
 }: ResourceFilterSelectProps) {
+  const t = useTranslations('Common.filters');
   const { getFilter, setFilter } = useQueryFilters();
+  const resolvedPlaceholder = placeholder ?? t('filter');
+  const resolvedClearLabel = clearLabel ?? t('all');
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('search');
+  const resolvedEmptyMessage = emptyMessage ?? t('empty');
   const value = getFilter(paramKey) || 'all';
   const [open, setOpen] = useState(false);
 
@@ -67,9 +73,10 @@ export function ResourceFilterSelect({
     const displayValue =
       value === 'all'
         ? clearable
-          ? clearLabel
-          : placeholder
-        : options.find((opt) => opt.value === value)?.label || placeholder;
+          ? resolvedClearLabel
+          : resolvedPlaceholder
+        : options.find((opt) => opt.value === value)?.label ||
+          resolvedPlaceholder;
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -82,7 +89,7 @@ export function ResourceFilterSelect({
           >
             <div className="flex items-center gap-1 overflow-hidden">
               <span className="text-muted-foreground truncate shrink-0">
-                {placeholder}:
+                {resolvedPlaceholder}:
               </span>
               <span className="truncate">{displayValue}</span>
             </div>
@@ -94,9 +101,9 @@ export function ResourceFilterSelect({
           align="start"
         >
           <Command>
-            <CommandInput placeholder={searchPlaceholder} />
+            <CommandInput placeholder={resolvedSearchPlaceholder} />
             <CommandList>
-              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              <CommandEmpty>{resolvedEmptyMessage}</CommandEmpty>
               <CommandGroup>
                 {clearable && (
                   <CommandItem
@@ -107,7 +114,7 @@ export function ResourceFilterSelect({
                       setOpen(false);
                     }}
                   >
-                    <span className="break-words">{clearLabel}</span>
+                    <span className="break-words">{resolvedClearLabel}</span>
                   </CommandItem>
                 )}
                 {options.map((option) => (
@@ -140,12 +147,14 @@ export function ResourceFilterSelect({
         className="w-full lg:w-fit lg:min-w-[180px] bg-card"
       >
         <div className="flex items-center gap-1 overflow-hidden">
-          <span className="text-muted-foreground truncate">{placeholder}:</span>
+          <span className="text-muted-foreground truncate">
+            {resolvedPlaceholder}:
+          </span>
           <SelectValue />
         </div>
       </SelectTrigger>
       <SelectContent position="popper">
-        {clearable && <SelectItem value="all">{clearLabel}</SelectItem>}
+        {clearable && <SelectItem value="all">{resolvedClearLabel}</SelectItem>}
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}

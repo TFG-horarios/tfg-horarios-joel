@@ -35,6 +35,7 @@ import {
   type OrganizationDTO,
   type SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
+import { useTranslations } from 'next-intl';
 
 const formatDate = (date: Date) => {
   const y = date.getFullYear();
@@ -56,6 +57,8 @@ export function AcademicYearFormModal({
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const t = useTranslations('Organizations.academicYears.modal');
+  const tCommon = useTranslations('Common.actions');
   const [open, setOpen] = useState(defaultOpen || false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -87,7 +90,7 @@ export function AcademicYearFormModal({
         !Number.isFinite(slotDurationMinutes) ||
         !Number.isFinite(breakDurationMinutes)
       ) {
-        toast.error('Completa las duraciones con valores numéricos válidos');
+        toast.error(t('errors.invalidDurations'));
         return;
       }
 
@@ -109,8 +112,7 @@ export function AcademicYearFormModal({
       const parsedPayload = SaveAcademicYearBodySchema.safeParse(payload);
       if (!parsedPayload.success) {
         toast.error(
-          parsedPayload.error.issues[0]?.message ||
-            'Completa los datos del curso académico correctamente'
+          parsedPayload.error.issues[0]?.message || t('errors.invalidForm')
         );
         return;
       }
@@ -125,7 +127,7 @@ export function AcademicYearFormModal({
 
       if (result.success) {
         toast.success(
-          `Curso académico ${academicYear ? 'actualizado' : 'creado'} correctamente`
+          academicYear ? t('messages.updated') : t('messages.created')
         );
         setOpen(false);
         onOpenChange?.(false);
@@ -133,7 +135,7 @@ export function AcademicYearFormModal({
       } else {
         toast.error(
           result.message ||
-            `Error al ${academicYear ? 'actualizar' : 'crear'} el curso`
+            (academicYear ? t('errors.update') : t('errors.create'))
         );
       }
     });
@@ -151,21 +153,17 @@ export function AcademicYearFormModal({
         {trigger || (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo Curso
+            {t('trigger')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg md:max-w-xl p-0 overflow-hidden">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle>
-            {academicYear
-              ? 'Editar Curso Académico'
-              : 'Crear Nuevo Curso Académico'}
+            {academicYear ? t('editTitle') : t('createTitle')}
           </DialogTitle>
           <DialogDescription>
-            {academicYear
-              ? 'Edita la configuración del año académico y su cuadrícula.'
-              : 'Configura el nuevo año académico y sus períodos lectivos.'}
+            {academicYear ? t('editDescription') : t('createDescription')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col max-h-[85vh]">
@@ -173,16 +171,13 @@ export function AcademicYearFormModal({
             {academicYear && (
               <div className="flex items-start gap-2 p-3 bg-amber-500/15 border border-amber-500/20 rounded-md text-amber-600 text-sm">
                 <p>
-                  <strong>¡Atención!</strong> Si editas los horarios de
-                  apertura/cierre del centro, la duración del slot o la duración
-                  del recreo, los horarios existentes pueden quedar invalidados
-                  y deberán regenerarse.
+                  <strong>{t('warningTitle')}</strong> {t('warningDescription')}
                 </p>
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Nombre del curso (ej. 2025-2026)</Label>
+                <Label>{t('fields.name')}</Label>
                 <Input
                   required
                   value={formData.name}
@@ -193,7 +188,7 @@ export function AcademicYearFormModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tipo de Períodos</Label>
+                <Label>{t('fields.periodType')}</Label>
                 <Select
                   value={formData.periodType}
                   onValueChange={(value: AcademicYearDTO['periodType']) =>
@@ -201,23 +196,27 @@ export function AcademicYearFormModal({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un tipo" />
+                    <SelectValue
+                      placeholder={t('fields.periodTypePlaceholder')}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="semester">
-                      Semestral (2 periodos)
+                      {t('periodTypes.semester')}
                     </SelectItem>
                     <SelectItem value="trimester">
-                      Trimestral (3 periodos)
+                      {t('periodTypes.trimester')}
                     </SelectItem>
-                    <SelectItem value="annual">Anual (1 periodo)</SelectItem>
+                    <SelectItem value="annual">
+                      {t('periodTypes.annual')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Inicio Período 1</Label>
+                <Label>{t('fields.periodStart', { period: 1 })}</Label>
                 <DatePicker
                   value={
                     formData.period0Start
@@ -233,7 +232,7 @@ export function AcademicYearFormModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Fin Período 1</Label>
+                <Label>{t('fields.periodEnd', { period: 1 })}</Label>
                 <DatePicker
                   value={
                     formData.period0End
@@ -252,7 +251,7 @@ export function AcademicYearFormModal({
             {(periodType === 'semester' || periodType === 'trimester') && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Inicio Período 2</Label>
+                  <Label>{t('fields.periodStart', { period: 2 })}</Label>
                   <DatePicker
                     value={
                       formData.period1Start
@@ -268,7 +267,7 @@ export function AcademicYearFormModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fin Período 2</Label>
+                  <Label>{t('fields.periodEnd', { period: 2 })}</Label>
                   <DatePicker
                     value={
                       formData.period1End
@@ -288,7 +287,7 @@ export function AcademicYearFormModal({
             {periodType === 'trimester' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Inicio Período 3</Label>
+                  <Label>{t('fields.periodStart', { period: 3 })}</Label>
                   <DatePicker
                     value={
                       formData.period2Start
@@ -304,7 +303,7 @@ export function AcademicYearFormModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fin Período 3</Label>
+                  <Label>{t('fields.periodEnd', { period: 3 })}</Label>
                   <DatePicker
                     value={
                       formData.period2End
@@ -324,18 +323,18 @@ export function AcademicYearFormModal({
 
             <div className="pt-4 border-t border-border mt-4">
               <h4 className="text-sm font-semibold mb-3">
-                Configuración temporal global
+                {t('sections.timeConfig')}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label>Hora de apertura del centro</Label>
+                    <Label>{t('fields.openingTime')}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <button
                           type="button"
                           className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label="Información sobre la hora de apertura"
+                          aria-label={t('help.opening.aria')}
                         >
                           <Info className="size-4" />
                         </button>
@@ -346,11 +345,10 @@ export function AcademicYearFormModal({
                       >
                         <div className="space-y-2">
                           <p className="font-medium text-foreground">
-                            Límite inicial del centro.
+                            {t('help.opening.title')}
                           </p>
                           <p className="text-muted-foreground">
-                            Ningún horario de clase ni reserva podrá comenzar
-                            antes de esta hora.
+                            {t('help.opening.description')}
                           </p>
                         </div>
                       </PopoverContent>
@@ -370,13 +368,13 @@ export function AcademicYearFormModal({
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label>Hora de cierre del centro</Label>
+                    <Label>{t('fields.closingTime')}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <button
                           type="button"
                           className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label="Información sobre la hora de cierre"
+                          aria-label={t('help.closing.aria')}
                         >
                           <Info className="size-4" />
                         </button>
@@ -387,11 +385,10 @@ export function AcademicYearFormModal({
                       >
                         <div className="space-y-2">
                           <p className="font-medium text-foreground">
-                            Límite final del centro.
+                            {t('help.closing.title')}
                           </p>
                           <p className="text-muted-foreground">
-                            Ningún horario de clase ni reserva podrá terminar
-                            después de esta hora.
+                            {t('help.closing.description')}
                           </p>
                         </div>
                       </PopoverContent>
@@ -413,13 +410,13 @@ export function AcademicYearFormModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label>Duración del slot (minutos)</Label>
+                    <Label>{t('fields.slotDuration')}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <button
                           type="button"
                           className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label="Información sobre la duración del slot"
+                          aria-label={t('help.slotDuration.aria')}
                         >
                           <Info className="size-4" />
                         </button>
@@ -430,12 +427,10 @@ export function AcademicYearFormModal({
                       >
                         <div className="space-y-2">
                           <p className="font-medium text-foreground">
-                            Incluye el descanso entre clases si lo hubiera.
+                            {t('help.slotDuration.title')}
                           </p>
                           <p className="text-muted-foreground">
-                            Si una clase dura 55 minutos y hay 5 minutos de
-                            descanso antes de la siguiente, configura el slot
-                            como 60 minutos. El recreo largo se define aparte.
+                            {t('help.slotDuration.description')}
                           </p>
                         </div>
                       </PopoverContent>
@@ -456,7 +451,7 @@ export function AcademicYearFormModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Duración del recreo (minutos)</Label>
+                  <Label>{t('fields.breakDuration')}</Label>
                   <Input
                     type="number"
                     min={0}
@@ -485,11 +480,11 @@ export function AcademicYearFormModal({
               }}
               disabled={isPending}
             >
-              Cancelar
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {academicYear ? 'Guardar Cambios' : 'Crear Curso'}
+              {academicYear ? tCommon('saveChanges') : tCommon('create')}
             </Button>
           </div>
         </form>

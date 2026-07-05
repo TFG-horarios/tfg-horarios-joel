@@ -31,6 +31,7 @@ export function MemberFormModal({
 }: MemberFormModalProps) {
   const t = useTranslations('Organizations.members');
   const tCommon = useTranslations('Common.actions');
+  const tCommonErrors = useTranslations('Common.errors');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
@@ -48,10 +49,11 @@ export function MemberFormModal({
       });
     } else {
       if (!data.email) {
+        const message = tCommonErrors('emailRequired');
         return {
           success: false as const,
-          message: 'El correo es obligatorio',
-          errors: { email: ['El correo es obligatorio'] },
+          message,
+          errors: { email: [message] },
         };
       }
       return addMemberAction(organizationId, {
@@ -63,11 +65,7 @@ export function MemberFormModal({
 
   const handleSuccess = () => {
     setIsOpen(false);
-    toast.success(
-      isEditing
-        ? 'Rol actualizado correctamente'
-        : 'Miembro añadido correctamente'
-    );
+    toast.success(isEditing ? t('messages.updated') : t('messages.created'));
   };
 
   return (
@@ -76,7 +74,7 @@ export function MemberFormModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Rol del Miembro' : t('actions.create')}
+            {isEditing ? t('actions.edit') : t('actions.create')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">

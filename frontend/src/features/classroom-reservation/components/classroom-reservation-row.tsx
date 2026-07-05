@@ -14,6 +14,7 @@ import type {
   ClassroomReservationDTO,
   AcademicYearDTO,
 } from '@tfg-horarios/shared';
+import { useLocale } from 'next-intl';
 
 export type ClassroomReservationRowProps = {
   item: ClassroomReservationDTO;
@@ -72,6 +73,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
   academicYear,
 }: ClassroomReservationRowProps) {
   const [isPending, startTransition] = useTransition();
+  const locale = useLocale();
 
   const classroomName =
     classrooms?.[reservation.classroomId] || reservation.classroomId;
@@ -98,12 +100,18 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
         reservation.id
       );
       if (res.success) {
-        toast.success(res.message || 'Reserva cancelada correctamente');
+        toast.success(
+          res.message || t('statusUpdateSuccess_CANCELLED', 'Cancelled')
+        );
       } else {
-        toast.error(res.message || 'Error al cancelar la reserva');
+        toast.error(
+          res.message || t('cancelError', 'Unable to cancel reservation')
+        );
       }
     });
   };
+
+  const t = (key: string, fallback: string) => translations[key] || fallback;
 
   const getStatusBadge = () => {
     switch (reservation.status) {
@@ -138,7 +146,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
         return (
           <Badge variant="outline" className="text-muted-foreground">
             <Ban className="mr-1 size-3" />
-            {translations['status.CANCELLED'] || 'Cancelada'}
+            {t('status.CANCELLED', 'Cancelled')}
           </Badge>
         );
     }
@@ -157,15 +165,16 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
       !canAcceptReject);
 
   const requesterDisplay = isRequester
-    ? 'yo'
-    : membersMap?.[reservation.requesterUserId] || 'Desconocido';
+    ? t('requester.self', 'Me')
+    : membersMap?.[reservation.requesterUserId] ||
+      t('requester.unknown', 'Unknown');
 
   return (
     <TableRow>
       <TableCell>{getStatusBadge()}</TableCell>
       <TableCell className="font-medium">{classroomName}</TableCell>
       <TableCell>
-        {new Date(reservation.date).toLocaleDateString('es-ES')}
+        {new Date(reservation.date).toLocaleDateString(locale)}
       </TableCell>
       <TableCell>{getSlotTimeRange(reservation, academicYear)}</TableCell>
       {(isAdmin || isEditor) && <TableCell>{requesterDisplay}</TableCell>}
@@ -221,7 +230,7 @@ export const ClassroomReservationRow = memo(function ClassroomReservationRow({
               ) : (
                 <XCircle className="size-4 mr-1" />
               )}
-              Cancelar
+              {t('action.cancel', 'Cancel')}
             </Button>
           </div>
         ) : (

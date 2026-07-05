@@ -43,6 +43,7 @@ export function SubjectFormModal({
 }: SubjectFormModalProps) {
   const t = useTranslations('Organizations.subjects');
   const tCommon = useTranslations('Common.actions');
+  const tCommonErrors = useTranslations('Common.errors');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
@@ -63,10 +64,11 @@ export function SubjectFormModal({
       return updateSubjectAction(organization.id, subject.id, finalData);
     } else {
       if (!data.degreeId) {
+        const message = tCommonErrors('degreeRequired');
         return {
           success: false as const,
-          message: 'El grado es obligatorio',
-          errors: { degreeId: ['El grado es obligatorio'] },
+          message,
+          errors: { degreeId: [message] },
         };
       }
       return createSubjectAction(organization.id, data.degreeId, finalData);
@@ -75,11 +77,7 @@ export function SubjectFormModal({
 
   const handleSuccess = () => {
     setIsOpen(false);
-    toast.success(
-      isEditing
-        ? 'Asignatura actualizada correctamente'
-        : 'Asignatura creada correctamente'
-    );
+    toast.success(isEditing ? t('messages.updated') : t('messages.created'));
   };
 
   return (
@@ -88,7 +86,7 @@ export function SubjectFormModal({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Asignatura' : t('actions.create')}
+            {isEditing ? t('actions.edit') : t('actions.create')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">

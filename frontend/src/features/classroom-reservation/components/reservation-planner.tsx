@@ -42,6 +42,7 @@ import { createApiEventSource } from '@/lib/api/realtime';
 import { requestReservationAction, fetchOccupiedSlotsAction } from '../actions';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { useLocale, useTranslations } from 'next-intl';
 import type {
   ClassroomDTO,
   OrganizationDTO,
@@ -67,6 +68,8 @@ export function ReservationPlanner({
   academicYear,
 }: ReservationPlannerProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('Organizations.classroomReservations.planner');
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [classroomOpen, setClassroomOpen] = useState(false);
@@ -254,14 +257,14 @@ export function ReservationPlanner({
         date.setDate(date.getDate() + i);
         return {
           value: i,
-          label: date.toLocaleDateString('es-ES', {
+          label: date.toLocaleDateString(locale, {
             weekday: 'long',
             day: 'numeric',
           }),
           date,
         };
       }),
-    [weekStart]
+    [locale, weekStart]
   );
 
   const [occupiedSlots, setOccupiedSlots] = useState<
@@ -310,14 +313,12 @@ export function ReservationPlanner({
         setOccupiedSlots(newOccupied);
       } else {
         setOccupiedSlots([]);
-        setOccupiedSlotsError(
-          result.message || 'No se pudo cargar la ocupación del aula'
-        );
+        setOccupiedSlotsError(result.message || t('loadOccupancyError'));
       }
     } catch (error) {
       console.error(error);
       setOccupiedSlots([]);
-      setOccupiedSlotsError('No se pudo cargar la ocupación del aula');
+      setOccupiedSlotsError(t('loadOccupancyError'));
     } finally {
       setOccupiedSlotsLoading(false);
     }
@@ -354,7 +355,7 @@ export function ReservationPlanner({
     clickedTimeMinutes: number;
   }) => {
     if (!selectedClassroom) {
-      toast.error('Por favor, selecciona un aula primero');
+      toast.error(t('selectClassroomFirst'));
       return;
     }
 
@@ -387,7 +388,7 @@ export function ReservationPlanner({
         endTimeMinutes > selectedSlot.maxEndTimeMinutes ||
         endTimeMinutes <= startTimeMinutes
       ) {
-        toast.error('El rango debe estar dentro del hueco disponible');
+        toast.error(t('rangeError'));
         return;
       }
 
@@ -402,16 +403,14 @@ export function ReservationPlanner({
 
       if (result.success) {
         toast.success(
-          result.data!.status === 'ACCEPTED'
-            ? 'Reserva confirmada correctamente'
-            : 'Solicitud enviada correctamente'
+          result.data!.status === 'ACCEPTED' ? t('confirmed') : t('requested')
         );
         setModalOpen(false);
         setSelectedSlot(null);
         setReason('');
         void fetchOccupiedSlots();
       } else {
-        toast.error(result.message || 'Error al procesar la reserva');
+        toast.error(result.message || t('submitError'));
       }
     });
   };
@@ -428,7 +427,7 @@ export function ReservationPlanner({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row gap-4 p-4 bg-card border rounded-xl shadow-sm items-end">
         <div className="flex-1 space-y-2 w-full">
-          <Label>Aula</Label>
+          <Label>{t('classroom')}</Label>
           <Popover open={classroomOpen} onOpenChange={setClassroomOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -440,9 +439,16 @@ export function ReservationPlanner({
                 <span className="truncate">
                   {selectedClassroom
                     ? classrooms.find((c) => c.id === selectedClassroom)
-                      ? `${classrooms.find((c) => c.id === selectedClassroom)?.name} (Capacidad: ${classrooms.find((c) => c.id === selectedClassroom)?.capacity})`
-                      : 'Selecciona un aula'
-                    : 'Selecciona un aula'}
+                      ? t('classroomCapacity', {
+                          name: classrooms.find(
+                            (c) => c.id === selectedClassroom
+                          )!.name,
+                          capacity: classrooms.find(
+                            (c) => c.id === selectedClassroom
+                          )!.capacity,
+                        })
+                      : t('selectClassroom')
+                    : t('selectClassroom')}
                 </span>
                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -452,9 +458,9 @@ export function ReservationPlanner({
               align="start"
             >
               <Command>
-                <CommandInput placeholder="Buscar aula..." />
+                <CommandInput placeholder={t('searchClassroom')} />
                 <CommandList>
-                  <CommandEmpty>No se encontraron aulas.</CommandEmpty>
+                  <CommandEmpty>{t('emptyClassrooms')}</CommandEmpty>
                   <CommandGroup>
                     {classrooms.map((c) => (
                       <CommandItem
@@ -469,7 +475,10 @@ export function ReservationPlanner({
                         }}
                       >
                         <span className="break-words">
-                          {c.name} (Capacidad: {c.capacity})
+                          {t('classroomCapacity', {
+                            name: c.name,
+                            capacity: c.capacity,
+                          })}
                         </span>
                       </CommandItem>
                     ))}
@@ -481,7 +490,7 @@ export function ReservationPlanner({
         </div>
 
         <div className="flex-1 space-y-2 w-full">
-          <Label>Semana</Label>
+          <Label>{t('week')}</Label>
           <div className="relative">
             <DatePicker
               value={selectedDate}
@@ -502,9 +511,9 @@ export function ReservationPlanner({
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
             <div className="text-center space-y-2 bg-card p-6 rounded-lg shadow-lg border">
               <Building2 className="size-8 mx-auto text-muted-foreground" />
-              <p className="text-lg font-medium">Selecciona un aula</p>
+              <p className="text-lg font-medium">{t('selectClassroom')}</p>
               <p className="text-sm text-muted-foreground">
-                Debes seleccionar un aula para ver su horario disponible
+                {t('selectClassroomDescription')}
               </p>
             </div>
           </div>
@@ -512,7 +521,7 @@ export function ReservationPlanner({
         {selectedClassroom && occupiedSlotsLoading && (
           <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
             <Loader2 className="size-4 animate-spin" />
-            Cargando ocupación...
+            {t('loadingOccupancy')}
           </div>
         )}
         {selectedClassroom && occupiedSlotsError && (
@@ -527,7 +536,7 @@ export function ReservationPlanner({
           endTimeMinutes={endTimeMinutes}
           events={timelineEvents}
           onEmptyClick={handleEmptyClick}
-          emptyLabel="Reservar"
+          emptyLabel={t('reserve')}
           renderEvent={(occupied) => {
             const isClass = occupied.reason === 'Ocupado por clase';
             const isPending = occupied.reason === 'Reserva pendiente';
@@ -552,7 +561,13 @@ export function ReservationPlanner({
                 className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col justify-center p-2 overflow-hidden ${styleClasses}`}
               >
                 <span className="text-[10px] font-medium uppercase tracking-wider line-clamp-2">
-                  {occupied.reason}
+                  {isClass
+                    ? t('occupiedClass')
+                    : isPending
+                      ? t('pendingReservation')
+                      : isAccepted
+                        ? t('reserved')
+                        : occupied.reason}
                 </span>
                 <span className="text-[10px] font-mono opacity-80">
                   {formatMinutesAsTime(occupied.startTimeMinutes)}–
@@ -567,23 +582,19 @@ export function ReservationPlanner({
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nueva Reserva de Aula</DialogTitle>
+            <DialogTitle>{t('newReservationTitle')}</DialogTitle>
             <DialogDescription>
               {selectedSlot && (
                 <>
-                  Se solicitará el aula para el{' '}
-                  <strong>
-                    {selectedSlot.date.toLocaleDateString('es-ES', {
+                  {t.rich('reservationDescription', {
+                    date: selectedSlot.date.toLocaleDateString(locale, {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',
-                    })}
-                  </strong>{' '}
-                  en el tramo horario de{' '}
-                  <strong>
-                    {customStartTime}–{customEndTime}
-                  </strong>
-                  .
+                    }),
+                    time: `${customStartTime}–${customEndTime}`,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </>
               )}
             </DialogDescription>
@@ -593,7 +604,7 @@ export function ReservationPlanner({
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Inicio</Label>
+                  <Label>{t('start')}</Label>
                   <Input
                     type="time"
                     value={customStartTime}
@@ -601,7 +612,7 @@ export function ReservationPlanner({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fin</Label>
+                  <Label>{t('end')}</Label>
                   <Input
                     type="time"
                     value={customEndTime}
@@ -611,9 +622,9 @@ export function ReservationPlanner({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Motivo de la reserva (opcional)</Label>
+              <Label>{t('reason')}</Label>
               <Input
-                placeholder="Ej: Clase de recuperación, Examen parcial..."
+                placeholder={t('reasonPlaceholder')}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
               />
@@ -626,11 +637,11 @@ export function ReservationPlanner({
               onClick={() => setModalOpen(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button onClick={handleReserve} disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Confirmar Reserva
+              {t('confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

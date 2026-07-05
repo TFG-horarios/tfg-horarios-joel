@@ -36,6 +36,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const t = useTranslations('Common.actions');
   const tProfile = useTranslations('Profile');
+  const tSearch = useTranslations('Common.search');
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -101,7 +102,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
         {isOrganizations && variant === 'inline' && (
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4 pointer-events-none">
             <div className="pointer-events-auto">
-              <label className="sr-only">Buscar organizaciones</label>
+              <label className="sr-only">{tSearch('organizationsLabel')}</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   <Search className="size-4" />
@@ -109,7 +110,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar organización..."
+                  placeholder={tSearch('organizationsPlaceholder')}
                   className="w-full rounded-lg border border-border bg-card px-10 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple-border dark:bg-input/30 dark:text-white dark:placeholder:text-neutral-400"
                 />
               </div>

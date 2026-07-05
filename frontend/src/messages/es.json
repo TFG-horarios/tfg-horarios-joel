@@ -62,7 +62,10 @@
       "generic": "Ha ocurrido un error inesperado.",
       "server": "No se ha podido completar la solicitud. Inténtalo de nuevo más tarde.",
       "network": "No se ha podido conectar con el servidor.",
-      "validation": "Revisa los campos marcados e inténtalo de nuevo."
+      "validation": "Revisa los campos marcados e inténtalo de nuevo.",
+      "delete": "Ha ocurrido un error al eliminar.",
+      "degreeRequired": "El grado es obligatorio.",
+      "emailRequired": "El correo es obligatorio."
     },
     "success": {
       "created": "Creado correctamente.",
@@ -141,6 +144,23 @@
     "empty": {
       "title": "Sin resultados",
       "description": "No hay elementos para mostrar en este momento."
+    },
+    "filters": {
+      "title": "Filtros",
+      "additional": "Filtros adicionales",
+      "filter": "Filtro",
+      "all": "Todos",
+      "search": "Buscar...",
+      "empty": "No hay resultados."
+    },
+    "date": {
+      "selectDate": "Seleccionar fecha"
+    },
+    "search": {
+      "organizations": "Organizaciones",
+      "organizationsLabel": "Buscar organizaciones",
+      "organizationsPlaceholder": "Buscar organización...",
+      "academicYearsPlaceholder": "Buscar curso académico..."
     }
   },
   "Metadata": {
@@ -256,6 +276,17 @@
     "successPassword": "Contraseña actualizada correctamente.",
     "errorPassword": "No se pudo actualizar la contraseña. Comprueba tu contraseña actual.",
     "passwordsMismatch": "Las contraseñas no coinciden."
+    ,"interface": "Interfaz de usuario",
+    "deleteSuccessTitle": "Cuenta eliminada",
+    "deleteSuccessDescription": "Tu cuenta ha sido eliminada correctamente. Serás redirigido a la página principal."
+  },
+  "Notifications": {
+    "title": "Notificaciones",
+    "markAll": "Marcar todas",
+    "loading": "Cargando notificaciones...",
+    "empty": "No tienes notificaciones",
+    "markReadError": "Error al marcar como leída.",
+    "markAllReadError": "Error al marcar todas como leídas."
   },
   "Organizations": {
     "page": {
@@ -300,6 +331,74 @@
       "morning": "Mañana",
       "afternoon": "Tarde",
       "slotDuration": "Duración por clase"
+    },
+    "academicYearSummary": {
+      "description": "Panel de control general y estado del curso {name}",
+      "statusTitle": "Estado del curso",
+      "activeDescription": "El sistema está operando y generando horarios bajo esta configuración.",
+      "inactiveDescription": "Este curso se encuentra actualmente inactivo.",
+      "calendarTitle": "Calendario lectivo",
+      "periodType": "Tipo de período",
+      "period": "Período {period}",
+      "timeStructureTitle": "Estructura horaria",
+      "centerOpening": "Apertura del centro"
+    },
+    "academicYears": {
+      "modal": {
+        "trigger": "Nuevo curso",
+        "createTitle": "Crear nuevo curso académico",
+        "editTitle": "Editar curso académico",
+        "createDescription": "Configura el nuevo año académico y sus períodos lectivos.",
+        "editDescription": "Edita la configuración del año académico y su cuadrícula.",
+        "warningTitle": "¡Atención!",
+        "warningDescription": "Si editas los horarios de apertura/cierre del centro, la duración del slot o la duración del recreo, los horarios existentes pueden quedar invalidados y deberán regenerarse.",
+        "sections": {
+          "timeConfig": "Configuración temporal global"
+        },
+        "fields": {
+          "name": "Nombre del curso (ej. 2025-2026)",
+          "periodType": "Tipo de períodos",
+          "periodTypePlaceholder": "Selecciona un tipo",
+          "periodStart": "Inicio período {period}",
+          "periodEnd": "Fin período {period}",
+          "openingTime": "Hora de apertura del centro",
+          "closingTime": "Hora de cierre del centro",
+          "slotDuration": "Duración del slot (minutos)",
+          "breakDuration": "Duración del recreo (minutos)"
+        },
+        "periodTypes": {
+          "semester": "Semestral (2 periodos)",
+          "trimester": "Trimestral (3 periodos)",
+          "annual": "Anual (1 periodo)"
+        },
+        "help": {
+          "opening": {
+            "aria": "Información sobre la hora de apertura",
+            "title": "Límite inicial del centro.",
+            "description": "Ningún horario de clase ni reserva podrá comenzar antes de esta hora."
+          },
+          "closing": {
+            "aria": "Información sobre la hora de cierre",
+            "title": "Límite final del centro.",
+            "description": "Ningún horario de clase ni reserva podrá terminar después de esta hora."
+          },
+          "slotDuration": {
+            "aria": "Información sobre la duración del slot",
+            "title": "Incluye el descanso entre clases si lo hubiera.",
+            "description": "Si una clase dura 55 minutos y hay 5 minutos de descanso antes de la siguiente, configura el slot como 60 minutos. El recreo largo se define aparte."
+          }
+        },
+        "messages": {
+          "created": "Curso académico creado correctamente.",
+          "updated": "Curso académico actualizado correctamente."
+        },
+        "errors": {
+          "invalidDurations": "Completa las duraciones con valores numéricos válidos.",
+          "invalidForm": "Completa los datos del curso académico correctamente.",
+          "create": "Error al crear el curso.",
+          "update": "Error al actualizar el curso."
+        }
+      }
     },
     "classrooms": {
       "label": "Aulas",
@@ -352,6 +451,11 @@
         "lab": "Laboratorio",
         "computer_lab": "Aula de ordenadores"
       },
+      "type": {
+        "theory": "Teoría",
+        "lab": "Laboratorio",
+        "computer_lab": "Aula de ordenadores"
+      },
       "capacity": "Capacidad",
       "floor": "Planta",
       "searchLabel": "Buscar por nombre",
@@ -380,7 +484,12 @@
         "addFromCsv": "Añadir desde CSV",
         "replaceAll": "Reemplazar todo",
         "replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
-        "create": "Crear grado"
+        "create": "Crear grado",
+        "edit": "Editar grado"
+      },
+      "messages": {
+        "created": "Grado creado correctamente.",
+        "updated": "Grado actualizado correctamente."
       },
       "form": {
         "name": {
@@ -415,7 +524,12 @@
         "addFromCsv": "Añadir desde CSV",
         "replaceAll": "Reemplazar todo",
         "replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
-        "create": "Crear asignatura"
+        "create": "Crear asignatura",
+        "edit": "Editar asignatura"
+      },
+      "messages": {
+        "created": "Asignatura creada correctamente.",
+        "updated": "Asignatura actualizada correctamente."
       },
       "form": {
         "name": {
@@ -499,7 +613,12 @@
         "addFromCsv": "Añadir desde CSV",
         "replaceAll": "Reemplazar todo",
         "replaceAllWarning": "Esta acción borrará los datos existentes antes de importar. Procede con precaución.",
-        "create": "Crear itinerario"
+        "create": "Crear itinerario",
+        "edit": "Editar itinerario"
+      },
+      "messages": {
+        "created": "Itinerario creado correctamente.",
+        "updated": "Itinerario actualizado correctamente."
       },
       "form": {
         "name": {
@@ -609,7 +728,12 @@
       },
       "countLabel": "miembros",
       "actions": {
-        "create": "Añadir miembro"
+        "create": "Añadir miembro",
+        "edit": "Editar rol del miembro"
+      },
+      "messages": {
+        "created": "Miembro añadido correctamente.",
+        "updated": "Rol actualizado correctamente."
       },
       "form": {
         "email": {
@@ -795,6 +919,9 @@
         "headers": {
           "degreeName": "nombre grado",
           "subjectCode": "Código Asignatura",
+          "subjectName": "nombre asignatura",
+          "courseYear": "curso",
+          "period": "periodo",
           "name": "Nombre del Grupo",
           "numberOfStudents": "Número de Estudiantes",
           "weeklyHours": "Horas Semanales",
@@ -984,6 +1111,82 @@
           "4": "Jueves",
           "5": "Viernes"
         }
+      }
+    },
+    "classroomReservations": {
+      "label": "Gestión de espacios",
+      "title": "Reservas de aula",
+      "description": "Gestiona las solicitudes y reservas de espacios de la organización.",
+      "countLabel": "reservas",
+      "empty": "No hay reservas",
+      "statusLabel": "Estado",
+      "status": {
+        "PENDING": "Pendiente",
+        "ACCEPTED": "Aceptada",
+        "REJECTED": "Rechazada",
+        "CANCELLED": "Cancelada"
+      },
+      "headers": {
+        "status": "Estado",
+        "classroom": "Aula",
+        "date": "Fecha",
+        "schedule": "Horario",
+        "requester": "Solicitante",
+        "reason": "Motivo",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "create": "Nueva reserva",
+        "accept": "Aceptar",
+        "reject": "Rechazar",
+        "cancel": "Cancelar"
+      },
+      "requester": {
+        "label": "Solicitante",
+        "self": "yo",
+        "unknown": "Desconocido"
+      },
+      "statusUpdateSuccess": {
+        "ACCEPTED": "Reserva aceptada correctamente.",
+        "REJECTED": "Reserva rechazada correctamente.",
+        "CANCELLED": "Reserva cancelada correctamente."
+      },
+      "statusUpdateError": "Error al actualizar la reserva.",
+      "cancelError": "Error al cancelar la reserva.",
+      "cancelTitle": "Cancelar reserva",
+      "cancelDescription": "¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer.",
+      "newPage": {
+        "title": "Nueva reserva de aula",
+        "description": "Selecciona un aula y haz clic en el horario para solicitar una reserva.",
+        "back": "Volver a reservas"
+      },
+      "planner": {
+        "classroom": "Aula",
+        "selectClassroom": "Selecciona un aula",
+        "selectClassroomFirst": "Por favor, selecciona un aula primero.",
+        "selectClassroomDescription": "Debes seleccionar un aula para ver su horario disponible.",
+        "classroomCapacity": "{name} (Capacidad: {capacity})",
+        "searchClassroom": "Buscar aula...",
+        "emptyClassrooms": "No se encontraron aulas.",
+        "week": "Semana",
+        "loadingOccupancy": "Cargando ocupación...",
+        "loadOccupancyError": "No se pudo cargar la ocupación del aula.",
+        "reserve": "Reservar",
+        "occupiedClass": "Ocupado por clase",
+        "pendingReservation": "Reserva pendiente",
+        "reserved": "Reservado",
+        "newReservationTitle": "Nueva reserva de aula",
+        "reservationDescription": "Se solicitará el aula para el <strong>{date}</strong> en el tramo horario de <strong>{time}</strong>.",
+        "start": "Inicio",
+        "end": "Fin",
+        "reason": "Motivo de la reserva (opcional)",
+        "reasonPlaceholder": "Ej: Clase de recuperación, examen parcial...",
+        "confirm": "Confirmar reserva",
+        "cancel": "Cancelar",
+        "rangeError": "El rango debe estar dentro del hueco disponible.",
+        "confirmed": "Reserva confirmada correctamente.",
+        "requested": "Solicitud enviada correctamente.",
+        "submitError": "Error al procesar la reserva."
       }
     },
     "timeConfigs": {

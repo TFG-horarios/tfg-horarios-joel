@@ -28,6 +28,7 @@ import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 import { type ClassroomDTO } from '@tfg-horarios/shared';
 import { parsePositiveIntParam } from '@/lib/utils/search-params';
+import { getTranslations } from 'next-intl/server';
 
 type OrganizationClassroomReservationsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -85,6 +86,7 @@ export default async function OrganizationClassroomReservationsPage({
     getSessionUser(),
     fetchAcademicYears(id),
   ]);
+  const t = await getTranslations('Organizations.classroomReservations');
 
   if (!organization) {
     notFound();
@@ -122,17 +124,24 @@ export default async function OrganizationClassroomReservationsPage({
   );
 
   const translations = {
-    empty: 'No hay reservas',
-    'status.PENDING': 'Pendiente',
-    'status.ACCEPTED': 'Aceptada',
-    'status.REJECTED': 'Rechazada',
-    'status.CANCELLED': 'Cancelada',
-    statusUpdateSuccess_ACCEPTED: 'Reserva aceptada correctamente',
-    statusUpdateSuccess_REJECTED: 'Reserva rechazada correctamente',
-    statusUpdateSuccess_CANCELLED: 'Reserva cancelada correctamente',
-    statusUpdateError: 'Error al actualizar la reserva',
-    'action.accept': 'Aceptar',
-    'action.reject': 'Rechazar',
+    empty: t('empty'),
+    'status.PENDING': t('status.PENDING'),
+    'status.ACCEPTED': t('status.ACCEPTED'),
+    'status.REJECTED': t('status.REJECTED'),
+    'status.CANCELLED': t('status.CANCELLED'),
+    statusUpdateSuccess_ACCEPTED: t('statusUpdateSuccess.ACCEPTED'),
+    statusUpdateSuccess_REJECTED: t('statusUpdateSuccess.REJECTED'),
+    statusUpdateSuccess_CANCELLED: t('statusUpdateSuccess.CANCELLED'),
+    statusUpdateError: t('statusUpdateError'),
+    cancelError: t('cancelError'),
+    cancelTitle: t('cancelTitle'),
+    cancelDescription: t('cancelDescription'),
+    'action.accept': t('actions.accept'),
+    'action.reject': t('actions.reject'),
+    'action.cancel': t('actions.cancel'),
+    'requester.self': t('requester.self'),
+    'requester.unknown': t('requester.unknown'),
+    'requester.label': t('requester.label'),
     'slot.0': '1ª',
     'slot.1': '2ª',
     'slot.2': '3ª',
@@ -145,11 +154,11 @@ export default async function OrganizationClassroomReservationsPage({
 
   return (
     <OrganizationSectionShell
-      label="Gestión de Espacios"
-      title="Reservas de Aula"
-      description="Gestiona las solicitudes y reservas de espacios de la organización."
+      label={t('label')}
+      title={t('title')}
+      description={t('description')}
       count={meta.total}
-      countLabel="reservas"
+      countLabel={t('countLabel')}
     >
       <ResourceToolbar
         viewToggle={
@@ -162,11 +171,11 @@ export default async function OrganizationClassroomReservationsPage({
           <>
             <ResourceFilterSelect
               paramKey="status"
-              placeholder="Estado"
+              placeholder={t('statusLabel')}
               options={[
-                { label: 'Pendiente', value: 'PENDING' },
-                { label: 'Aceptada', value: 'ACCEPTED' },
-                { label: 'Rechazada', value: 'REJECTED' },
+                { label: t('status.PENDING'), value: 'PENDING' },
+                { label: t('status.ACCEPTED'), value: 'ACCEPTED' },
+                { label: t('status.REJECTED'), value: 'REJECTED' },
               ]}
             />
             <ResourceFilterClear />
@@ -184,14 +193,14 @@ export default async function OrganizationClassroomReservationsPage({
                   >
                     <Link
                       href={`/organizations/${id}/academic-years/${academicYearId}/classroom-reservations/new`}
-                      aria-label="Nueva Reserva"
+                      aria-label={t('actions.create')}
                     >
                       <Plus className="h-4 w-4" />
-                      <span className="sr-only">Nueva Reserva</span>
+                      <span className="sr-only">{t('actions.create')}</span>
                     </Link>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Nueva Reserva</TooltipContent>
+                <TooltipContent>{t('actions.create')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -215,13 +224,13 @@ export default async function OrganizationClassroomReservationsPage({
             academicYear: currentAcademicYear,
           }}
           tableHeaders={[
-            'Estado',
-            'Aula',
-            'Fecha',
-            'Horario',
-            ...(isAdminOrEditor ? ['Solicitante'] : []),
-            'Motivo',
-            'Acciones',
+            t('headers.status'),
+            t('headers.classroom'),
+            t('headers.date'),
+            t('headers.schedule'),
+            ...(isAdminOrEditor ? [t('headers.requester')] : []),
+            t('headers.reason'),
+            t('headers.actions'),
           ]}
           TableRowComponent={ClassroomReservationRow}
           tableRowProps={{

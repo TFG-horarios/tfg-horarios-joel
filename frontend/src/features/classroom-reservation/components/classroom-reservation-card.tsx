@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils/styles';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { getSlotTimeRange } from './classroom-reservation-row';
 import { User } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 export const ClassroomReservationCard = memo(function ClassroomReservationCard({
   item: reservation,
@@ -32,6 +33,7 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
   academicYear,
 }: ClassroomReservationRowProps) {
   const [isPending, startTransition] = useTransition();
+  const locale = useLocale();
 
   const classroomName =
     classrooms?.[reservation.classroomId] || reservation.classroomId;
@@ -57,12 +59,18 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
       reservation.id
     );
     if (res.success) {
-      toast.success(res.message || 'Reserva cancelada correctamente');
+      toast.success(
+        res.message || t('statusUpdateSuccess_CANCELLED', 'Cancelled')
+      );
     } else {
-      toast.error(res.message || 'Error al cancelar la reserva');
+      toast.error(
+        res.message || t('cancelError', 'Unable to cancel reservation')
+      );
     }
     return res;
   };
+
+  const t = (key: string, fallback: string) => translations[key] || fallback;
 
   const isRequester = reservation.requesterUserId === currentUserId;
   const isAdmin = memberRole === 'admin';
@@ -77,8 +85,9 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
       !canAcceptReject);
 
   const requesterDisplay = isRequester
-    ? 'yo'
-    : membersMap?.[reservation.requesterUserId] || 'Desconocido';
+    ? t('requester.self', 'Me')
+    : membersMap?.[reservation.requesterUserId] ||
+      t('requester.unknown', 'Unknown');
 
   return (
     <InteractiveCard
@@ -100,9 +109,12 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
         ) : canCancel ? (
           <ResourceCardActions
             itemName="esta reserva"
-            deleteTitle="Cancelar Reserva"
-            deleteDescription="¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer."
-            deleteLabel="Cancelar"
+            deleteTitle={t('cancelTitle', 'Cancel reservation')}
+            deleteDescription={t(
+              'cancelDescription',
+              'Are you sure you want to cancel this reservation? This action cannot be undone.'
+            )}
+            deleteLabel={t('action.cancel', 'Cancel')}
             onDelete={handleCancel}
           />
         ) : undefined
@@ -179,7 +191,7 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80">
               <CalendarDays className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">
-                {new Date(reservation.date).toLocaleDateString('es-ES')}
+                {new Date(reservation.date).toLocaleDateString(locale)}
               </span>
             </div>
 
@@ -193,7 +205,7 @@ export const ClassroomReservationCard = memo(function ClassroomReservationCard({
             {(isAdmin || isEditor) && (
               <div
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/40 border border-border/40 text-xs font-medium text-foreground/80"
-                title="Solicitante"
+                title={t('requester.label', 'Requester')}
               >
                 <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="truncate">{requesterDisplay}</span>

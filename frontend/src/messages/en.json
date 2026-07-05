@@ -62,7 +62,10 @@
       "generic": "An unexpected error occurred.",
       "server": "The request could not be completed. Please try again later.",
       "network": "Could not connect to the server.",
-      "validation": "Check the highlighted fields and try again."
+      "validation": "Check the highlighted fields and try again.",
+      "delete": "An error occurred while deleting.",
+      "degreeRequired": "Degree is required.",
+      "emailRequired": "Email is required."
     },
     "success": {
       "created": "Created successfully.",
@@ -141,6 +144,23 @@
     "empty": {
       "title": "No results",
       "description": "There are no items to display right now."
+    },
+    "filters": {
+      "title": "Filters",
+      "additional": "Additional filters",
+      "filter": "Filter",
+      "all": "All",
+      "search": "Search...",
+      "empty": "No results found."
+    },
+    "date": {
+      "selectDate": "Select date"
+    },
+    "search": {
+      "organizations": "Organizations",
+      "organizationsLabel": "Search organizations",
+      "organizationsPlaceholder": "Search organization...",
+      "academicYearsPlaceholder": "Search academic year..."
     }
   },
   "Metadata": {
@@ -255,7 +275,18 @@
     "successName": "Name updated successfully.",
     "successPassword": "Password updated successfully.",
     "errorPassword": "Could not update the password. Check your current password.",
-    "passwordsMismatch": "Passwords do not match."
+    "passwordsMismatch": "Passwords do not match.",
+    "interface": "User interface",
+    "deleteSuccessTitle": "Account deleted",
+    "deleteSuccessDescription": "Your account has been deleted successfully. You will be redirected to the home page."
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all",
+    "loading": "Loading notifications...",
+    "empty": "You have no notifications",
+    "markReadError": "Error marking notification as read.",
+    "markAllReadError": "Error marking all notifications as read."
   },
   "Organizations": {
     "page": {
@@ -300,6 +331,74 @@
       "morning": "Morning",
       "afternoon": "Afternoon",
       "slotDuration": "Class duration"
+    },
+    "academicYearSummary": {
+      "description": "General control panel and status for academic year {name}",
+      "statusTitle": "Academic year status",
+      "activeDescription": "The system is operating and generating schedules under this configuration.",
+      "inactiveDescription": "This academic year is currently inactive.",
+      "calendarTitle": "Academic calendar",
+      "periodType": "Period type",
+      "period": "Period {period}",
+      "timeStructureTitle": "Time structure",
+      "centerOpening": "Center opening"
+    },
+    "academicYears": {
+      "modal": {
+        "trigger": "New academic year",
+        "createTitle": "Create new academic year",
+        "editTitle": "Edit academic year",
+        "createDescription": "Configure the new academic year and its teaching periods.",
+        "editDescription": "Edit the academic year configuration and grid.",
+        "warningTitle": "Warning!",
+        "warningDescription": "If you edit center opening/closing times, slot duration or break duration, existing schedules may become invalid and need to be regenerated.",
+        "sections": {
+          "timeConfig": "Global time configuration"
+        },
+        "fields": {
+          "name": "Academic year name (e.g. 2025-2026)",
+          "periodType": "Period type",
+          "periodTypePlaceholder": "Select a type",
+          "periodStart": "Period {period} start",
+          "periodEnd": "Period {period} end",
+          "openingTime": "Center opening time",
+          "closingTime": "Center closing time",
+          "slotDuration": "Slot duration (minutes)",
+          "breakDuration": "Break duration (minutes)"
+        },
+        "periodTypes": {
+          "semester": "Semester (2 periods)",
+          "trimester": "Trimester (3 periods)",
+          "annual": "Annual (1 period)"
+        },
+        "help": {
+          "opening": {
+            "aria": "Information about opening time",
+            "title": "Initial center limit.",
+            "description": "No class schedule or reservation can start before this time."
+          },
+          "closing": {
+            "aria": "Information about closing time",
+            "title": "Final center limit.",
+            "description": "No class schedule or reservation can end after this time."
+          },
+          "slotDuration": {
+            "aria": "Information about slot duration",
+            "title": "Includes the gap between classes if any.",
+            "description": "If a class lasts 55 minutes and there is a 5 minute gap before the next one, configure the slot as 60 minutes. The long break is defined separately."
+          }
+        },
+        "messages": {
+          "created": "Academic year created successfully.",
+          "updated": "Academic year updated successfully."
+        },
+        "errors": {
+          "invalidDurations": "Complete durations with valid numeric values.",
+          "invalidForm": "Complete the academic year data correctly.",
+          "create": "Error creating the academic year.",
+          "update": "Error updating the academic year."
+        }
+      }
     },
     "classrooms": {
       "label": "Classrooms",
@@ -385,7 +484,12 @@
         "addFromCsv": "Add from CSV",
         "replaceAll": "Replace all",
         "replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
-        "create": "Create degree"
+        "create": "Create degree",
+        "edit": "Edit degree"
+      },
+      "messages": {
+        "created": "Degree created successfully.",
+        "updated": "Degree updated successfully."
       },
       "form": {
         "name": {
@@ -398,6 +502,7 @@
         }
       },
       "code": "Code",
+      "searchLabel": "Search by name",
       "searchPlaceholder": "Search degrees...",
       "codePlaceholder": "Code (e.g. CS)...",
       "filteredEmpty": "No degrees match your filters.",
@@ -419,7 +524,12 @@
         "addFromCsv": "Add from CSV",
         "replaceAll": "Replace all",
         "replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
-        "create": "Create subject"
+        "create": "Create subject",
+        "edit": "Edit subject"
+      },
+      "messages": {
+        "created": "Subject created successfully.",
+        "updated": "Subject updated successfully."
       },
       "form": {
         "name": {
@@ -503,7 +613,12 @@
         "addFromCsv": "Add from CSV",
         "replaceAll": "Replace all",
         "replaceAllWarning": "This action will delete the existing data before importing. Proceed with caution.",
-        "create": "Create itinerary"
+        "create": "Create itinerary",
+        "edit": "Edit itinerary"
+      },
+      "messages": {
+        "created": "Itinerary created successfully.",
+        "updated": "Itinerary updated successfully."
       },
       "form": {
         "name": {
@@ -613,7 +728,12 @@
       },
       "countLabel": "members",
       "actions": {
-        "create": "Add member"
+        "create": "Add member",
+        "edit": "Edit member role"
+      },
+      "messages": {
+        "created": "Member added successfully.",
+        "updated": "Role updated successfully."
       },
       "form": {
         "email": {
@@ -671,6 +791,7 @@
         "year": "Year {year}",
         "semester": "Semester {period}",
         "conflictsTooltip": "Conflicts detected",
+        "unassignedTooltip": "Unassigned slots",
         "scheduleItemName": "{name} schedule"
       },
       "planner": {
@@ -990,6 +1111,82 @@
           "4": "Thursday",
           "5": "Friday"
         }
+      }
+    },
+    "classroomReservations": {
+      "label": "Space management",
+      "title": "Classroom reservations",
+      "description": "Manage organization space requests and reservations.",
+      "countLabel": "reservations",
+      "empty": "No reservations",
+      "statusLabel": "Status",
+      "status": {
+        "PENDING": "Pending",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected",
+        "CANCELLED": "Cancelled"
+      },
+      "headers": {
+        "status": "Status",
+        "classroom": "Classroom",
+        "date": "Date",
+        "schedule": "Schedule",
+        "requester": "Requester",
+        "reason": "Reason",
+        "actions": "Actions"
+      },
+      "actions": {
+        "create": "New reservation",
+        "accept": "Accept",
+        "reject": "Reject",
+        "cancel": "Cancel"
+      },
+      "requester": {
+        "label": "Requester",
+        "self": "me",
+        "unknown": "Unknown"
+      },
+      "statusUpdateSuccess": {
+        "ACCEPTED": "Reservation accepted successfully.",
+        "REJECTED": "Reservation rejected successfully.",
+        "CANCELLED": "Reservation cancelled successfully."
+      },
+      "statusUpdateError": "Error updating reservation.",
+      "cancelError": "Error cancelling reservation.",
+      "cancelTitle": "Cancel reservation",
+      "cancelDescription": "Are you sure you want to cancel this reservation? This action cannot be undone.",
+      "newPage": {
+        "title": "New classroom reservation",
+        "description": "Select a classroom and click the schedule to request a reservation.",
+        "back": "Back to reservations"
+      },
+      "planner": {
+        "classroom": "Classroom",
+        "selectClassroom": "Select a classroom",
+        "selectClassroomFirst": "Please select a classroom first.",
+        "selectClassroomDescription": "You must select a classroom to see its available schedule.",
+        "classroomCapacity": "{name} (Capacity: {capacity})",
+        "searchClassroom": "Search classroom...",
+        "emptyClassrooms": "No classrooms found.",
+        "week": "Week",
+        "loadingOccupancy": "Loading occupancy...",
+        "loadOccupancyError": "Could not load classroom occupancy.",
+        "reserve": "Reserve",
+        "occupiedClass": "Occupied by class",
+        "pendingReservation": "Pending reservation",
+        "reserved": "Reserved",
+        "newReservationTitle": "New classroom reservation",
+        "reservationDescription": "The classroom will be requested for <strong>{date}</strong> during <strong>{time}</strong>.",
+        "start": "Start",
+        "end": "End",
+        "reason": "Reservation reason (optional)",
+        "reasonPlaceholder": "e.g. Make-up class, midterm exam...",
+        "confirm": "Confirm reservation",
+        "cancel": "Cancel",
+        "rangeError": "The range must stay within the available slot.",
+        "confirmed": "Reservation confirmed successfully.",
+        "requested": "Request sent successfully.",
+        "submitError": "Error processing reservation."
       }
     },
     "timeConfigs": {

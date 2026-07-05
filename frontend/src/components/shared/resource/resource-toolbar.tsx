@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useTranslations } from 'next-intl';
 
 export interface ResourceToolbarProps {
   search?: ReactNode;
@@ -70,6 +71,7 @@ export function ResourceToolbar({
   viewToggle,
   actions,
 }: ResourceToolbarProps) {
+  const t = useTranslations('Common.filters');
   const searchParams = useSearchParams();
   const [openDesktop, setOpenDesktop] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
@@ -134,7 +136,7 @@ export function ResourceToolbar({
                     )}
                   >
                     <SlidersHorizontal className="h-4 w-4 shrink-0" />
-                    <span>Filtros</span>
+                    <span>{t('title')}</span>
                     {hasActiveSecondary && (
                       <span className="font-semibold">
                         ({activeSecondaryCount})
@@ -146,7 +148,7 @@ export function ResourceToolbar({
                 <PopoverContent className="w-72 p-4" align="start">
                   <div className="flex flex-col gap-3">
                     <div className="text-sm font-semibold text-foreground border-b border-border/50 pb-2">
-                      Filtros Adicionales
+                      {t('additional')}
                     </div>
                     <div className="flex flex-col gap-3">
                       {secondaryFilters.map((el, idx) => (
@@ -188,7 +190,9 @@ export function ResourceToolbar({
                 </DialogTrigger>
                 <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-6 rounded-2xl">
                   <DialogHeader>
-                    <DialogTitle className="text-left">Filtros</DialogTitle>
+                    <DialogTitle className="text-left">
+                      {t('title')}
+                    </DialogTitle>
                   </DialogHeader>
                   <div className="flex flex-col gap-4 mt-2">
                     {actualFilters.map((el, idx) => (

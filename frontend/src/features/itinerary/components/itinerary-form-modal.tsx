@@ -33,6 +33,7 @@ export function ItineraryFormModal({
 }: ItineraryFormModalProps) {
   const t = useTranslations('Organizations.itineraries');
   const tCommon = useTranslations('Common.actions');
+  const tCommonErrors = useTranslations('Common.errors');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
@@ -56,10 +57,11 @@ export function ItineraryFormModal({
       );
     } else {
       if (!data.degreeId) {
+        const message = tCommonErrors('degreeRequired');
         return {
           success: false as const,
-          message: 'El grado es obligatorio',
-          errors: { degreeId: ['El grado es obligatorio'] },
+          message,
+          errors: { degreeId: [message] },
         };
       }
       return createItineraryAction(organizationId, data.degreeId, {
@@ -71,11 +73,7 @@ export function ItineraryFormModal({
 
   const handleSuccess = () => {
     setIsOpen(false);
-    toast.success(
-      isEditing
-        ? 'Itinerario actualizado correctamente'
-        : 'Itinerario creado correctamente'
-    );
+    toast.success(isEditing ? t('messages.updated') : t('messages.created'));
   };
 
   return (
@@ -84,7 +82,7 @@ export function ItineraryFormModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Itinerario' : t('actions.create')}
+            {isEditing ? t('actions.edit') : t('actions.create')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">
