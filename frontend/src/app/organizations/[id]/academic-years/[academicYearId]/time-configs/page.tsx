@@ -39,7 +39,7 @@ export default async function TimeConfigsPage({
         : 'grid';
 
   const user = await getSessionUser();
-  const role = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const role = user ? await getOrganizationMemberRole(id) : null;
   const isAdminOrEditor = role === 'admin' || role === 'editor';
 
   if (!isAdminOrEditor) {

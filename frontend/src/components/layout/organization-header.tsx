@@ -91,14 +91,14 @@ function OrganizationHeaderInner() {
   }, [orgId]);
 
   useEffect(() => {
-    if (orgId && user?.id) {
-      getOrganizationMemberRoleAction(orgId, user.id).then((res) => {
-        setMemberRole(res);
+    if (orgId && user) {
+      getOrganizationMemberRoleAction(orgId).then((res) => {
+        setMemberRole(res.success ? (res.data ?? null) : null);
       });
     } else {
       setMemberRole(null);
     }
-  }, [orgId, user?.id]);
+  }, [orgId, user]);
 
   const searchParams = useSearchParams();
   const router = useRouter();

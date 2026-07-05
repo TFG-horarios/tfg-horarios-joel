@@ -3,6 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { getServerClient } from '@/lib/api/server';
 import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
+import {
   SaveScheduleTimeConfigBodySchema,
   ScheduleTimeConfigSchema,
   UpdateScheduleTimeConfigBodySchema,
@@ -29,19 +33,31 @@ export async function createScheduleTimeConfigAction(
       errors: zodErrorToActionErrors(parsed.error),
     };
   }
-  const client = await getServerClient();
-  const response = await client.api.organizations[':organizationId']![
-    'academic-years'
-  ][':academicYearId']['time-configs'].$post({
-    param: { organizationId, academicYearId },
-    json: parsed.data,
-  });
-  if (!response.ok) return { success: false, message: await response.text() };
-  revalidatePath(path(organizationId, academicYearId));
-  return {
-    success: true,
-    data: ScheduleTimeConfigSchema.parse(await response.json()),
-  };
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'academic-years'
+    ][':academicYearId']['time-configs'].$post({
+      param: { organizationId, academicYearId },
+      json: parsed.data,
+    });
+    if (!response.ok) {
+      throw await createApiResponseError(
+        response,
+        'Error al crear la configuración'
+      );
+    }
+    revalidatePath(path(organizationId, academicYearId));
+    return {
+      success: true,
+      data: ScheduleTimeConfigSchema.parse(await response.json()),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: getActionErrorMessage(error, 'Error al crear la configuración'),
+    };
+  }
 }
 
 export async function updateScheduleTimeConfigAction(
@@ -58,19 +74,34 @@ export async function updateScheduleTimeConfigAction(
       errors: zodErrorToActionErrors(parsed.error),
     };
   }
-  const client = await getServerClient();
-  const response = await client.api.organizations[':organizationId']![
-    'academic-years'
-  ][':academicYearId']['time-configs'][':id'].$patch({
-    param: { organizationId, academicYearId, id },
-    json: parsed.data,
-  });
-  if (!response.ok) return { success: false, message: await response.text() };
-  revalidatePath(path(organizationId, academicYearId));
-  return {
-    success: true,
-    data: ScheduleTimeConfigSchema.parse(await response.json()),
-  };
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'academic-years'
+    ][':academicYearId']['time-configs'][':id'].$patch({
+      param: { organizationId, academicYearId, id },
+      json: parsed.data,
+    });
+    if (!response.ok) {
+      throw await createApiResponseError(
+        response,
+        'Error al actualizar la configuración'
+      );
+    }
+    revalidatePath(path(organizationId, academicYearId));
+    return {
+      success: true,
+      data: ScheduleTimeConfigSchema.parse(await response.json()),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: getActionErrorMessage(
+        error,
+        'Error al actualizar la configuración'
+      ),
+    };
+  }
 }
 
 export async function deleteScheduleTimeConfigAction(
@@ -78,13 +109,28 @@ export async function deleteScheduleTimeConfigAction(
   academicYearId: string,
   id: string
 ): Promise<ActionResponse<void>> {
-  const client = await getServerClient();
-  const response = await client.api.organizations[':organizationId']![
-    'academic-years'
-  ][':academicYearId']['time-configs'][':id'].$delete({
-    param: { organizationId, academicYearId, id },
-  });
-  if (!response.ok) return { success: false, message: await response.text() };
-  revalidatePath(path(organizationId, academicYearId));
-  return { success: true };
+  try {
+    const client = await getServerClient();
+    const response = await client.api.organizations[':organizationId']![
+      'academic-years'
+    ][':academicYearId']['time-configs'][':id'].$delete({
+      param: { organizationId, academicYearId, id },
+    });
+    if (!response.ok) {
+      throw await createApiResponseError(
+        response,
+        'Error al eliminar la configuración'
+      );
+    }
+    revalidatePath(path(organizationId, academicYearId));
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: getActionErrorMessage(
+        error,
+        'Error al eliminar la configuración'
+      ),
+    };
+  }
 }

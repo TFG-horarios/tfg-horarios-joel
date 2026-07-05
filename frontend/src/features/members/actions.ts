@@ -12,6 +12,10 @@ import {
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
+import {
   fetchPaginatedMembers,
   fetchAllMembers,
   getOrganizationMemberRole,
@@ -65,14 +69,7 @@ export async function addMemberAction(
       json: parsedInput.data,
     });
     if (!response.ok) {
-      let responseMessage = tErrors('server');
-      try {
-        const errorBody = (await response.json()) as { message?: string };
-        responseMessage = errorBody.message ?? responseMessage;
-      } catch (e) {
-        void e;
-      }
-      throw new Error(responseMessage);
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -88,7 +85,7 @@ export async function addMemberAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -119,14 +116,7 @@ export async function updateMemberRoleAction(
       json: parsedInput.data,
     });
     if (!response.ok) {
-      let responseMessage = tErrors('server');
-      try {
-        const errorBody = (await response.json()) as { message?: string };
-        responseMessage = errorBody.message ?? responseMessage;
-      } catch (e) {
-        void e;
-      }
-      throw new Error(responseMessage);
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     revalidatePath(`/organizations/${organizationId}/members`);
@@ -138,7 +128,7 @@ export async function updateMemberRoleAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -158,14 +148,7 @@ export async function removeMemberAction(
       param: { organizationId, id: memberId },
     });
     if (!response.ok) {
-      let responseMessage = tErrors('server');
-      try {
-        const errorBody = (await response.json()) as { message?: string };
-        responseMessage = errorBody.message ?? responseMessage;
-      } catch (e) {
-        void e;
-      }
-      throw new Error(responseMessage);
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     revalidatePath(`/organizations/${organizationId}/members`);
@@ -177,19 +160,25 @@ export async function removeMemberAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
 
 export async function getOrganizationMemberRoleAction(
-  organizationId: string,
-  userId: string
-): Promise<string | null> {
+  organizationId: string
+): Promise<ActionResponse<MemberDTO['role'] | null>> {
+  const tErrors = await getTranslations('Common.errors');
+
   try {
-    return await getOrganizationMemberRole(organizationId, userId);
+    return {
+      success: true,
+      data: await getOrganizationMemberRole(organizationId),
+    };
   } catch (error) {
-    console.error('ERROR EN EL SERVER ACTION (Member Role):', error);
-    return null;
+    return {
+      success: false,
+      message: getActionErrorMessage(error, tErrors('generic')),
+    };
   }
 }

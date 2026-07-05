@@ -12,7 +12,7 @@ export default async function OrganizationsPage() {
   const userRolesMap: Record<string, string | null> = {};
   if (user) {
     const roles = await Promise.all(
-      organizations.map((org) => getOrganizationMemberRole(org.id, user.id))
+      organizations.map((org) => getOrganizationMemberRole(org.id))
     );
     organizations.forEach((org, index) => {
       userRolesMap[org.id] = roles[index] ?? null;

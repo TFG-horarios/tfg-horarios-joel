@@ -91,7 +91,7 @@ export default async function OrganizationClassroomReservationsPage({
     notFound();
   }
 
-  const role = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const role = user ? await getOrganizationMemberRole(id) : null;
   const isAdminOrEditor = role === 'admin' || role === 'editor';
 
   let membersMap: Record<string, string> = {};

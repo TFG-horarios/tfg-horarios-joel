@@ -19,6 +19,10 @@ import {
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
 import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
+import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
 
 export async function fetchPaginatedDegreesAction(
   organizationId: string,
@@ -221,9 +225,7 @@ export async function bulkCreateDegrees(
       json: dtos,
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('ERROR DEL BACKEND DE HONO (Grados):', errorText);
-      return { success: false, message: t('server') };
+      throw await createApiResponseError(response, t('server'));
     }
 
     const payload = await response.json();
@@ -236,7 +238,10 @@ export async function bulkCreateDegrees(
     };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grados Bulk):', error);
-    return { success: false, message: t('server') };
+    return {
+      success: false,
+      message: getActionErrorMessage(error, t('server')),
+    };
   }
 }
 
@@ -254,9 +259,7 @@ export async function replaceDegreesAction(
       json: dtos,
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('ERROR DEL BACKEND DE HONO (Grados Replace):', errorText);
-      return { success: false, message: t('server') };
+      throw await createApiResponseError(response, t('server'));
     }
 
     const payload = await response.json();
@@ -269,6 +272,9 @@ export async function replaceDegreesAction(
     };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Grados Replace):', error);
-    return { success: false, message: t('server') };
+    return {
+      success: false,
+      message: getActionErrorMessage(error, t('server')),
+    };
   }
 }

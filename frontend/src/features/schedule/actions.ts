@@ -19,6 +19,10 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
 import { fetchPaginatedSchedules } from './queries';
 import { buildScheduleCsvExport } from './services/export-schedule-csv';
 
@@ -84,16 +88,7 @@ export async function generateSchedulesAction(
     });
 
     if (!response.ok) {
-      let message = tErrors('server');
-      try {
-        const errorData = (await response.json()) as Record<string, unknown>;
-        if (typeof errorData.message === 'string') {
-          message = errorData.message;
-        }
-      } catch {
-        message = tErrors('server');
-      }
-      throw new Error(message);
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -105,7 +100,7 @@ export async function generateSchedulesAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -135,7 +130,7 @@ export async function checkScheduleOverwriteAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -145,7 +140,7 @@ export async function checkScheduleOverwriteAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -175,7 +170,7 @@ export async function checkImportSchedulesOverwriteAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -185,7 +180,7 @@ export async function checkImportSchedulesOverwriteAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -215,16 +210,7 @@ export async function importSchedulesAction(
     });
 
     if (!response.ok) {
-      let message = tErrors('server');
-      try {
-        const errorData = (await response.json()) as Record<string, unknown>;
-        if (typeof errorData.message === 'string') {
-          message = errorData.message;
-        }
-      } catch {
-        message = tErrors('server');
-      }
-      throw new Error(message);
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -236,7 +222,7 @@ export async function importSchedulesAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -257,18 +243,7 @@ export async function publishScheduleAction(
     });
 
     if (!response.ok) {
-      try {
-        const errData = (await response.json()) as Record<string, unknown>;
-        const message =
-          typeof errData.message === 'string'
-            ? errData.message
-            : tErrors('server');
-        throw new Error(message);
-      } catch (e) {
-        throw new Error(e instanceof Error ? e.message : tErrors('server'), {
-          cause: e,
-        });
-      }
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -281,7 +256,7 @@ export async function publishScheduleAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -302,7 +277,7 @@ export async function unpublishScheduleAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -315,7 +290,7 @@ export async function unpublishScheduleAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -346,18 +321,7 @@ export async function updateScheduleSlotAction(
     });
 
     if (!response.ok) {
-      try {
-        const errData = (await response.json()) as Record<string, unknown>;
-        const message =
-          typeof errData.message === 'string'
-            ? errData.message
-            : tErrors('server');
-        throw new Error(message);
-      } catch (e) {
-        throw new Error(e instanceof Error ? e.message : tErrors('server'), {
-          cause: e,
-        });
-      }
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -369,7 +333,7 @@ export async function updateScheduleSlotAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -390,7 +354,7 @@ export async function deleteScheduleAction(
     });
 
     if (!response.ok) {
-      throw new Error(tErrors('server'));
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     revalidatePath(`/organizations/${organizationId}`, 'layout');
@@ -400,7 +364,7 @@ export async function deleteScheduleAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }

@@ -19,7 +19,7 @@ export default async function OrganizationDetailPage({
     getSessionUser(),
   ]);
   const organization = organizations.find((item) => item.id === id);
-  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const memberRole = user ? await getOrganizationMemberRole(id) : null;
 
   if (!organization) {
     notFound();

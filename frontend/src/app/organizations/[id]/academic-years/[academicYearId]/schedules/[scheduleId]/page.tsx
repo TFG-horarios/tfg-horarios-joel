@@ -54,7 +54,7 @@ export default async function SchedulePlannerPage({
     getSessionUser(),
   ]);
 
-  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const memberRole = user ? await getOrganizationMemberRole(id) : null;
   const canUpdate = memberRole === 'admin' || memberRole === 'editor';
 
   if (!organization || !schedule) {

@@ -1,6 +1,10 @@
 'use server';
 
 import { getServerClient } from '@/lib/api/server';
+import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import {
@@ -57,7 +61,7 @@ export async function fetchOccupiedSlotsAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -79,17 +83,7 @@ export async function requestReservationAction(
     });
 
     if (!response.ok) {
-      if (response.status === 400 || response.status === 403) {
-        const errorData = (await response.json()) as {
-          error?: string;
-          message?: string;
-        };
-        return {
-          success: false,
-          message: errorData.message || errorData.error || tErrors('server'),
-        };
-      }
-      return { success: false, message: tErrors('server') };
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -103,7 +97,7 @@ export async function requestReservationAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -126,21 +120,7 @@ export async function updateReservationStatusAction(
     });
 
     if (!response.ok) {
-      if (
-        response.status === 400 ||
-        response.status === 403 ||
-        response.status === 404
-      ) {
-        const errorData = (await response.json()) as {
-          error?: string;
-          message?: string;
-        };
-        return {
-          success: false,
-          message: errorData.message || errorData.error || tErrors('server'),
-        };
-      }
-      return { success: false, message: tErrors('server') };
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -152,7 +132,7 @@ export async function updateReservationStatusAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }
@@ -173,21 +153,7 @@ export async function cancelReservationAction(
     });
 
     if (!response.ok) {
-      if (
-        response.status === 400 ||
-        response.status === 403 ||
-        response.status === 404
-      ) {
-        const errorData = (await response.json()) as {
-          error?: string;
-          message?: string;
-        };
-        return {
-          success: false,
-          message: errorData.message || errorData.error || tErrors('server'),
-        };
-      }
-      return { success: false, message: tErrors('server') };
+      throw await createApiResponseError(response, tErrors('server'));
     }
 
     const payload = await response.json();
@@ -203,7 +169,7 @@ export async function cancelReservationAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
 }

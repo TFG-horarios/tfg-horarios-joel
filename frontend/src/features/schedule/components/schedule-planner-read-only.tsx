@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
+import { createApiEventSource } from '@/lib/api/realtime';
 import { getSubjectColorClasses } from '@/lib/utils/subject-colors';
 import { useScheduleGrid } from '../hooks/use-schedule-grid';
 import type { SchedulePlannerProps } from './schedule-planner-editor';
@@ -39,9 +40,8 @@ export function SchedulePlannerReadOnly({
   }, [initialSlots]);
 
   useEffect(() => {
-    const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/schedules/${schedule.id}/events`,
-      { withCredentials: true }
+    const eventSource = createApiEventSource(
+      `/api/organizations/${organization.id}/schedules/${schedule.id}/events`
     );
 
     eventSource.addEventListener('schedule_updated', () => {

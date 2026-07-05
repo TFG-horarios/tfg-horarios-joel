@@ -28,7 +28,7 @@ export default async function AcademicYearLayout({
     notFound();
   }
 
-  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const memberRole = user ? await getOrganizationMemberRole(id) : null;
   const basePath = `/organizations/${organization.id}/academic-years/${academicYearId}`;
 
   const navItems: NavItem[] = [

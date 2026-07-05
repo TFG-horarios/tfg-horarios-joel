@@ -53,7 +53,7 @@ export default async function AcademicYearSummaryPage({
   const statusTranslations = await getTranslations('Common.status');
 
   const user = await getSessionUser();
-  const role = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const role = user ? await getOrganizationMemberRole(id) : null;
   const isAdminOrEditor = role === 'admin' || role === 'editor';
 
   const [

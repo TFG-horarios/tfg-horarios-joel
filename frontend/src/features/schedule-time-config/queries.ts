@@ -1,5 +1,7 @@
 import { cache } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { getServerClient } from '@/lib/api/server';
+import { createApiResponseError } from '@/lib/api/errors';
 import {
   ScheduleTimeConfigSchema,
   ScheduleTimeConfigPossibilitySchema,
@@ -14,6 +16,7 @@ export const fetchScheduleTimeConfigs = cache(
     academicYearId: string,
     query: ScheduleTimeConfigListQueryDTO = {}
   ): Promise<ScheduleTimeConfigDTO[]> => {
+    const tErrors = await getTranslations('Common.errors');
     const client = await getServerClient();
     const response = await client.api.organizations[':organizationId']![
       'academic-years'
@@ -21,7 +24,9 @@ export const fetchScheduleTimeConfigs = cache(
       param: { organizationId, academicYearId },
       query,
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      throw await createApiResponseError(response, tErrors('server'));
+    }
     return ScheduleTimeConfigSchema.array().parse(await response.json());
   }
 );
@@ -31,13 +36,16 @@ export const fetchTimeConfigPossibilities = cache(
     organizationId: string,
     academicYearId: string
   ): Promise<ScheduleTimeConfigPossibilityDTO[]> => {
+    const tErrors = await getTranslations('Common.errors');
     const client = await getServerClient();
     const response = await client.api.organizations[':organizationId']![
       'academic-years'
     ][':academicYearId']['time-configs'].possibilities.$get({
       param: { organizationId, academicYearId },
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      throw await createApiResponseError(response, tErrors('server'));
+    }
     return ScheduleTimeConfigPossibilitySchema.array().parse(
       await response.json()
     );

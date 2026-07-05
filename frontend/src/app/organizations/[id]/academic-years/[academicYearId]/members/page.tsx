@@ -84,7 +84,7 @@ export default async function OrganizationMembersPage({
     notFound();
   }
 
-  const role = await getOrganizationMemberRole(id, sessionUser.id);
+  const role = await getOrganizationMemberRole(id);
   if (!role || role === 'viewer') {
     notFound();
   }

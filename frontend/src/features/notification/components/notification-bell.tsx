@@ -23,7 +23,8 @@ import {
   markAllNotificationsReadAction,
   fetchPaginatedNotificationsAction,
 } from '../actions';
-import type { NotificationDTO } from '@tfg-horarios/shared';
+import { NotificationSchema, type NotificationDTO } from '@tfg-horarios/shared';
+import { createApiEventSource, parseEventData } from '@/lib/api/realtime';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -63,14 +64,13 @@ export function NotificationBell() {
   useEffect(() => {
     if (!user) return;
 
-    const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/users/${user.id}/notifications/stream`,
-      { withCredentials: true }
+    const eventSource = createApiEventSource(
+      `/api/users/${user.id}/notifications/stream`
     );
 
     eventSource.addEventListener('notification_received', (e) => {
       try {
-        const newNotification = JSON.parse(e.data) as NotificationDTO;
+        const newNotification = parseEventData(e, NotificationSchema);
         setNotifications((prev) => [newNotification, ...prev]);
         setUnreadCount((prev) => prev + 1);
 

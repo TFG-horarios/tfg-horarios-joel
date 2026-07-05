@@ -90,10 +90,8 @@ export const fetchMeMember = cache(
 );
 
 export async function getOrganizationMemberRole(
-  organizationId: string,
-  userId: string | null
+  organizationId: string
 ): Promise<MemberDTO['role'] | null> {
-  if (!userId) return null;
   const currentMember = await fetchMeMember(organizationId);
   return currentMember?.role ?? null;
 }

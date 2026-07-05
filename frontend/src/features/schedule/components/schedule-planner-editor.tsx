@@ -3,6 +3,7 @@
 import { useState, useEffect, memo, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
+import { createApiEventSource } from '@/lib/api/realtime';
 import { useScheduleGrid } from '../hooks/use-schedule-grid';
 import { WeeklyScheduleGrid } from './weekly-schedule-grid';
 import { useTranslations } from 'next-intl';
@@ -157,9 +158,8 @@ export function SchedulePlannerEditor({
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
 
   useEffect(() => {
-    const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/schedules/${schedule.id}/events`,
-      { withCredentials: true }
+    const eventSource = createApiEventSource(
+      `/api/organizations/${organization.id}/schedules/${schedule.id}/events`
     );
 
     eventSource.addEventListener('schedule_updated', () => {

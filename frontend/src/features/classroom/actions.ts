@@ -19,6 +19,10 @@ import {
 import type { ClassroomListQueryDTO } from '@tfg-horarios/shared';
 import { type ActionResponse } from '@/types/actions';
 import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
+import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
 
 export async function fetchPaginatedClassroomsAction(
   organizationId: string,
@@ -220,9 +224,7 @@ export async function bulkCreateClassrooms(
       json: dtos,
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('ERROR DEL BACKEND DE HONO (Aulas):', errorText);
-      return { success: false, message: t('server') };
+      throw await createApiResponseError(response, t('server'));
     }
 
     const payload = await response.json();
@@ -235,7 +237,10 @@ export async function bulkCreateClassrooms(
     };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Aulas Bulk):', error);
-    return { success: false, message: t('server') };
+    return {
+      success: false,
+      message: getActionErrorMessage(error, t('server')),
+    };
   }
 }
 
@@ -253,12 +258,7 @@ export async function replaceClassroomsAction(
       json: dtos,
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        'ERROR DEL BACKEND DE HONO (Aulas Reemplazo Bulk):',
-        errorText
-      );
-      return { success: false, message: t('server') };
+      throw await createApiResponseError(response, t('server'));
     }
 
     const payload = await response.json();
@@ -271,6 +271,9 @@ export async function replaceClassroomsAction(
     };
   } catch (error) {
     console.error('ERROR EN EL SERVER ACTION (Aulas Reemplazo Bulk):', error);
-    return { success: false, message: t('server') };
+    return {
+      success: false,
+      message: getActionErrorMessage(error, t('server')),
+    };
   }
 }

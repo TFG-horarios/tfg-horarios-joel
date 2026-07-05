@@ -31,6 +31,7 @@ import {
   ClassroomTimelineWeek,
   type ClassroomTimelineEvent,
 } from '@/components/shared/schedule/classroom-timeline-week';
+import { createApiEventSource } from '@/lib/api/realtime';
 import { requestReservationAction, fetchOccupiedSlotsAction } from '../actions';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -237,9 +238,8 @@ export function ReservationPlanner({
   useEffect(() => {
     if (!selectedClassroom) return;
 
-    const eventSource = new EventSource(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/organizations/${organization.id}/classroom-reservations/classrooms/${selectedClassroom}/events`,
-      { withCredentials: true }
+    const eventSource = createApiEventSource(
+      `/api/organizations/${organization.id}/classroom-reservations/classrooms/${selectedClassroom}/events`
     );
 
     eventSource.addEventListener('reservation_updated', () => {

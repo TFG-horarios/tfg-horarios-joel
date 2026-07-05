@@ -8,6 +8,10 @@ import {
   type RegisterDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import {
+  createApiResponseError,
+  getActionErrorMessage,
+} from '@/lib/api/errors';
 import { redirect } from 'next/navigation';
 import { clearAuthSession, setAuthSession } from '@/lib/auth/session';
 
@@ -36,15 +40,11 @@ export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
         return { success: false, message: tLogin('invalidCredentials') };
       }
 
-      let responseMessage = tErrors('server');
-      try {
-        const errorBody = (await response.json()) as { message?: string };
-        responseMessage = errorBody.message ?? responseMessage;
-      } catch (error) {
-        void error;
-      }
-
-      return { success: false, message: responseMessage };
+      return {
+        success: false,
+        message: (await createApiResponseError(response, tErrors('server')))
+          .message,
+      };
     }
 
     const { token } = await response.json();
@@ -53,7 +53,7 @@ export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
   redirect('/organizations');
@@ -77,7 +77,9 @@ export async function registerAction(
       json: parsedInput.data,
     });
 
-    if (!response.ok) throw new Error(tErrors('server'));
+    if (!response.ok) {
+      throw await createApiResponseError(response, tErrors('server'));
+    }
 
     const { token } = await response.json();
 
@@ -85,7 +87,7 @@ export async function registerAction(
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : tErrors('generic'),
+      message: getActionErrorMessage(error, tErrors('generic')),
     };
   }
   redirect('/organizations');

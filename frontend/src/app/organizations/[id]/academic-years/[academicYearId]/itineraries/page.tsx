@@ -74,7 +74,7 @@ export default async function OrganizationItinerariesPage({
       getSessionUser(),
     ]);
 
-  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const memberRole = user ? await getOrganizationMemberRole(id) : null;
   const isAdmin = memberRole === 'admin';
   const isEditor = memberRole === 'editor';
   const canCreate = isAdmin || isEditor;

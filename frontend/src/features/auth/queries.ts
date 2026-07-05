@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { jwtDecode } from 'jwt-decode';
-import type { UserDTO } from '@tfg-horarios/shared';
+import { UserSchema } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 
 export async function getSessionUser() {
@@ -14,18 +14,14 @@ export async function getSessionUser() {
       return null;
     }
 
-    try {
-      const client = await getServerClient();
-      const res = await client.api.users.me.$get();
-      if (res.ok) {
-        return (await res.json()) as UserDTO;
-      }
-    } catch (error) {
-      void error;
+    const client = await getServerClient();
+    const res = await client.api.users.me.$get();
+    if (res.ok) {
+      return UserSchema.parse(await res.json());
     }
-
-    return decoded as UserDTO;
   } catch {
     return null;
   }
+
+  return null;
 }

@@ -132,7 +132,7 @@ export default async function OrganizationSchedulesPage({
     getSessionUser(),
   ]);
 
-  const memberRole = user ? await getOrganizationMemberRole(id, user.id) : null;
+  const memberRole = user ? await getOrganizationMemberRole(id) : null;
   const isAdmin = memberRole === 'admin';
   const isEditor = memberRole === 'editor';
   const canGenerate = isAdmin || isEditor;
