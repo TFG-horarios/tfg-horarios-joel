@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import {
+  useState,
+  useTransition,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, Building2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,51 +66,99 @@ export function ReservationPlanner({
   classrooms,
   academicYear,
 }: ReservationPlannerProps) {
-  const [selectedClassroom, setSelectedClassroom] = useState<string>('');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [classroomOpen, setClassroomOpen] = useState(false);
 
-  const validStarts = [
-    academicYear.period0Start,
-    academicYear.period1Start,
-    academicYear.period2Start,
-  ].filter(Boolean) as string[];
+  const validStarts = useMemo(
+    () =>
+      [
+        academicYear.period0Start,
+        academicYear.period1Start,
+        academicYear.period2Start,
+      ].filter(Boolean) as string[],
+    [
+      academicYear.period0Start,
+      academicYear.period1Start,
+      academicYear.period2Start,
+    ]
+  );
 
-  const validEnds = [
-    academicYear.period0End,
-    academicYear.period1End,
-    academicYear.period2End,
-  ].filter(Boolean) as string[];
+  const validEnds = useMemo(
+    () =>
+      [
+        academicYear.period0End,
+        academicYear.period1End,
+        academicYear.period2End,
+      ].filter(Boolean) as string[],
+    [academicYear.period0End, academicYear.period1End, academicYear.period2End]
+  );
 
-  const isDateDisabled = (date: Date) => {
-    const day = date.getDay();
-    if (day === 0 || day === 6) return true;
+  const selectedClassroomParam = searchParams.get('classroomId');
+  const selectedClassroom = classrooms.some(
+    (classroom) => classroom.id === selectedClassroomParam
+  )
+    ? selectedClassroomParam!
+    : '';
 
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
-    if (dateStr < tomorrowStr) return true;
+  const updatePlannerParams = useCallback(
+    (updates: { classroomId?: string; date?: Date }) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    if (validStarts.length > 0) {
-      const minStartStr = validStarts.reduce(
-        (min, cur) => (cur < min ? cur : min),
-        validStarts[0]!
-      );
-      if (dateStr < minStartStr) return true;
-    }
+      if (updates.classroomId !== undefined) {
+        if (updates.classroomId) {
+          params.set('classroomId', updates.classroomId);
+        } else {
+          params.delete('classroomId');
+        }
+      }
 
-    if (validEnds.length > 0) {
-      const maxEndStr = validEnds.reduce(
-        (max, cur) => (cur > max ? cur : max),
-        validEnds[0]!
-      );
-      if (dateStr > maxEndStr) return true;
-    }
+      if (updates.date !== undefined) {
+        params.set('date', format(updates.date, 'yyyy-MM-dd'));
+      }
 
-    return false;
-  };
+      const queryString = params.toString();
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams]
+  );
 
-  const getInitialDate = () => {
+  const isDateDisabled = useCallback(
+    (date: Date) => {
+      const day = date.getDay();
+      if (day === 0 || day === 6) return true;
+
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
+      if (dateStr < tomorrowStr) return true;
+
+      if (validStarts.length > 0) {
+        const minStartStr = validStarts.reduce(
+          (min, cur) => (cur < min ? cur : min),
+          validStarts[0]!
+        );
+        if (dateStr < minStartStr) return true;
+      }
+
+      if (validEnds.length > 0) {
+        const maxEndStr = validEnds.reduce(
+          (max, cur) => (cur > max ? cur : max),
+          validEnds[0]!
+        );
+        if (dateStr > maxEndStr) return true;
+      }
+
+      return false;
+    },
+    [validEnds, validStarts]
+  );
+
+  const getInitialDate = useCallback(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
@@ -141,13 +196,29 @@ export function ReservationPlanner({
       d.setDate(d.getDate() + 2);
     }
     return d;
-  };
+  }, [validEnds, validStarts]);
 
-  const [selectedDate, setSelectedDate] = useState<Date>(getInitialDate);
+  const selectedDate = useMemo(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      const [year, month, day] = dateParam.split('-').map(Number);
+      const parsedDate = new Date(year!, month! - 1, day);
+
+      if (
+        parsedDate.getFullYear() === year &&
+        parsedDate.getMonth() === month! - 1 &&
+        parsedDate.getDate() === day &&
+        !isDateDisabled(parsedDate)
+      ) {
+        return parsedDate;
+      }
+    }
+
+    return getInitialDate();
+  }, [getInitialDate, isDateDisabled, searchParams]);
 
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<{
     day: number;
     date: Date;
@@ -160,7 +231,7 @@ export function ReservationPlanner({
   const [customStartTime, setCustomStartTime] = useState('');
   const [customEndTime, setCustomEndTime] = useState('');
 
-  const getMonday = (d: Date) => {
+  const getMonday = useCallback((d: Date) => {
     const day = d.getDay();
     let diff = d.getDate();
     if (day === 0) {
@@ -171,32 +242,46 @@ export function ReservationPlanner({
       diff += 1 - day;
     }
     return new Date(d.setDate(diff));
-  };
-  const weekStart = getMonday(new Date(selectedDate));
-  const daysOfWeek = Array.from({ length: 5 }).map((_, i) => {
-    const date = new Date(weekStart);
-    date.setDate(date.getDate() + i);
-    return {
-      value: i,
-      label: date.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        day: 'numeric',
+  }, []);
+  const weekStart = useMemo(
+    () => getMonday(new Date(selectedDate)),
+    [getMonday, selectedDate]
+  );
+  const daysOfWeek = useMemo(
+    () =>
+      Array.from({ length: 5 }).map((_, i) => {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + i);
+        return {
+          value: i,
+          label: date.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+          }),
+          date,
+        };
       }),
-      date,
-    };
-  });
+    [weekStart]
+  );
 
   const [occupiedSlots, setOccupiedSlots] = useState<
     (OccupiedSlotDTO & { day: number })[]
   >([]);
+  const [occupiedSlotsLoading, setOccupiedSlotsLoading] = useState(false);
+  const [occupiedSlotsError, setOccupiedSlotsError] = useState<string | null>(
+    null
+  );
 
-  useEffect(() => {
+  const fetchOccupiedSlots = useCallback(async () => {
     if (!selectedClassroom) {
       setOccupiedSlots([]);
+      setOccupiedSlotsError(null);
       return;
     }
 
-    const fetchOccupied = async () => {
+    setOccupiedSlotsLoading(true);
+    setOccupiedSlotsError(null);
+    try {
       const datesToFetch = daysOfWeek.map((d) => format(d.date, 'yyyy-MM-dd'));
       const result = await fetchOccupiedSlotsAction(
         organization.id,
@@ -223,17 +308,24 @@ export function ReservationPlanner({
         });
 
         setOccupiedSlots(newOccupied);
+      } else {
+        setOccupiedSlots([]);
+        setOccupiedSlotsError(
+          result.message || 'No se pudo cargar la ocupación del aula'
+        );
       }
-    };
+    } catch (error) {
+      console.error(error);
+      setOccupiedSlots([]);
+      setOccupiedSlotsError('No se pudo cargar la ocupación del aula');
+    } finally {
+      setOccupiedSlotsLoading(false);
+    }
+  }, [academicYear.id, daysOfWeek, organization.id, selectedClassroom]);
 
-    fetchOccupied();
-  }, [
-    selectedClassroom,
-    weekStart.getTime(),
-    academicYear,
-    organization.id,
-    refreshTrigger,
-  ]);
+  useEffect(() => {
+    void fetchOccupiedSlots();
+  }, [fetchOccupiedSlots]);
 
   useEffect(() => {
     if (!selectedClassroom) return;
@@ -243,7 +335,7 @@ export function ReservationPlanner({
     );
 
     eventSource.addEventListener('reservation_updated', () => {
-      setRefreshTrigger((prev) => prev + 1);
+      void fetchOccupiedSlots();
     });
 
     eventSource.onerror = (error) => {
@@ -253,7 +345,7 @@ export function ReservationPlanner({
     return () => {
       eventSource.close();
     };
-  }, [selectedClassroom, organization.id, modalOpen]);
+  }, [fetchOccupiedSlots, organization.id, selectedClassroom]);
 
   const handleEmptyClick = (selection: {
     day: { value: number; date?: Date };
@@ -317,7 +409,7 @@ export function ReservationPlanner({
         setModalOpen(false);
         setSelectedSlot(null);
         setReason('');
-        setRefreshTrigger((prev) => prev + 1);
+        void fetchOccupiedSlots();
       } else {
         toast.error(result.message || 'Error al procesar la reserva');
       }
@@ -372,7 +464,7 @@ export function ReservationPlanner({
                           selectedClassroom === c.id ? 'checked' : 'unchecked'
                         }
                         onSelect={() => {
-                          setSelectedClassroom(c.id);
+                          updatePlannerParams({ classroomId: c.id });
                           setClassroomOpen(false);
                         }}
                       >
@@ -395,7 +487,7 @@ export function ReservationPlanner({
               value={selectedDate}
               onChange={(date) => {
                 if (date) {
-                  setSelectedDate(date);
+                  updatePlannerParams({ date });
                 }
               }}
               disabled={isDateDisabled}
@@ -415,6 +507,17 @@ export function ReservationPlanner({
                 Debes seleccionar un aula para ver su horario disponible
               </p>
             </div>
+          </div>
+        )}
+        {selectedClassroom && occupiedSlotsLoading && (
+          <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
+            <Loader2 className="size-4 animate-spin" />
+            Cargando ocupación...
+          </div>
+        )}
+        {selectedClassroom && occupiedSlotsError && (
+          <div className="absolute right-4 top-4 z-10 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive shadow-sm">
+            {occupiedSlotsError}
           </div>
         )}
 

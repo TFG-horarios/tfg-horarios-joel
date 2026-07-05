@@ -17,6 +17,10 @@ import { fetchPaginatedActiveClassroomConfigurationsAction } from '@/features/cl
 import { ClassroomScheduleCard } from '@/features/classroom-schedule/components/classroom-schedule-card';
 import { ClassroomScheduleRow } from '@/features/classroom-schedule/components/classroom-schedule-row';
 import type { ClassroomConfigurationListQueryDTO } from '@tfg-horarios/shared';
+import {
+  parseOptionalNumberParam,
+  parsePositiveIntParam,
+} from '@/lib/utils/search-params';
 
 type OrganizationClassroomSchedulesPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -31,7 +35,7 @@ export default async function OrganizationClassroomSchedulesPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-classroom-schedules')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -43,12 +47,10 @@ export default async function OrganizationClassroomSchedulesPage({
 
   const query: ClassroomConfigurationListQueryDTO & { view?: string } = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     academicYearId,
@@ -58,10 +60,7 @@ export default async function OrganizationClassroomSchedulesPage({
         rawSearchParams.shift === 'afternoon')
         ? rawSearchParams.shift
         : undefined,
-    period:
-      typeof rawSearchParams.period === 'string'
-        ? parseInt(rawSearchParams.period, 10)
-        : undefined,
+    period: parseOptionalNumberParam(rawSearchParams.period),
     type:
       typeof rawSearchParams.type === 'string' &&
       (rawSearchParams.type === 'theory' ||

@@ -6,6 +6,7 @@ import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchClassroomOccupancy } from '@/features/classroom-schedule/queries';
 import { ClassroomSchedulePlanner } from '@/features/classroom-schedule/components/classroom-schedule-planner';
+import { parseOptionalNumberParam } from '@/lib/utils/search-params';
 
 type ClassroomScheduleDetailPageProps = {
   params: Promise<{ id: string; academicYearId: string; classroomId: string }>;
@@ -25,10 +26,7 @@ export default async function ClassroomScheduleDetailPage({
       rawSearchParams.shift === 'afternoon')
       ? rawSearchParams.shift
       : undefined;
-  const period =
-    typeof rawSearchParams.period === 'string'
-      ? parseInt(rawSearchParams.period, 10)
-      : undefined;
+  const period = parseOptionalNumberParam(rawSearchParams.period);
 
   if (!shift || !period) {
     notFound();

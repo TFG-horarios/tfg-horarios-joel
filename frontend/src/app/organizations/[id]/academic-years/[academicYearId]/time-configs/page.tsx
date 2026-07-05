@@ -17,6 +17,7 @@ import {
 import { TimeConfigManager } from '@/features/schedule-time-config/components/time-config-manager';
 import { fetchAllDegrees } from '@/features/degree/queries';
 import { fetchAllItineraries } from '@/features/itinerary/queries';
+import { parseOptionalNumberParam } from '@/lib/utils/search-params';
 
 type TimeConfigsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -75,6 +76,8 @@ export default async function TimeConfigsPage({
   const activeItineraries = allItineraries.filter(
     (itinerary) => !itinerary.deletedAt
   );
+  const courseYearFilter = parseOptionalNumberParam(rawSearchParams.courseYear);
+  const periodFilter = parseOptionalNumberParam(rawSearchParams.period);
   const courseYears =
     possibilities.length > 0
       ? Array.from(new Set(possibilities.map((p) => p.courseYear))).sort(
@@ -114,10 +117,8 @@ export default async function TimeConfigsPage({
         (rawSearchParams.itineraryId === 'common'
           ? possibility.itineraryId === null
           : rawSearchParams.itineraryId === possibility.itineraryId)) &&
-      (!rawSearchParams.courseYear ||
-        Number(rawSearchParams.courseYear) === possibility.courseYear) &&
-      (!rawSearchParams.period ||
-        Number(rawSearchParams.period) === possibility.period) &&
+      (!courseYearFilter || courseYearFilter === possibility.courseYear) &&
+      (!periodFilter || periodFilter === possibility.period) &&
       (!rawSearchParams.shift || rawSearchParams.shift === possibility.shift) &&
       (!rawSearchParams.status || rawSearchParams.status === status)
     );

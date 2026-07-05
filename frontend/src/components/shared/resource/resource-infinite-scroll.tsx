@@ -34,19 +34,19 @@ function ResourceInfiniteScrollBase<
   itemProps,
   keyProp,
 }: ResourceInfiniteScrollProps<T, TItemProps>) {
-  const [prevInitialItems, setPrevInitialItems] = useState(initialItems);
   const [meta, setMeta] = useState(initialMeta);
   const [items, setItems] = useState<T[]>(initialItems);
   const [loading, setLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const prevInitialItemsRef = useRef(initialItems);
 
   useEffect(() => {
-    if (initialItems !== prevInitialItems) {
-      setPrevInitialItems(initialItems);
+    if (initialItems !== prevInitialItemsRef.current) {
+      prevInitialItemsRef.current = initialItems;
       setItems(initialItems);
       setMeta(initialMeta);
     }
-  }, [initialItems, initialMeta, prevInitialItems]);
+  }, [initialItems, initialMeta]);
 
   const handleLoadMore = useCallback(async () => {
     if (loading || meta.page >= meta.totalPages) return;

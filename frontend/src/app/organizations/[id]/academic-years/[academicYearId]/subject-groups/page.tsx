@@ -25,6 +25,10 @@ import {
 } from '@tfg-horarios/shared';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
+import {
+  parseOptionalNumberParam,
+  parsePositiveIntParam,
+} from '@/lib/utils/search-params';
 
 type OrganizationSubjectGroupsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -39,7 +43,7 @@ export default async function OrganizationSubjectGroupsPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-subject-groups')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -51,12 +55,10 @@ export default async function OrganizationSubjectGroupsPage({
 
   const query: SubjectGroupListQueryDTO & { view?: string } = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     subjectId:
@@ -82,10 +84,7 @@ export default async function OrganizationSubjectGroupsPage({
       typeof rawSearchParams.itineraryId === 'string'
         ? rawSearchParams.itineraryId
         : undefined,
-    year:
-      typeof rawSearchParams.year === 'string'
-        ? Number(rawSearchParams.year)
-        : undefined,
+    year: parseOptionalNumberParam(rawSearchParams.year),
     needsComputerLab:
       typeof rawSearchParams.needsComputerLab === 'string' &&
       (rawSearchParams.needsComputerLab === 'true' ||

@@ -21,6 +21,7 @@ import { ResourceFilterInput } from '@/components/shared/resource/resource-filte
 import { ResourceFilterSelect } from '@/components/shared/resource/resource-filter-select';
 import { ResourceFilterClear } from '@/components/shared/resource/resource-filter-clear';
 import type { MemberListQueryDTO } from '@tfg-horarios/shared';
+import { parsePositiveIntParam } from '@/lib/utils/search-params';
 
 type OrganizationMembersPageProps = {
   params: Promise<{ id: string }>;
@@ -35,7 +36,7 @@ export default async function OrganizationMembersPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-members')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -47,12 +48,10 @@ export default async function OrganizationMembersPage({
 
   const query: MemberListQueryDTO & { view?: string } = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     name:
       typeof rawSearchParams.name === 'string'
         ? rawSearchParams.name

@@ -27,6 +27,10 @@ import { ScheduleRow } from '@/features/schedule/components/schedule-row';
 import type { ScheduleListQueryDTO } from '@tfg-horarios/shared';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
+import {
+  parseOptionalNumberParam,
+  parsePositiveIntParam,
+} from '@/lib/utils/search-params';
 
 type ConflictFilter = NonNullable<ScheduleListQueryDTO['hasConflicts']>;
 
@@ -51,7 +55,7 @@ export default async function OrganizationSchedulesPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-schedules')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -63,12 +67,10 @@ export default async function OrganizationSchedulesPage({
 
   const query: ScheduleListQueryDTO & { view?: string } = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     academicYearId,
     degreeId:
       typeof rawSearchParams.degreeId === 'string'
@@ -84,14 +86,8 @@ export default async function OrganizationSchedulesPage({
         rawSearchParams.shift === 'afternoon')
         ? rawSearchParams.shift
         : undefined,
-    courseYear:
-      typeof rawSearchParams.courseYear === 'string'
-        ? parseInt(rawSearchParams.courseYear, 10)
-        : undefined,
-    period:
-      typeof rawSearchParams.period === 'string'
-        ? parseInt(rawSearchParams.period, 10)
-        : undefined,
+    courseYear: parseOptionalNumberParam(rawSearchParams.courseYear),
+    period: parseOptionalNumberParam(rawSearchParams.period),
     status:
       typeof rawSearchParams.status === 'string' &&
       (rawSearchParams.status === 'draft' ||

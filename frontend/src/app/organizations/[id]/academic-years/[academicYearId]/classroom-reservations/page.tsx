@@ -27,6 +27,7 @@ import Link from 'next/link';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
 import { type ClassroomDTO } from '@tfg-horarios/shared';
+import { parsePositiveIntParam } from '@/lib/utils/search-params';
 
 type OrganizationClassroomReservationsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -41,7 +42,7 @@ export default async function OrganizationClassroomReservationsPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-classroom-reservations')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -53,12 +54,10 @@ export default async function OrganizationClassroomReservationsPage({
 
   const query = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     status:
       typeof rawSearchParams.status === 'string' &&
       ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'].includes(

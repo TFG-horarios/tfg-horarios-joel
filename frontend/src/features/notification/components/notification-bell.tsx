@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Bell, Check } from 'lucide-react';
 import { useSession } from '@/components/providers/session-provider';
 import {
@@ -31,10 +31,13 @@ import { es } from 'date-fns/locale';
 export function NotificationBell() {
   const { user } = useSession();
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
+  const unreadCount = useMemo(
+    () => notifications.filter((notification) => !notification.isRead).length,
+    [notifications]
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -48,7 +51,6 @@ export function NotificationBell() {
         limit: 10,
       });
       setNotifications(res.data);
-      setUnreadCount(res.data.filter((n) => !n.isRead).length);
       setHasFetched(true);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -72,7 +74,6 @@ export function NotificationBell() {
       try {
         const newNotification = parseEventData(e, NotificationSchema);
         setNotifications((prev) => [newNotification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
 
         if (newNotification.type === 'SUCCESS')
           toast.success(newNotification.title, {
@@ -107,7 +108,6 @@ export function NotificationBell() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error(error);
       toast.error('Error al marcar como leída');
@@ -120,7 +120,6 @@ export function NotificationBell() {
       const result = await markAllNotificationsReadAction(user.id);
       if (!result.success) throw new Error(result.message);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
     } catch (error) {
       console.error(error);
       toast.error('Error al marcar todas como leídas');

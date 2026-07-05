@@ -18,6 +18,10 @@ import { ClassroomRow } from '@/features/classroom/components/classroom-row';
 import { fetchPaginatedClassroomsAction } from '@/features/classroom/actions';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
+import {
+  parseOptionalNumberParam,
+  parsePositiveIntParam,
+} from '@/lib/utils/search-params';
 
 type OrganizationClassroomsPageProps = {
   params: Promise<{ id: string }>;
@@ -32,7 +36,7 @@ export default async function OrganizationClassroomsPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-classrooms')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -44,12 +48,10 @@ export default async function OrganizationClassroomsPage({
 
   const query = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     type:
@@ -58,14 +60,8 @@ export default async function OrganizationClassroomsPage({
       rawSearchParams.type === 'computer_lab'
         ? (rawSearchParams.type as 'theory' | 'lab' | 'computer_lab')
         : undefined,
-    minCapacity:
-      typeof rawSearchParams.minCapacity === 'string'
-        ? Number(rawSearchParams.minCapacity)
-        : undefined,
-    maxCapacity:
-      typeof rawSearchParams.maxCapacity === 'string'
-        ? Number(rawSearchParams.maxCapacity)
-        : undefined,
+    minCapacity: parseOptionalNumberParam(rawSearchParams.minCapacity),
+    maxCapacity: parseOptionalNumberParam(rawSearchParams.maxCapacity),
   };
 
   const t = await getTranslations('Organizations.classrooms');

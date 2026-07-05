@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Archive, Calendar, Download, Loader2, MapPin } from 'lucide-react';
@@ -28,16 +28,11 @@ export function SchedulePlannerReadOnly({
 }: SchedulePlannerProps) {
   const router = useRouter();
   const t = useTranslations('Organizations.schedules');
-  const [slots, setSlots] = useState(initialSlots);
   const { isExportingPDF, gridRef, exportPDF } = useScheduleExport();
   const { slotTimeLabels, numSlots, startSlotIndex, rows } = useScheduleGrid(
     academicYear,
     timeConfig
   );
-
-  useEffect(() => {
-    setSlots(initialSlots);
-  }, [initialSlots]);
 
   useEffect(() => {
     const eventSource = createApiEventSource(
@@ -78,8 +73,8 @@ export function SchedulePlannerReadOnly({
   );
 
   const slotsByCell = useMemo(() => {
-    const map = new Map<string, typeof slots>();
-    slots.forEach((slot) => {
+    const map = new Map<string, typeof initialSlots>();
+    initialSlots.forEach((slot) => {
       if (slot.dayOfWeek === null || slot.slotIndex === null) return;
       const key = `${slot.dayOfWeek}_${slot.slotIndex}`;
       const current = map.get(key) ?? [];
@@ -87,17 +82,17 @@ export function SchedulePlannerReadOnly({
       map.set(key, current);
     });
     return map;
-  }, [slots]);
+  }, [initialSlots]);
 
   const unassignedSlots = useMemo(
     () =>
-      slots.filter(
+      initialSlots.filter(
         (slot) =>
           slot.classroomId === null ||
           slot.dayOfWeek === null ||
           slot.slotIndex === null
       ),
-    [slots]
+    [initialSlots]
   );
 
   const daysOfWeek = [

@@ -25,6 +25,10 @@ import { fetchPaginatedSubjectsAction } from '@/features/subject/actions';
 import type { SubjectListQueryDTO } from '@tfg-horarios/shared';
 import { getSessionUser } from '@/features/auth/queries';
 import { getOrganizationMemberRole } from '@/features/members/queries';
+import {
+  parseOptionalNumberParam,
+  parsePositiveIntParam,
+} from '@/lib/utils/search-params';
 
 type OrganizationSubjectsPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;
@@ -39,7 +43,7 @@ export default async function OrganizationSubjectsPage({
   const cookieStore = await cookies();
   const viewCookie = cookieStore.get('view-subjects')?.value;
   const limitCookie = cookieStore.get('table-limit')?.value;
-  const defaultTableLimit = limitCookie ? parseInt(limitCookie, 10) : 8;
+  const defaultTableLimit = parsePositiveIntParam(limitCookie, 8) ?? 8;
   const rawSearchParams = await searchParams;
 
   const currentView =
@@ -51,12 +55,10 @@ export default async function OrganizationSubjectsPage({
 
   const query: SubjectListQueryDTO & { view?: string } = {
     view: currentView,
-    page: rawSearchParams.page ? Number(rawSearchParams.page) : 1,
-    limit: rawSearchParams.limit
-      ? Number(rawSearchParams.limit)
-      : currentView === 'table'
-        ? defaultTableLimit
-        : 12,
+    page: parsePositiveIntParam(rawSearchParams.page, 1) ?? 1,
+    limit:
+      parsePositiveIntParam(rawSearchParams.limit) ??
+      (currentView === 'table' ? defaultTableLimit : 12),
     search:
       typeof rawSearchParams.q === 'string' ? rawSearchParams.q : undefined,
     code:
@@ -69,10 +71,7 @@ export default async function OrganizationSubjectsPage({
         rawSearchParams.shift === 'afternoon')
         ? rawSearchParams.shift
         : undefined,
-    period:
-      typeof rawSearchParams.period === 'string'
-        ? Number(rawSearchParams.period)
-        : undefined,
+    period: parseOptionalNumberParam(rawSearchParams.period),
     itineraryId:
       typeof rawSearchParams.itineraryId === 'string'
         ? rawSearchParams.itineraryId
@@ -81,10 +80,7 @@ export default async function OrganizationSubjectsPage({
       typeof rawSearchParams.degreeId === 'string'
         ? rawSearchParams.degreeId
         : undefined,
-    courseYear:
-      typeof rawSearchParams.courseYear === 'string'
-        ? Number(rawSearchParams.courseYear)
-        : undefined,
+    courseYear: parseOptionalNumberParam(rawSearchParams.courseYear),
   };
 
   const t = await getTranslations('Organizations.subjects');
