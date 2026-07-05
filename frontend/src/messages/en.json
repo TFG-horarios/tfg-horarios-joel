@@ -75,6 +75,12 @@
     "navigation": {
       "contextual": "Contextual navigation"
     },
+    "routeStates": {
+      "loadingTitle": "Preparing the screen",
+      "loadingDescription": "We are loading the required information.",
+      "errorTitle": "The screen could not be loaded",
+      "errorDescription": "Try again. If the problem continues, come back later."
+    },
     "pagination": {
       "previous": "Previous",
       "next": "Next"
@@ -321,6 +327,9 @@
       "description": "Set up the basic parameters for your organization.",
       "editTitle": "Edit organization",
       "editDescription": "Modify the organization's details."
+    },
+    "empty": {
+      "searchResults": "No organizations match your search."
     },
     "detail": {
       "label": "Organization details",

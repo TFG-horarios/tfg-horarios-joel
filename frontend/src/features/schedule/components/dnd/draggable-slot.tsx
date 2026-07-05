@@ -55,7 +55,11 @@ export const DraggableSlot = memo(function DraggableSlot({
 }: DraggableSlotProps) {
   const { isDragging, ref, handleRef } = useDraggable({
     id: slot.id,
-    data: { slot, subject, group },
+    data: {
+      slotId: slot.id,
+      subjectGroupId: slot.subjectGroupId,
+      subjectId: subject.id,
+    },
     disabled,
   });
 

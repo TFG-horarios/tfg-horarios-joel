@@ -6,10 +6,11 @@ import { TableCell } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
 import { ResourceDeleteAction } from './resource-delete-action';
 import type { ReactNode } from 'react';
+import type { ResourceDeleteHandler } from './resource-delete-action';
 
 export interface ResourceRowActionsProps {
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete?: ResourceDeleteHandler;
   onView?: () => void;
   itemName?: string;
   deleteTitle?: string;

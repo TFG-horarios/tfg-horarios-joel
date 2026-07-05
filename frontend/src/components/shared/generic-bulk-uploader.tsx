@@ -76,6 +76,7 @@ export function GenericBulkUploader<TData>({
   const [step, setStep] = useState<Step>('upload');
   const [issues, setIssues] = useState<CsvRowIssue[]>([]);
   const [validData, setValidData] = useState<TData[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const t = useTranslations('Common.bulkUploader');
 
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +86,7 @@ export function GenericBulkUploader<TData>({
     setStep('analyzing');
     setIssues([]);
     setValidData([]);
+    setUploadError(null);
 
     Papa.parse<Record<string, string>>(file, {
       header: true,
@@ -191,6 +193,7 @@ export function GenericBulkUploader<TData>({
 
   const handleConfirmUpload = async () => {
     setStep('uploading');
+    setUploadError(null);
     try {
       if (onBeforeUpload) {
         await onBeforeUpload(mode, validData);
@@ -200,7 +203,7 @@ export function GenericBulkUploader<TData>({
     } catch (err) {
       console.error('Upload error', err);
       setStep('review');
-      alert(t('saveError'));
+      setUploadError(t('saveError'));
     }
   };
 
@@ -208,6 +211,7 @@ export function GenericBulkUploader<TData>({
     setStep('upload');
     setIssues([]);
     setValidData([]);
+    setUploadError(null);
   };
 
   if (step === 'success') {
@@ -452,19 +456,26 @@ export function GenericBulkUploader<TData>({
             </Tabs>
           </CardContent>
 
-          <div className="flex items-center justify-end gap-3 border-t border-white/10 bg-white/5 p-4">
-            <Button variant="outline" onClick={reset}>
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={handleConfirmUpload}
-              disabled={validData.length === 0 || step === 'uploading'}
-            >
-              {step === 'uploading' && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {t('importRecords', { count: validData.length })}
-            </Button>
+          <div className="space-y-3 border-t border-white/10 bg-white/5 p-4">
+            {uploadError && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {uploadError}
+              </div>
+            )}
+            <div className="flex items-center justify-end gap-3">
+              <Button variant="outline" onClick={reset}>
+                {t('cancel')}
+              </Button>
+              <Button
+                onClick={handleConfirmUpload}
+                disabled={validData.length === 0 || step === 'uploading'}
+              >
+                {step === 'uploading' && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {t('importRecords', { count: validData.length })}
+              </Button>
+            </div>
           </div>
         </Card>
       </div>

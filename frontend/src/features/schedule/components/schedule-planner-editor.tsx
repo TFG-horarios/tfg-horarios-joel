@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, memo, useMemo } from 'react';
+import { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
 import { createApiEventSource } from '@/lib/api/realtime';
@@ -283,60 +284,87 @@ export function SchedulePlannerEditor({
     return map;
   }, [slots]);
 
-  const handleUnassignSlot = async (slotId: string) => {
-    const currentSlot = slots.find((s) => s.id === slotId);
-    if (
-      !currentSlot ||
-      (currentSlot.dayOfWeek === null && currentSlot.slotIndex === null)
-    )
-      return;
-
-    const oldSlots = [...slots];
-    const oldScheduleStatus = localSchedule.status;
-
-    setSlots((prev) =>
-      prev.map((s) =>
-        s.id === slotId
-          ? {
-              ...s,
-              dayOfWeek: null,
-              slotIndex: null,
-            }
-          : s
-      )
-    );
-
-    if (localSchedule.status === 'published') {
-      setLocalSchedule((prev) => ({ ...prev, status: 'draft' }));
-    }
-
-    try {
-      const result = await updateScheduleSlotAction(organization.id, slotId, {
-        dayOfWeek: null,
-        slotIndex: null,
-      });
-      if (!result.success) throw new Error(result.message);
-      router.refresh();
-    } catch (err) {
-      setSlots(oldSlots);
-      if (oldScheduleStatus === 'published') {
-        setLocalSchedule((prev) => ({ ...prev, status: 'published' }));
+  const applySlotUpdate = useCallback(
+    async (
+      slotId: string,
+      patch: {
+        classroomId?: string | null;
+        dayOfWeek?: number | null;
+        slotIndex?: number | null;
       }
-      const errorMsg =
-        err instanceof Error ? err.message : t('planner.failedAssign');
-      toast.error(
-        errorMsg.startsWith('ERR_') ? t(`planner.errors.${errorMsg}`) : errorMsg
+    ) => {
+      const result = await updateScheduleSlotAction(
+        organization.id,
+        slotId,
+        patch
       );
-    }
-  };
+      if (!result.success) throw new Error(result.message);
+      return result.data;
+    },
+    [organization.id]
+  );
 
-  const handleEditClassroomClick = (slotId: string) => {
-    const slot = slots.find((s) => s.id === slotId);
-    if (slot) {
-      setEditingSlotId(slotId);
-      setEditingClassroomId(slot.classroomId || 'none');
-    }
-  };
+  const handleUnassignSlot = useCallback(
+    async (slotId: string) => {
+      const currentSlot = slots.find((s) => s.id === slotId);
+      if (
+        !currentSlot ||
+        (currentSlot.dayOfWeek === null && currentSlot.slotIndex === null)
+      )
+        return;
+
+      const oldSlots = [...slots];
+      const oldScheduleStatus = localSchedule.status;
+
+      setSlots((prev) =>
+        prev.map((s) =>
+          s.id === slotId
+            ? {
+                ...s,
+                dayOfWeek: null,
+                slotIndex: null,
+              }
+            : s
+        )
+      );
+
+      if (localSchedule.status === 'published') {
+        setLocalSchedule((prev) => ({ ...prev, status: 'draft' }));
+      }
+
+      try {
+        await applySlotUpdate(slotId, {
+          dayOfWeek: null,
+          slotIndex: null,
+        });
+        router.refresh();
+      } catch (err) {
+        setSlots(oldSlots);
+        if (oldScheduleStatus === 'published') {
+          setLocalSchedule((prev) => ({ ...prev, status: 'published' }));
+        }
+        const errorMsg =
+          err instanceof Error ? err.message : t('planner.failedAssign');
+        toast.error(
+          errorMsg.startsWith('ERR_')
+            ? t(`planner.errors.${errorMsg}`)
+            : errorMsg
+        );
+      }
+    },
+    [applySlotUpdate, localSchedule.status, router, slots, t]
+  );
+
+  const handleEditClassroomClick = useCallback(
+    (slotId: string) => {
+      const slot = slots.find((s) => s.id === slotId);
+      if (slot) {
+        setEditingSlotId(slotId);
+        setEditingClassroomId(slot.classroomId || 'none');
+      }
+    },
+    [slots]
+  );
 
   const handleSaveClassroom = async () => {
     if (!editingSlotId) return;
@@ -351,21 +379,12 @@ export function SchedulePlannerEditor({
         )
       );
 
-      const result = await updateScheduleSlotAction(
-        organization.id,
-        editingSlotId,
-        {
-          classroomId: targetClassroom,
-        }
-      );
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-      if (result.data) {
+      const updatedSlot = await applySlotUpdate(editingSlotId, {
+        classroomId: targetClassroom,
+      });
+      if (updatedSlot) {
         setSlots((prev) =>
-          prev.map((slot) =>
-            slot.id === result.data!.id ? result.data! : slot
-          )
+          prev.map((slot) => (slot.id === updatedSlot.id ? updatedSlot : slot))
         );
       }
       toast.success(
@@ -449,97 +468,113 @@ export function SchedulePlannerEditor({
     [classrooms]
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    if (!canUpdate) return;
-    const active = event.operation.source;
-    setActiveId(active ? String(active.id) : null);
-  };
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      if (!canUpdate) return;
+      const active = event.operation.source;
+      setActiveId(active ? String(active.id) : null);
+    },
+    [canUpdate]
+  );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    if (!canUpdate) return;
-    setActiveId(null);
-    const active = event.operation.source;
-    const over = event.operation.target;
-
-    if (!active || !over) return;
-
-    const slotId = String(active.id);
-    const overId = String(over.id);
-
-    const currentSlot = slots.find((s) => s.id === slotId);
-    if (!currentSlot) return;
-
-    let targetDay: number | null = null;
-    let targetSlot: number | null = null;
-
-    if (overId !== 'unassigned') {
-      const parts = overId.split('_');
-      if (parts.length !== 3 || parts[0] !== 'time') return;
-      targetDay = parseInt(parts[1]!, 10);
-      targetSlot = parseInt(parts[2]!, 10);
-    }
-
-    const targetClassroom = currentSlot.classroomId;
-
-    if (
-      currentSlot.dayOfWeek === targetDay &&
-      currentSlot.slotIndex === targetSlot
-    ) {
-      return;
-    }
-
-    const oldSlots = [...slots];
-    setSlots((prev) =>
-      prev.map((s) =>
-        s.id === slotId
-          ? {
-              ...s,
-              classroomId: targetClassroom,
-              dayOfWeek: targetDay,
-              slotIndex: targetSlot,
-            }
-          : s
-      )
-    );
-
-    try {
-      const result = await updateScheduleSlotAction(organization.id, slotId, {
-        classroomId: targetClassroom,
-        dayOfWeek: targetDay,
-        slotIndex: targetSlot,
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      if (!canUpdate) return;
+      flushSync(() => {
+        setActiveId(null);
       });
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-      router.refresh();
-    } catch (err) {
-      setSlots(oldSlots);
-      const errorMsg =
-        err instanceof Error ? err.message : t('planner.failedAssign');
+      const active = event.operation.source;
+      const over = event.operation.target;
 
-      if (errorMsg.includes('\n')) {
-        const errors = errorMsg.split('\n');
-        toast.error(t('planner.failedAssign'), {
-          description: (
-            <ul className="list-disc pl-4 space-y-1 mt-1">
-              {errors.map((e, i) => {
-                const translated = e.startsWith('ERR_')
-                  ? t(`planner.errors.${e}`)
-                  : e;
-                return <li key={i}>{translated}</li>;
-              })}
-            </ul>
-          ),
-          duration: 5000,
-        });
-      } else {
-        const translated = errorMsg.startsWith('ERR_')
-          ? t(`planner.errors.${errorMsg}`)
-          : errorMsg;
-        toast.error(translated);
+      if (!active || !over) return;
+
+      const slotId = String(active.id);
+      const overId = String(over.id);
+
+      const currentSlot = slots.find((s) => s.id === slotId);
+      if (!currentSlot) return;
+
+      let targetDay: number | null = null;
+      let targetSlot: number | null = null;
+
+      if (overId !== 'unassigned') {
+        const parts = overId.split('_');
+        if (parts.length !== 3 || parts[0] !== 'time') return;
+        targetDay = parseInt(parts[1]!, 10);
+        targetSlot = parseInt(parts[2]!, 10);
       }
-    }
-  };
+
+      if (
+        currentSlot.dayOfWeek === targetDay &&
+        currentSlot.slotIndex === targetSlot
+      ) {
+        return;
+      }
+
+      const oldSlots = [...slots];
+      const oldScheduleStatus = localSchedule.status;
+      flushSync(() => {
+        setSlots((prev) =>
+          prev.map((s) =>
+            s.id === slotId
+              ? {
+                  ...s,
+                  dayOfWeek: targetDay,
+                  slotIndex: targetSlot,
+                }
+              : s
+          )
+        );
+
+        if (
+          (targetDay === null || targetSlot === null) &&
+          localSchedule.status === 'published'
+        ) {
+          setLocalSchedule((prev) => ({ ...prev, status: 'draft' }));
+        }
+      });
+
+      try {
+        await applySlotUpdate(slotId, {
+          dayOfWeek: targetDay,
+          slotIndex: targetSlot,
+        });
+        router.refresh();
+      } catch (err) {
+        flushSync(() => {
+          setSlots(oldSlots);
+          if (oldScheduleStatus === 'published') {
+            setLocalSchedule((prev) => ({ ...prev, status: 'published' }));
+          }
+        });
+        const errorMsg =
+          err instanceof Error ? err.message : t('planner.failedAssign');
+
+        if (errorMsg.includes('\n')) {
+          const errors = errorMsg.split('\n');
+          toast.error(t('planner.failedAssign'), {
+            description: (
+              <ul className="list-disc pl-4 space-y-1 mt-1">
+                {errors.map((e, i) => {
+                  const translated = e.startsWith('ERR_')
+                    ? t(`planner.errors.${e}`)
+                    : e;
+                  return <li key={i}>{translated}</li>;
+                })}
+              </ul>
+            ),
+            duration: 5000,
+          });
+        } else {
+          const translated = errorMsg.startsWith('ERR_')
+            ? t(`planner.errors.${errorMsg}`)
+            : errorMsg;
+          toast.error(translated);
+        }
+      }
+    },
+    [applySlotUpdate, canUpdate, localSchedule.status, router, slots, t]
+  );
 
   const activeSlotDTO = activeId ? slots.find((s) => s.id === activeId) : null;
   const activeMeta = activeSlotDTO

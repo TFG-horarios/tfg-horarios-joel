@@ -8,12 +8,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -225,25 +219,17 @@ export function NotificationBell() {
   );
 
   return (
-    <>
-      <div className="hidden md:block">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
-          <PopoverContent className="w-80 p-0" align="end">
-            {notificationContent}
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div className="block md:hidden">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>{triggerButton}</DialogTrigger>
-          <DialogContent className="w-[calc(100vw-2rem)] sm:w-80 p-0 rounded-2xl overflow-hidden gap-0">
-            <DialogTitle className="sr-only">{t('title')}</DialogTitle>
-            {notificationContent}
-          </DialogContent>
-        </Dialog>
-      </div>
-    </>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
+      <PopoverContent
+        className="w-[calc(100vw-2rem)] p-0 sm:w-80"
+        align="end"
+        side="bottom"
+        sideOffset={8}
+        collisionPadding={16}
+      >
+        {notificationContent}
+      </PopoverContent>
+    </Popover>
   );
 }

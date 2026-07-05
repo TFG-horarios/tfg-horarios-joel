@@ -23,6 +23,7 @@ import { OrganizationForm } from './organization-form';
 import { OrganizationCard } from './organization-card';
 import { type OrganizationDTO } from '@tfg-horarios/shared';
 import { DashboardGrid } from '@/components/layout/dashboard-grid';
+import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
 import { useState, Suspense } from 'react';
 
 type OrganizationsDashboardProps = {
@@ -60,6 +61,7 @@ function DashboardContent({
     organizations.length === 1
       ? t('page.count.one')
       : t('page.count.other', { count: organizations.length });
+  const hasSearchResults = filteredOrganizations.length > 0;
 
   return (
     <DashboardGrid
@@ -86,20 +88,26 @@ function DashboardContent({
         </TooltipProvider>
       }
     >
-      {filteredOrganizations.map((org) => {
-        const userRole = userRolesMap[org.id];
-        const canEdit = userRole === 'admin';
-        const canDelete = userRole === 'admin';
-        return (
-          <OrganizationCard
-            key={org.id}
-            organization={org}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            onEdit={() => setEditingOrganization(org)}
-          />
-        );
-      })}
+      {hasSearchResults ? (
+        filteredOrganizations.map((org) => {
+          const userRole = userRolesMap[org.id];
+          const canEdit = userRole === 'admin';
+          const canDelete = userRole === 'admin';
+          return (
+            <OrganizationCard
+              key={org.id}
+              organization={org}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onEdit={() => setEditingOrganization(org)}
+            />
+          );
+        })
+      ) : (
+        <div className="md:col-span-2 xl:col-span-3">
+          <ResourceEmptyState message={t('empty.searchResults')} />
+        </div>
+      )}
 
       <Card
         role="button"

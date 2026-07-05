@@ -75,6 +75,12 @@
     "navigation": {
       "contextual": "Navegación contextual"
     },
+    "routeStates": {
+      "loadingTitle": "Preparando la pantalla",
+      "loadingDescription": "Estamos cargando la información necesaria.",
+      "errorTitle": "No se ha podido cargar la pantalla",
+      "errorDescription": "Inténtalo de nuevo. Si el problema continúa, vuelve más tarde."
+    },
     "pagination": {
       "previous": "Anterior",
       "next": "Siguiente"
@@ -321,6 +327,9 @@
       "description": "Configura los parámetros básicos de tu organización.",
       "editTitle": "Editar organización",
       "editDescription": "Modifica los detalles de la organización."
+    },
+    "empty": {
+      "searchResults": "No hay organizaciones que coincidan con tu búsqueda."
     },
     "detail": {
       "label": "Detalles de la organización",

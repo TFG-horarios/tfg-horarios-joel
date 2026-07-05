@@ -11,10 +11,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ResourceDeleteAction } from './resource-delete-action';
 import type { ReactNode } from 'react';
+import type { ResourceDeleteHandler } from './resource-delete-action';
 
 export interface ResourceCardActionsProps {
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete?: ResourceDeleteHandler;
   onView?: () => void;
   itemName?: string;
   deleteTitle?: string;

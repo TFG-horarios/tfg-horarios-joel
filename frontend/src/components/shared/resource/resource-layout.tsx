@@ -62,9 +62,9 @@ export function ResourceLayout<
       <div className="flex flex-col gap-4">
         <div
           id="resource-table-container"
-          className="rounded-xl border border-black/10 shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40 overflow-hidden bg-transparent"
+          className="overflow-x-auto overflow-y-hidden rounded-xl border border-black/10 bg-transparent shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40"
         >
-          <Table>
+          <Table className="min-w-[720px]">
             <TableHeader className="bg-black/5 dark:bg-white/5">
               <TableRow>
                 {tableHeaders.map((header, index) => (

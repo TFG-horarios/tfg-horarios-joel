@@ -22,7 +22,7 @@ export const DroppableCell = memo(function DroppableCell({
       className={`
         ${className}
         ${isDropTarget ? 'ring-2 ring-primary ring-offset-1 bg-primary/5 shadow-inner' : ''}
-        transition-all duration-200
+        transition-colors duration-75
       `}
     >
       {children}

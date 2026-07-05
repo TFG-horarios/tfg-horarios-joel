@@ -227,8 +227,8 @@ export function TimeConfigManager({
 
   if (view === 'table') {
     return (
-      <div className="rounded-xl border border-black/10 bg-transparent shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40 overflow-hidden">
-        <Table>
+      <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-black/10 bg-transparent shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/40">
+        <Table className="min-w-[980px]">
           <TableHeader className="bg-black/5 dark:bg-white/5">
             <TableRow>
               <TableHead>{translations.course}</TableHead>
@@ -288,6 +288,7 @@ const TimeConfigCard = memo(function TimeConfigCard({
   canEdit,
   translations,
 }: TimeConfigItemProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const grid = getGrid(academicYear, item.config);
 
@@ -307,7 +308,8 @@ const TimeConfigCard = memo(function TimeConfigCard({
                         organizationId,
                         academicYearId,
                         item.config.id,
-                        translations
+                        translations,
+                        router.refresh
                       )
                     : undefined
                 }
@@ -392,6 +394,7 @@ const TimeConfigRow = memo(function TimeConfigRow({
   canEdit,
   translations,
 }: TimeConfigItemProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const grid = getGrid(academicYear, item.config);
 
@@ -426,7 +429,8 @@ const TimeConfigRow = memo(function TimeConfigRow({
                       organizationId,
                       academicYearId,
                       item.config!.id,
-                      translations
+                      translations,
+                      router.refresh
                     )
                 : undefined
             }
@@ -835,7 +839,8 @@ async function deleteConfig(
   organizationId: string,
   academicYearId: string,
   configId: string,
-  translations: TimeConfigTranslations
+  translations: TimeConfigTranslations,
+  refresh: () => void
 ) {
   const result = await deleteScheduleTimeConfigAction(
     organizationId,
@@ -844,7 +849,9 @@ async function deleteConfig(
   );
   if (result.success) {
     toast.success(translations.success);
+    refresh();
   } else {
     toast.error(result.message || translations.error);
   }
+  return result;
 }
