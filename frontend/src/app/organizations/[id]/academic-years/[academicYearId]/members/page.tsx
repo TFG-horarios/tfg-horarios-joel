@@ -72,12 +72,10 @@ export default async function OrganizationMembersPage({
   const t = await getTranslations('Organizations.members');
   const tm = await getTranslations('Organizations.membersManagement');
 
-  const [organization, sessionUser, { data: members, meta }] =
-    await Promise.all([
-      fetchOrganizationById(id),
-      getSessionUser(),
-      fetchPaginatedMembers(id, query),
-    ]);
+  const [organization, sessionUser] = await Promise.all([
+    fetchOrganizationById(id),
+    getSessionUser(),
+  ]);
 
   if (!organization || !sessionUser) {
     notFound();
@@ -88,6 +86,7 @@ export default async function OrganizationMembersPage({
     notFound();
   }
   const canManage = role === 'admin';
+  const { data: members, meta } = await fetchPaginatedMembers(id, query);
 
   return (
     <OrganizationSectionShell

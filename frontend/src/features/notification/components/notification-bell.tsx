@@ -23,6 +23,12 @@ import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 
+function logNotificationError(message: string, error: unknown) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(message, error);
+  }
+}
+
 export function NotificationBell() {
   const { user } = useSession();
   const locale = useLocale();
@@ -51,7 +57,7 @@ export function NotificationBell() {
       setNotifications(res.data);
       setHasFetched(true);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logNotificationError('Error fetching notifications:', error);
     }
   }, [user]);
 
@@ -89,7 +95,7 @@ export function NotificationBell() {
             description: newNotification.message,
           });
       } catch (err) {
-        console.error('Failed to parse SSE notification', err);
+        logNotificationError('Failed to parse SSE notification', err);
       }
     });
 
@@ -107,7 +113,7 @@ export function NotificationBell() {
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
     } catch (error) {
-      console.error(error);
+      logNotificationError('Error marking notification as read:', error);
       toast.error(t('markReadError'));
     }
   };
@@ -119,7 +125,7 @@ export function NotificationBell() {
       if (!result.success) throw new Error(result.message);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
-      console.error(error);
+      logNotificationError('Error marking all notifications as read:', error);
       toast.error(t('markAllReadError'));
     }
   };

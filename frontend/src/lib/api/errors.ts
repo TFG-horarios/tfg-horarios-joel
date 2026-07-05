@@ -12,14 +12,22 @@ export async function getApiErrorMessage(
   response: Response,
   fallbackMessage: string
 ): Promise<string> {
+  const isSafeErrorCode = (value: string) => /^ERR_[A-Z0-9_]+$/.test(value);
+
   try {
     const payload = (await response.json()) as unknown;
     if (payload && typeof payload === 'object') {
       const errorPayload = payload as Record<string, unknown>;
-      if (typeof errorPayload.message === 'string') {
+      if (
+        typeof errorPayload.message === 'string' &&
+        isSafeErrorCode(errorPayload.message)
+      ) {
         return errorPayload.message;
       }
-      if (typeof errorPayload.error === 'string') {
+      if (
+        typeof errorPayload.error === 'string' &&
+        isSafeErrorCode(errorPayload.error)
+      ) {
         return errorPayload.error;
       }
     }

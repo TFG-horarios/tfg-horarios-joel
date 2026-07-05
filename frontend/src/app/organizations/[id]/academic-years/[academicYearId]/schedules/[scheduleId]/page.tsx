@@ -28,8 +28,22 @@ export default async function SchedulePlannerPage({
 }: SchedulePlannerPageProps) {
   const { id, academicYearId, scheduleId } = await params;
 
+  const [organization, user] = await Promise.all([
+    fetchOrganizationById(id),
+    getSessionUser(),
+  ]);
+
+  if (!organization || !user) {
+    notFound();
+  }
+
+  const memberRole = await getOrganizationMemberRole(id);
+
+  if (!memberRole) {
+    notFound();
+  }
+
   const [
-    organization,
     schedule,
     slots,
     classrooms,
@@ -39,9 +53,7 @@ export default async function SchedulePlannerPage({
     itineraries,
     academicYears,
     timeConfigs,
-    user,
   ] = await Promise.all([
-    fetchOrganizationById(id),
     fetchScheduleById(id, scheduleId),
     fetchScheduleSlots(id, scheduleId),
     fetchAllClassrooms(id, academicYearId),
@@ -51,13 +63,11 @@ export default async function SchedulePlannerPage({
     fetchAllItineraries(id, academicYearId),
     fetchAcademicYears(id),
     fetchScheduleTimeConfigs(id, academicYearId).catch(() => []),
-    getSessionUser(),
   ]);
 
-  const memberRole = user ? await getOrganizationMemberRole(id) : null;
   const canUpdate = memberRole === 'admin' || memberRole === 'editor';
 
-  if (!organization || !schedule) {
+  if (!schedule) {
     notFound();
   }
 

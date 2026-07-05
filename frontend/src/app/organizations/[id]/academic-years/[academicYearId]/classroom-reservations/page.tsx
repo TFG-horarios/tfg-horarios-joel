@@ -73,27 +73,30 @@ export default async function OrganizationClassroomReservationsPage({
     academicYearId,
   };
 
-  const [
-    organization,
-    { data: reservations, meta },
-    classroomsData,
-    user,
-    academicYears,
-  ] = await Promise.all([
+  const [organization, user] = await Promise.all([
     fetchOrganizationById(id),
-    fetchPaginatedReservations(id, query),
-    fetchAllClassrooms(id, academicYearId),
     getSessionUser(),
-    fetchAcademicYears(id),
   ]);
   const t = await getTranslations('Organizations.classroomReservations');
 
-  if (!organization) {
+  if (!organization || !user) {
     notFound();
   }
 
-  const role = user ? await getOrganizationMemberRole(id) : null;
+  const role = await getOrganizationMemberRole(id);
+
+  if (!role) {
+    notFound();
+  }
+
   const isAdminOrEditor = role === 'admin' || role === 'editor';
+
+  const [{ data: reservations, meta }, classroomsData, academicYears] =
+    await Promise.all([
+      fetchPaginatedReservations(id, query),
+      fetchAllClassrooms(id, academicYearId),
+      fetchAcademicYears(id),
+    ]);
 
   let membersMap: Record<string, string> = {};
   if (isAdminOrEditor) {
