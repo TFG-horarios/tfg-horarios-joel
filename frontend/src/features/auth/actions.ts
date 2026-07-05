@@ -12,13 +12,18 @@ import { redirect } from 'next/navigation';
 import { clearAuthSession, setAuthSession } from '@/lib/auth/session';
 
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
   const tErrors = await getTranslations('Common.errors');
   const tLogin = await getTranslations('Auth.login');
   const parsedInput = LoginSchema.safeParse(dto);
   if (!parsedInput.success)
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
 
   try {
     const client = await getServerClient();
@@ -60,7 +65,11 @@ export async function registerAction(
   const tErrors = await getTranslations('Common.errors');
   const parsedInput = RegisterSchema.safeParse(dto);
   if (!parsedInput.success)
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
 
   try {
     const client = await getServerClient();

@@ -10,6 +10,7 @@ import {
   type ScheduleTimeConfigDTO,
   type UpdateScheduleTimeConfigBodyDTO,
 } from '@tfg-horarios/shared';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 import type { ActionResponse } from '@/types/actions';
 
 const path = (organizationId: string, academicYearId: string) =>
@@ -21,8 +22,13 @@ export async function createScheduleTimeConfigAction(
   input: SaveScheduleTimeConfigBodyDTO
 ): Promise<ActionResponse<ScheduleTimeConfigDTO>> {
   const parsed = SaveScheduleTimeConfigBodySchema.safeParse(input);
-  if (!parsed.success)
-    return { success: false, message: 'Configuración no válida' };
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: 'Configuración no válida',
+      errors: zodErrorToActionErrors(parsed.error),
+    };
+  }
   const client = await getServerClient();
   const response = await client.api.organizations[':organizationId']![
     'academic-years'
@@ -45,8 +51,13 @@ export async function updateScheduleTimeConfigAction(
   input: UpdateScheduleTimeConfigBodyDTO
 ): Promise<ActionResponse<ScheduleTimeConfigDTO>> {
   const parsed = UpdateScheduleTimeConfigBodySchema.safeParse(input);
-  if (!parsed.success)
-    return { success: false, message: 'Configuración no válida' };
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: 'Configuración no válida',
+      errors: zodErrorToActionErrors(parsed.error),
+    };
+  }
   const client = await getServerClient();
   const response = await client.api.organizations[':organizationId']![
     'academic-years'

@@ -20,7 +20,7 @@ import { useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
 
 export const SubjectFormSchema = SaveSubjectBodySchema.extend({
-  degreeId: z.string().uuid().optional(),
+  degreeId: z.string().uuid(),
 });
 export type SubjectFormDTO = z.infer<typeof SubjectFormSchema>;
 

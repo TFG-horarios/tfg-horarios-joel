@@ -63,7 +63,11 @@ export function SubjectFormModal({
       return updateSubjectAction(organization.id, subject.id, finalData);
     } else {
       if (!data.degreeId) {
-        return { success: false as const, message: 'El grado es obligatorio' };
+        return {
+          success: false as const,
+          message: 'El grado es obligatorio',
+          errors: { degreeId: ['El grado es obligatorio'] },
+        };
       }
       return createSubjectAction(organization.id, data.degreeId, finalData);
     }

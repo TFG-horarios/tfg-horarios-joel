@@ -57,7 +57,9 @@ import type {
 } from '@tfg-horarios/shared';
 import {
   buildScheduleTimeGrid,
+  SaveScheduleTimeConfigBodySchema,
   type ScheduleTimeGrid,
+  UpdateScheduleTimeConfigBodySchema,
 } from '@tfg-horarios/shared';
 import {
   createScheduleTimeConfigAction,
@@ -538,13 +540,37 @@ function TimeConfigFormModal({
       breakAfterSlot: form.hasBreak ? breakAfterSlot : null,
     };
 
-    if (item.config && hasTimingChanged(item.config, timing)) {
-      setPendingTiming(timing);
+    const parsedTiming = UpdateScheduleTimeConfigBodySchema.safeParse(timing);
+    if (!parsedTiming.success) {
+      toast.error(parsedTiming.error.issues[0]?.message || translations.error);
+      return;
+    }
+
+    if (!item.config) {
+      const parsedConfig = SaveScheduleTimeConfigBodySchema.safeParse({
+        degreeId: item.degreeId,
+        itineraryId: item.itineraryId,
+        courseYear: item.courseYear,
+        period: item.period,
+        shift: item.shift,
+        ...parsedTiming.data,
+      } satisfies SaveScheduleTimeConfigBodyDTO);
+
+      if (!parsedConfig.success) {
+        toast.error(
+          parsedConfig.error.issues[0]?.message || translations.error
+        );
+        return;
+      }
+    }
+
+    if (item.config && hasTimingChanged(item.config, parsedTiming.data)) {
+      setPendingTiming(parsedTiming.data);
       setConfirmOpen(true);
       return;
     }
 
-    saveTiming(timing);
+    saveTiming(parsedTiming.data);
   };
 
   return (

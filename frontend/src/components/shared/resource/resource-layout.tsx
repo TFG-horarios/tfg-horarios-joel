@@ -80,10 +80,10 @@ export function ResourceLayout<
             <TableBody>
               {items.map((item, index) => {
                 const key = item[keyProp] ? String(item[keyProp]) : index;
-                const props = { item, ...tableRowProps } as { item: T } & TRowProps;
-                return (
-                  <TableRowComponent key={key} {...props} />
-                );
+                const props = { item, ...tableRowProps } as {
+                  item: T;
+                } & TRowProps;
+                return <TableRowComponent key={key} {...props} />;
               })}
             </TableBody>
           </Table>

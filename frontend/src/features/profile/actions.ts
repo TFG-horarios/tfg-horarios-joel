@@ -3,20 +3,36 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getServerClient } from '@/lib/api/server';
-import { type UpdatePasswordDTO, type UserDTO } from '@tfg-horarios/shared';
+import {
+  SaveUserBodySchema,
+  UpdatePasswordBodySchema,
+  type SaveUserDTO,
+  type UpdatePasswordDTO,
+  type UserDTO,
+} from '@tfg-horarios/shared';
 import { getTranslations } from 'next-intl/server';
 import { type ActionResponse } from '@/types/actions';
 import { clearAuthSession } from '@/lib/auth/session';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function updateProfileNameAction(
-  name: string
+  dto: SaveUserDTO
 ): Promise<ActionResponse<UserDTO>> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
+  const parsedInput = SaveUserBodySchema.safeParse(dto);
+
+  if (!parsedInput.success) {
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
+  }
 
   try {
     const client = await getServerClient();
-    const res = await client.api.users.me.$patch({ json: { name } });
+    const res = await client.api.users.me.$patch({ json: parsedInput.data });
     if (!res.ok) {
       throw new Error(tErrors('server'));
     }
@@ -42,10 +58,21 @@ export async function updatePasswordAction(
 ): Promise<ActionResponse> {
   const tErrors = await getTranslations('Common.errors');
   const tSuccess = await getTranslations('Common.success');
+  const parsedInput = UpdatePasswordBodySchema.safeParse(dto);
+
+  if (!parsedInput.success) {
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
+  }
 
   try {
     const client = await getServerClient();
-    const res = await client.api.users.me.password.$patch({ json: dto });
+    const res = await client.api.users.me.password.$patch({
+      json: parsedInput.data,
+    });
     if (!res.ok) {
       let responseMessage = tErrors('server');
       try {

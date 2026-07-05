@@ -39,7 +39,10 @@ export interface UseActionFormReturn<
   handleSubmit: (e?: BaseSyntheticEvent) => Promise<void>;
 }
 
-export function useActionForm<TFieldValues extends FieldValues, TData = unknown>({
+export function useActionForm<
+  TFieldValues extends FieldValues,
+  TData = unknown,
+>({
   action,
   schema,
   defaultValues,
@@ -62,7 +65,9 @@ export function useActionForm<TFieldValues extends FieldValues, TData = unknown>
   );
 
   const form = useForm<TFieldValues>({
-    resolver: zodResolver(schema, { error: zodErrorMap }) as Resolver<TFieldValues>,
+    resolver: zodResolver(schema, {
+      error: zodErrorMap,
+    }) as Resolver<TFieldValues>,
     mode: 'onChange',
     defaultValues,
   });

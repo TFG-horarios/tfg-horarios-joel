@@ -19,6 +19,7 @@ import {
   fetchSubjectGroupIdentifiers,
 } from './queries';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedSubjectGroupsAction(
   organizationId: string,
@@ -122,7 +123,11 @@ export async function createSubjectGroupAction(
 
   const parsedInput = SaveSubjectGroupBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -162,7 +167,11 @@ export async function updateSubjectGroupAction(
 
   const parsedInput = SaveSubjectGroupBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

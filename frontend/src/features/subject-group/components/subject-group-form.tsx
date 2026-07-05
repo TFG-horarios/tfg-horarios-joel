@@ -16,7 +16,7 @@ import type { ActionResponse } from '@/types/actions';
 import { z } from 'zod';
 
 export const SubjectGroupFormSchema = SaveSubjectGroupBodySchema.extend({
-  subjectId: z.string().uuid().optional(),
+  subjectId: z.string().uuid(),
 });
 export type SubjectGroupFormDTO = z.infer<typeof SubjectGroupFormSchema>;
 
@@ -54,7 +54,7 @@ export function SubjectGroupForm({
     schema: SubjectGroupFormSchema,
     defaultValues: {
       name: defaultValues?.name ?? '',
-      subjectId: defaultValues?.subjectId,
+      subjectId: defaultValues?.subjectId ?? '',
       groupType: defaultValues?.groupType ?? 'theory',
       shift: defaultValues?.shift ?? 'morning',
       groupNumber: defaultValues?.groupNumber ?? 1,

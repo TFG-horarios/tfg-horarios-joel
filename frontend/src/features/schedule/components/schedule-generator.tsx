@@ -219,7 +219,12 @@ export function ScheduleGenerator({
       const result = await checkScheduleOverwriteAction(organizationId, {
         ...buildScope(),
       });
-      if (result.success && result.data && result.data.length > 0) {
+
+      if (!result.success) {
+        throw new Error(result.message ?? t('actions.generateError'));
+      }
+
+      if (result.data && result.data.length > 0) {
         setOverwrittenSchedules(result.data);
         setIsConfirmOpen(true);
       } else {
@@ -227,6 +232,9 @@ export function ScheduleGenerator({
       }
     } catch (err) {
       console.error(err);
+      toast.error(
+        err instanceof Error ? err.message : t('actions.generateError')
+      );
     } finally {
       setIsChecking(false);
     }

@@ -18,6 +18,7 @@ import {
 } from './queries';
 import type { ClassroomListQueryDTO } from '@tfg-horarios/shared';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedClassroomsAction(
   organizationId: string,
@@ -58,7 +59,11 @@ export async function createClassroomAction(
 
   const parsedInput = SaveClassroomBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -101,7 +106,11 @@ export async function updateClassroomAction(
 
   const parsedInput = SaveClassroomBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

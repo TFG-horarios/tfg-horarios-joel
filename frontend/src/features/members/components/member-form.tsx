@@ -10,10 +10,19 @@ import { useActionForm } from '@/hooks/use-action-form';
 import type { ActionResponse } from '@/types/actions';
 import { z } from 'zod';
 
-export const MemberFormSchema = z.object({
-  email: z.string().email().optional(),
+const BaseMemberFormSchema = z.object({
   role: z.enum(['admin', 'editor', 'viewer']),
 });
+export const CreateMemberFormSchema = BaseMemberFormSchema.extend({
+  email: z.string().email(),
+});
+export const UpdateMemberFormSchema = BaseMemberFormSchema.extend({
+  email: z.string().email().optional(),
+});
+export const MemberFormSchema = z.union([
+  CreateMemberFormSchema,
+  UpdateMemberFormSchema,
+]);
 export type MemberFormDTO = z.infer<typeof MemberFormSchema>;
 
 type MemberFormProps = {
@@ -44,7 +53,7 @@ export function MemberForm({
     MemberDTO | void
   >({
     action,
-    schema: MemberFormSchema,
+    schema: isEditing ? UpdateMemberFormSchema : CreateMemberFormSchema,
     defaultValues: {
       email: isEditing ? undefined : (defaultValues?.email ?? ''),
       role: defaultValues?.role ?? 'viewer',

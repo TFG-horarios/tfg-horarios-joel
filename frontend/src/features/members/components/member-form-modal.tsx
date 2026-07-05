@@ -48,7 +48,11 @@ export function MemberFormModal({
       });
     } else {
       if (!data.email) {
-        return { success: false as const, message: 'El correo es obligatorio' };
+        return {
+          success: false as const,
+          message: 'El correo es obligatorio',
+          errors: { email: ['El correo es obligatorio'] },
+        };
       }
       return addMemberAction(organizationId, {
         email: data.email,

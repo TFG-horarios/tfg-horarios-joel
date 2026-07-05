@@ -56,6 +56,7 @@ export function SubjectGroupFormModal({
         return {
           success: false as const,
           message: 'La asignatura es obligatoria',
+          errors: { subjectId: ['La asignatura es obligatoria'] },
         };
       }
       return createSubjectGroupAction(

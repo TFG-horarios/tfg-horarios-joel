@@ -9,6 +9,7 @@ import {
   type AcademicYearDTO,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 import { type ActionResponse } from '@/types/actions';
 
 export async function createAcademicYearAction(
@@ -20,7 +21,11 @@ export async function createAcademicYearAction(
   const parsedInput = SaveAcademicYearBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -64,7 +69,11 @@ export async function updateAcademicYearAction(
   const parsedInput = SaveAcademicYearBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

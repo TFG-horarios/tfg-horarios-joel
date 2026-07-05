@@ -28,6 +28,7 @@ import {
 } from '@tfg-horarios/shared';
 
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedSchedulesAction(
   organizationId: string,
@@ -66,7 +67,11 @@ export async function generateSchedulesAction(
   const parsedInput = GenerationScopeSchema.safeParse(scope);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -113,7 +118,11 @@ export async function checkScheduleOverwriteAction(
   const parsedInput = GenerationScopeSchema.safeParse(scope);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -149,7 +158,11 @@ export async function checkImportSchedulesOverwriteAction(
   const parsedInput = ImportSchedulesBodySchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -185,7 +198,11 @@ export async function importSchedulesAction(
   const parsedInput = ImportSchedulesBodySchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -312,7 +329,11 @@ export async function updateScheduleSlotAction(
   const parsedInput = SaveScheduleSlotBodySchema.safeParse(dto);
 
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

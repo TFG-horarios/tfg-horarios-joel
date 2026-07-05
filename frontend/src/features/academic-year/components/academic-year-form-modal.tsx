@@ -29,10 +29,11 @@ import {
 import { toast } from 'sonner';
 import { createAcademicYearAction, updateAcademicYearAction } from '../actions';
 import { useRouter } from 'next/navigation';
-import type {
-  AcademicYearDTO,
-  OrganizationDTO,
-  SaveAcademicYearBodyDTO,
+import {
+  SaveAcademicYearBodySchema,
+  type AcademicYearDTO,
+  type OrganizationDTO,
+  type SaveAcademicYearBodyDTO,
 } from '@tfg-horarios/shared';
 
 const formatDate = (date: Date) => {
@@ -105,13 +106,22 @@ export function AcademicYearFormModal({
         slotDurationMinutes,
       };
 
+      const parsedPayload = SaveAcademicYearBodySchema.safeParse(payload);
+      if (!parsedPayload.success) {
+        toast.error(
+          parsedPayload.error.issues[0]?.message ||
+            'Completa los datos del curso académico correctamente'
+        );
+        return;
+      }
+
       const result = academicYear
         ? await updateAcademicYearAction(
             organization.id,
             academicYear.id,
-            payload
+            parsedPayload.data
           )
-        : await createAcademicYearAction(organization.id, payload);
+        : await createAcademicYearAction(organization.id, parsedPayload.data);
 
       if (result.success) {
         toast.success(

@@ -19,6 +19,7 @@ import {
 } from './queries';
 import { SaveSubjectBodySchema } from '@tfg-horarios/shared';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedSubjectsAction(
   organizationId: string,
@@ -122,7 +123,11 @@ export async function createSubjectAction(
 
   const parsedInput = SaveSubjectBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -162,7 +167,11 @@ export async function updateSubjectAction(
 
   const parsedInput = SaveSubjectBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

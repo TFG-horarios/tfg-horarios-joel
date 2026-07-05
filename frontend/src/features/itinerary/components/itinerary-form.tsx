@@ -15,7 +15,7 @@ import type { ActionResponse } from '@/types/actions';
 import { z } from 'zod';
 
 export const ItineraryFormSchema = SaveItineraryBodySchema.extend({
-  degreeId: z.string().uuid().optional(),
+  degreeId: z.string().uuid(),
 });
 export type ItineraryFormDTO = z.infer<typeof ItineraryFormSchema>;
 

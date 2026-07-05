@@ -18,6 +18,7 @@ import {
 } from './queries';
 import { getServerClient } from '@/lib/api/server';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedDegreesAction(
   organizationId: string,
@@ -58,7 +59,11 @@ export async function createDegreeAction(
 
   const parsedInput = SaveDegreeBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -101,7 +106,11 @@ export async function updateDegreeAction(
 
   const parsedInput = SaveDegreeBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

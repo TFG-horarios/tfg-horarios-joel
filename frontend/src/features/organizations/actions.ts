@@ -11,6 +11,7 @@ import {
 import { getServerClient } from '@/lib/api/server';
 import { fetchOrganizationById } from './queries';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function getOrganizationNameAction(
   organizationId: string
@@ -40,7 +41,11 @@ export async function createOrganizationAction(
 
   const parsedInput = SaveOrganizationBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -79,7 +84,11 @@ export async function updateOrganizationAction(
 
   const parsedInput = SaveOrganizationBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {

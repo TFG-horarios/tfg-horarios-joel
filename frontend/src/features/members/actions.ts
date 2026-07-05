@@ -19,6 +19,7 @@ import {
 import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import { type ActionResponse } from '@/types/actions';
+import { zodErrorToActionErrors } from '@/lib/validation/action-errors';
 
 export async function fetchPaginatedMembersAction(
   organizationId: string,
@@ -48,7 +49,11 @@ export async function addMemberAction(
 
   const parsedInput = CreateMemberBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
@@ -98,7 +103,11 @@ export async function updateMemberRoleAction(
 
   const parsedInput = UpdateMemberRoleBodySchema.safeParse(dto);
   if (!parsedInput.success) {
-    return { success: false, message: tErrors('validation') };
+    return {
+      success: false,
+      message: tErrors('validation'),
+      errors: zodErrorToActionErrors(parsedInput.error),
+    };
   }
 
   try {
