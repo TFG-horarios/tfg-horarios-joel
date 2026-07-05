@@ -2,9 +2,9 @@
 
 import { useState, useEffect, memo, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
-import { useScheduleGrid } from '@/hooks/schedule/use-schedule-grid';
-import { WeeklyScheduleGrid } from '@/components/shared/schedule/weekly-schedule-grid';
+import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
+import { useScheduleGrid } from '../hooks/use-schedule-grid';
+import { WeeklyScheduleGrid } from './weekly-schedule-grid';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

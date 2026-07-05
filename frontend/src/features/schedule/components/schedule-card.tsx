@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import type { ScheduleDTO } from '@tfg-horarios/shared';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export interface ScheduleCardProps {
   item: ScheduleDTO;

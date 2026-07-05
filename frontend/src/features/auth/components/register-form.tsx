@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/shared/form/form-input';
 import { registerAction } from '@/features/auth/actions';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { useActionForm } from '@/hooks/use-action-form';
 
 export function RegisterForm() {

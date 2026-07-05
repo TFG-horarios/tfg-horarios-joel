@@ -37,7 +37,7 @@ import {
   Hourglass,
   TimerReset,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 type AcademicYearPageProps = {
   params: Promise<{ id: string; academicYearId: string }>;

@@ -1,6 +1,5 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import {
   LoginSchema,
@@ -10,19 +9,9 @@ import {
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
 import { redirect } from 'next/navigation';
+import { clearAuthSession, setAuthSession } from '@/lib/auth/session';
 
 import { type ActionResponse } from '@/types/actions';
-
-async function setAuthCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set('auth-token', token, {
-    path: '/',
-    sameSite: 'lax',
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7,
-  });
-}
 
 export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
   const tErrors = await getTranslations('Common.errors');
@@ -55,7 +44,7 @@ export async function loginAction(dto: LoginDTO): Promise<ActionResponse> {
 
     const { token } = await response.json();
 
-    await setAuthCookie(token);
+    await setAuthSession(token);
   } catch (error) {
     return {
       success: false,
@@ -83,7 +72,7 @@ export async function registerAction(
 
     const { token } = await response.json();
 
-    await setAuthCookie(token);
+    await setAuthSession(token);
   } catch (error) {
     return {
       success: false,
@@ -94,7 +83,6 @@ export async function registerAction(
 }
 
 export async function logoutAction(redirectTo: string = '/login') {
-  const cookieStore = await cookies();
-  cookieStore.delete('auth-token');
+  await clearAuthSession();
   redirect(redirectTo);
 }

@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Download, Loader2 } from 'lucide-react';
-import { useScheduleExport } from '@/hooks/schedule/use-schedule-export';
-import { getSubjectColorClasses } from '@/lib/subject-colors';
+import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
+import { getSubjectColorClasses } from '@/lib/utils/subject-colors';
 import {
   ClassroomTimelineWeek,
   type ClassroomTimelineEvent,

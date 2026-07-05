@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { ClassroomFormModal } from './classroom-form-modal';
 import type { ClassroomDTO } from '@tfg-horarios/shared';
 import { Building2, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export interface ClassroomCardProps {
   item: ClassroomDTO;

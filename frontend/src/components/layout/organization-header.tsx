@@ -48,7 +48,7 @@ import {
 import { logoutAction } from '@/features/auth/actions';
 import { getOrganizationNameAction } from '@/features/organizations/actions';
 import { getOrganizationMemberRoleAction } from '@/features/members/actions';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { Button } from '../ui/button';
 
 function OrganizationHeaderInner() {

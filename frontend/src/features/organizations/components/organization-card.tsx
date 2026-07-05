@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { removeOrganizationAction } from '../actions';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export function OrganizationCard({
   organization,

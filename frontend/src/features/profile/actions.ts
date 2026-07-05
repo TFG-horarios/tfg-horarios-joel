@@ -1,10 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { getServerClient } from '@/lib/api/server';
 import { type UpdatePasswordDTO, type UserDTO } from '@tfg-horarios/shared';
 import { getTranslations } from 'next-intl/server';
 import { type ActionResponse } from '@/types/actions';
+import { clearAuthSession } from '@/lib/auth/session';
 
 export async function updateProfileNameAction(
   name: string
@@ -95,4 +97,9 @@ export async function deleteAccountAction(): Promise<ActionResponse> {
       message: error instanceof Error ? error.message : tErrors('generic'),
     };
   }
+}
+
+export async function endProfileSessionAction(redirectTo: string = '/login') {
+  await clearAuthSession();
+  redirect(redirectTo);
 }

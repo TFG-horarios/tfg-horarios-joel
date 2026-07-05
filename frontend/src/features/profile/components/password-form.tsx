@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { updatePasswordAction } from '../actions';
-import { logoutAction } from '@/features/auth/actions';
+import { endProfileSessionAction, updatePasswordAction } from '../actions';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -122,7 +121,9 @@ export function PasswordForm() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => logoutAction('/login')}>
+            <AlertDialogAction
+              onClick={() => endProfileSessionAction('/login')}
+            >
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>

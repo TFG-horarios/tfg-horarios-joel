@@ -1,7 +1,7 @@
 'use client';
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import {
   Clock,
   Users,

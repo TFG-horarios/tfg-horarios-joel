@@ -45,7 +45,7 @@ import {
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { ResourceEmptyState } from '@/components/shared/resource/resource-empty-state';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import type {
   AcademicYearDTO,
   DegreeDTO,

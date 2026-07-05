@@ -2,7 +2,7 @@
 
 import { memo, useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { deleteSubjectGroupAction } from '@/features/subject-group/actions';
 import { toast } from 'sonner';

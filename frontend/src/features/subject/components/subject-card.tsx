@@ -2,7 +2,7 @@
 
 import { memo, useState } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteSubjectAction } from '@/features/subject/actions';
 import { toast } from 'sonner';

@@ -1,17 +1,10 @@
 'use client';
 
-import type { Shift } from '@tfg-horarios/shared';
 import { memo } from 'react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import { Clock, Sun, Moon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-
-export interface ClassroomScheduleDTO {
-  classroomId: string;
-  academicYearId: string;
-  shift: Shift;
-  period: number;
-}
+import type { ClassroomScheduleDTO } from '../types';
 
 export interface ClassroomScheduleCardProps {
   item: ClassroomScheduleDTO;

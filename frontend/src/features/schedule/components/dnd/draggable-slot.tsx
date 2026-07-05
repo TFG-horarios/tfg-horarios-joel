@@ -13,8 +13,8 @@ import {
   type DegreeDTO,
   type ScheduleConflictDetailDTO,
 } from '@tfg-horarios/shared';
-import { cn } from '@/lib/utils';
-import { getSubjectColorClasses } from '@/lib/subject-colors';
+import { cn } from '@/lib/utils/styles';
+import { getSubjectColorClasses } from '@/lib/utils/subject-colors';
 import {
   Tooltip,
   TooltipContent,

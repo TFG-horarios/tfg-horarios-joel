@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { deleteAcademicYearAction } from '../actions';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export function AcademicYearCard({
   organizationId,

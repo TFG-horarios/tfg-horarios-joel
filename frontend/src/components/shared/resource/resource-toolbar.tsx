@@ -3,7 +3,7 @@
 import React, { type ReactNode, useState } from 'react';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { Button } from '@/components/ui/button';
 import {
   Popover,

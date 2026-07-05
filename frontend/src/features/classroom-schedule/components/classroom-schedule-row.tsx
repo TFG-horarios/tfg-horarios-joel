@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import type { ClassroomScheduleDTO } from './classroom-schedule-card';
+import type { ClassroomScheduleDTO } from '../types';
 
-export interface ClassroomScheduleCardProps {
+export interface ClassroomScheduleRowProps {
   item: ClassroomScheduleDTO;
   classroomMap: Record<string, string>;
   organizationId: string;
@@ -23,7 +23,7 @@ export const ClassroomScheduleRow = memo(function ClassroomScheduleRow({
   organizationId,
   academicYearId,
   translations = {},
-}: ClassroomScheduleCardProps) {
+}: ClassroomScheduleRowProps) {
   const t = useTranslations('Organizations.classroomSchedules.card');
   const classroomName =
     classroomMap[config.classroomId] || t('unknownClassroom');

@@ -19,18 +19,8 @@ import {
   type PaginatedResponse,
 } from '@tfg-horarios/shared';
 import { getServerClient } from '@/lib/api/server';
-import {
-  fetchPaginatedSchedules,
-  fetchScheduleById,
-  fetchScheduleSlots,
-} from './queries';
-import { fetchAllClassrooms } from '@/features/classroom/queries';
-import { fetchAllSubjects } from '@/features/subject/queries';
-import { fetchAllSubjectGroups } from '@/features/subject-group/queries';
-import { fetchAllDegrees } from '@/features/degree/queries';
-import { fetchAcademicYears } from '@/features/academic-year/queries';
-import { fetchScheduleTimeConfigs } from '@/features/schedule-time-config/queries';
-import { generateScheduleCsv } from './utils';
+import { fetchPaginatedSchedules } from './queries';
+import { buildScheduleCsvExport } from './services/export-schedule-csv';
 
 import {
   GenerationScopeSchema,
@@ -54,47 +44,10 @@ export async function exportScheduleCsvAction(
   const tErrors = await getTranslations('Common.errors');
 
   try {
-    const schedule = await fetchScheduleById(organizationId, scheduleId);
-    if (!schedule) {
+    const result = await buildScheduleCsvExport(organizationId, scheduleId);
+    if (!result) {
       return { success: false, message: tErrors('server') };
     }
-
-    const [
-      slots,
-      classrooms,
-      subjects,
-      subjectGroups,
-      degrees,
-      academicYears,
-      timeConfigs,
-    ] = await Promise.all([
-      fetchScheduleSlots(organizationId, scheduleId),
-      fetchAllClassrooms(organizationId, schedule.academicYearId),
-      fetchAllSubjects(organizationId, schedule.academicYearId),
-      fetchAllSubjectGroups(organizationId, schedule.academicYearId),
-      fetchAllDegrees(organizationId, schedule.academicYearId),
-      fetchAcademicYears(organizationId),
-      fetchScheduleTimeConfigs(organizationId, schedule.academicYearId).catch(
-        () => []
-      ),
-    ]);
-    if (!slots) {
-      return { success: false, message: tErrors('server') };
-    }
-
-    const result = await generateScheduleCsv(
-      schedule,
-      slots,
-      classrooms,
-      subjects,
-      subjectGroups,
-      degrees,
-      academicYears,
-      schedule.timeConfigId
-        ? (timeConfigs.find((config) => config.id === schedule.timeConfigId) ??
-            null)
-        : null
-    );
 
     return { success: true, data: result };
   } catch (error) {

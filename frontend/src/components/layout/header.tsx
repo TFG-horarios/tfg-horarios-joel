@@ -21,7 +21,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { logoutAction } from '@/features/auth/actions';
 import { useSession } from '../providers/session-provider';
 import { NotificationBell } from '@/features/notification/components/notification-bell';

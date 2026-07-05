@@ -2,7 +2,6 @@ import { cache } from 'react';
 import { getServerClient } from '@/lib/api/server';
 import { getTranslations } from 'next-intl/server';
 import {
-  type Shift,
   createPaginatedSchema,
   type PaginatedResponse,
   type ClassroomConfigurationListQueryDTO,
@@ -13,19 +12,13 @@ import {
   ScheduleSlotSchema,
 } from '@tfg-horarios/shared';
 import { z } from 'zod';
+import type { ClassroomScheduleDTO } from './types';
 
 export const fetchPaginatedActiveClassroomConfigurations = cache(
   async (
     organizationId: string,
     query?: ClassroomConfigurationListQueryDTO
-  ): Promise<
-    PaginatedResponse<{
-      classroomId: string;
-      academicYearId: string;
-      shift: Shift;
-      period: number;
-    }>
-  > => {
+  ): Promise<PaginatedResponse<ClassroomScheduleDTO>> => {
     const t = await getTranslations('Common.errors');
     const client = await getServerClient();
     const response = await client.api.organizations[

@@ -8,12 +8,14 @@ import { useSession } from '@/components/providers/session-provider';
 import { ProfileForm } from '@/features/profile/components/profile-form';
 import { PasswordForm } from '@/features/profile/components/password-form';
 import { ResourceDeleteAction } from '@/components/shared/resource/resource-delete-action';
-import { deleteAccountAction } from '@/features/profile/actions';
+import {
+  deleteAccountAction,
+  endProfileSessionAction,
+} from '@/features/profile/actions';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { LanguageToggle } from '@/components/i18n/language-toggle';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { logoutAction } from '@/features/auth/actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -129,7 +131,7 @@ export default function ProfilePage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => logoutAction('/')}>
+            <AlertDialogAction onClick={() => endProfileSessionAction('/')}>
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>

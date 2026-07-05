@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import type { UserDTO } from '@tfg-horarios/shared';
 
 export type NavItem = {

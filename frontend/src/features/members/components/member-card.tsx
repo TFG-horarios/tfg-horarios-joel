@@ -10,7 +10,7 @@ import { removeMemberAction } from '@/features/members/actions';
 import { toast } from 'sonner';
 import { MemberFormModal } from './member-form-modal';
 import type { MemberDTO } from '@tfg-horarios/shared';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 interface MemberCardProps {
   item: MemberDTO;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export interface InteractiveCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,

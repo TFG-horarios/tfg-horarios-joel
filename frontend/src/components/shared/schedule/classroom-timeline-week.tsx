@@ -2,7 +2,7 @@
 
 import { formatMinutesAsTime } from '@tfg-horarios/shared';
 import type { ReactNode, RefObject } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 
 export type ClassroomTimelineDay = {
   value: number;

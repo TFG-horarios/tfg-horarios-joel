@@ -3,7 +3,7 @@
 import { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { Badge } from '@/components/ui/badge';
 import { ResourceRowActions } from '@/components/shared/resource/resource-row-actions';
 import { removeMemberAction } from '@/features/members/actions';

@@ -17,7 +17,7 @@ import {
 } from '../actions';
 import { toast } from 'sonner';
 import type { ClassroomReservationRowProps } from './classroom-reservation-row';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { ResourceCardActions } from '@/components/shared/resource/resource-card-actions';
 import { getSlotTimeRange } from './classroom-reservation-row';
 import { User } from 'lucide-react';
