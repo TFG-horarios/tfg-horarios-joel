@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import { useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useScheduleExport } from '@/components/shared/schedule/use-schedule-export';
@@ -79,6 +79,8 @@ type MemoizedScheduleCellProps = {
   classroomLabels: ReadonlyMap<string, string>;
   dropHereText: string;
   subjectIdsPool: string[];
+  pendingSlotIds: ReadonlySet<string>;
+  dropState?: 'neutral' | 'valid' | 'invalid';
   onEditSlotClassroom?: (slotId: string) => void;
   onUnassignSlot?: (slotId: string) => void;
 };
@@ -92,6 +94,8 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
   classroomLabels,
   dropHereText,
   subjectIdsPool,
+  pendingSlotIds,
+  dropState = 'neutral',
   onEditSlotClassroom,
   onUnassignSlot,
 }: MemoizedScheduleCellProps) {
@@ -99,6 +103,7 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
     <DroppableCell
       id={cellId}
       className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border hover:bg-muted/20 hover:border-muted-foreground/30 h-full min-h-22.5"
+      dropState={dropState}
     >
       {cellSlots.length > 0 ? (
         cellSlots.map((slot) => {
@@ -117,7 +122,8 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
               subjectIdsPool={subjectIdsPool}
               onEditClassroomClick={onEditSlotClassroom}
               onUnassignClick={onUnassignSlot}
-              disabled={!onEditSlotClassroom}
+              disabled={!onEditSlotClassroom || pendingSlotIds.has(slot.id)}
+              isSaving={pendingSlotIds.has(slot.id)}
               conflictSubjectLabels={conflictSubjectLabels}
               classroomLabels={classroomLabels}
             />
@@ -157,6 +163,37 @@ export function SchedulePlannerEditor({
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [pendingSlotIds, setPendingSlotIds] = useState<ReadonlySet<string>>(
+    () => new Set()
+  );
+  const slotMutationVersionsRef = useRef(new Map<string, number>());
+
+  const beginSlotMutation = useCallback((slotId: string) => {
+    const nextVersion = (slotMutationVersionsRef.current.get(slotId) ?? 0) + 1;
+    slotMutationVersionsRef.current.set(slotId, nextVersion);
+    setPendingSlotIds((prev) => {
+      const next = new Set(prev);
+      next.add(slotId);
+      return next;
+    });
+    return nextVersion;
+  }, []);
+
+  const isCurrentSlotMutation = useCallback(
+    (slotId: string, version: number) =>
+      slotMutationVersionsRef.current.get(slotId) === version,
+    []
+  );
+
+  const finishSlotMutation = useCallback((slotId: string, version: number) => {
+    if (slotMutationVersionsRef.current.get(slotId) !== version) return;
+    slotMutationVersionsRef.current.delete(slotId);
+    setPendingSlotIds((prev) => {
+      const next = new Set(prev);
+      next.delete(slotId);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const eventSource = createApiEventSource(
@@ -164,7 +201,7 @@ export function SchedulePlannerEditor({
     );
 
     eventSource.addEventListener('schedule_updated', () => {
-      if (!activeId && !editingSlotId) {
+      if (!activeId && !editingSlotId && pendingSlotIds.size === 0) {
         router.refresh();
       }
     });
@@ -176,7 +213,15 @@ export function SchedulePlannerEditor({
     return () => {
       eventSource.close();
     };
-  }, [organization.id, schedule.id, activeId, editingSlotId, router, t]);
+  }, [
+    organization.id,
+    schedule.id,
+    activeId,
+    editingSlotId,
+    pendingSlotIds.size,
+    router,
+    t,
+  ]);
   const [editingClassroomId, setEditingClassroomId] = useState<string>('none');
   const [isSavingClassroom, setIsSavingClassroom] = useState(false);
 
@@ -306,6 +351,7 @@ export function SchedulePlannerEditor({
 
   const handleUnassignSlot = useCallback(
     async (slotId: string) => {
+      if (pendingSlotIds.has(slotId)) return;
       const currentSlot = slots.find((s) => s.id === slotId);
       if (
         !currentSlot ||
@@ -315,6 +361,7 @@ export function SchedulePlannerEditor({
 
       const oldSlots = [...slots];
       const oldScheduleStatus = localSchedule.status;
+      const mutationVersion = beginSlotMutation(slotId);
 
       setSlots((prev) =>
         prev.map((s) =>
@@ -337,8 +384,11 @@ export function SchedulePlannerEditor({
           dayOfWeek: null,
           slotIndex: null,
         });
-        router.refresh();
+        if (isCurrentSlotMutation(slotId, mutationVersion)) {
+          router.refresh();
+        }
       } catch (err) {
+        if (!isCurrentSlotMutation(slotId, mutationVersion)) return;
         setSlots(oldSlots);
         if (oldScheduleStatus === 'published') {
           setLocalSchedule((prev) => ({ ...prev, status: 'published' }));
@@ -350,9 +400,21 @@ export function SchedulePlannerEditor({
             ? t(`planner.errors.${errorMsg}`)
             : errorMsg
         );
+      } finally {
+        finishSlotMutation(slotId, mutationVersion);
       }
     },
-    [applySlotUpdate, localSchedule.status, router, slots, t]
+    [
+      applySlotUpdate,
+      beginSlotMutation,
+      finishSlotMutation,
+      isCurrentSlotMutation,
+      localSchedule.status,
+      pendingSlotIds,
+      router,
+      slots,
+      t,
+    ]
   );
 
   const handleEditClassroomClick = useCallback(
@@ -368,31 +430,37 @@ export function SchedulePlannerEditor({
 
   const handleSaveClassroom = async () => {
     if (!editingSlotId) return;
+    const slotId = editingSlotId;
+    if (pendingSlotIds.has(slotId)) return;
     setIsSavingClassroom(true);
     const oldSlots = [...slots];
+    const mutationVersion = beginSlotMutation(slotId);
     try {
       const targetClassroom =
         editingClassroomId === 'none' ? null : editingClassroomId;
       setSlots((prev) =>
         prev.map((s) =>
-          s.id === editingSlotId ? { ...s, classroomId: targetClassroom } : s
+          s.id === slotId ? { ...s, classroomId: targetClassroom } : s
         )
       );
 
-      const updatedSlot = await applySlotUpdate(editingSlotId, {
+      const updatedSlot = await applySlotUpdate(slotId, {
         classroomId: targetClassroom,
       });
-      if (updatedSlot) {
+      if (updatedSlot && isCurrentSlotMutation(slotId, mutationVersion)) {
         setSlots((prev) =>
           prev.map((slot) => (slot.id === updatedSlot.id ? updatedSlot : slot))
         );
       }
-      toast.success(
-        t('actions.updateSuccess', { fallback: 'Aula actualizada' })
-      );
-      setEditingSlotId(null);
-      router.refresh();
+      if (isCurrentSlotMutation(slotId, mutationVersion)) {
+        toast.success(
+          t('actions.updateSuccess', { fallback: 'Aula actualizada' })
+        );
+        setEditingSlotId(null);
+        router.refresh();
+      }
     } catch (err) {
+      if (!isCurrentSlotMutation(slotId, mutationVersion)) return;
       setSlots(oldSlots);
       const errorMsg =
         err instanceof Error ? err.message : t('planner.failedAssign');
@@ -419,6 +487,7 @@ export function SchedulePlannerEditor({
         toast.error(translated);
       }
     } finally {
+      finishSlotMutation(slotId, mutationVersion);
       setIsSavingClassroom(false);
     }
   };
@@ -483,6 +552,9 @@ export function SchedulePlannerEditor({
       flushSync(() => {
         setActiveId(null);
       });
+      const wasCanceled = 'canceled' in event && event.canceled === true;
+      if (wasCanceled) return;
+
       const active = event.operation.source;
       const over = event.operation.target;
 
@@ -490,6 +562,8 @@ export function SchedulePlannerEditor({
 
       const slotId = String(active.id);
       const overId = String(over.id);
+
+      if (pendingSlotIds.has(slotId)) return;
 
       const currentSlot = slots.find((s) => s.id === slotId);
       if (!currentSlot) return;
@@ -505,6 +579,14 @@ export function SchedulePlannerEditor({
       }
 
       if (
+        overId !== 'unassigned' &&
+        (!currentSlot.classroomId || targetDay === null || targetSlot === null)
+      ) {
+        toast.error(t('planner.errors.ERR_CLASSROOM_REQUIRED_FOR_PLACEMENT'));
+        return;
+      }
+
+      if (
         currentSlot.dayOfWeek === targetDay &&
         currentSlot.slotIndex === targetSlot
       ) {
@@ -513,6 +595,7 @@ export function SchedulePlannerEditor({
 
       const oldSlots = [...slots];
       const oldScheduleStatus = localSchedule.status;
+      const mutationVersion = beginSlotMutation(slotId);
       flushSync(() => {
         setSlots((prev) =>
           prev.map((s) =>
@@ -539,8 +622,11 @@ export function SchedulePlannerEditor({
           dayOfWeek: targetDay,
           slotIndex: targetSlot,
         });
-        router.refresh();
+        if (isCurrentSlotMutation(slotId, mutationVersion)) {
+          router.refresh();
+        }
       } catch (err) {
+        if (!isCurrentSlotMutation(slotId, mutationVersion)) return;
         flushSync(() => {
           setSlots(oldSlots);
           if (oldScheduleStatus === 'published') {
@@ -571,9 +657,22 @@ export function SchedulePlannerEditor({
             : errorMsg;
           toast.error(translated);
         }
+      } finally {
+        finishSlotMutation(slotId, mutationVersion);
       }
     },
-    [applySlotUpdate, canUpdate, localSchedule.status, router, slots, t]
+    [
+      applySlotUpdate,
+      beginSlotMutation,
+      canUpdate,
+      finishSlotMutation,
+      isCurrentSlotMutation,
+      localSchedule.status,
+      pendingSlotIds,
+      router,
+      slots,
+      t,
+    ]
   );
 
   const activeSlotDTO = activeId ? slots.find((s) => s.id === activeId) : null;
@@ -691,6 +790,7 @@ export function SchedulePlannerEditor({
             <DroppableCell
               id="unassigned"
               className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start"
+              dropState={activeSlotDTO ? 'valid' : 'neutral'}
             >
               {unassignedSlots.length === 0 ? (
                 <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
@@ -714,7 +814,8 @@ export function SchedulePlannerEditor({
                         onEditClassroomClick={
                           canUpdate ? handleEditClassroomClick : undefined
                         }
-                        disabled={!canUpdate}
+                        disabled={!canUpdate || pendingSlotIds.has(slot.id)}
+                        isSaving={pendingSlotIds.has(slot.id)}
                         conflictSubjectLabels={conflictSubjectLabels}
                         classroomLabels={classroomLabels}
                       />
@@ -747,6 +848,14 @@ export function SchedulePlannerEditor({
                 classroomLabels={classroomLabels}
                 dropHereText={t('planner.dropHere')}
                 subjectIdsPool={subjectIdsPool}
+                pendingSlotIds={pendingSlotIds}
+                dropState={
+                  activeSlotDTO
+                    ? activeSlotDTO.classroomId
+                      ? 'valid'
+                      : 'invalid'
+                    : 'neutral'
+                }
                 onEditSlotClassroom={
                   canUpdate ? handleEditClassroomClick : undefined
                 }

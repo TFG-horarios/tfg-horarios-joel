@@ -4,7 +4,14 @@ import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CircleHelp, MapPin, TriangleAlert, Pencil, X } from 'lucide-react';
+import {
+  CircleHelp,
+  MapPin,
+  TriangleAlert,
+  Pencil,
+  X,
+  Loader2,
+} from 'lucide-react';
 import {
   type ScheduleSlotDTO,
   type SubjectDTO,
@@ -35,6 +42,7 @@ type DraggableSlotProps = {
   onEditClassroomClick?: (slotId: string) => void;
   onUnassignClick?: (slotId: string) => void;
   disabled?: boolean;
+  isSaving?: boolean;
   conflictSubjectLabels?: ReadonlyMap<string, string>;
   classroomLabels?: ReadonlyMap<string, string>;
 };
@@ -50,6 +58,7 @@ export const DraggableSlot = memo(function DraggableSlot({
   onEditClassroomClick,
   onUnassignClick,
   disabled = false,
+  isSaving = false,
   conflictSubjectLabels,
   classroomLabels,
 }: DraggableSlotProps) {
@@ -60,7 +69,7 @@ export const DraggableSlot = memo(function DraggableSlot({
       subjectGroupId: slot.subjectGroupId,
       subjectId: subject.id,
     },
-    disabled,
+    disabled: disabled || isSaving,
   });
 
   const tErrors = useTranslations('Organizations.schedules.planner.errors');
@@ -94,16 +103,23 @@ export const DraggableSlot = memo(function DraggableSlot({
           : undefined,
         transform: isOverlay ? 'scale(1.05) rotate(2deg)' : undefined,
         zIndex: isOverlay ? 9999 : 20,
-        cursor: disabled ? 'default' : isDragging ? 'grabbing' : 'grab',
+        cursor:
+          disabled || isSaving ? 'default' : isDragging ? 'grabbing' : 'grab',
       }}
       className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative group
         ${getSubjectColorClasses(subject.id, subjectIdsPool)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
         ${hasConflicts ? 'border-destructive border-2' : ''}
         ${!hasConflicts && hasPlacementIssue ? 'border-amber-500 border-2' : ''}
+        ${isSaving ? 'opacity-75' : ''}
       `}
     >
-      {!isOverlay && onEditClassroomClick && (
+      {!isOverlay && isSaving && (
+        <div className="absolute -top-2 -right-2 bg-background text-foreground rounded-full p-1 shadow-md z-40 border">
+          <Loader2 className="size-3 animate-spin" />
+        </div>
+      )}
+      {!isOverlay && onEditClassroomClick && !isSaving && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -116,7 +132,7 @@ export const DraggableSlot = memo(function DraggableSlot({
           <Pencil className="size-3" />
         </button>
       )}
-      {!isOverlay && onUnassignClick && (
+      {!isOverlay && onUnassignClick && !isSaving && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -183,7 +199,9 @@ export const DraggableSlot = memo(function DraggableSlot({
         ref={handleRef}
         className={cn(
           'p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full outline-none text-center',
-          disabled ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
+          disabled || isSaving
+            ? 'cursor-default'
+            : 'cursor-grab active:cursor-grabbing'
         )}
       >
         <Badge
