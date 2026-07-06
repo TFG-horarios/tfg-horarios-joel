@@ -32,8 +32,16 @@ const protectedApi = new OpenAPIHono();
 
 const jwtSecret = Bun.env.JWT_SECRET || '';
 const jwtExpiresInSeconds = Number(Bun.env.JWT_EXPIRES_IN_SECONDS) || 86400;
-const serverIdleTimeoutSeconds =
-  Number(Bun.env.SERVER_IDLE_TIMEOUT_SECONDS) || 3600;
+const configuredServerIdleTimeoutSeconds = Number(
+  Bun.env.SERVER_IDLE_TIMEOUT_SECONDS
+);
+const serverIdleTimeoutSeconds = Math.min(
+  Number.isFinite(configuredServerIdleTimeoutSeconds) &&
+    configuredServerIdleTimeoutSeconds > 0
+    ? configuredServerIdleTimeoutSeconds
+    : 255,
+  255
+);
 if (!jwtSecret) throw new Error('JWT_SECRET missing');
 const jwtService = new JwtService(jwtSecret, jwtExpiresInSeconds);
 const authMiddleware = createAuthMiddleware(jwtService);

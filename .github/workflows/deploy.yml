@@ -118,7 +118,7 @@ jobs:
           DATABASE_URL=postgres://${POSTGRES_USER}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${POSTGRES_DB}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN_SECONDS=${JWT_EXPIRES_IN_SECONDS}
-          SERVER_IDLE_TIMEOUT_SECONDS=3600
+          SERVER_IDLE_TIMEOUT_SECONDS=255
           GHCR_FRONTEND_IMAGE=${GHCR_FRONTEND_IMAGE}
           GHCR_BACKEND_IMAGE=${GHCR_BACKEND_IMAGE}
           IMAGE_TAG=${IMAGE_TAG}
@@ -132,5 +132,13 @@ jobs:
           docker compose -f docker-compose.prod.yml restart nginx
 
       - name: Smoke test
+        id: smoke
         run: |
           curl --fail --retry 12 --retry-delay 5 "${APP_URL}/healthz"
+
+      - name: Show deployment diagnostics
+        if: failure() && steps.smoke.outcome == 'failure'
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: |
+          docker compose -f docker-compose.prod.yml ps
+          docker compose -f docker-compose.prod.yml logs --tail=120 backend nginx
