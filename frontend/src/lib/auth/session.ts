@@ -1,12 +1,16 @@
 import { cookies } from 'next/headers';
 
+function isSecureCookieEnabled() {
+  return process.env.COOKIE_SECURE === 'true';
+}
+
 export async function setAuthSession(token: string) {
   const cookieStore = await cookies();
   cookieStore.set('auth-token', token, {
     path: '/',
     sameSite: 'lax',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecureCookieEnabled(),
     maxAge: 60 * 60 * 24 * 7,
   });
 }

@@ -8,8 +8,12 @@ const DEFAULT_API_URL = 'http://localhost:8080';
 export const getServerClient = cache(async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
+  const apiUrl =
+    process.env.INTERNAL_API_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    DEFAULT_API_URL;
 
-  return hc<AppType>(process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL, {
+  return hc<AppType>(apiUrl, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
 });

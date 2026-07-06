@@ -98,6 +98,7 @@ const routes = api
   .route('/api', createAuthModule(jwtService, userRepository))
   .route('/api', protectedRoutes);
 
+api.get('/healthz', (c) => c.json({ status: 'ok' }));
 api.get('/reference', Scalar({ url: '/doc', theme: 'moon' }));
 api.doc('/doc', { openapi: '3.0.0', info: { version: '1.0.0', title: 'TFG' } });
 

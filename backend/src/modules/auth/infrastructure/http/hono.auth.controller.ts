@@ -5,6 +5,10 @@ import type { loginRoute, registerRoute } from './hono.auth.routes';
 import type { AppEnv } from '@/core/types/app-types';
 import { setCookie } from 'hono/cookie';
 
+function isSecureCookieEnabled() {
+  return Bun.env.COOKIE_SECURE === 'true';
+}
+
 export class HonoAuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
@@ -18,6 +22,7 @@ export class HonoAuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',
+      secure: isSecureCookieEnabled(),
       maxAge: 60 * 60 * 24 * 7,
     });
     return c.json(result, 200);
@@ -30,6 +35,7 @@ export class HonoAuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',
+      secure: isSecureCookieEnabled(),
       maxAge: 60 * 60 * 24 * 7,
     });
     return c.json(result, 201);
