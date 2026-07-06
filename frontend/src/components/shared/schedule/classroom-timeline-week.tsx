@@ -119,7 +119,7 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
   return (
     <div ref={gridRef} className="overflow-x-auto">
       <div className="min-w-[1000px]">
-        <div className="grid grid-cols-[88px_repeat(5,minmax(160px,1fr))] border rounded-xl bg-card overflow-hidden">
+        <div className="grid grid-cols-[88px_repeat(5,minmax(160px,1fr))] border rounded-xl bg-background overflow-hidden">
           <div className="border-b border-r bg-muted/50" />
           {daysOfWeek.map((day) => (
             <div

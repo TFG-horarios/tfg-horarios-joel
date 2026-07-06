@@ -154,7 +154,9 @@ export function ClassroomSchedulePlanner({
         renderEvent={(event) => {
           const meta = slotMetaMap.get(event.subjectGroupId);
           const title = meta?.subject?.name ?? 'Clase';
-          const group = meta?.group?.name;
+          const group = meta?.group
+            ? getGroupLabel(meta.group.groupType, meta.group.groupNumber)
+            : undefined;
           const degree = meta?.degree?.name;
           const colorClass = getSubjectColorClasses(
             meta?.subject?.id ?? event.subjectGroupId,
@@ -163,20 +165,57 @@ export function ClassroomSchedulePlanner({
 
           return (
             <div
-              className={`h-full rounded-lg border p-2 shadow-sm overflow-hidden ${colorClass}`}
+              className={`h-full flex flex-col p-2 text-center rounded-lg border shadow-sm overflow-hidden text-black dark:text-white ${colorClass}`}
             >
-              <div className="text-[11px] font-mono opacity-75">
-                {formatMinutesAsTime(event.startTimeMinutes)}–
-                {formatMinutesAsTime(event.endTimeMinutes)}
+              <div className="flex items-center justify-center gap-1.5 w-full mb-1.5">
+                {group && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] uppercase px-1.5 py-0 h-4 shrink-0 opacity-80 border-current/30 text-black dark:text-white"
+                  >
+                    {group}
+                  </Badge>
+                )}
+                <span className="text-[11px] font-mono font-medium opacity-80 tracking-tight">
+                  {formatMinutesAsTime(event.startTimeMinutes)}-
+                  {formatMinutesAsTime(event.endTimeMinutes)}
+                </span>
               </div>
-              <div className="text-sm font-semibold line-clamp-2">{title}</div>
-              <div className="text-xs opacity-80 line-clamp-2">
-                {[group, degree].filter(Boolean).join(' · ')}
+
+              <div className="flex-1 flex items-center justify-center w-full px-1">
+                <span className="text-xs font-bold break-words whitespace-normal leading-tight line-clamp-3">
+                  {title}
+                </span>
               </div>
+
+              {degree && (
+                <div className="flex items-center justify-center border-t border-current/20 pt-2 mt-1 w-full opacity-90">
+                  <span className="text-[11px] font-medium break-words whitespace-normal leading-tight line-clamp-2">
+                    {degree}
+                  </span>
+                </div>
+              )}
             </div>
           );
         }}
       />
     </div>
   );
+}
+
+function getGroupLabel(groupType: string, groupNumber: number) {
+  const prefix =
+    groupType === 'theory'
+      ? 'TE'
+      : groupType === 'problems'
+        ? 'PA'
+        : groupType === 'practices'
+          ? 'PE'
+          : groupType === 'tutoring'
+            ? 'TU'
+            : groupType === 'reduced_practices'
+              ? 'PX'
+              : groupType;
+
+  return `${prefix}${groupNumber}`;
 }

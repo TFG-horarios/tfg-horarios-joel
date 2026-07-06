@@ -101,9 +101,7 @@ export class RequestClassroomReservationUseCase {
       );
 
     if (!areSchedulesPublished) {
-      throw new ValidationError(
-        'No se pueden realizar reservas hasta que todos los horarios del curso estén generados y publicados.'
-      );
+      throw new ValidationError('ERR_SCHEDULES_NOT_PUBLISHED');
     }
 
     const jsDay = reservationDate.getDay();

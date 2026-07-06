@@ -1193,6 +1193,7 @@
         "confirm": "Confirmar reserva",
         "cancel": "Cancelar",
         "rangeError": "El rango debe estar dentro del hueco disponible.",
+        "ERR_SCHEDULES_NOT_PUBLISHED": "No se pueden realizar reservas hasta que todos los horarios del curso estén generados y publicados.",
         "confirmed": "Reserva confirmada correctamente.",
         "requested": "Solicitud enviada correctamente.",
         "submitError": "Error al procesar la reserva."

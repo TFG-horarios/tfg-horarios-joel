@@ -198,7 +198,7 @@ export const DraggableSlot = memo(function DraggableSlot({
       <CardContent
         ref={handleRef}
         className={cn(
-          'p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full outline-none text-center',
+          'p-1 flex flex-col items-center justify-evenly gap-3 flex-1 w-full outline-none text-center',
           disabled || isSaving
             ? 'cursor-default'
             : 'cursor-grab active:cursor-grabbing'

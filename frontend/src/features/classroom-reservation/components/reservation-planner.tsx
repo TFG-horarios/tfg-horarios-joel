@@ -410,7 +410,10 @@ export function ReservationPlanner({
         setReason('');
         void fetchOccupiedSlots();
       } else {
-        toast.error(result.message || t('submitError'));
+        const errorMessage = result.message?.startsWith('ERR_')
+          ? t(result.message)
+          : result.message || t('submitError');
+        toast.error(errorMessage);
       }
     });
   };
@@ -425,16 +428,16 @@ export function ReservationPlanner({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row gap-4 p-4 bg-card border rounded-xl shadow-sm items-end">
+      <div className="flex flex-col md:flex-row gap-4 p-4 bg-background border rounded-xl shadow-sm items-end">
         <div className="flex-1 space-y-2 w-full">
           <Label>{t('classroom')}</Label>
           <Popover open={classroomOpen} onOpenChange={setClassroomOpen}>
             <PopoverTrigger asChild>
               <Button
-                variant="ghost"
+                variant="outline"
                 role="combobox"
                 aria-expanded={classroomOpen}
-                className="w-full justify-between font-normal h-10 px-3 py-2 border border-border bg-card text-card-foreground cursor-pointer hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:text-foreground dark:hover:bg-input/50"
+                className="w-full justify-between font-normal border border-border bg-background text-foreground cursor-pointer hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span className="truncate">
                   {selectedClassroom
@@ -506,9 +509,9 @@ export function ReservationPlanner({
         </div>
       </div>
 
-      <div className="bg-card border rounded-xl shadow-sm p-4 relative min-h-125">
+      <div className="relative">
         {!selectedClassroom && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-20 flex items-center justify-center rounded-xl">
             <div className="text-center space-y-2 bg-card p-6 rounded-lg shadow-lg border">
               <Building2 className="size-8 mx-auto text-muted-foreground" />
               <p className="text-lg font-medium">{t('selectClassroom')}</p>
@@ -519,13 +522,13 @@ export function ReservationPlanner({
           </div>
         )}
         {selectedClassroom && occupiedSlotsLoading && (
-          <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
+          <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
             <Loader2 className="size-4 animate-spin" />
             {t('loadingOccupancy')}
           </div>
         )}
         {selectedClassroom && occupiedSlotsError && (
-          <div className="absolute right-4 top-4 z-10 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive shadow-sm">
+          <div className="absolute right-4 top-4 z-20 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive shadow-sm">
             {occupiedSlotsError}
           </div>
         )}
@@ -543,24 +546,24 @@ export function ReservationPlanner({
             const isAccepted = occupied.reason === 'Reservado';
 
             let styleClasses =
-              'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+              'border-red-200 bg-red-100 dark:border-red-900/50 dark:bg-red-900/20 text-red-700 dark:text-red-400';
 
             if (isClass) {
               styleClasses =
-                'border-blue-200 bg-blue-50/90 dark:border-blue-900/50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300';
+                'border-blue-200 bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/30 text-blue-800 dark:text-blue-300';
             } else if (isAccepted) {
               styleClasses =
-                'border-green-200 bg-green-50/90 dark:border-green-900/50 dark:bg-green-950/30 text-green-700 dark:text-green-300';
+                'border-green-200 bg-green-100 dark:border-green-900/50 dark:bg-green-950/30 text-green-800 dark:text-green-300';
             } else if (isPending) {
               styleClasses =
-                'border-amber-200 bg-amber-50/90 dark:border-amber-900/50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300';
+                'border-amber-200 bg-amber-100 dark:border-amber-900/50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300';
             }
 
             return (
               <div
-                className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col justify-center p-2 overflow-hidden ${styleClasses}`}
+                className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col items-center justify-center text-center p-2 gap-0.5 overflow-hidden transition-colors ${styleClasses}`}
               >
-                <span className="text-[10px] font-medium uppercase tracking-wider line-clamp-2">
+                <span className="text-xs font-bold uppercase tracking-wider line-clamp-2">
                   {isClass
                     ? t('occupiedClass')
                     : isPending
@@ -569,8 +572,8 @@ export function ReservationPlanner({
                         ? t('reserved')
                         : occupied.reason}
                 </span>
-                <span className="text-[10px] font-mono opacity-80">
-                  {formatMinutesAsTime(occupied.startTimeMinutes)}–
+                <span className="text-[11px] font-mono font-medium opacity-80 tracking-tight">
+                  {formatMinutesAsTime(occupied.startTimeMinutes)}-
                   {formatMinutesAsTime(occupied.endTimeMinutes)}
                 </span>
               </div>

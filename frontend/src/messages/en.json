@@ -1193,6 +1193,7 @@
         "confirm": "Confirm reservation",
         "cancel": "Cancel",
         "rangeError": "The range must stay within the available slot.",
+        "ERR_SCHEDULES_NOT_PUBLISHED": "Reservations cannot be made until all course schedules are generated and published.",
         "confirmed": "Reservation confirmed successfully.",
         "requested": "Request sent successfully.",
         "submitError": "Error processing reservation."

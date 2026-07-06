@@ -289,7 +289,7 @@ export function ScheduleGenerator({
           </TooltipTrigger>
           <TooltipContent>{t('generate')}</TooltipContent>
         </Tooltip>
-        <DialogContent className="bg-card border-border/80 sm:max-w-135">
+        <DialogContent className="bg-background border-border/80 sm:max-w-135">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {t('generate')}

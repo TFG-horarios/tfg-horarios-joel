@@ -240,10 +240,9 @@ export function GenericBulkUploader<TData>({
     const warningCount = issues.filter((i) => i.severity === 'warning').length;
     const reviewCardClassName =
       'flex w-full max-w-full flex-col overflow-hidden';
-    const tableShellClassName =
-      'overflow-hidden border border-white/10 bg-white/5';
+    const tableShellClassName = 'overflow-hidden rounded-md border';
     const tableHeaderClassName =
-      'sticky top-0 bg-muted text-foreground backdrop-blur supports-[backdrop-filter]:bg-muted/95';
+      'sticky top-0 bg-gray-200/50 text-foreground backdrop-blur';
     const tableHeadClassName =
       'h-11 border-border/50 px-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground';
     const tableCellClassName =
@@ -257,7 +256,7 @@ export function GenericBulkUploader<TData>({
     return (
       <div className="w-full max-h-[calc(100dvh-2rem)] overflow-hidden">
         <Card className={reviewCardClassName}>
-          <CardHeader className="border-b border-white/10 bg-white/5 pb-4">
+          <CardHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>{t('reviewTitle')}</CardTitle>
@@ -297,18 +296,26 @@ export function GenericBulkUploader<TData>({
               defaultValue={issues.length > 0 ? 'issues' : 'valid'}
               className="w-full"
             >
-              <div className="px-6 pt-4">
+              <div className="pt-6">
                 <TabsList>
-                  <TabsTrigger value="issues" disabled={issues.length === 0}>
+                  <TabsTrigger
+                    value="issues"
+                    disabled={issues.length === 0}
+                    className="data-[state=active]:bg-red-500/20 cursor-pointer"
+                  >
                     {t('issuesTab')} ({issues.length})
                   </TabsTrigger>
-                  <TabsTrigger value="valid" disabled={validData.length === 0}>
+                  <TabsTrigger
+                    value="valid"
+                    disabled={validData.length === 0}
+                    className="data-[state=active]:bg-green-500/20 cursor-pointer"
+                  >
                     {t('validTab')} ({validData.length})
                   </TabsTrigger>
                 </TabsList>
               </div>
 
-              <TabsContent value="issues" className="m-0 mt-4 border-t">
+              <TabsContent value="issues" className="mt-4 border-t">
                 <div className={reviewTableViewportClassName}>
                   <div className={`${tableShellClassName} w-full`}>
                     <Table>
@@ -456,7 +463,7 @@ export function GenericBulkUploader<TData>({
             </Tabs>
           </CardContent>
 
-          <div className="space-y-3 border-t border-white/10 bg-white/5 p-4">
+          <div className="space-y-3 border-t bg-muted/20 p-4">
             {uploadError && (
               <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {uploadError}
@@ -469,6 +476,7 @@ export function GenericBulkUploader<TData>({
               <Button
                 onClick={handleConfirmUpload}
                 disabled={validData.length === 0 || step === 'uploading'}
+                className="bg-brand-purple-bg text-brand-purple border border-brand-purple-border hover:bg-brand-purple-hover dark:hover:bg-brand-purple-hover"
               >
                 {step === 'uploading' && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -483,7 +491,7 @@ export function GenericBulkUploader<TData>({
   }
 
   return (
-    <Card className="border-2 border-dashed border-white/20 bg-white/5 transition-colors hover:border-white/30">
+    <Card className="border-2 border-dashed bg-muted/20 transition-colors hover:bg-muted/40">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>
