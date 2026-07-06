@@ -6,9 +6,12 @@ import {
   OrganizationSchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Organizations'];
+
 export const createOrgRoute = createRoute({
   method: 'post',
   path: '/organizations',
+  tags,
   request: {
     body: {
       content: {
@@ -32,6 +35,7 @@ export const createOrgRoute = createRoute({
 export const getOrgRoute = createRoute({
   method: 'get',
   path: '/organizations/{id}',
+  tags,
   request: {
     params: OrganizationIdParamSchema,
   },
@@ -52,6 +56,7 @@ export const getOrgRoute = createRoute({
 export const listOrgRoute = createRoute({
   method: 'get',
   path: '/organizations',
+  tags,
   responses: {
     200: {
       description: 'Listado de organizaciones',
@@ -68,6 +73,7 @@ export const listOrgRoute = createRoute({
 export const updateOrgRoute = createRoute({
   method: 'patch',
   path: '/organizations/{id}',
+  tags,
   request: {
     params: OrganizationIdParamSchema,
     body: {
@@ -90,6 +96,7 @@ export const updateOrgRoute = createRoute({
 export const deleteOrgRoute = createRoute({
   method: 'delete',
   path: '/organizations/{id}',
+  tags,
   request: {
     params: OrganizationIdParamSchema,
   },

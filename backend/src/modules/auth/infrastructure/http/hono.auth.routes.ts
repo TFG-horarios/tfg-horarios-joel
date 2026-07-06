@@ -5,9 +5,12 @@ import {
   RegisterSchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Auth'];
+
 export const loginRoute = createRoute({
   method: 'post',
   path: '/auth/login',
+  tags,
   request: {
     body: {
       content: {
@@ -31,6 +34,7 @@ export const loginRoute = createRoute({
 export const registerRoute = createRoute({
   method: 'post',
   path: '/auth/register',
+  tags,
   request: {
     body: {
       content: {

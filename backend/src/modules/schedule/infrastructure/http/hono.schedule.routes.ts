@@ -14,9 +14,12 @@ import {
   createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Schedules'];
+
 export const listSchedulesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules',
+  tags,
   request: {
     params: ScheduleBaseParamSchema,
     query: ScheduleListQuerySchema,
@@ -39,6 +42,7 @@ export const listSchedulesRoute = createRoute({
 export const getScheduleRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules/{id}',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     200: {
@@ -56,6 +60,7 @@ export const getScheduleRoute = createRoute({
 export const deleteScheduleRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/schedules/{id}',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     204: { description: 'Schedule deleted successfully' },
@@ -70,6 +75,7 @@ export const deleteScheduleRoute = createRoute({
 export const publishScheduleRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/schedules/{id}/publish',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     200: {
@@ -87,6 +93,7 @@ export const publishScheduleRoute = createRoute({
 export const unpublishScheduleRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/schedules/{id}/unpublish',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     200: {
@@ -104,6 +111,7 @@ export const unpublishScheduleRoute = createRoute({
 export const listScheduleSlotsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules/{id}/slots',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     200: {
@@ -124,6 +132,7 @@ const ScheduleSlotRouteParamsSchema = z.object({
 export const updateScheduleSlotRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/slots/{id}',
+  tags,
   request: {
     params: ScheduleSlotRouteParamsSchema,
     body: {
@@ -152,6 +161,7 @@ export const updateScheduleSlotRoute = createRoute({
 export const generateScheduleRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/schedules/generate',
+  tags,
   request: {
     params: ScheduleBaseParamSchema,
     body: {
@@ -178,6 +188,7 @@ export const generateScheduleRoute = createRoute({
 export const checkOverwriteScheduleRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/schedules/check-overwrite',
+  tags,
   request: {
     params: ScheduleBaseParamSchema,
     body: {
@@ -203,6 +214,7 @@ export const checkOverwriteScheduleRoute = createRoute({
 export const checkImportSchedulesOverwriteRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/schedules/import/check-overwrite',
+  tags,
   request: {
     params: ScheduleBaseParamSchema,
     body: {
@@ -230,6 +242,7 @@ export const checkImportSchedulesOverwriteRoute = createRoute({
 export const importSchedulesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/schedules/import',
+  tags,
   request: {
     params: ScheduleBaseParamSchema,
     body: {
@@ -257,6 +270,7 @@ export const importSchedulesRoute = createRoute({
 export const streamScheduleEventsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/schedules/{id}/events',
+  tags,
   request: { params: ScheduleIdParamSchema },
   responses: {
     200: {

@@ -13,9 +13,12 @@ import {
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Subject Groups'];
+
 export const listSubjectGroupsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subject-groups',
+  tags,
   request: {
     params: SubjectGroupBaseParamSchema,
     query: SubjectGroupListQuerySchema,
@@ -38,6 +41,7 @@ export const listSubjectGroupsRoute = createRoute({
 export const listAllSubjectGroupsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subject-groups/all',
+  tags,
   request: {
     params: SubjectGroupBaseParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -58,6 +62,7 @@ export const listAllSubjectGroupsRoute = createRoute({
 export const getSubjectGroupIdentifiersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subject-groups/identifiers',
+  tags,
   request: { params: SubjectGroupBaseParamSchema },
   responses: {
     200: {
@@ -77,6 +82,7 @@ export const getSubjectGroupIdentifiersRoute = createRoute({
 export const getSubjectGroupRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subject-groups/{id}',
+  tags,
   request: { params: SubjectGroupIdParamSchema },
   responses: {
     200: {
@@ -93,6 +99,7 @@ export const getSubjectGroupRoute = createRoute({
 export const createSubjectGroupRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/subjects/{subjectId}/groups',
+  tags,
   request: {
     params: SubjectGroupCreateParamSchema,
     body: {
@@ -116,6 +123,7 @@ export const createSubjectGroupRoute = createRoute({
 export const bulkCreateSubjectGroupsRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/subject-groups/bulk',
+  tags,
   request: {
     params: SubjectGroupBaseParamSchema,
     body: {
@@ -141,6 +149,7 @@ export const bulkCreateSubjectGroupsRoute = createRoute({
 export const replaceSubjectGroupsRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/subject-groups/bulk',
+  tags,
   request: {
     params: SubjectGroupBaseParamSchema,
     body: {
@@ -165,6 +174,7 @@ export const replaceSubjectGroupsRoute = createRoute({
 export const updateSubjectGroupRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/subject-groups/{id}',
+  tags,
   request: {
     params: SubjectGroupIdParamSchema,
     body: {
@@ -188,6 +198,7 @@ export const updateSubjectGroupRoute = createRoute({
 export const deleteSubjectGroupRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subject-groups/{id}',
+  tags,
   request: { params: SubjectGroupIdParamSchema },
   responses: {
     204: { description: 'Group deleted' },
@@ -201,6 +212,7 @@ export const deleteSubjectGroupRoute = createRoute({
 export const deleteAllSubjectGroupsRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subject-groups',
+  tags,
   request: { params: SubjectGroupBaseParamSchema },
   responses: {
     204: { description: 'All groups deleted' },

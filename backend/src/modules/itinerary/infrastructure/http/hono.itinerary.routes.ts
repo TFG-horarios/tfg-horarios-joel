@@ -13,9 +13,12 @@ import {
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Itineraries'];
+
 export const listItinerariesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries',
+  tags,
   request: {
     params: ItineraryBaseParamSchema,
     query: ItineraryListQuerySchema,
@@ -36,6 +39,7 @@ export const listItinerariesRoute = createRoute({
 export const listAllItinerariesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries/all',
+  tags,
   request: {
     params: ItineraryBaseParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -54,6 +58,7 @@ export const listAllItinerariesRoute = createRoute({
 export const getItineraryIdentifiersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries/identifiers',
+  tags,
   request: { params: ItineraryBaseParamSchema },
   responses: {
     200: {
@@ -73,6 +78,7 @@ export const getItineraryIdentifiersRoute = createRoute({
 export const getItineraryRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/itineraries/{id}',
+  tags,
   request: {
     params: ItineraryIdParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -92,6 +98,7 @@ export const getItineraryRoute = createRoute({
 export const createItineraryRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/itineraries',
+  tags,
   request: {
     params: ItineraryCreateParamSchema,
     body: {
@@ -116,6 +123,7 @@ export const createItineraryRoute = createRoute({
 export const bulkCreateItinerariesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/itineraries/bulk',
+  tags,
   request: {
     params: ItineraryBaseParamSchema,
     body: {
@@ -142,6 +150,7 @@ export const bulkCreateItinerariesRoute = createRoute({
 export const replaceItinerariesRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/itineraries/bulk',
+  tags,
   request: {
     params: ItineraryBaseParamSchema,
     body: {
@@ -168,6 +177,7 @@ export const replaceItinerariesRoute = createRoute({
 export const updateItineraryRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/itineraries/{id}',
+  tags,
   request: {
     params: ItineraryIdParamSchema,
     body: {
@@ -193,6 +203,7 @@ export const updateItineraryRoute = createRoute({
 export const deleteItineraryRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/itineraries/{id}',
+  tags,
   request: { params: ItineraryIdParamSchema },
   responses: {
     204: { description: 'Itinerary deleted' },
@@ -206,6 +217,7 @@ export const deleteItineraryRoute = createRoute({
 export const deleteAllItinerariesRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/itineraries',
+  tags,
   request: { params: ItineraryBaseParamSchema },
   responses: {
     204: { description: 'All itineraries deleted' },

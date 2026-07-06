@@ -15,9 +15,12 @@ import {
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Classrooms'];
+
 export const listClassroomsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     query: ClassroomListQuerySchema,
@@ -38,6 +41,7 @@ export const listClassroomsRoute = createRoute({
 export const listAllClassroomsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/all',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -56,6 +60,7 @@ export const listAllClassroomsRoute = createRoute({
 export const getClassroomIdentifiersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/identifiers',
+  tags,
   request: { params: ClassroomBaseParamSchema },
   responses: {
     200: {
@@ -75,6 +80,7 @@ export const getClassroomIdentifiersRoute = createRoute({
 export const getClassroomRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/{id}',
+  tags,
   request: {
     params: ClassroomIdParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -94,6 +100,7 @@ export const getClassroomRoute = createRoute({
 export const createClassroomRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/classrooms',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     body: {
@@ -118,6 +125,7 @@ export const createClassroomRoute = createRoute({
 export const createManyClassroomsRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/classrooms/bulk',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     body: {
@@ -144,6 +152,7 @@ export const createManyClassroomsRoute = createRoute({
 export const replaceClassroomsRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/classrooms/bulk',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     body: {
@@ -170,6 +179,7 @@ export const replaceClassroomsRoute = createRoute({
 export const updateClassroomRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/classrooms/{id}',
+  tags,
   request: {
     params: ClassroomIdParamSchema,
     body: {
@@ -195,6 +205,7 @@ export const updateClassroomRoute = createRoute({
 export const deleteClassroomRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/classrooms/{id}',
+  tags,
   request: { params: ClassroomIdParamSchema },
   responses: {
     200: {
@@ -215,6 +226,7 @@ export const deleteClassroomRoute = createRoute({
 export const deleteAllClassroomsRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/classrooms',
+  tags,
   request: { params: ClassroomBaseParamSchema },
   responses: {
     200: {
@@ -234,6 +246,7 @@ export const deleteAllClassroomsRoute = createRoute({
 export const getActiveClassroomConfigurationsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/active-configurations',
+  tags,
   request: {
     params: ClassroomBaseParamSchema,
     query: ClassroomConfigurationListQuerySchema,
@@ -263,6 +276,7 @@ export const getActiveClassroomConfigurationsRoute = createRoute({
 export const getClassroomScheduleSlotsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/{id}/slots',
+  tags,
   request: {
     params: ClassroomIdParamSchema,
     query: ClassroomScheduleQuerySchema,
@@ -284,6 +298,7 @@ export const getClassroomScheduleSlotsRoute = createRoute({
 export const getClassroomOccupancyRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/classrooms/{id}/occupancy',
+  tags,
   request: {
     params: ClassroomIdParamSchema,
     query: ClassroomScheduleQuerySchema,

@@ -10,9 +10,12 @@ import {
   createPaginatedSchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Members'];
+
 export const listMembersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/members',
+  tags,
   request: {
     params: MemberBaseParamSchema,
     query: MemberListQuerySchema,
@@ -33,6 +36,7 @@ export const listMembersRoute = createRoute({
 export const listAllMembersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/members/all',
+  tags,
   request: {
     params: MemberBaseParamSchema,
   },
@@ -52,6 +56,7 @@ export const listAllMembersRoute = createRoute({
 export const getMeRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/members/me',
+  tags,
   request: {
     params: MemberBaseParamSchema,
   },
@@ -71,6 +76,7 @@ export const getMeRoute = createRoute({
 export const addMemberRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/members',
+  tags,
   request: {
     params: MemberBaseParamSchema,
     body: {
@@ -93,6 +99,7 @@ export const addMemberRoute = createRoute({
 export const updateMemberRoleRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/members/{id}',
+  tags,
   request: {
     params: MemberIdParamSchema,
     body: {
@@ -121,6 +128,7 @@ export const updateMemberRoleRoute = createRoute({
 export const removeMemberRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/members/{id}',
+  tags,
   request: {
     params: MemberIdParamSchema,
   },

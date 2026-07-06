@@ -5,9 +5,12 @@ import {
 } from '@tfg-horarios/shared';
 import { z } from '@hono/zod-openapi';
 
+const tags = ['Academic Years'];
+
 export const createAcademicYearRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/academic-years',
+  tags,
   request: {
     params: z.object({
       organizationId: z.string().uuid(),
@@ -40,6 +43,7 @@ export const createAcademicYearRoute = createRoute({
 export const listAcademicYearsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/academic-years',
+  tags,
   request: {
     params: z.object({
       organizationId: z.string().uuid(),
@@ -64,6 +68,7 @@ export const listAcademicYearsRoute = createRoute({
 export const updateAcademicYearRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/academic-years/{id}',
+  tags,
   request: {
     params: z.object({
       organizationId: z.string().uuid(),
@@ -98,6 +103,7 @@ export const updateAcademicYearRoute = createRoute({
 export const deleteAcademicYearRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/academic-years/{id}',
+  tags,
   request: {
     params: z.object({
       organizationId: z.uuid(),

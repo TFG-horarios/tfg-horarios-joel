@@ -11,9 +11,12 @@ import {
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Degrees'];
+
 export const listDegreesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees',
+  tags,
   request: {
     params: DegreeBaseParamSchema,
     query: DegreeListQuerySchema,
@@ -34,6 +37,7 @@ export const listDegreesRoute = createRoute({
 export const listAllDegreesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees/all',
+  tags,
   request: {
     params: DegreeBaseParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -52,6 +56,7 @@ export const listAllDegreesRoute = createRoute({
 export const getDegreeIdentifiersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees/identifiers',
+  tags,
   request: { params: DegreeBaseParamSchema },
   responses: {
     200: {
@@ -71,6 +76,7 @@ export const getDegreeIdentifiersRoute = createRoute({
 export const getDegreeRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/degrees/{id}',
+  tags,
   request: {
     params: DegreeIdParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -90,6 +96,7 @@ export const getDegreeRoute = createRoute({
 export const createDegreeRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees',
+  tags,
   request: {
     params: DegreeBaseParamSchema,
     body: {
@@ -114,6 +121,7 @@ export const createDegreeRoute = createRoute({
 export const bulkCreateDegreesRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/bulk',
+  tags,
   request: {
     params: DegreeBaseParamSchema,
     body: {
@@ -140,6 +148,7 @@ export const bulkCreateDegreesRoute = createRoute({
 export const replaceDegreesRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/degrees/bulk',
+  tags,
   request: {
     params: DegreeBaseParamSchema,
     body: {
@@ -166,6 +175,7 @@ export const replaceDegreesRoute = createRoute({
 export const updateDegreeRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/degrees/{id}',
+  tags,
   request: {
     params: DegreeIdParamSchema,
     body: {
@@ -191,6 +201,7 @@ export const updateDegreeRoute = createRoute({
 export const deleteDegreeRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/degrees/{id}',
+  tags,
   request: { params: DegreeIdParamSchema },
   responses: {
     204: { description: 'Degree deleted' },
@@ -204,6 +215,7 @@ export const deleteDegreeRoute = createRoute({
 export const deleteAllDegreesRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/degrees',
+  tags,
   request: { params: DegreeBaseParamSchema },
   responses: {
     204: { description: 'All degrees deleted' },

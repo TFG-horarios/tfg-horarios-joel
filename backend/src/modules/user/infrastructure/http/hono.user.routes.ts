@@ -5,9 +5,12 @@ import {
   UpdatePasswordBodySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Users'];
+
 export const getMeRoute = createRoute({
   method: 'get',
   path: '/users/me',
+  tags,
   responses: {
     200: {
       description: 'User found',
@@ -21,6 +24,7 @@ export const getMeRoute = createRoute({
 export const updateMeRoute = createRoute({
   method: 'patch',
   path: '/users/me',
+  tags,
   request: {
     body: {
       content: {
@@ -43,6 +47,7 @@ export const updateMeRoute = createRoute({
 export const updatePasswordRoute = createRoute({
   method: 'patch',
   path: '/users/me/password',
+  tags,
   request: {
     body: {
       content: {
@@ -64,6 +69,7 @@ export const updatePasswordRoute = createRoute({
 export const deleteMeRoute = createRoute({
   method: 'delete',
   path: '/users/me',
+  tags,
   responses: {
     204: {
       description: 'User deleted successfully',

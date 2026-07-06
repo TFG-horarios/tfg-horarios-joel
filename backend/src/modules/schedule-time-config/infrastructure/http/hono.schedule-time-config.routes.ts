@@ -7,6 +7,8 @@ import {
   ScheduleTimeConfigPossibilitySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Schedule Time Configs'];
+
 const baseParams = z.object({
   organizationId: z.uuid(),
   academicYearId: z.uuid(),
@@ -16,6 +18,7 @@ const idParams = baseParams.extend({ id: z.uuid() });
 export const listTimeConfigsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs',
+  tags,
   request: { params: baseParams, query: ScheduleTimeConfigListQuerySchema },
   responses: {
     200: {
@@ -34,6 +37,7 @@ export const listTimeConfigsRoute = createRoute({
 export const createTimeConfigRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs',
+  tags,
   request: {
     params: baseParams,
     body: {
@@ -59,6 +63,7 @@ export const createTimeConfigRoute = createRoute({
 export const updateTimeConfigRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs/{id}',
+  tags,
   request: {
     params: idParams,
     body: {
@@ -84,6 +89,7 @@ export const updateTimeConfigRoute = createRoute({
 export const deleteTimeConfigRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs/{id}',
+  tags,
   request: { params: idParams },
   responses: {
     204: { description: 'Deleted' },
@@ -98,6 +104,7 @@ export const deleteTimeConfigRoute = createRoute({
 export const getPossibilitiesRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/academic-years/{academicYearId}/time-configs/possibilities',
+  tags,
   request: { params: baseParams },
   responses: {
     200: {

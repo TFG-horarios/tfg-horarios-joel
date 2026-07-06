@@ -13,9 +13,12 @@ import {
   AcademicYearContextQuerySchema,
 } from '@tfg-horarios/shared';
 
+const tags = ['Subjects'];
+
 export const listSubjectsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subjects',
+  tags,
   request: {
     params: SubjectListParamSchema,
     query: SubjectListQuerySchema,
@@ -36,6 +39,7 @@ export const listSubjectsRoute = createRoute({
 export const listAllSubjectsRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subjects/all',
+  tags,
   request: {
     params: SubjectListParamSchema,
     query: AcademicYearContextQuerySchema,
@@ -54,6 +58,7 @@ export const listAllSubjectsRoute = createRoute({
 export const getSubjectIdentifiersRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subjects/identifiers',
+  tags,
   request: { params: SubjectListParamSchema },
   responses: {
     200: {
@@ -73,6 +78,7 @@ export const getSubjectIdentifiersRoute = createRoute({
 export const getSubjectRoute = createRoute({
   method: 'get',
   path: '/organizations/{organizationId}/subjects/{id}',
+  tags,
   request: { params: SubjectIdParamSchema },
   responses: {
     200: {
@@ -89,6 +95,7 @@ export const getSubjectRoute = createRoute({
 export const createSubjectRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/degrees/{degreeId}/subjects',
+  tags,
   request: {
     params: SubjectCreateParamSchema,
     body: {
@@ -111,6 +118,7 @@ export const createSubjectRoute = createRoute({
 export const bulkCreateSubjectsRoute = createRoute({
   method: 'post',
   path: '/organizations/{organizationId}/subjects/bulk',
+  tags,
   request: {
     params: SubjectListParamSchema,
     body: {
@@ -135,6 +143,7 @@ export const bulkCreateSubjectsRoute = createRoute({
 export const replaceSubjectsRoute = createRoute({
   method: 'put',
   path: '/organizations/{organizationId}/subjects/bulk',
+  tags,
   request: {
     params: SubjectListParamSchema,
     body: {
@@ -159,6 +168,7 @@ export const replaceSubjectsRoute = createRoute({
 export const updateSubjectRoute = createRoute({
   method: 'patch',
   path: '/organizations/{organizationId}/subjects/{id}',
+  tags,
   request: {
     params: SubjectIdParamSchema,
     body: {
@@ -182,6 +192,7 @@ export const updateSubjectRoute = createRoute({
 export const deleteSubjectRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subjects/{id}',
+  tags,
   request: { params: SubjectIdParamSchema },
   responses: {
     204: { description: 'Deleted' },
@@ -195,6 +206,7 @@ export const deleteSubjectRoute = createRoute({
 export const deleteAllSubjectsRoute = createRoute({
   method: 'delete',
   path: '/organizations/{organizationId}/subjects',
+  tags,
   request: { params: SubjectListParamSchema },
   responses: {
     204: { description: 'All subjects deleted' },
