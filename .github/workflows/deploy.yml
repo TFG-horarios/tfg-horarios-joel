@@ -118,6 +118,7 @@ jobs:
           DATABASE_URL=postgres://${POSTGRES_USER}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${POSTGRES_DB}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN_SECONDS=${JWT_EXPIRES_IN_SECONDS}
+          SERVER_IDLE_TIMEOUT_SECONDS=3600
           GHCR_FRONTEND_IMAGE=${GHCR_FRONTEND_IMAGE}
           GHCR_BACKEND_IMAGE=${GHCR_BACKEND_IMAGE}
           IMAGE_TAG=${IMAGE_TAG}
@@ -128,6 +129,7 @@ jobs:
         run: |
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          docker compose -f docker-compose.prod.yml restart nginx
 
       - name: Smoke test
         run: |
