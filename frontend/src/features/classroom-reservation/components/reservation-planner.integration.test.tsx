@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import {
   buildAcademicYear,
@@ -162,6 +162,9 @@ describe('ReservationPlanner integration', () => {
     await waitFor(() => {
       expect(fetchOccupiedSlotsActionMock).toHaveBeenCalled();
     });
+    await user.click(
+      screen.getByRole('button', { name: 'empty slot without date' })
+    );
     await user.click(screen.getByRole('button', { name: 'empty slot' }));
     await user.type(screen.getByPlaceholderText('reasonPlaceholder'), 'Exam');
     await user.click(screen.getByRole('button', { name: 'confirm' }));
@@ -221,7 +224,7 @@ describe('ReservationPlanner integration', () => {
       success: true,
       data: { occupiedSlots: [] },
     });
-    renderWithUser(
+    const { user } = renderWithUser(
       <ReservationPlanner
         organization={buildOrganization()}
         classrooms={[buildClassroom({ name: 'Lab 1', capacity: 25 })]}
@@ -235,13 +238,15 @@ describe('ReservationPlanner integration', () => {
     await waitFor(() => {
       expect(fetchOccupiedSlotsActionMock).toHaveBeenCalled();
     });
-    fireEvent.click(screen.getByRole('button', { name: 'empty slot' }));
-    fireEvent.change(screen.getByDisplayValue('10:00'), {
-      target: { value: '11:30' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'confirm' }));
+    await user.click(screen.getByRole('button', { name: 'empty slot' }));
+    const startInput = await screen.findByDisplayValue('10:00');
+    await user.clear(startInput);
+    await user.type(startInput, '11:30');
+    await user.click(screen.getByRole('button', { name: 'confirm' }));
 
-    expect(toastErrorMock).toHaveBeenCalledWith('rangeError');
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith('rangeError');
+    });
     expect(requestReservationActionMock).not.toHaveBeenCalled();
   });
 
@@ -259,7 +264,7 @@ describe('ReservationPlanner integration', () => {
       success: false,
       message: 'ERR_CONFLICT',
     });
-    renderWithUser(
+    const { user } = renderWithUser(
       <ReservationPlanner
         organization={buildOrganization()}
         classrooms={[buildClassroom({ name: 'Lab 1', capacity: 25 })]}
@@ -273,8 +278,9 @@ describe('ReservationPlanner integration', () => {
     await waitFor(() => {
       expect(fetchOccupiedSlotsActionMock).toHaveBeenCalled();
     });
-    fireEvent.click(screen.getByRole('button', { name: 'empty slot' }));
-    fireEvent.click(screen.getByRole('button', { name: 'confirm' }));
+    await user.click(screen.getByRole('button', { name: 'empty slot' }));
+    await screen.findByRole('button', { name: 'confirm' });
+    await user.click(screen.getByRole('button', { name: 'confirm' }));
 
     await waitFor(() => {
       expect(requestReservationActionMock).toHaveBeenCalled();

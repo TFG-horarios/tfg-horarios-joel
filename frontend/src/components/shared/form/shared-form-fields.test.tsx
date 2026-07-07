@@ -14,6 +14,9 @@ type FormValues = {
   kind: string;
   tags: string[];
 };
+type SearchableFormValues = {
+  searchableKind: string;
+};
 
 function FormHarness({ onSubmit }: { onSubmit: (values: FormValues) => void }) {
   const form = useForm<FormValues>({
@@ -48,6 +51,34 @@ function FormHarness({ onSubmit }: { onSubmit: (values: FormValues) => void }) {
   );
 }
 
+function SearchableFormHarness({
+  onSubmit,
+}: {
+  onSubmit: (values: SearchableFormValues) => void;
+}) {
+  const form = useForm<SearchableFormValues>({
+    defaultValues: {
+      searchableKind: '',
+    },
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormSelect
+          name="searchableKind"
+          label="Searchable kind"
+          placeholder="Choose searchable kind"
+          searchable
+          searchPlaceholder="Search kinds"
+          options={[{ label: 'Practice', value: 'practice' }]}
+        />
+        <button type="submit">Save searchable</button>
+      </form>
+    </Form>
+  );
+}
+
 describe('shared form fields', () => {
   it('binds shared field wrappers to react-hook-form values', async () => {
     const onSubmit = vi.fn<(values: FormValues) => void>();
@@ -67,6 +98,24 @@ describe('shared form fields', () => {
         enabled: true,
         kind: 'theory',
         tags: ['core'],
+      },
+      expect.objectContaining({ type: 'submit' })
+    );
+  });
+
+  it('binds searchable selects to react-hook-form values', async () => {
+    const onSubmit = vi.fn<(values: SearchableFormValues) => void>();
+    const { user } = renderWithUser(
+      <SearchableFormHarness onSubmit={onSubmit} />
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Searchable kind' }));
+    await user.click(await screen.findByText('Practice'));
+    await user.click(screen.getByRole('button', { name: 'Save searchable' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        searchableKind: 'practice',
       },
       expect.objectContaining({ type: 'submit' })
     );

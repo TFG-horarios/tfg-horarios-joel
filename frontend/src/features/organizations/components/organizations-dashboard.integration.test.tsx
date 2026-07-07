@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { buildOrganization } from '@/test/builders';
 import { setNavigationMocks, mockRouterReplace } from '@/test/navigation-mocks';
@@ -121,5 +121,44 @@ describe('OrganizationsDashboard integration', () => {
     expect(
       screen.queryByText('editing Editable School')
     ).not.toBeInTheDocument();
+  });
+
+  it('opens the create dialog from the keyboard shortcut card', () => {
+    setNavigationMocks({ pathname: '/organizations', searchParams: '' });
+
+    renderWithUser(
+      <OrganizationsDashboard
+        initialOrganizations={[buildOrganization({ name: 'Keyboard School' })]}
+        userRolesMap={{ [buildOrganization().id]: 'member' }}
+      />
+    );
+
+    fireEvent.keyDown(screen.getByRole('button', { name: '' }), {
+      key: 'Enter',
+    });
+
+    expect(mockRouterReplace).toHaveBeenCalledWith('/organizations?new=true', {
+      scroll: false,
+    });
+  });
+
+  it('renders the empty search state and closes the create dialog through form success', async () => {
+    setNavigationMocks({
+      pathname: '/organizations',
+      searchParams: 'q=missing&new=true',
+    });
+    const { user } = renderWithUser(
+      <OrganizationsDashboard
+        initialOrganizations={[buildOrganization({ name: 'Visible School' })]}
+        userRolesMap={{ [buildOrganization().id]: 'admin' }}
+      />
+    );
+
+    expect(screen.getByText('empty.searchResults')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'form success' }));
+
+    expect(mockRouterReplace).toHaveBeenCalledWith('/organizations?q=missing', {
+      scroll: false,
+    });
   });
 });

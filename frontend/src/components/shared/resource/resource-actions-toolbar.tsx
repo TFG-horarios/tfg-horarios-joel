@@ -29,6 +29,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -200,6 +201,9 @@ export function ResourceActionsToolbar({
                   <DialogContent className="w-fit max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-hidden">
                     <DialogHeader>
                       <DialogTitle>{translations.addFromCsv}</DialogTitle>
+                      <DialogDescription>
+                        {translations.addFromCsv}
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="pt-4">{appendModalContent}</div>
                   </DialogContent>
@@ -216,6 +220,9 @@ export function ResourceActionsToolbar({
                   <DialogContent className="w-fit max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-hidden">
                     <DialogHeader>
                       <DialogTitle>{translations.replaceAll}</DialogTitle>
+                      <DialogDescription>
+                        {translations.replaceAllWarning}
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="mt-2 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
                       {translations.replaceAllWarning}

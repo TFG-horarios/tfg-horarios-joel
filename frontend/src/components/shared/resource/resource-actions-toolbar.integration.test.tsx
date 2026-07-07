@@ -45,13 +45,17 @@ describe('ResourceActionsToolbar integration', () => {
   });
 
   it('keeps delete-all open on returned and thrown errors', async () => {
+    const thrownError = new Error('Unexpected failure');
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
     const onDeleteAll = vi
       .fn<() => Promise<{ success: boolean; message?: string }>>()
       .mockResolvedValueOnce({
         success: false,
         message: 'Cannot remove resources',
       })
-      .mockRejectedValueOnce(new Error('Unexpected failure'));
+      .mockRejectedValueOnce(thrownError);
     const { user } = renderWithUser(
       <ResourceActionsToolbar
         translations={translations}
@@ -76,5 +80,7 @@ describe('ResourceActionsToolbar integration', () => {
       expect(onDeleteAll).toHaveBeenCalledTimes(2);
     });
     expect(await screen.findByText('delete')).toBeInTheDocument();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(thrownError);
+    consoleErrorSpy.mockRestore();
   });
 });

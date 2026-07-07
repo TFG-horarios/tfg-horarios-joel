@@ -51,7 +51,7 @@ vi.mock('@/components/shared/resource/resource-row-actions', () => ({
     onDelete?: () => void;
     children?: ReactNode;
   }) => (
-    <div>
+    <td>
       <button type="button" onClick={onEdit}>
         row edit
       </button>
@@ -61,7 +61,7 @@ vi.mock('@/components/shared/resource/resource-row-actions', () => ({
         </button>
       )}
       {children}
-    </div>
+    </td>
   ),
 }));
 
@@ -263,6 +263,110 @@ describe('TimeConfigManager integration', () => {
       );
       expect(mockRouterRefresh).toHaveBeenCalled();
     });
+  });
+
+  it('saves an unchanged existing config without the confirmation dialog', async () => {
+    updateScheduleTimeConfigActionMock.mockResolvedValue({
+      success: true,
+      data: configured,
+    });
+    const { user } = renderWithUser(
+      <TimeConfigManager
+        organizationId={testIds.organizationId}
+        academicYearId={testIds.academicYearId}
+        academicYear={buildAcademicYear()}
+        configs={[configured]}
+        possibilities={[]}
+        degrees={[buildDegree()]}
+        itineraries={[]}
+        canEdit
+        view="table"
+        translations={translations}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'row edit' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.queryByText('Confirm edit')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(updateScheduleTimeConfigActionMock).toHaveBeenCalledWith(
+        testIds.organizationId,
+        testIds.academicYearId,
+        configured.id,
+        {
+          startTime: '08:00',
+          endTime: '12:00',
+          hasBreak: true,
+          breakAfterSlot: 2,
+        }
+      );
+    });
+  });
+
+  it('creates a config without a break when the break switch is disabled', async () => {
+    createScheduleTimeConfigActionMock.mockResolvedValue({
+      success: true,
+      data: { ...configured, hasBreak: false, breakAfterSlot: null },
+    });
+    const { user } = renderWithUser(
+      <TimeConfigManager
+        organizationId={testIds.organizationId}
+        academicYearId={testIds.academicYearId}
+        academicYear={buildAcademicYear()}
+        configs={[]}
+        possibilities={[unconfigured]}
+        degrees={[buildDegree()]}
+        itineraries={[buildItinerary()]}
+        canEdit
+        view="grid"
+        translations={translations}
+      />
+    );
+
+    await user.click(screen.getByTitle('Configure'));
+    await user.click(screen.getByRole('switch'));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(createScheduleTimeConfigActionMock).toHaveBeenCalledWith(
+        testIds.organizationId,
+        testIds.academicYearId,
+        expect.objectContaining({
+          hasBreak: false,
+          breakAfterSlot: null,
+        })
+      );
+    });
+  });
+
+  it('keeps the modal open when creating a config fails', async () => {
+    createScheduleTimeConfigActionMock.mockResolvedValue({
+      success: false,
+      message: 'Invalid timing',
+    });
+    const { user } = renderWithUser(
+      <TimeConfigManager
+        organizationId={testIds.organizationId}
+        academicYearId={testIds.academicYearId}
+        academicYear={buildAcademicYear()}
+        configs={[]}
+        possibilities={[unconfigured]}
+        degrees={[buildDegree()]}
+        itineraries={[buildItinerary()]}
+        canEdit
+        view="table"
+        translations={translations}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /Configure/ }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(createScheduleTimeConfigActionMock).toHaveBeenCalled();
+    });
+    expect(screen.getByText('Create time config')).toBeInTheDocument();
   });
 
   it('deletes configured items from the grid action and keeps read-only cards passive', async () => {

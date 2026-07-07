@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 export const mockRouterPush = vi.fn<(href: string) => void>();
 export const mockRouterReplace = vi.fn<(href: string) => void>();
 export const mockRouterRefresh = vi.fn<() => void>();
+export const mockRouterBack = vi.fn<() => void>();
 
 let mockPathname = '/resources';
 let mockSearchParams = '';
@@ -17,6 +18,7 @@ export function getMockSearchParams() {
 
 export function getMockRouter() {
   return {
+    back: mockRouterBack,
     push: mockRouterPush,
     replace: mockRouterReplace,
     refresh: mockRouterRefresh,
@@ -37,4 +39,5 @@ export function setNavigationMocks({
 export function resetNavigationMocks() {
   mockPathname = '/resources';
   mockSearchParams = '';
+  mockRouterBack.mockClear();
 }

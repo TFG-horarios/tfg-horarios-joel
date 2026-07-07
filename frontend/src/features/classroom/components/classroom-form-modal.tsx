@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -64,6 +65,9 @@ export function ClassroomFormModal({
           <DialogTitle>
             {isEditing ? 'Editar Aula' : t('actions.create')}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isEditing ? 'Editar los datos del aula' : 'Crear una nueva aula'}
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <ClassroomForm

@@ -26,4 +26,21 @@ describe('ResourceViewToggle', () => {
     });
     expect(mockRouterRefresh).toHaveBeenCalledOnce();
   });
+
+  it('stores the table view from the default grid state', async () => {
+    setNavigationMocks({
+      pathname: '/subjects',
+      searchParams: '',
+    });
+    const { user } = renderWithUser(
+      <ResourceViewToggle viewKey="subjects-view" />
+    );
+
+    await user.click(screen.getByTitle('Vista en tabla'));
+
+    expect(document.cookie).toContain('subjects-view=table');
+    expect(mockRouterReplace).toHaveBeenCalledWith('/subjects', {
+      scroll: false,
+    });
+  });
 });

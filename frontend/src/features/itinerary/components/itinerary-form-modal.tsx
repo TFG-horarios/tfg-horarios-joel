@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -84,6 +85,9 @@ export function ItineraryFormModal({
           <DialogTitle>
             {isEditing ? t('actions.edit') : t('actions.create')}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isEditing ? t('actions.edit') : t('actions.create')}
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <ItineraryForm

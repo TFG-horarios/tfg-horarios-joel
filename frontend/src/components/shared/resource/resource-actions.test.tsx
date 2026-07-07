@@ -162,8 +162,12 @@ describe('Resource actions', () => {
   });
 
   it('shows the fallback delete error when delete-all throws', async () => {
+    const thrownError = new Error('Unexpected failure');
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
     const onDeleteAll = vi.fn(async () => {
-      throw new Error('Unexpected failure');
+      throw thrownError;
     });
     const { user } = renderWithUser(
       <ResourceActionsToolbar
@@ -179,6 +183,8 @@ describe('Resource actions', () => {
     fireEvent.click(deleteButtons.at(-1)!);
 
     expect(await screen.findByText('delete')).toBeInTheDocument();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(thrownError);
+    consoleErrorSpy.mockRestore();
   });
 
   it('shows import dialogs for append and overwrite CSV flows', async () => {

@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PaginationMetaDTO } from '@tfg-horarios/shared';
 import { renderWithUser } from '@/test/render';
@@ -141,10 +141,12 @@ describe('ResourceLayout family', () => {
 
     expect(screen.getByText('Alpha item')).toBeInTheDocument();
 
-    intersectionCallback?.(
-      [{ isIntersecting: true } as IntersectionObserverEntry],
-      new TestIntersectionObserver(() => undefined)
-    );
+    await act(async () => {
+      intersectionCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        new TestIntersectionObserver(() => undefined)
+      );
+    });
 
     await waitFor(() => {
       expect(loadMore).toHaveBeenCalledWith(2);

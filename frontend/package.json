@@ -8,8 +8,6 @@
     "start": "next start",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.mts",
-    "test:integration:coverage": "vitest run --config vitest.integration.config.mts --coverage",
     "typecheck": "tsc --noEmit",
     "test:coverage": "vitest run --coverage"
   },

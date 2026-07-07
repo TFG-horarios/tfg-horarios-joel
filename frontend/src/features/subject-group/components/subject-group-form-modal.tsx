@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -84,6 +85,9 @@ export function SubjectGroupFormModal({
           <DialogTitle>
             {isEditing ? 'Editar Grupo' : t('actions.create')}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isEditing ? 'Editar los datos del grupo' : 'Crear un nuevo grupo'}
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <SubjectGroupForm
