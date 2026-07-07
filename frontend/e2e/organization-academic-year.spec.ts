@@ -27,14 +27,16 @@ test.describe('organization and academic year navigation', () => {
     );
 
     await page.goto(`/organizations/${organization.id}`);
-    await expect(page.getByText(academicYear.name)).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: academicYear.name }).first()
+    ).toBeVisible();
 
     await page.goto(
       `/organizations/${organization.id}/academic-years/${academicYear.id}`
     );
     const main = page.getByRole('main');
     await expect(
-      page.getByRole('heading', { name: academicYear.name }).first()
+      page.getByRole('heading', { name: academicYear.name })
     ).toBeVisible();
     await expect(main.getByText('Resumen del curso')).toBeVisible();
     await expect(main.getByText('Calendario lectivo')).toBeVisible();
