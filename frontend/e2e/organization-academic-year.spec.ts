@@ -34,7 +34,7 @@ test.describe('organization and academic year navigation', () => {
     );
     const main = page.getByRole('main');
     await expect(
-      page.getByRole('heading', { name: academicYear.name })
+      page.getByRole('heading', { name: academicYear.name }).first()
     ).toBeVisible();
     await expect(main.getByText('Resumen del curso')).toBeVisible();
     await expect(main.getByText('Calendario lectivo')).toBeVisible();
