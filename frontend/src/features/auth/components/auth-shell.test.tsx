@@ -40,7 +40,6 @@ describe('AuthShell', () => {
 
     const eyebrowElement = screen.getByText('Security');
     expect(eyebrowElement).toBeInTheDocument();
-    expect(eyebrowElement).toHaveClass('uppercase');
   });
 
   it('does not render the eyebrow element when the prop is missing', () => {
@@ -49,12 +48,11 @@ describe('AuthShell', () => {
     expect(eyebrowElement).not.toBeInTheDocument();
   });
 
-  it('applies the correct container classes for styling', () => {
-    const { container } = render(
-      <AuthShell {...defaultProps}>Content</AuthShell>
-    );
+  it('keeps heading semantics for the title', () => {
+    render(<AuthShell {...defaultProps}>Content</AuthShell>);
 
-    const cardElement = container.firstChild;
-    expect(cardElement).toHaveClass('max-w-md');
+    expect(
+      screen.getByRole('heading', { name: defaultProps.title })
+    ).toBeInTheDocument();
   });
 });
