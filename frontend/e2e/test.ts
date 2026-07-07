@@ -7,10 +7,24 @@ type E2EFixtures = {
   user: E2EUser;
 };
 
+function hashText(value: string) {
+  let hash = 0;
+
+  for (const char of value) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+
+  return hash.toString(36);
+}
+
 export const test = base.extend<E2EFixtures>({
   runId: async ({ browserName }, use, testInfo) => {
-    const safeTitle = testInfo.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    await use(`${Date.now()}-${testInfo.workerIndex}-${browserName}-${safeTitle}`);
+    const titleHash = hashText(testInfo.title);
+    const timestamp = Date.now().toString(36);
+
+    await use(
+      `${timestamp}-${testInfo.workerIndex}-${browserName}-${titleHash}`
+    );
   },
   api: async ({ request }, use) => {
     await use(
