@@ -8,9 +8,9 @@ type E2EFixtures = {
 };
 
 export const test = base.extend<E2EFixtures>({
-  runId: async (_, use, testInfo) => {
+  runId: async ({ browserName }, use, testInfo) => {
     const safeTitle = testInfo.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    await use(`${Date.now()}-${testInfo.workerIndex}-${safeTitle}`);
+    await use(`${Date.now()}-${testInfo.workerIndex}-${browserName}-${safeTitle}`);
   },
   api: async ({ request }, use) => {
     await use(

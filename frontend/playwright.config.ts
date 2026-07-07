@@ -40,12 +40,14 @@ export default defineConfig({
     },
     {
       command: isCI
-        ? `bun run start -- --hostname 127.0.0.1 --port ${frontendPort}`
+        ? 'node .next/standalone/server.js'
         : `bun run dev -- --hostname 127.0.0.1 --port ${frontendPort}`,
       url: frontendUrl,
       reuseExistingServer: !isCI,
       timeout: 120_000,
       env: {
+        HOSTNAME: '127.0.0.1',
+        PORT: String(frontendPort),
         NEXT_PUBLIC_API_URL: backendUrl,
         INTERNAL_API_URL: backendUrl,
         COOKIE_SECURE: 'false',
