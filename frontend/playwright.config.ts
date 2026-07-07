@@ -40,7 +40,7 @@ export default defineConfig({
     },
     {
       command: isCI
-        ? 'node .next/standalone/server.js'
+        ? 'node .next/standalone/frontend/server.js'
         : `bun run dev -- --hostname 127.0.0.1 --port ${frontendPort}`,
       url: frontendUrl,
       reuseExistingServer: !isCI,
