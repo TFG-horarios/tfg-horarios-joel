@@ -328,9 +328,6 @@
       "editTitle": "Editar organización",
       "editDescription": "Modifica los detalles de la organización."
     },
-    "empty": {
-      "searchResults": "No hay organizaciones que coincidan con tu búsqueda."
-    },
     "detail": {
       "label": "Detalles de la organización",
       "title": "Organización: {organization}",
@@ -1078,7 +1075,8 @@
     },
     "empty": {
       "title": "No hay organizaciones todavía",
-      "description": "Cuando crees una organización, aparecerá aquí para que puedas acceder a sus detalles."
+      "description": "Cuando crees una organización, aparecerá aquí para que puedas acceder a sus detalles.",
+      "searchResults": "No hay organizaciones que coincidan con tu búsqueda."
     },
     "classroomSchedules": {
       "label": "Horarios por Aula",

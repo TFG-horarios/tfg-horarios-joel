@@ -5,3 +5,5 @@ docs/
 *.tsbuildinfo
 .env
 .vscode/
+frontend/playwright-report/
+frontend/test-results/

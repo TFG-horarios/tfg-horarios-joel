@@ -328,9 +328,6 @@
       "editTitle": "Edit organization",
       "editDescription": "Modify the organization's details."
     },
-    "empty": {
-      "searchResults": "No organizations match your search."
-    },
     "detail": {
       "label": "Organization details",
       "title": "Organization: {organization}",
@@ -1078,7 +1075,8 @@
     },
     "empty": {
       "title": "No organizations yet",
-      "description": "Once you create an organization, it will appear here so you can open its details."
+      "description": "Once you create an organization, it will appear here so you can open its details.",
+      "searchResults": "No organizations match your search."
     },
     "classroomSchedules": {
       "label": "Classroom Schedules",
