@@ -1,9 +1,5 @@
 import { screen } from '@testing-library/react';
-import type {
-  DegreeDTO,
-  ItineraryDTO,
-  SubjectDTO,
-} from '@tfg-horarios/shared';
+import type { DegreeDTO, ItineraryDTO, SubjectDTO } from '@tfg-horarios/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithUser } from '@/test/render';
 import type { ActionResponse } from '@/types/actions';

@@ -24,7 +24,9 @@ describe('SubjectGroupForm', () => {
       />
     );
 
-    expect(screen.getByRole('combobox', { name: 'subjectId.label' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'subjectId.label' })
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('needsComputerLab.label')).not.toBeChecked();
   });
 
@@ -47,7 +49,9 @@ describe('SubjectGroupForm', () => {
       />
     );
 
-    expect(screen.queryByRole('combobox', { name: 'subjectId.label' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'subjectId.label' })
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText('name.label')).toHaveValue('Practice 2');
     expect(screen.getByLabelText('needsComputerLab.label')).toBeChecked();
   });

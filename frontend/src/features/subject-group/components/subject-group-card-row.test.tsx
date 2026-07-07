@@ -39,7 +39,9 @@ describe('SubjectGroup display components', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: 'Theory 1' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Theory 1' })
+    ).toBeInTheDocument();
     expect(screen.getByText('MAT101')).toBeInTheDocument();
     expect(screen.getByText('TE')).toBeInTheDocument();
     expect(screen.getByText('Aula PC: Sí')).toBeInTheDocument();
@@ -54,7 +56,9 @@ describe('SubjectGroup display components', () => {
       </table>
     );
 
-    expect(screen.getByRole('cell', { name: 'Mathematics I' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Mathematics I' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Theory 1' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Morning' })).toBeInTheDocument();
   });

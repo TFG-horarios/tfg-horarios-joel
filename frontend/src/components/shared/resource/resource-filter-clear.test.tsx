@@ -1,9 +1,6 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  mockRouterPush,
-  setNavigationMocks,
-} from '@/test/navigation-mocks';
+import { mockRouterPush, setNavigationMocks } from '@/test/navigation-mocks';
 import { renderWithUser } from '@/test/render';
 import { ResourceFilterClear } from './resource-filter-clear';
 
@@ -32,6 +29,8 @@ describe('ResourceFilterClear', () => {
 
     await user.click(screen.getByRole('button', { name: /resetFilters/i }));
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/classrooms?limit=20&view=grid');
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      '/classrooms?limit=20&view=grid'
+    );
   });
 });

@@ -19,7 +19,9 @@ describe('ItineraryForm', () => {
       />
     );
 
-    expect(screen.getByRole('combobox', { name: 'degreeId.label' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'degreeId.label' })
+    ).toBeInTheDocument();
   });
 
   it('uses default values and exposes cancel while editing', async () => {
@@ -41,7 +43,9 @@ describe('ItineraryForm', () => {
       />
     );
 
-    expect(screen.queryByRole('combobox', { name: 'degreeId.label' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'degreeId.label' })
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText('name.label')).toHaveValue('Legacy');
 
     await user.click(screen.getByRole('button', { name: 'Cancelar' }));

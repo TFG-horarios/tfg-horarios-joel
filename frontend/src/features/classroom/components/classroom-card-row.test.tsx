@@ -19,7 +19,9 @@ describe('Classroom display components', () => {
       <ClassroomCard item={buildClassroom()} translations={translations} />
     );
 
-    expect(screen.getByRole('heading', { name: 'Aula 1.1' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Aula 1.1' })
+    ).toBeInTheDocument();
     expect(screen.getByText('Theory')).toBeInTheDocument();
     expect(screen.getByText('Floor 1')).toBeInTheDocument();
     expect(screen.getByText('60')).toBeInTheDocument();
@@ -38,7 +40,9 @@ describe('Classroom display components', () => {
     );
 
     expect(screen.getByRole('cell', { name: 'Aula 1.1' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Computer lab' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Computer lab' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '1' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '60' })).toBeInTheDocument();
   });

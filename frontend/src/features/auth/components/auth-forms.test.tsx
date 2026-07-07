@@ -19,8 +19,14 @@ describe('auth forms', () => {
   it('submits valid login credentials', async () => {
     const { user } = renderWithUser(<LoginForm />);
 
-    await user.type(screen.getByLabelText('fields.email.label'), 'ada@example.com');
-    await user.type(screen.getByLabelText('fields.password.label'), 'password123');
+    await user.type(
+      screen.getByLabelText('fields.email.label'),
+      'ada@example.com'
+    );
+    await user.type(
+      screen.getByLabelText('fields.password.label'),
+      'password123'
+    );
     await user.click(screen.getByRole('button', { name: 'submit' }));
 
     await waitFor(() => {
@@ -35,8 +41,14 @@ describe('auth forms', () => {
     const { user } = renderWithUser(<RegisterForm />);
 
     await user.type(screen.getByLabelText('fields.name.label'), 'Ada Lovelace');
-    await user.type(screen.getByLabelText('fields.email.label'), 'ada@example.com');
-    await user.type(screen.getByLabelText('fields.password.label'), 'password123');
+    await user.type(
+      screen.getByLabelText('fields.email.label'),
+      'ada@example.com'
+    );
+    await user.type(
+      screen.getByLabelText('fields.password.label'),
+      'password123'
+    );
     await user.type(
       screen.getByLabelText('fields.confirmPassword.label'),
       'password123'

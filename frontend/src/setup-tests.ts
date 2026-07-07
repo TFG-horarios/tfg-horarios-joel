@@ -70,12 +70,36 @@ vi.mock('next/link', () => {
 vi.mock('next-intl', () => ({
   useLocale: () => 'en-US',
   useTranslations: () => {
-    return (key: string, values?: Record<string, string | number>) => {
+    const translate = (
+      key: string,
+      values?: Record<string, string | number>
+    ) => {
       if (!values) return key;
 
       const renderedValues = Object.values(values).join(', ');
       return `${key} ${renderedValues}`;
     };
+
+    translate.rich = (
+      key: string,
+      values?: Record<
+        string,
+        string | number | ((chunks: ReactNode) => ReactNode)
+      >
+    ) => {
+      const plainValues = values
+        ? Object.fromEntries(
+            Object.entries(values).filter(
+              (entry): entry is [string, string | number] =>
+                typeof entry[1] !== 'function'
+            )
+          )
+        : undefined;
+
+      return translate(key, plainValues);
+    };
+
+    return translate;
   },
 }));
 

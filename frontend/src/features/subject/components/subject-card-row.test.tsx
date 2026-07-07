@@ -45,7 +45,9 @@ describe('Subject display components', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: 'Mathematics I' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Mathematics I' })
+    ).toBeInTheDocument();
     expect(screen.getByText('MAT101')).toBeInTheDocument();
     expect(screen.getByText('CE')).toBeInTheDocument();
     expect(screen.getByText('SE')).toBeInTheDocument();
@@ -63,6 +65,8 @@ describe('Subject display components', () => {
 
     expect(screen.getByRole('cell', { name: 'MAT101' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Common' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'First semester' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'First semester' })
+    ).toBeInTheDocument();
   });
 });

@@ -1,9 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  mockRouterPush,
-  setNavigationMocks,
-} from '@/test/navigation-mocks';
+import { mockRouterPush, setNavigationMocks } from '@/test/navigation-mocks';
 import { useQueryFilters } from './use-query-filters';
 
 describe('useQueryFilters', () => {
@@ -51,7 +48,9 @@ describe('useQueryFilters', () => {
       });
     });
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/classrooms?limit=10&capacity=40');
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      '/classrooms?limit=10&capacity=40'
+    );
   });
 
   it('clears filters while preserving list preferences', () => {

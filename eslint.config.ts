@@ -30,6 +30,7 @@ export default defineConfig([
             'eslint.config.ts',
             'frontend/postcss.config.mjs',
             'frontend/vitest.config.mts',
+            'frontend/vitest.integration.config.mts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,

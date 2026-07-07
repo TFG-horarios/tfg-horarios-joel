@@ -8,7 +8,9 @@ describe('OrganizationCard', () => {
   it('renders organization navigation for read-only cards', () => {
     renderWithUser(<OrganizationCard organization={buildOrganization()} />);
 
-    expect(screen.getByRole('heading', { name: 'Engineering School' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Engineering School' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute(
       'href',
       `/organizations/${testIds.organizationId}`

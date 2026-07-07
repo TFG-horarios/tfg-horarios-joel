@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SaveOrganizationDTO } from '@tfg-horarios/shared';
 import { buildOrganization } from '@/test/builders';
 import { renderWithUser } from '@/test/render';
-import {
-  createOrganizationAction,
-} from '../actions';
+import { createOrganizationAction } from '../actions';
 import { OrganizationForm } from './organization-form';
 
 vi.mock('../actions', () => ({

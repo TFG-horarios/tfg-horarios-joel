@@ -72,9 +72,8 @@ describe('useActionForm', () => {
         errors: serverErrors,
       })
     );
-    const onError = vi.fn<
-      (message?: string, errors?: Record<string, string[]>) => void
-    >();
+    const onError =
+      vi.fn<(message?: string, errors?: Record<string, string[]>) => void>();
     const { user } = renderWithUser(
       <TestActionForm action={action} onError={onError} />
     );

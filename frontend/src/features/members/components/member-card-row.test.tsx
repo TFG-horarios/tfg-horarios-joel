@@ -16,7 +16,9 @@ describe('Member display components', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Ada Lovelace' })
+    ).toBeInTheDocument();
     expect(screen.getByText('ada@example.com')).toBeInTheDocument();
     expect(screen.getByText('SELF')).toBeInTheDocument();
   });
@@ -37,7 +39,9 @@ describe('Member display components', () => {
       </table>
     );
 
-    expect(screen.getByRole('cell', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Ada Lovelace' })
+    ).toBeInTheDocument();
     expect(screen.getByText('roles.editor')).toBeInTheDocument();
     expect(screen.getByTitle('edit')).toBeInTheDocument();
   });

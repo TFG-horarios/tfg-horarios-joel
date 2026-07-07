@@ -6,17 +6,16 @@ import {
 } from './conflict-message';
 
 describe('formatConflictMessage', () => {
-  const translate = (
-    key: string,
-    values?: Record<string, string | number>
-  ) => {
+  const translate = (key: string, values?: Record<string, string | number>) => {
     if (!values) return key;
 
     return `${key}:${Object.values(values).join(',')}`;
   };
 
   it('returns the translated conflict type message', () => {
-    const conflict = { type: 'ROOM_OVERLAP' } satisfies ScheduleConflictDetailDTO;
+    const conflict = {
+      type: 'ROOM_OVERLAP',
+    } satisfies ScheduleConflictDetailDTO;
 
     expect(formatConflictMessage(conflict, 30, translate)).toBe(
       conflictTranslationKeys.ROOM_OVERLAP

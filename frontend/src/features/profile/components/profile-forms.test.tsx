@@ -23,7 +23,10 @@ vi.mock('../actions', () => ({
   updateProfileNameAction: vi.fn<
     (
       data: SaveUserDTO
-    ) => Promise<{ success: true; data: { id: string; name: string; email: string } }>
+    ) => Promise<{
+      success: true;
+      data: { id: string; name: string; email: string };
+    }>
   >(async (data) => ({
     success: true,
     data: {

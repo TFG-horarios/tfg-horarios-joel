@@ -4,13 +4,7 @@ import { setNavigationMocks } from '@/test/navigation-mocks';
 import { renderWithUser } from '@/test/render';
 import { ResourceToolbar } from './resource-toolbar';
 
-function Filter({
-  paramKey,
-  label,
-}: {
-  paramKey?: string;
-  label: string;
-}) {
+function Filter({ label }: { paramKey?: string; label: string }) {
   return <div>{label}</div>;
 }
 

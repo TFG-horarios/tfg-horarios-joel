@@ -1,9 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  mockRouterPush,
-  setNavigationMocks,
-} from '@/test/navigation-mocks';
+import { mockRouterPush, setNavigationMocks } from '@/test/navigation-mocks';
 import { renderWithUser } from '@/test/render';
 import { ResourceFilterSelect } from './resource-filter-select';
 

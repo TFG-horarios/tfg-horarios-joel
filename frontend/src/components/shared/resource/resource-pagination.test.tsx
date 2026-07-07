@@ -50,7 +50,10 @@ describe('ResourcePagination', () => {
   });
 
   it('disables next navigation on the last page and links back to the first page', () => {
-    setNavigationMocks({ pathname: '/subjects', searchParams: 'q=math&page=8' });
+    setNavigationMocks({
+      pathname: '/subjects',
+      searchParams: 'q=math&page=8',
+    });
 
     renderWithUser(<ResourcePagination page={8} totalPages={8} />);
 

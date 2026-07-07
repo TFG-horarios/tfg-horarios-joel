@@ -17,7 +17,9 @@ describe('AcademicYearCard', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: 'Curso 2025-2026' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Curso 2025-2026' })
+    ).toBeInTheDocument();
     expect(screen.getByText('active')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute(
       'href',

@@ -22,7 +22,9 @@ describe('Itinerary display components', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: 'Software Engineering' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Software Engineering' })
+    ).toBeInTheDocument();
     expect(screen.getByText('SE')).toBeInTheDocument();
     expect(screen.getByText('CE')).toBeInTheDocument();
   });
@@ -40,7 +42,11 @@ describe('Itinerary display components', () => {
       </table>
     );
 
-    expect(screen.getByRole('cell', { name: 'Software Engineering' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Unassigned' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Software Engineering' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Unassigned' })
+    ).toBeInTheDocument();
   });
 });

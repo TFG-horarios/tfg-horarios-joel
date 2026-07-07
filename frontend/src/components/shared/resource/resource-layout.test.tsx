@@ -93,7 +93,9 @@ describe('ResourceLayout family', () => {
       />
     );
 
-    expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: 'Name' })
+    ).toBeInTheDocument();
     expect(screen.getByText('Alpha')).toBeInTheDocument();
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });

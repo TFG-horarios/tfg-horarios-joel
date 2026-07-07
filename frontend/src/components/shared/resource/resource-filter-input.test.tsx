@@ -1,9 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  mockRouterPush,
-  setNavigationMocks,
-} from '@/test/navigation-mocks';
+import { mockRouterPush, setNavigationMocks } from '@/test/navigation-mocks';
 import { renderWithUser } from '@/test/render';
 import { ResourceFilterInput } from './resource-filter-input';
 
@@ -37,9 +34,7 @@ describe('ResourceFilterInput', () => {
     await user.clear(screen.getByPlaceholderText('Capacity'));
 
     await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        '/classrooms?building=north'
-      );
+      expect(mockRouterPush).toHaveBeenCalledWith('/classrooms?building=north');
     });
   });
 });

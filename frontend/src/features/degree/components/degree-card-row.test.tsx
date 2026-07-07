@@ -9,7 +9,9 @@ describe('Degree display components', () => {
   it('renders the degree identity in card view', () => {
     renderWithUser(<DegreeCard item={buildDegree()} />);
 
-    expect(screen.getByRole('heading', { name: 'Computer Engineering' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Computer Engineering' })
+    ).toBeInTheDocument();
     expect(screen.getByText('CE')).toBeInTheDocument();
   });
 
@@ -22,7 +24,9 @@ describe('Degree display components', () => {
       </table>
     );
 
-    expect(screen.getByRole('cell', { name: 'Computer Engineering' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Computer Engineering' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'CE' })).toBeInTheDocument();
     expect(screen.queryByTitle('edit')).not.toBeInTheDocument();
   });

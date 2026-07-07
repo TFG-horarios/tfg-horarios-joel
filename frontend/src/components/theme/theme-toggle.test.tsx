@@ -33,9 +33,11 @@ describe('ThemeToggle', () => {
     resolvedTheme = 'dark';
     const { user } = renderWithUser(<ThemeToggle />);
 
-    await user.click(await screen.findByRole('switch', {
-      name: 'toggleTheme',
-    }));
+    await user.click(
+      await screen.findByRole('switch', {
+        name: 'toggleTheme',
+      })
+    );
 
     expect(setTheme).toHaveBeenCalledWith('light');
   });
