@@ -132,9 +132,21 @@ jobs:
           docker compose -f docker-compose.prod.yml restart nginx
 
       - name: Smoke test
-        id: smoke
         run: |
-          curl --fail --retry 12 --retry-delay 5 "${APP_URL}/healthz"
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost/healthz; then
+              echo "App is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for app... attempt $i"
+            sleep 5
+          done
+
+          echo "App did not become healthy"
+          docker compose -f docker-compose.prod.yml ps
+          docker compose -f docker-compose.prod.yml logs --tail=100 nginx frontend backend
+          exit 1
 
       - name: Show deployment diagnostics
         if: failure() && steps.smoke.outcome == 'failure'
