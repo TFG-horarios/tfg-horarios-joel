@@ -195,7 +195,16 @@ export function NotificationBell() {
                 className={`flex cursor-pointer flex-col gap-1 rounded-md p-3 text-sm transition-colors hover:bg-muted ${
                   !notification.isRead ? 'bg-muted/50' : ''
                 }`}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
+                  if (!notification.isRead) markAsRead(notification.id);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                  }
+                  event.preventDefault();
                   if (!notification.isRead) markAsRead(notification.id);
                 }}
               >

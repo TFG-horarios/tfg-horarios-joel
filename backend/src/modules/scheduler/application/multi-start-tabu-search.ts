@@ -11,9 +11,9 @@ interface MultiStartOptions {
 export const buildSeeds = (
   attempts: number = MAX_GENERATION_ATTEMPTS
 ): number[] => {
-  return Array.from({ length: attempts }, () =>
-    Math.floor(Math.random() * 4294967296)
-  );
+  const seeds = new Uint32Array(Math.max(0, Math.trunc(attempts)));
+  crypto.getRandomValues(seeds);
+  return Array.from(seeds);
 };
 
 export const isBetterHardSolution = (

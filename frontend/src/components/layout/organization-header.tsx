@@ -501,9 +501,11 @@ function OrganizationHeaderInner() {
 
       {hasAcademicYear && (
         <>
-          <div
+          <button
+            type="button"
+            aria-label="Cerrar menú"
             className={cn(
-              'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
+              'fixed inset-0 z-50 border-0 bg-black/60 p-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
               isMobileMenuOpen
                 ? 'opacity-100 pointer-events-auto'
                 : 'opacity-0 pointer-events-none'

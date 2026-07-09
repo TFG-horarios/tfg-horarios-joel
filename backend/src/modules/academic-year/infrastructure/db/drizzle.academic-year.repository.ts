@@ -139,7 +139,7 @@ export class DrizzleAcademicYearRepository implements IAcademicYearRepository {
       academicYear.period2End,
     ]
       .filter((date): date is string => date !== null)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .at(-1);
 
     const today = new Date().toISOString().slice(0, 10);

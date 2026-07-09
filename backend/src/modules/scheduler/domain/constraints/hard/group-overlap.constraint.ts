@@ -24,7 +24,9 @@ export class GroupOverlapConstraint implements IScheduleConstraint {
           if (b.startMinutes >= a.endMinutes) break;
           if (!intervalsOverlap(a, b)) continue;
 
-          const pairKey = [a.assignment.id, b.assignment.id].sort().join(':');
+          const pairKey = [a.assignment.id, b.assignment.id]
+            .sort((left, right) => left.localeCompare(right))
+            .join(':');
           if (registeredPairs.has(pairKey)) continue;
           registeredPairs.add(pairKey);
 

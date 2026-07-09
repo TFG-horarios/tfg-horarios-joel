@@ -68,7 +68,8 @@ export function SchedulePlannerReadOnly({
   );
 
   const subjectIdsPool = useMemo(
-    () => subjects.map((subject) => subject.id).sort(),
+    () =>
+      subjects.map((subject) => subject.id).sort((a, b) => a.localeCompare(b)),
     [subjects]
   );
 

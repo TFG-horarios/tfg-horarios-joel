@@ -48,7 +48,9 @@ export class CourseOverlapConstraint implements IScheduleConstraint {
         )?.size === 1;
 
       const addConflict = (type: ConflictDetail['type']) => {
-        const pairKey = [a.id, b.id].sort().join(':');
+        const pairKey = [a.id, b.id]
+          .sort((left, right) => left.localeCompare(right))
+          .join(':');
         const conflictKey = `${type}:${pairKey}`;
         if (registeredConflicts.has(conflictKey)) return;
         registeredConflicts.add(conflictKey);

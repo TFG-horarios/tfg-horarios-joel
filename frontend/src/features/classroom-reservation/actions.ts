@@ -41,7 +41,7 @@ export async function fetchOccupiedSlotsAction(
     return { success: true, data: { occupiedSlots: [] } };
   }
 
-  const sortedDates = [...datesOfWeek].sort();
+  const sortedDates = [...datesOfWeek].sort((a, b) => a.localeCompare(b));
   const startDate = sortedDates[0]!;
   const endDate = sortedDates[sortedDates.length - 1]!;
 

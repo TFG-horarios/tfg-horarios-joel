@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import {
+  buildSeeds,
   isBetterHardSolution,
   isBetterSolution,
   runMultiStartTabuSearch,
@@ -20,6 +21,17 @@ const solution = (
 });
 
 describe('multi-start Tabu Search Comparators', () => {
+  test('buildSeeds returns uint32 seeds for the requested attempts', () => {
+    const seeds = buildSeeds(3);
+
+    expect(seeds).toHaveLength(3);
+    for (const seed of seeds) {
+      expect(Number.isInteger(seed)).toBe(true);
+      expect(seed).toBeGreaterThanOrEqual(0);
+      expect(seed).toBeLessThan(4294967296);
+    }
+  });
+
   test('isBetterHardSolution prioritizes hardPenalty over unassigned', () => {
     expect(isBetterHardSolution(solution(0, 0, 1), solution(100, 100, 1))).toBe(
       true

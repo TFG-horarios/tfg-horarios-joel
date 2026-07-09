@@ -16,7 +16,9 @@ export function getSubjectColorClasses(
   subjectIdsPool?: string[]
 ): string {
   if (subjectIdsPool && subjectIdsPool.length > 0) {
-    const sortedPool = Array.from(new Set(subjectIdsPool)).sort();
+    const sortedPool = Array.from(new Set(subjectIdsPool)).sort((a, b) =>
+      a.localeCompare(b)
+    );
     const index = sortedPool.indexOf(subjectId);
     if (index !== -1) {
       return SUBJECT_COLORS[index % SUBJECT_COLORS.length]!;

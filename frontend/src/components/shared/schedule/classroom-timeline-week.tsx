@@ -1,7 +1,7 @@
 'use client';
 
 import { formatMinutesAsTime } from '@tfg-horarios/shared';
-import type { ReactNode, RefObject } from 'react';
+import type { KeyboardEvent, ReactNode, RefObject } from 'react';
 import { cn } from '@/lib/utils/styles';
 
 export type ClassroomTimelineDay = {
@@ -116,6 +116,17 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
     });
   };
 
+  const handleEmptyKeyDown = (
+    day: ClassroomTimelineDay,
+    event: KeyboardEvent<HTMLDivElement>
+  ) => {
+    if (!onEmptyClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    handleEmptyClick(day, event.currentTarget, rect.top + rect.height / 2);
+  };
+
   return (
     <div ref={gridRef} className="overflow-x-auto">
       <div className="min-w-[1000px]">
@@ -160,6 +171,9 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
               onClick={(event) =>
                 handleEmptyClick(day, event.currentTarget, event.clientY)
               }
+              onKeyDown={(event) => handleEmptyKeyDown(day, event)}
+              role={onEmptyClick ? 'button' : undefined}
+              tabIndex={onEmptyClick ? 0 : undefined}
             >
               {hourMarks.map((mark) => {
                 const top = ((mark - startTimeMinutes) / totalMinutes) * 100;
@@ -189,6 +203,9 @@ export function ClassroomTimelineWeek<TEvent extends ClassroomTimelineEvent>({
                       height: `${Math.max(height, 2)}%`,
                     }}
                     onClick={(clickEvent) => clickEvent.stopPropagation()}
+                    onKeyDown={(keyboardEvent) =>
+                      keyboardEvent.stopPropagation()
+                    }
                   >
                     {renderEvent(event)}
                   </div>
