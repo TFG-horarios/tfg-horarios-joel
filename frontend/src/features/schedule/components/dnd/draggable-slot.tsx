@@ -119,7 +119,7 @@ export const DraggableSlot = memo(function DraggableSlot({
           <Loader2 className="size-3 animate-spin" />
         </div>
       )}
-      
+
       {/* Action Buttons (Top Left) */}
       {!isOverlay && !isSaving && onEditClassroomClick && (
         <div className="absolute top-1 left-1 flex gap-1 z-30 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
@@ -152,7 +152,7 @@ export const DraggableSlot = memo(function DraggableSlot({
             <X className="size-3" />
           </button>
         )}
-        
+
         {(hasConflicts || hasPlacementIssue) && (
           <>
             {hasConflicts && (

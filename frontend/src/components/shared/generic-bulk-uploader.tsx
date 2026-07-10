@@ -58,6 +58,7 @@ interface GenericBulkUploaderProps<TData> {
     mode: 'append' | 'overwrite' | undefined,
     validData: TData[]
   ) => Promise<void>;
+  columnDescriptions?: Record<string, string>;
 }
 
 type Step = 'upload' | 'analyzing' | 'review' | 'uploading' | 'success';
@@ -72,6 +73,7 @@ export function GenericBulkUploader<TData>({
   onUpload,
   mode,
   onBeforeUpload,
+  columnDescriptions,
 }: GenericBulkUploaderProps<TData>) {
   const [step, setStep] = useState<Step>('upload');
   const [issues, setIssues] = useState<CsvRowIssue[]>([]);
@@ -250,8 +252,7 @@ export function GenericBulkUploader<TData>({
     const mutedCellClassName = 'font-mono text-xs text-muted-foreground';
     const rowClassName =
       'transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted';
-    const reviewTableViewportClassName =
-      'w-full overflow-auto flex-1 min-h-0';
+    const reviewTableViewportClassName = 'w-full overflow-auto flex-1 min-h-0';
 
     return (
       <div className="w-full flex-1 min-h-0 flex flex-col">
@@ -315,8 +316,13 @@ export function GenericBulkUploader<TData>({
                 </TabsList>
               </div>
 
-              <TabsContent value="issues" className="mt-4 border-t flex-1 min-h-0 flex flex-col">
-                <div className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}>
+              <TabsContent
+                value="issues"
+                className="mt-4 border-t flex-1 min-h-0 flex flex-col"
+              >
+                <div
+                  className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}
+                >
                   <div className={`${tableShellClassName} w-full`}>
                     <Table>
                       <TableHeader className={tableHeaderClassName}>
@@ -372,10 +378,11 @@ export function GenericBulkUploader<TData>({
                               {issue.providedValue ?? '-'}
                             </TableCell>
                             <TableCell
-                              className={`${tableCellClassName} ${issue.severity === 'error'
-                                ? 'text-red-600 dark:text-red-300'
-                                : 'text-amber-600 dark:text-amber-300'
-                                }`}
+                              className={`${tableCellClassName} ${
+                                issue.severity === 'error'
+                                  ? 'text-red-600 dark:text-red-300'
+                                  : 'text-amber-600 dark:text-amber-300'
+                              }`}
                             >
                               {issue.message}
                             </TableCell>
@@ -387,8 +394,13 @@ export function GenericBulkUploader<TData>({
                 </div>
               </TabsContent>
 
-              <TabsContent value="valid" className="m-0 mt-4 border-t flex-1 min-h-0 flex flex-col">
-                <div className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}>
+              <TabsContent
+                value="valid"
+                className="m-0 mt-4 border-t flex-1 min-h-0 flex flex-col"
+              >
+                <div
+                  className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}
+                >
                   {validData.length > 0 ? (
                     <div className={`${tableShellClassName} w-full`}>
                       <Table>
@@ -493,12 +505,39 @@ export function GenericBulkUploader<TData>({
     <Card className="border-2 border-dashed bg-muted/20 transition-colors hover:bg-muted/40">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>
-          {description} <br />
-          <span className="mt-2 block w-fit rounded-md bg-muted px-2 py-1 font-mono text-xs text-muted-foreground dark:bg-muted dark:text-muted-foreground">
-            Columnas: {expectedColumns.join(', ')}
-          </span>
-        </CardDescription>
+        <CardDescription>{description}</CardDescription>
+
+        <div className="space-y-2 pt-2">
+          <h4 className="font-medium text-foreground text-sm">
+            {t('expectedFormat')}
+          </h4>
+          <div className="rounded-md border bg-background/50 overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-[150px] h-8 text-xs">
+                    {t('columnLabel')}
+                  </TableHead>
+                  <TableHead className="h-8 text-xs">
+                    {t('descriptionLabel')}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {expectedColumns.map((col) => (
+                  <TableRow key={col}>
+                    <TableCell className="font-mono text-[11px] font-semibold py-2">
+                      {col}
+                    </TableCell>
+                    <TableCell className="text-[11px] text-muted-foreground py-2 leading-relaxed">
+                      {columnDescriptions?.[col] || 'Valor de texto.'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4">

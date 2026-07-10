@@ -80,6 +80,18 @@ export function SubjectBulkUploader({
         weeklyHours: Number(row.weeklyHours || 0),
         isCommon: String(row.isCommon).toLowerCase() === 'true',
       })}
+      columnDescriptions={{
+        degreeCode: t('columns.degreeCode'),
+        name: t('columns.name'),
+        code: t('columns.code'),
+        availableShifts: t('columns.availableShifts'),
+        courseYear: t('columns.courseYear'),
+        weeklyHours: t('columns.weeklyHours'),
+        numberOfStudents: t('columns.numberOfStudents'),
+        period: t('columns.period'),
+        isCommon: t('columns.isCommon'),
+        itineraryCode: t('columns.itineraryCode'),
+      }}
       onAnalyze={async (validData) => {
         let currentIdentifiers: string[] = [];
         try {

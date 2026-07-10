@@ -38,6 +38,10 @@ export function DegreeBulkUploader({
         name: (row.name || '').trim(),
         code: (row.code || '').trim().toUpperCase(),
       })}
+      columnDescriptions={{
+        name: t('columns.name'),
+        code: t('columns.code'),
+      }}
       onAnalyze={async (validData) => {
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];

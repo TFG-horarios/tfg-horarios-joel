@@ -103,6 +103,16 @@ export function SubjectGroupBulkUploader({
           ),
         };
       }}
+      columnDescriptions={{
+        subjectCode: t('columns.subjectCode'),
+        name: t('columns.name'),
+        numberOfStudents: t('columns.numberOfStudents'),
+        weeklyHours: t('columns.weeklyHours'),
+        groupType: t('columns.groupType'),
+        shift: t('columns.shift'),
+        groupNumber: t('columns.groupNumber'),
+        needsComputerLab: t('columns.needsComputerLab'),
+      }}
       onAnalyze={async (validData) => {
         let currentIdentifiers: {
           subjectId: string;

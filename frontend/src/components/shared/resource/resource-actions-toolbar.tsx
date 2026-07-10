@@ -199,8 +199,12 @@ export function ResourceActionsToolbar({
                     </DropdownMenuItem>
                   </DialogTrigger>
                   <DialogContent className="flex flex-col w-[calc(100vw-2rem)] sm:w-fit sm:min-w-[500px] max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-4rem)] max-h-[calc(100vh-2rem)] overflow-hidden">
-                    <DialogTitle className="sr-only">{translations.addFromCsv}</DialogTitle>
-                    <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col">{appendModalContent}</div>
+                    <DialogTitle className="sr-only">
+                      {translations.addFromCsv}
+                    </DialogTitle>
+                    <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col">
+                      {appendModalContent}
+                    </div>
                   </DialogContent>
                 </Dialog>
               )}
@@ -222,7 +226,9 @@ export function ResourceActionsToolbar({
                     <div className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
                       {translations.replaceAllWarning}
                     </div>
-                    <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col">{overwriteModalContent}</div>
+                    <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col">
+                      {overwriteModalContent}
+                    </div>
                   </DialogContent>
                 </Dialog>
               )}

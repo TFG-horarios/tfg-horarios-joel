@@ -112,25 +112,43 @@
       "structureExtra": "The file contains columns that are not recognized for this module: {columns}",
       "transformError": "Error transforming the row. Check the columns.",
       "saveError": "An error occurred while saving to the database.",
-      "readValueFallback": "N/A"
+      "readValueFallback": "N/A",
+      "expectedFormat": "Expected CSV format",
+      "columnLabel": "Column",
+      "descriptionLabel": "Description and valid values"
     },
     "bulkUploaders": {
       "classrooms": {
         "title": "Import classrooms",
         "description": "Upload a CSV file with classrooms. Columns: name, capacity, floor, type.",
-        "duplicate": "The classroom {name} already exists. It will be skipped."
+        "duplicate": "The classroom {name} already exists. It will be skipped.",
+        "columns": {
+          "name": "Name or unique identifier of the classroom (e.g. \"Room 1.1\").",
+          "capacity": "Maximum capacity of the classroom (integer).",
+          "floor": "Floor or level where it is located (e.g. 0, 1, 2).",
+          "type": "Classroom type. Valid values: \"theory\" (Theory), \"lab\" (Generic lab), or \"computer_lab\" (Computer lab)."
+        }
       },
       "degrees": {
         "title": "Import degrees",
         "description": "CSV: name, code",
         "duplicateCode": "The code {code} already exists. It will be skipped.",
-        "duplicateName": "The degree {name} already exists. It will be skipped."
+        "duplicateName": "The degree {name} already exists. It will be skipped.",
+        "columns": {
+          "name": "Full name of the degree (e.g. \"Bachelor in Computer Engineering\").",
+          "code": "Unique code or abbreviation of the degree (e.g. \"BCE\"). Will be automatically converted to uppercase."
+        }
       },
       "itineraries": {
         "title": "Import itineraries",
         "description": "Upload a CSV file with itineraries. Columns: degreeCode, code, name.",
         "missingDegree": "The degree with code \"{degreeCode}\" does not exist in the organization.",
-        "duplicate": "The itinerary \"{code}\" already exists in degree {degreeCode}. It will be skipped."
+        "duplicate": "The itinerary \"{code}\" already exists in degree {degreeCode}. It will be skipped.",
+        "columns": {
+          "degreeCode": "Code of the degree this itinerary belongs to (e.g. \"BCE\"). Must exist previously in the system.",
+          "code": "Unique code for this itinerary (e.g. \"SE\"). Will be converted to uppercase.",
+          "name": "Full name of the itinerary or specialization (e.g. \"Software Engineering\")."
+        }
       },
       "subjects": {
         "title": "Import subjects",
@@ -138,13 +156,35 @@
         "missingDegree": "Degree not found.",
         "missingItineraryCode": "Since it is not common, you must provide the itineraryCode.",
         "missingItinerary": "The itinerary does not exist in this degree.",
-        "duplicate": "Duplicate subject. It will be skipped."
+        "duplicate": "Duplicate subject. It will be skipped.",
+        "columns": {
+          "degreeCode": "Code of the degree it belongs to (e.g. \"BCE\"). Must exist previously.",
+          "name": "Full name of the subject (e.g. \"Programming\").",
+          "code": "Unique code for this subject (e.g. \"PRG\"). Will be converted to uppercase.",
+          "availableShifts": "Available shifts, in quotes and separated by commas. Valid values: \"morning\", \"afternoon\", \"morning,afternoon\".",
+          "courseYear": "Academic year (integer, e.g. 1, 2, 3).",
+          "weeklyHours": "Total weekly teaching hours (integer).",
+          "numberOfStudents": "Estimated number of enrolled students (integer).",
+          "period": "Semester or term (integer, e.g. 1 or 2).",
+          "isCommon": "Indicates if it is mandatory/common (\"true\") or belongs to an itinerary (\"false\").",
+          "itineraryCode": "Itinerary code (only required if isCommon is \"false\")."
+        }
       },
       "subjectGroups": {
         "title": "Import groups",
         "description": "CSV: subjectCode, name, numberOfStudents, weeklyHours, groupType, shift, groupNumber",
         "missingSubject": "The subject does not exist.",
-        "duplicate": "This group already exists for this subject. It will be skipped."
+        "duplicate": "This group already exists for this subject. It will be skipped.",
+        "columns": {
+          "subjectCode": "Code of the subject this group belongs to (e.g. \"PRG\"). Must exist previously.",
+          "name": "Name or identifier of the group (e.g. \"Group 1 Theory\").",
+          "numberOfStudents": "Estimated number of students in the group. The sum of students of all groups of the same type must match the total of the subject.",
+          "weeklyHours": "Weekly teaching hours of this group. The sum of hours of all group types in a shift must match the total hours of the subject.",
+          "groupType": "Teaching type. Valid values: \"theory\" (Theory), \"practices\" / \"pe\" (Practices), \"problems\" / \"pa\" (Problems), \"reduced_practices\" / \"px\", \"tutoring\".",
+          "shift": "Shift of the group. Valid values: \"morning\" (Morning) or \"afternoon\" (Afternoon).",
+          "groupNumber": "Group number within its type and shift (integer, e.g. 1, 2, 3...).",
+          "needsComputerLab": "Indicates if it requires a lab/computer room. Valid values: \"true\", \"false\", \"yes\", \"no\"."
+        }
       }
     },
     "empty": {

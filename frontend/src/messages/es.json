@@ -112,25 +112,43 @@
       "structureExtra": "El archivo contiene columnas no reconocidas para este módulo: {columns}",
       "transformError": "Error al transformar la fila. Revisa las columnas.",
       "saveError": "Ocurrió un error al guardar en la base de datos.",
-      "readValueFallback": "N/A"
+      "readValueFallback": "N/A",
+      "expectedFormat": "Formato esperado del CSV",
+      "columnLabel": "Columna",
+      "descriptionLabel": "Descripción y valores válidos"
     },
     "bulkUploaders": {
       "classrooms": {
         "title": "Importar aulas",
         "description": "Sube un archivo CSV con las aulas. Columnas: name, capacity, floor, type.",
-        "duplicate": "El aula {name} ya existe. Se ignorará."
+        "duplicate": "El aula {name} ya existe. Se ignorará.",
+        "columns": {
+          "name": "Nombre o identificador único del aula (ej. \"Aula 1.1\").",
+          "capacity": "Aforo o capacidad máxima del aula (número entero).",
+          "floor": "Planta o nivel en la que se encuentra (ej. 0, 1, 2).",
+          "type": "Tipo de aula. Valores válidos: \"theory\" (Teoría), \"lab\" (Laboratorio genérico) o \"computer_lab\" (Aula de informática)."
+        }
       },
       "degrees": {
         "title": "Importar grados",
         "description": "CSV: name, code",
         "duplicateCode": "El código {code} ya existe. Se ignorará.",
-        "duplicateName": "El grado {name} ya existe. Se ignorará."
+        "duplicateName": "El grado {name} ya existe. Se ignorará.",
+        "columns": {
+          "name": "Nombre completo de la titulación o grado (ej. \"Grado en Ingeniería Informática\").",
+          "code": "Código o abreviatura única del grado (ej. \"GII\"). Se convertirá automáticamente a mayúsculas."
+        }
       },
       "itineraries": {
         "title": "Importar itinerarios",
         "description": "Sube un archivo CSV con los itinerarios. Columnas: degreeCode, code, name.",
         "missingDegree": "El grado con código \"{degreeCode}\" no existe en la organización.",
-        "duplicate": "El itinerario \"{code}\" ya existe en el grado {degreeCode}. Se ignorará."
+        "duplicate": "El itinerario \"{code}\" ya existe en el grado {degreeCode}. Se ignorará.",
+        "columns": {
+          "degreeCode": "Código del grado al que pertenece este itinerario (ej. \"GII\"). Debe existir previamente en el sistema.",
+          "code": "Código único para este itinerario (ej. \"IS\"). Se convertirá a mayúsculas.",
+          "name": "Nombre completo del itinerario o mención (ej. \"Ingeniería del Software\")."
+        }
       },
       "subjects": {
         "title": "Importar asignaturas",
@@ -138,13 +156,35 @@
         "missingDegree": "Grado no encontrado.",
         "missingItineraryCode": "Al no ser común, debes indicar el itineraryCode.",
         "missingItinerary": "El itinerario no existe en este grado.",
-        "duplicate": "Asignatura duplicada. Se ignorará."
+        "duplicate": "Asignatura duplicada. Se ignorará.",
+        "columns": {
+          "degreeCode": "Código del grado al que pertenece (ej. \"GII\"). Debe existir previamente.",
+          "name": "Nombre completo de la asignatura (ej. \"Programación\").",
+          "code": "Código único para esta asignatura (ej. \"PRG\"). Se convertirá a mayúsculas.",
+          "availableShifts": "Turnos disponibles, entre comillas y separados por comas. Valores válidos: \"morning\", \"afternoon\", \"morning,afternoon\".",
+          "courseYear": "Curso o año académico (número entero, ej. 1, 2, 3).",
+          "weeklyHours": "Horas totales de docencia semanales (número entero).",
+          "numberOfStudents": "Número estimado de estudiantes matriculados (número entero).",
+          "period": "Semestre o cuatrimestre (número entero, ej. 1 o 2).",
+          "isCommon": "Indica si es obligatoria/común (\"true\") o pertenece a un itinerario (\"false\").",
+          "itineraryCode": "Código del itinerario (solo requerido si isCommon es \"false\")."
+        }
       },
       "subjectGroups": {
         "title": "Importar grupos",
         "description": "CSV: subjectCode, name, numberOfStudents, weeklyHours, groupType, shift, groupNumber",
         "missingSubject": "La asignatura no existe.",
-        "duplicate": "Este grupo ya existe para esta asignatura. Se ignorará."
+        "duplicate": "Este grupo ya existe para esta asignatura. Se ignorará.",
+        "columns": {
+          "subjectCode": "Código de la asignatura a la que pertenece el grupo (ej. \"PRG\"). Debe existir previamente.",
+          "name": "Nombre o identificador del grupo (ej. \"Grupo 1 Teoría\").",
+          "numberOfStudents": "Número estimado de alumnos del grupo. La suma de los alumnos de todos los grupos de un mismo tipo debe coincidir con el total de la asignatura.",
+          "weeklyHours": "Horas semanales de docencia de este grupo. La suma de horas de todos los tipos de grupo en un turno debe coincidir con las horas totales de la asignatura.",
+          "groupType": "Tipo de docencia. Valores válidos: \"theory\" (Teoría), \"practices\" / \"pe\" (Prácticas), \"problems\" / \"pa\" (Problemas), \"reduced_practices\" / \"px\", \"tutoring\".",
+          "shift": "Turno del grupo. Valores válidos: \"morning\" (Mañana) o \"afternoon\" (Tarde).",
+          "groupNumber": "Número de grupo dentro de su tipo y turno (número entero, ej. 1, 2, 3...).",
+          "needsComputerLab": "Indica si requiere laboratorio/aula de ordenadores. Valores válidos: \"true\", \"false\", \"si\", \"no\"."
+        }
       }
     },
     "empty": {

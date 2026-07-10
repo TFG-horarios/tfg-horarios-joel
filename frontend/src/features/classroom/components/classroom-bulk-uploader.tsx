@@ -41,8 +41,17 @@ export function ClassroomBulkUploader({
         name: (row.name || '').trim(),
         capacity: Number(row.capacity || 0),
         floor: Number(row.floor || 0),
-        type: (row.type || 'theory').trim().toLowerCase() as 'theory' | 'lab',
+        type: (row.type || 'theory').trim().toLowerCase() as
+          | 'theory'
+          | 'lab'
+          | 'computer_lab',
       })}
+      columnDescriptions={{
+        name: t('columns.name'),
+        capacity: t('columns.capacity'),
+        floor: t('columns.floor'),
+        type: t('columns.type'),
+      }}
       onAnalyze={async (validData) => {
         const issues: CsvRowIssue[] = [];
         const finalValidData: typeof validData = [];

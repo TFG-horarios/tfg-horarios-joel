@@ -49,6 +49,11 @@ export function ItineraryBulkUploader({
         code: (row.code || '').trim().toUpperCase(),
         name: (row.name || '').trim(),
       })}
+      columnDescriptions={{
+        degreeCode: t('columns.degreeCode'),
+        code: t('columns.code'),
+        name: t('columns.name'),
+      }}
       onAnalyze={async (validData) => {
         let currentIdentifiers: string[] = [];
         try {
