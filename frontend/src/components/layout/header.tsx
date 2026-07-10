@@ -78,7 +78,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
   }, [query, pathname, router, searchParams]);
 
   const baseHeaderStyles =
-    'rounded-3xl border border-border bg-white/70 p-2 shadow-lg shadow-black/10 backdrop-blur-lg transition-colors duration-300 text-foreground dark:bg-white/5 dark:text-white dark:shadow-black/60';
+    'rounded-3xl border border-border bg-white/70 px-4 py-2 backdrop-blur-lg transition-colors duration-300 text-foreground dark:bg-white/5 dark:text-white dark:shadow-black/60';
 
   const variantStyles = {
     floating: 'fixed left-1/2 top-5 z-30 w-[min(92vw,780px)] -translate-x-1/2',
@@ -139,7 +139,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
           </div>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {!isLoggingOut && (
             <>
               {isAuthenticated && user && (
@@ -193,24 +193,24 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                 <>
                   <Button
                     asChild
-                    variant="ghost"
+                    variant="outline"
                     className={cn(
-                      'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
+                      'hidden md:inline-flex h-9 px-4',
                       pathname === '/login'
-                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple'
-                        : ''
+                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple hover:bg-brand-purple-hover hover:text-brand-purple shadow-sm dark:bg-brand-purple-bg dark:border-brand-purple-border dark:text-brand-purple dark:hover:bg-brand-purple-hover dark:hover:text-brand-purple'
+                        : 'border border-border bg-card text-foreground dark:border-border dark:bg-input/30'
                     )}
                   >
                     <Link href="/login">{t('login')}</Link>
                   </Button>
                   <Button
                     asChild
-                    variant="ghost"
+                    variant="outline"
                     className={cn(
-                      'h-9 px-4 border border-border bg-white/70 text-foreground hover:bg-black/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
+                      'hidden md:inline-flex h-9 px-4',
                       pathname === '/register'
-                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple'
-                        : ''
+                        ? 'border-brand-purple-border bg-brand-purple-bg text-brand-purple hover:bg-brand-purple-hover hover:text-brand-purple shadow-sm dark:bg-brand-purple-bg dark:border-brand-purple-border dark:text-brand-purple dark:hover:bg-brand-purple-hover dark:hover:text-brand-purple'
+                        : 'border border-border bg-card text-foreground dark:border-border dark:bg-input/30'
                     )}
                   >
                     <Link href="/register">{t('register')}</Link>

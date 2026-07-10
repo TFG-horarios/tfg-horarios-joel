@@ -175,29 +175,50 @@
   },
   "Landing": {
     "eyebrow": "SkEdu",
-    "title": "Plan schedules with a clean, fast, and serious interface.",
-    "description": "A modern foundation for managing organizations, classrooms, subjects, and users with JWT authentication and a consistent visual experience from end to end.",
-    "primaryCta": "Sign in",
-    "secondaryCta": "Create account",
-    "accessLabel": "Access",
-    "panelTitle": "Sign in or register",
-    "panelDescription": "Continue along the path that best fits your current state.",
-    "panelNote": "The login styling stays consistent across all authentication screens.",
-    "panelLogin": "Go to login",
-    "panelRegister": "Open registration",
-    "highlights": {
-      "centralized": {
-        "title": "Centralized schedule",
-        "description": "View and organize time slots, classrooms, and subjects in one place."
-      },
-      "secure": {
-        "title": "Secure access",
-        "description": "JWT, role-based permissions, and a session flow ready to grow with the team."
-      },
-      "teamwork": {
-        "title": "Teamwork",
-        "description": "Built to coordinate organizations, members, and changes without friction."
+    "title": "Plan university schedules automatically.",
+    "description": "A modern platform to manage universities, academic years, classrooms, and subjects. Configure your resources and let the smart generator optimize conflict-free schedules.",
+    "primaryCta": "Log in",
+    "secondaryCta": "Register",
+    "features": {
+      "title": "Everything your institution needs",
+      "items": {
+        "organization": {
+          "title": "Comprehensive Organization",
+          "description": "Manage the academic years and their configurations with total flexibility."
+        },
+        "structure": {
+          "title": "Academic Structure",
+          "description": "Configure degrees, itineraries, subjects, and groups tailored to your needs."
+        },
+        "resources": {
+          "title": "Space Management & Reservation",
+          "description": "Control capacity, organize classroom types, and make ad-hoc space reservations without overlaps."
+        },
+        "schedules": {
+          "title": "Smart Schedules",
+          "description": "Automatically generate timetables and modify them according to your preferences."
+        }
       }
+    },
+    "workflow": {
+      "title": "How it works?",
+      "step1": {
+        "title": "Set up your center",
+        "description": "Define academic years, opening hours, and the structure of your resources."
+      },
+      "step2": {
+        "title": "Import your data",
+        "description": "Use our CSV importer to load classrooms, degrees, and subjects in seconds."
+      },
+      "step3": {
+        "title": "Generate and publish",
+        "description": "Easily resolve conflicts with our editor and publish the final schedules."
+      }
+    },
+    "cta": {
+      "title": "Ready to optimize your planning?",
+      "description": "Join other institutions that already use SkEdu to organize their resources efficiently.",
+      "button": "Sign up for free"
     }
   },
   "Auth": {

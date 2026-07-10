@@ -55,13 +55,13 @@
 :root {
   --background: #ffffff;
   --foreground: #111827;
-  --card: #e1b6f71e;
+  --card: #ffffff;
   --card-foreground: #111827;
   --popover: #f5f5f4;
   --popover-foreground: #111827;
   --primary: #000000;
   --primary-foreground: #f8fafc;
-  --secondary: #dfd3f1;
+  --secondary: #f3f4f6;
   --secondary-foreground: #111827;
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;

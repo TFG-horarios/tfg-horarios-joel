@@ -21,7 +21,7 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-white/70 shadow-sm shadow-black/5 backdrop-blur-lg transition-colors duration-300 dark:bg-white/5 dark:shadow-black/60">
       <CardHeader className="space-y-2 pb-4">
         {eyebrow && (
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground dark:text-muted-foreground">

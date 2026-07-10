@@ -175,29 +175,50 @@
   },
   "Landing": {
     "eyebrow": "SkEdu",
-    "title": "Planifica horarios con una interfaz limpia, rápida y seria.",
-    "description": "Una base moderna para gestionar organizaciones, aulas, materias y usuarios con autenticación JWT y una experiencia visual coherente de principio a fin.",
+    "title": "Planifica los horarios universitarios de manera automatizada.",
+    "description": "Una plataforma moderna para gestionar organizaciones, años académicos, aulas y asignaturas. Configura tus recursos y deja que el generador inteligente optimice los horarios sin conflictos.",
     "primaryCta": "Iniciar sesión",
-    "secondaryCta": "Crear cuenta",
-    "accessLabel": "Acceso",
-    "panelTitle": "Entra o regístrate",
-    "panelDescription": "Continúa en la ruta que mejor encaje con tu estado actual.",
-    "panelNote": "El estilo del login se mantiene en todas las pantallas de autenticación.",
-    "panelLogin": "Ir al login",
-    "panelRegister": "Abrir registro",
-    "highlights": {
-      "centralized": {
-        "title": "Horario centralizado",
-        "description": "Visualiza y organiza franjas, aulas y asignaturas en un solo lugar."
-      },
-      "secure": {
-        "title": "Acceso seguro",
-        "description": "JWT, permisos por rol y sesión preparada para crecer con el equipo."
-      },
-      "teamwork": {
-        "title": "Trabajo en equipo",
-        "description": "Diseñado para coordinar organizaciones, miembros y cambios sin ruido."
+    "secondaryCta": "Registrarse",
+    "features": {
+      "title": "Todo lo que necesitas para tu institución",
+      "items": {
+        "organization": {
+          "title": "Organización Integral",
+          "description": "Gestiona los años académicos y sus configuraciones con total flexibilidad."
+        },
+        "structure": {
+          "title": "Estructuración Académica",
+          "description": "Configura grados, itinerarios, asignaturas y grupos adaptados a tus necesidades."
+        },
+        "resources": {
+          "title": "Gestión y Reserva de Espacios",
+          "description": "Controla el aforo, organiza los tipos de aulas y realiza reservas puntuales de espacios sin solapamientos."
+        },
+        "schedules": {
+          "title": "Horarios Inteligentes",
+          "description": "Genera horarios automáticamente y modifcalos según tus preferencias."
+        }
       }
+    },
+    "workflow": {
+      "title": "¿Cómo funciona?",
+      "step1": {
+        "title": "Configura tu centro",
+        "description": "Define los años académicos, los horarios de apertura y la estructura de tus recursos."
+      },
+      "step2": {
+        "title": "Importa tus datos",
+        "description": "Utiliza nuestro importador CSV para cargar aulas, grados y asignaturas en segundos."
+      },
+      "step3": {
+        "title": "Genera y publica",
+        "description": "Resuelve conflictos fácilmente con nuestro editor y publica los horarios definitivos."
+      }
+    },
+    "cta": {
+      "title": "¿Listo para optimizar tu planificación?",
+      "description": "Únete a otras instituciones que ya utilizan SkEdu para organizar sus recursos de manera eficiente.",
+      "button": "Regístrate gratis"
     }
   },
   "Auth": {
