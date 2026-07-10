@@ -155,10 +155,7 @@ export function Header({ variant = 'inline' }: HeaderProps) {
                     </Button>
                   </DropdownMenuTrigger>
 
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-56 border border-border bg-white/85 text-foreground backdrop-blur-lg dark:bg-black/60 dark:text-neutral-200"
-                  >
+                  <DropdownMenuContent align="end" className="w-56">
                     <div className="px-3 py-2">
                       <p className="text-sm font-medium text-foreground">
                         {user.name ?? ''}

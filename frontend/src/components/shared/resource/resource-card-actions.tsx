@@ -44,9 +44,9 @@ export function ResourceCardActions({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-full w-full rounded-xl bg-card border border-border shadow-sm text-muted-foreground hover:bg-secondary/80 hover:text-foreground transition-colors cursor-pointer"
+          className="h-full w-full rounded-xl bg-card border border-border shadow-sm text-muted-foreground hover:bg-card hover:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 transition-colors cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -79,7 +79,8 @@ export function ResourceCardActions({
           >
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
-              className="text-destructive cursor-pointer"
+              className="cursor-pointer"
+              variant="destructive"
             >
               <Trash className="mr-2 h-4 w-4" />
               {deleteLabel || t('delete')}
