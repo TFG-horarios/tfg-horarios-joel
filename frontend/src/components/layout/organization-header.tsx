@@ -310,20 +310,17 @@ function OrganizationHeaderInner() {
           {hasAcademicYear && <div className="size-9 lg:hidden" />}
         </div>
 
-        {showSearch && (
-          <div className="flex items-center justify-center gap-3 md:hidden pb-2">
+        <div className="flex items-center justify-center gap-3 pb-2 md:justify-end md:gap-4 md:pb-0">
+          {showSearch && (
             <Button
               variant="outline"
               size="icon"
               onClick={() => setIsSearchOpen(true)}
-              className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30"
+              className="relative size-9 cursor-pointer bg-card border-border dark:border-border dark:bg-input/30 md:hidden"
             >
               <Search className="size-4" />
             </Button>
-          </div>
-        )}
-
-        <div className="flex items-center justify-center gap-3 pb-2 md:justify-end md:gap-4 md:pb-0">
+          )}
           {isAuthenticated && <NotificationBell />}
           <LanguageToggle />
           <ThemeToggle />

@@ -239,7 +239,7 @@ export function GenericBulkUploader<TData>({
     const errorCount = issues.filter((i) => i.severity === 'error').length;
     const warningCount = issues.filter((i) => i.severity === 'warning').length;
     const reviewCardClassName =
-      'flex w-full max-w-full flex-col overflow-hidden';
+      'flex flex-1 min-h-0 w-full max-w-full flex-col overflow-hidden p-0 border-0 shadow-none bg-transparent';
     const tableShellClassName = 'overflow-hidden rounded-md border';
     const tableHeaderClassName =
       'sticky top-0 bg-gray-200/50 text-foreground backdrop-blur';
@@ -251,18 +251,18 @@ export function GenericBulkUploader<TData>({
     const rowClassName =
       'transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted';
     const reviewTableViewportClassName =
-      'max-h-[min(70dvh,32rem)] w-full overflow-auto';
+      'w-full overflow-auto flex-1 min-h-0';
 
     return (
-      <div className="w-full max-h-[calc(100dvh-2rem)] overflow-hidden">
+      <div className="w-full flex-1 min-h-0 flex flex-col">
         <Card className={reviewCardClassName}>
-          <CardHeader className="border-b pb-4">
-            <div className="flex items-center justify-between">
+          <CardHeader className="shrink-0 border-b p-4 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <CardTitle>{t('reviewTitle')}</CardTitle>
                 <CardDescription>{t('reviewDescription')}</CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Badge
                   variant="outline"
                   className="border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-700 shadow-sm dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200"
@@ -291,12 +291,12 @@ export function GenericBulkUploader<TData>({
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="flex-1 min-h-0 p-0 flex flex-col">
             <Tabs
               defaultValue={issues.length > 0 ? 'issues' : 'valid'}
-              className="w-full"
+              className="w-full flex-1 min-h-0 flex flex-col"
             >
-              <div className="pt-6">
+              <div className="pt-4 sm:pt-6 px-4 sm:px-6 shrink-0">
                 <TabsList>
                   <TabsTrigger
                     value="issues"
@@ -315,8 +315,8 @@ export function GenericBulkUploader<TData>({
                 </TabsList>
               </div>
 
-              <TabsContent value="issues" className="mt-4 border-t">
-                <div className={reviewTableViewportClassName}>
+              <TabsContent value="issues" className="mt-4 border-t flex-1 min-h-0 flex flex-col">
+                <div className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}>
                   <div className={`${tableShellClassName} w-full`}>
                     <Table>
                       <TableHeader className={tableHeaderClassName}>
@@ -372,11 +372,10 @@ export function GenericBulkUploader<TData>({
                               {issue.providedValue ?? '-'}
                             </TableCell>
                             <TableCell
-                              className={`${tableCellClassName} ${
-                                issue.severity === 'error'
-                                  ? 'text-red-600 dark:text-red-300'
-                                  : 'text-amber-600 dark:text-amber-300'
-                              }`}
+                              className={`${tableCellClassName} ${issue.severity === 'error'
+                                ? 'text-red-600 dark:text-red-300'
+                                : 'text-amber-600 dark:text-amber-300'
+                                }`}
                             >
                               {issue.message}
                             </TableCell>
@@ -388,8 +387,8 @@ export function GenericBulkUploader<TData>({
                 </div>
               </TabsContent>
 
-              <TabsContent value="valid" className="m-0 mt-4 border-t">
-                <div className={reviewTableViewportClassName}>
+              <TabsContent value="valid" className="m-0 mt-4 border-t flex-1 min-h-0 flex flex-col">
+                <div className={`${reviewTableViewportClassName} px-4 sm:px-6 pb-4 sm:pb-6 pt-4`}>
                   {validData.length > 0 ? (
                     <div className={`${tableShellClassName} w-full`}>
                       <Table>
@@ -463,7 +462,7 @@ export function GenericBulkUploader<TData>({
             </Tabs>
           </CardContent>
 
-          <div className="space-y-3 border-t bg-muted/20 p-4">
+          <div className="shrink-0 space-y-3 border-t bg-muted/20 p-4 sm:p-6">
             {uploadError && (
               <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {uploadError}
