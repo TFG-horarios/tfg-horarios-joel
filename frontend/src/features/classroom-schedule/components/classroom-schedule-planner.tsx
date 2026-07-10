@@ -103,7 +103,7 @@ export function ClassroomSchedulePlanner({
   const endTimeMinutes = parseTimeToMinutes(academicYear.centerClosingTime);
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-6 overflow-hidden">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
@@ -165,32 +165,32 @@ export function ClassroomSchedulePlanner({
 
           return (
             <div
-              className={`h-full flex flex-col p-2 text-center rounded-lg border shadow-sm overflow-hidden text-black dark:text-white ${colorClass}`}
+              className={`h-full flex flex-col p-1 text-center rounded-lg border shadow-sm overflow-hidden text-black dark:text-white ${colorClass}`}
             >
-              <div className="flex items-center justify-center gap-1.5 w-full mb-1.5">
+              <div className="flex items-center justify-center gap-1 w-full mb-0.5 shrink-0">
                 {group && (
                   <Badge
                     variant="outline"
-                    className="text-[10px] uppercase px-1.5 py-0 h-4 shrink-0 opacity-80 border-current/30 text-black dark:text-white"
+                    className="text-[9px] uppercase px-1 py-0 h-3.5 shrink-0 opacity-80 border-current/30 text-black dark:text-white"
                   >
                     {group}
                   </Badge>
                 )}
-                <span className="text-[11px] font-mono font-medium opacity-80 tracking-tight">
+                <span className="text-[9px] sm:text-[10px] font-mono font-medium opacity-80 tracking-tight leading-none">
                   {formatMinutesAsTime(event.startTimeMinutes)}-
                   {formatMinutesAsTime(event.endTimeMinutes)}
                 </span>
               </div>
 
-              <div className="flex-1 flex items-center justify-center w-full px-1">
-                <span className="text-xs font-bold break-words whitespace-normal leading-tight line-clamp-3">
+              <div className="flex-1 flex items-center justify-center w-full min-h-0 px-0.5">
+                <span className="text-[10px] sm:text-[11px] font-bold break-words whitespace-normal leading-tight line-clamp-2 sm:line-clamp-3">
                   {title}
                 </span>
               </div>
 
               {degree && (
-                <div className="flex items-center justify-center border-t border-current/20 pt-2 mt-1 w-full opacity-90">
-                  <span className="text-[11px] font-medium break-words whitespace-normal leading-tight line-clamp-2">
+                <div className="flex items-center justify-center border-t border-current/20 pt-0.5 mt-0.5 w-full opacity-90 shrink-0">
+                  <span className="text-[9px] font-medium break-words whitespace-normal leading-tight line-clamp-1 sm:line-clamp-2">
                     {degree}
                   </span>
                 </div>

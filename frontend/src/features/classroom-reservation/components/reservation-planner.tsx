@@ -427,7 +427,7 @@ export function ReservationPlanner({
   const endTimeMinutes = parseTimeToMinutes(academicYear.centerClosingTime);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-6 overflow-hidden">
       <div className="flex flex-col md:flex-row gap-4 p-4 bg-background border rounded-xl shadow-sm items-end">
         <div className="flex-1 space-y-2 w-full">
           <Label>{t('classroom')}</Label>
@@ -561,9 +561,9 @@ export function ReservationPlanner({
 
             return (
               <div
-                className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col items-center justify-center text-center p-2 gap-0.5 overflow-hidden transition-colors ${styleClasses}`}
+                className={`w-full h-full rounded-lg border shadow-sm cursor-not-allowed flex flex-col items-center justify-center text-center p-1 gap-0.5 overflow-hidden transition-colors ${styleClasses}`}
               >
-                <span className="text-xs font-bold uppercase tracking-wider line-clamp-2">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider line-clamp-2 sm:line-clamp-3 leading-tight px-0.5">
                   {isClass
                     ? t('occupiedClass')
                     : isPending
@@ -572,7 +572,7 @@ export function ReservationPlanner({
                         ? t('reserved')
                         : occupied.reason}
                 </span>
-                <span className="text-[11px] font-mono font-medium opacity-80 tracking-tight">
+                <span className="text-[9px] sm:text-[10px] font-mono font-medium opacity-80 tracking-tight leading-none shrink-0">
                   {formatMinutesAsTime(occupied.startTimeMinutes)}-
                   {formatMinutesAsTime(occupied.endTimeMinutes)}
                 </span>
