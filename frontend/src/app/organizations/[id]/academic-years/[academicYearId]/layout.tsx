@@ -99,7 +99,7 @@ export default async function AcademicYearLayout({
       <Sidebar navItems={navItems} />
       <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-border bg-white/70 dark:bg-white/5">
         <ScrollArea className="h-full w-full">
-          <div className="p-6 lg:p-8">{children}</div>
+          <div className="p-3 sm:p-6 lg:p-8">{children}</div>
         </ScrollArea>
       </main>
     </div>

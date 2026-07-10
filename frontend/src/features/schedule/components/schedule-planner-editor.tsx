@@ -102,7 +102,7 @@ const MemoizedScheduleCell = memo(function MemoizedScheduleCell({
   return (
     <DroppableCell
       id={cellId}
-      className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border hover:bg-muted/20 hover:border-muted-foreground/30 h-full min-h-22.5"
+      className="relative flex h-full min-h-17 min-w-0 flex-col gap-0.5 overflow-hidden rounded-lg border border-dashed border-border p-0.5 hover:bg-muted/20 hover:border-muted-foreground/30 sm:min-h-22.5 sm:gap-1 sm:p-1"
       dropState={dropState}
     >
       {cellSlots.length > 0 ? (
@@ -688,30 +688,36 @@ export function SchedulePlannerEditor({
 
   return (
     <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex flex-col space-y-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+      <div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-4 overflow-hidden sm:gap-6">
+        <div className="flex w-full max-w-full min-w-0 flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border border-border bg-card/40 p-3 shadow-lg backdrop-blur-md sm:gap-4 sm:p-6 md:flex-row md:items-center">
+          <div className="w-full min-w-0 space-y-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="min-w-0 w-full break-words text-xl font-bold leading-tight tracking-tight text-foreground sm:w-auto sm:text-3xl">
                 {scheduleDegree?.name ?? 'Common'}
                 {scheduleDegree?.deletedAt ? ' (eliminado)' : ''}
               </h1>
-              <Badge variant="outline" className="font-mono bg-background">
+              <Badge
+                variant="outline"
+                className="min-w-0 max-w-full shrink overflow-hidden truncate bg-background font-mono text-[10px] sm:text-xs"
+              >
                 Course Year {localSchedule.courseYear}
               </Badge>
-              <Badge variant="outline" className="font-mono bg-background">
+              <Badge
+                variant="outline"
+                className="h-auto min-w-0 max-w-full shrink overflow-hidden whitespace-normal break-words bg-background text-left font-mono text-[10px] sm:text-xs"
+              >
                 {scheduleItinerary?.name ?? t('planner.globalItinerary')}
                 {scheduleItinerary?.deletedAt ? ' (eliminado)' : ''}
               </Badge>
               <Badge
                 variant="outline"
-                className="font-mono bg-background capitalize"
+                className="min-w-0 max-w-full shrink overflow-hidden truncate bg-background font-mono text-[10px] capitalize sm:text-xs"
               >
                 {localSchedule.shift} Shift
               </Badge>
 
               <Badge
-                className={`
+                className={`min-w-0 max-w-full shrink overflow-hidden truncate text-[10px] sm:text-xs
                   ${localSchedule.status === 'published' ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20' : ''}
                   ${localSchedule.status === 'draft' ? 'bg-blue-500/15 text-blue-500 border-blue-500/20' : ''}
                 `}
@@ -719,42 +725,46 @@ export function SchedulePlannerEditor({
                 {localSchedule.status.toUpperCase()}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
               <Calendar className="size-4" />
               {academicYear.name} • Semester {localSchedule.period}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:gap-3 md:w-auto">
             {canUpdate &&
               (localSchedule.status === 'draft' ? (
                 <Button
                   onClick={handlePublish}
                   disabled={isPublishing || unassignedSlots.length > 0}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-md transition-all shrink-0 w-full sm:w-auto"
+                  className="min-w-0 flex-1 overflow-hidden bg-emerald-600 font-medium text-white shadow-md transition-all hover:bg-emerald-500 sm:flex-none"
                   title={
                     unassignedSlots.length > 0
                       ? t('planner.errors.ERR_SCHEDULE_HAS_UNASSIGNED_SLOTS')
                       : undefined
                   }
                 >
-                  {isPublishing
-                    ? t('planner.publishing')
-                    : t('planner.publishSchedule')}
+                  <span className="truncate">
+                    {isPublishing
+                      ? t('planner.publishing')
+                      : t('planner.publishSchedule')}
+                  </span>
                 </Button>
               ) : (
                 <Button
                   onClick={handleUnpublish}
                   disabled={isUnpublishing || isExportingPDF}
                   variant="outline"
-                  className="font-medium text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+                  className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden border-amber-200 font-medium text-amber-600 shadow-sm transition-all hover:bg-amber-50 hover:text-amber-700 sm:flex-none"
                 >
                   {isUnpublishing ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     <Archive className="size-4" />
                   )}
-                  {t('planner.unpublishSchedule', { fallback: 'Borrador' })}
+                  <span className="truncate">
+                    {t('planner.unpublishSchedule', { fallback: 'Borrador' })}
+                  </span>
                 </Button>
               ))}
             {(!canUpdate || localSchedule.status !== 'draft') && (
@@ -766,22 +776,22 @@ export function SchedulePlannerEditor({
                 }
                 disabled={isExportingPDF || isUnpublishing}
                 variant="outline"
-                className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+                className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden font-medium shadow-sm transition-all sm:flex-none"
               >
                 {isExportingPDF ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   <Download className="size-4" />
                 )}
-                Exportar PDF
+                <span className="truncate">Exportar PDF</span>
               </Button>
             )}
           </div>
         </div>
 
         {(canUpdate || unassignedSlots.length > 0) && (
-          <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
-            <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+          <div className="flex w-full max-w-full min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card/40 shadow-sm backdrop-blur-md">
+            <div className="flex min-w-0 items-center justify-between border-b border-border bg-muted/30 p-3">
               <h2 className="font-semibold text-foreground flex items-center gap-2">
                 {t('planner.unassignedSlots')}
               </h2>
@@ -789,11 +799,11 @@ export function SchedulePlannerEditor({
             </div>
             <DroppableCell
               id="unassigned"
-              className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start"
+              className="flex min-h-30 w-full min-w-0 flex-wrap content-start items-start gap-2 p-3 sm:gap-3 sm:p-4"
               dropState={activeSlotDTO ? 'valid' : 'neutral'}
             >
               {unassignedSlots.length === 0 ? (
-                <div className="w-full text-sm text-muted-foreground text-center py-6 border border-dashed rounded-lg bg-background/50 pointer-events-none">
+                <div className="w-full whitespace-normal break-words text-sm text-muted-foreground text-center py-6 px-3 border border-dashed rounded-lg bg-background/50 pointer-events-none">
                   {t('planner.noUnassignedSlots')}
                 </div>
               ) : (
@@ -804,7 +814,7 @@ export function SchedulePlannerEditor({
                     ? classroomMap.get(slot.classroomId)
                     : undefined;
                   return (
-                    <div key={slot.id} className="w-48">
+                    <div key={slot.id} className="w-full min-w-0 sm:w-48">
                       <DraggableSlot
                         slot={slot}
                         subject={meta.subject}

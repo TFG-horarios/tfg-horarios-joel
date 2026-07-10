@@ -72,7 +72,7 @@ export default async function SchedulePlannerPage({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-full min-w-0 overflow-x-hidden">
       <SchedulePlanner
         organization={organization}
         schedule={schedule}

@@ -112,38 +112,44 @@ export function SchedulePlannerReadOnly({
   );
 
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-lg">
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+    <div className="flex w-full max-w-full min-w-0 flex-col space-y-4 overflow-hidden sm:space-y-6">
+      <div className="flex w-full max-w-full min-w-0 flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border border-border bg-card/40 p-3 shadow-lg backdrop-blur-md sm:gap-4 sm:p-6 md:flex-row md:items-center">
+        <div className="w-full min-w-0 space-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="min-w-0 w-full break-words text-xl font-bold leading-tight tracking-tight text-foreground sm:w-auto sm:text-3xl">
               {scheduleDegree?.name ?? 'Common'}
               {scheduleDegree?.deletedAt ? ' (eliminado)' : ''}
             </h1>
-            <Badge variant="outline" className="font-mono bg-background">
+            <Badge
+              variant="outline"
+              className="min-w-0 max-w-full shrink overflow-hidden truncate bg-background font-mono text-[10px] sm:text-xs"
+            >
               Course Year {schedule.courseYear}
             </Badge>
-            <Badge variant="outline" className="font-mono bg-background">
+            <Badge
+              variant="outline"
+              className="h-auto min-w-0 max-w-full shrink overflow-hidden whitespace-normal break-words bg-background text-left font-mono text-[10px] sm:text-xs"
+            >
               {scheduleItinerary?.name ?? t('planner.globalItinerary')}
               {scheduleItinerary?.deletedAt ? ' (eliminado)' : ''}
             </Badge>
             <Badge
               variant="outline"
-              className="font-mono bg-background capitalize"
+              className="min-w-0 max-w-full shrink overflow-hidden truncate bg-background font-mono text-[10px] capitalize sm:text-xs"
             >
               {schedule.shift} Shift
             </Badge>
             <Badge
-              className={
+              className={`min-w-0 max-w-full shrink overflow-hidden truncate text-[10px] sm:text-xs ${
                 schedule.status === 'published'
                   ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20'
                   : 'bg-blue-500/15 text-blue-500 border-blue-500/20'
-              }
+              }`}
             >
               {schedule.status.toUpperCase()}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
             <Calendar className="size-4" />
             {academicYear.name} • Semester {schedule.period}
           </p>
@@ -155,27 +161,27 @@ export function SchedulePlannerReadOnly({
           }
           disabled={isExportingPDF}
           variant="outline"
-          className="font-medium shadow-sm transition-all shrink-0 w-full sm:w-auto flex items-center gap-2"
+          className="flex w-full min-w-0 items-center gap-2 overflow-hidden font-medium shadow-sm transition-all sm:w-auto"
         >
           {isExportingPDF ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <Download className="size-4" />
           )}
-          Exportar PDF
+          <span className="truncate">Exportar PDF</span>
         </Button>
       </div>
 
       {unassignedSlots.length > 0 && (
-        <div className="bg-card/40 backdrop-blur-md border border-border rounded-xl shadow-sm flex flex-col">
-          <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+        <div className="flex w-full max-w-full min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card/40 shadow-sm backdrop-blur-md">
+          <div className="flex min-w-0 items-center justify-between border-b border-border bg-muted/30 p-3">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
               <Archive className="size-4" />
               {t('planner.unassignedSlots')}
             </h2>
             <Badge variant="secondary">{unassignedSlots.length}</Badge>
           </div>
-          <div className="w-full p-4 flex flex-wrap gap-3 min-h-30 items-start content-start">
+          <div className="flex min-h-30 w-full min-w-0 flex-wrap content-start items-start gap-2 p-3 sm:gap-3 sm:p-4">
             {unassignedSlots.map((slot) => {
               const group = groupMap.get(slot.subjectGroupId);
               const subject = group
@@ -187,7 +193,7 @@ export function SchedulePlannerReadOnly({
                 : undefined;
 
               return (
-                <div key={slot.id} className="w-48">
+                <div key={slot.id} className="w-full min-w-0 sm:w-48">
                   <ReadOnlySlot
                     slot={slot}
                     subjectName={subject.name}
@@ -216,7 +222,7 @@ export function SchedulePlannerReadOnly({
         renderCell={(day, slotIndex) => {
           const cellSlots = slotsByCell.get(`${day}_${slotIndex}`) ?? [];
           return (
-            <div className="relative flex flex-col gap-1 p-1 rounded-lg border border-dashed border-border h-full min-h-22.5">
+            <div className="relative flex h-full min-h-17 min-w-0 flex-col gap-0.5 overflow-hidden rounded-lg border border-dashed border-border p-0.5 sm:min-h-22.5 sm:gap-1 sm:p-1">
               {cellSlots.map((slot) => {
                 const group = groupMap.get(slot.subjectGroupId);
                 const subject = group
@@ -274,25 +280,25 @@ function ReadOnlySlot({
 
   return (
     <Card
-      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative
+      className={`relative flex w-full min-w-0 flex-1 flex-col overflow-hidden border shadow-sm transition-all duration-200
         ${getSubjectColorClasses(subjectId, subjectIdsPool)}
         ${hasConflicts ? 'border-destructive border-2' : ''}
         ${!hasConflicts && hasPlacementIssue ? 'border-amber-500 border-2' : ''}
       `}
     >
-      <CardContent className="p-2.5 flex flex-col items-center justify-evenly gap-1 flex-1 w-full text-center">
+      <CardContent className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1 p-1 text-center sm:p-2.5">
         <Badge
           variant="outline"
-          className="text-[9px] uppercase px-1.5 py-0 shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white"
+          className="max-w-full px-1 py-0 text-[8px] uppercase shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white sm:px-1.5 sm:text-[9px]"
         >
           {groupLabel}
         </Badge>
-        <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full text-black dark:text-white">
+        <span className="w-full min-w-0 overflow-hidden break-words text-[10px] font-bold leading-tight text-black dark:text-white sm:text-xs">
           {subjectName}
         </span>
-        <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
-          <MapPin className="size-3 shrink-0" />
-          <span className="font-semibold break-words whitespace-normal leading-tight">
+        <div className="flex w-full min-w-0 items-center justify-center gap-0.5 border-t border-current/20 pt-1 text-[9px] opacity-90 text-black dark:text-white sm:gap-1 sm:pt-2 sm:text-[10px]">
+          <MapPin className="size-2.5 shrink-0 sm:size-3" />
+          <span className="min-w-0 break-words font-semibold leading-tight">
             {classroomName ?? 'Sin aula asignada'}
           </span>
         </div>

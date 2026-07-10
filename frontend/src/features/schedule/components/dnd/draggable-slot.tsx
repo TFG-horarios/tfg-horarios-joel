@@ -106,7 +106,7 @@ export const DraggableSlot = memo(function DraggableSlot({
         cursor:
           disabled || isSaving ? 'default' : isDragging ? 'grabbing' : 'grab',
       }}
-      className={`border transition-all duration-200 shadow-sm flex-1 w-full flex flex-col relative group
+      className={`group relative flex w-full min-w-0 flex-1 flex-col overflow-hidden border shadow-sm transition-all duration-200 p-0
         ${getSubjectColorClasses(subject.id, subjectIdsPool)}
         ${isOverlay ? 'shadow-xl pointer-events-none' : 'hover:brightness-95 dark:hover:brightness-110'}
         ${hasConflicts ? 'border-destructive border-2' : ''}
@@ -115,90 +115,101 @@ export const DraggableSlot = memo(function DraggableSlot({
       `}
     >
       {!isOverlay && isSaving && (
-        <div className="absolute -top-2 -right-2 bg-background text-foreground rounded-full p-1 shadow-md z-40 border">
+        <div className="absolute top-1 right-1 bg-background text-foreground rounded-full p-1 shadow-sm z-40 border">
           <Loader2 className="size-3 animate-spin" />
         </div>
       )}
-      {!isOverlay && onEditClassroomClick && !isSaving && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            onEditClassroomClick(slot.id);
-          }}
-          className="absolute -top-2 -left-2 bg-primary text-primary-foreground rounded-full p-1 shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 cursor-pointer"
-          title="Editar aula"
-        >
-          <Pencil className="size-3" />
-        </button>
+      
+      {/* Action Buttons (Top Left) */}
+      {!isOverlay && !isSaving && onEditClassroomClick && (
+        <div className="absolute top-1 left-1 flex gap-1 z-30 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onEditClassroomClick(slot.id);
+            }}
+            className="bg-primary/90 hover:bg-primary text-primary-foreground backdrop-blur-sm rounded-md p-1 shadow-sm transition-all cursor-pointer"
+            title="Editar aula"
+          >
+            <Pencil className="size-3" />
+          </button>
+        </div>
       )}
-      {!isOverlay && onUnassignClick && !isSaving && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            onUnassignClick(slot.id);
-          }}
-          className="absolute -top-2 left-5 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 cursor-pointer"
-          title={tPlanner('unassignSlot', { fallback: 'Descolocar slot' })}
-        >
-          <X className="size-3" />
-        </button>
-      )}
-      {hasConflicts && (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md z-30 cursor-help">
-                <TriangleAlert className="size-3" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
-              <p className="font-semibold text-[10px] uppercase text-destructive-foreground/80 mb-1 border-b border-destructive-foreground/20 pb-1">
-                Conflictos
-              </p>
-              {schedulingConflicts.map((conflict, idx) => (
-                <div key={idx} className="flex gap-1.5 items-start">
-                  <span className="mt-0.5">•</span>
-                  <span className="text-xs leading-tight">
-                    {getConflictMessage(conflict)}
-                  </span>
-                </div>
-              ))}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-      {hasPlacementIssue && (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className={`absolute -top-2 ${hasConflicts ? 'right-5' : '-right-2'} bg-amber-500 text-white rounded-full p-1 shadow-md z-30 cursor-help`}
-              >
-                <CircleHelp className="size-3" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
-              <p className="font-semibold text-[10px] uppercase mb-1 border-b pb-1">
-                {tPlanner('unassignedSlots')}
-              </p>
-              {placementIssues.map((issue, idx) => (
-                <div key={idx} className="flex gap-1.5 items-start">
-                  <span className="mt-0.5">•</span>
-                  <span className="text-xs leading-tight">
-                    {getConflictMessage(issue)}
-                  </span>
-                </div>
-              ))}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
+
+      {/* Badges & Delete (Top Right) */}
+      <div className="absolute top-1 right-1 flex gap-1 z-30">
+        {!isOverlay && !isSaving && onUnassignClick && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onUnassignClick(slot.id);
+            }}
+            className="bg-destructive/90 hover:bg-destructive text-destructive-foreground backdrop-blur-sm rounded-md p-1 shadow-sm transition-all cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100"
+            title={tPlanner('unassignSlot', { fallback: 'Descolocar slot' })}
+          >
+            <X className="size-3" />
+          </button>
+        )}
+        
+        {(hasConflicts || hasPlacementIssue) && (
+          <>
+            {hasConflicts && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="bg-destructive text-destructive-foreground rounded-md p-1 shadow-sm cursor-help">
+                      <TriangleAlert className="size-3" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
+                    <p className="font-semibold text-[10px] uppercase text-destructive-foreground/80 mb-1 border-b border-destructive-foreground/20 pb-1">
+                      Conflictos
+                    </p>
+                    {schedulingConflicts.map((conflict, idx) => (
+                      <div key={idx} className="flex gap-1.5 items-start">
+                        <span className="mt-0.5">•</span>
+                        <span className="text-xs leading-tight">
+                          {getConflictMessage(conflict)}
+                        </span>
+                      </div>
+                    ))}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {hasPlacementIssue && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="bg-amber-500 text-white rounded-md p-1 shadow-sm cursor-help">
+                      <CircleHelp className="size-3" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs flex flex-col gap-1 z-[10000]">
+                    <p className="font-semibold text-[10px] uppercase mb-1 border-b pb-1">
+                      {tPlanner('unassignedSlots')}
+                    </p>
+                    {placementIssues.map((issue, idx) => (
+                      <div key={idx} className="flex gap-1.5 items-start">
+                        <span className="mt-0.5">•</span>
+                        <span className="text-xs leading-tight">
+                          {getConflictMessage(issue)}
+                        </span>
+                      </div>
+                    ))}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </>
+        )}
+      </div>
       <CardContent
         ref={handleRef}
         className={cn(
-          'p-1 flex flex-col items-center justify-evenly gap-3 flex-1 w-full outline-none text-center',
+          'flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1.5 p-0.5 text-center outline-none sm:gap-3 sm:p-1',
           disabled || isSaving
             ? 'cursor-default'
             : 'cursor-grab active:cursor-grabbing'
@@ -206,7 +217,7 @@ export const DraggableSlot = memo(function DraggableSlot({
       >
         <Badge
           variant="outline"
-          className="text-[9px] uppercase px-1.5 py-0 shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white"
+          className="max-w-full px-1 py-0 text-[8px] uppercase shrink-0 opacity-80 border-current/30 text-center justify-center text-black dark:text-white sm:px-1.5 sm:text-[9px]"
         >
           {group.groupType === 'theory'
             ? 'TE'
@@ -223,30 +234,30 @@ export const DraggableSlot = memo(function DraggableSlot({
           {group.deletedAt ? ' (eliminado)' : ''}
         </Badge>
 
-        <span className="text-xs font-bold break-words whitespace-normal leading-tight w-full text-black dark:text-white">
+        <span className="w-full min-w-0 overflow-hidden break-words text-[10px] font-bold leading-tight text-black dark:text-white sm:text-xs">
           {subject.name}
           {subject.deletedAt ? ' (eliminada)' : ''}
         </span>
 
         {degree ? (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
-            <span className="font-semibold break-words whitespace-normal leading-tight">
+          <div className="flex w-full min-w-0 items-center justify-center gap-0.5 border-t border-current/20 pt-1 text-[9px] opacity-90 text-black dark:text-white sm:gap-1 sm:pt-2 sm:text-[10px]">
+            <span className="min-w-0 break-words font-semibold leading-tight">
               {degree.name}
               {degree.deletedAt ? ' (eliminado)' : ''}
             </span>
           </div>
         ) : classroom ? (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-90 w-full text-black dark:text-white">
-            <MapPin className="size-3 shrink-0" />
-            <span className="font-semibold break-words whitespace-normal leading-tight">
+          <div className="flex w-full min-w-0 items-center justify-center gap-0.5 border-t border-current/20 pt-1 text-[9px] opacity-90 text-black dark:text-white sm:gap-1 sm:pt-2 sm:text-[10px]">
+            <MapPin className="size-2.5 shrink-0 sm:size-3" />
+            <span className="min-w-0 break-words font-semibold leading-tight">
               {classroom.name}
               {classroom.deletedAt ? ' (eliminada)' : ''}
             </span>
           </div>
         ) : slot.classroomId ? null : (
-          <div className="flex items-center justify-center gap-1 border-t border-current/20 pt-2 text-[10px] opacity-70 w-full text-black dark:text-white">
-            <MapPin className="size-3 shrink-0" />
-            <span className="font-semibold break-words whitespace-normal leading-tight">
+          <div className="flex w-full min-w-0 items-center justify-center gap-0.5 border-t border-current/20 pt-1 text-[9px] opacity-70 text-black dark:text-white sm:gap-1 sm:pt-2 sm:text-[10px]">
+            <MapPin className="size-2.5 shrink-0 sm:size-3" />
+            <span className="min-w-0 break-words font-semibold leading-tight">
               Sin aula asignada
             </span>
           </div>

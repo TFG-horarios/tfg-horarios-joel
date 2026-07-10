@@ -36,23 +36,26 @@ export function WeeklyScheduleGrid({
     }));
 
   return (
-    <div className="flex flex-col min-h-125 bg-card/30 backdrop-blur-sm border border-border rounded-xl shadow-inner overflow-hidden">
-      <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
+    <div className="flex min-h-125 w-full max-w-full min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card/30 shadow-inner backdrop-blur-sm">
+      <div className="flex min-w-0 items-center justify-between border-b border-border bg-muted/30 p-3 sm:p-4">
         <h2 className="font-semibold text-foreground flex items-center gap-2">
           {t('weeklyView')}
         </h2>
       </div>
 
-      <div className="flex-1 w-full overflow-x-hidden">
-        <div className="w-full p-6 space-y-4 bg-background" ref={gridRef}>
-          <div className="grid grid-cols-6 gap-3">
-            <div className="flex items-center justify-center p-3 rounded-lg"></div>
+      <div
+        className="w-full min-w-0 max-w-full flex-1 overflow-x-auto overscroll-x-contain bg-background"
+        ref={gridRef}
+      >
+        <div className="w-full min-w-[40rem] space-y-1.5 p-1.5 sm:min-w-[46rem] sm:space-y-4 sm:p-6">
+          <div className="grid grid-cols-[3.5rem_repeat(5,minmax(6rem,1fr))] gap-1 sm:grid-cols-[minmax(5.75rem,0.7fr)_repeat(5,minmax(7.5rem,1fr))] sm:gap-3">
+            <div className="flex items-center justify-center rounded-lg p-1 sm:p-3"></div>
             {daysOfWeek.map((day) => (
               <div
                 key={day.value}
-                className="flex flex-col items-center justify-center p-3 bg-muted/40 rounded-lg border border-border/50 shadow-sm"
+                className="flex min-w-0 flex-col items-center justify-center rounded-lg border border-border/50 bg-muted/40 p-1 shadow-sm sm:p-3"
               >
-                <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                <span className="max-w-full truncate text-[10px] font-semibold uppercase tracking-wider text-foreground sm:text-xs">
                   {day.label}
                 </span>
               </div>
@@ -64,17 +67,17 @@ export function WeeklyScheduleGrid({
               return (
                 <div
                   key={`break_${row.boundaryIndex}`}
-                  className="grid grid-cols-6 gap-3 min-h-16"
+                  className="grid min-h-11 grid-cols-[3.5rem_repeat(5,minmax(6rem,1fr))] gap-1 sm:min-h-16 sm:grid-cols-[minmax(5.75rem,0.7fr)_repeat(5,minmax(7.5rem,1fr))] sm:gap-3"
                 >
-                  <div className="flex flex-col items-center justify-center p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-300">
+                  <div className="flex min-w-0 flex-col items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 p-0.5 text-center sm:p-3">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-300 sm:text-[10px]">
                       {t('break')}
                     </span>
-                    <span className="text-xs font-semibold text-foreground font-mono">
+                    <span className="font-mono text-[10px] font-semibold text-foreground sm:text-xs">
                       {row.label}
                     </span>
                   </div>
-                  <div className="col-span-5 flex items-center justify-center rounded-lg border border-dashed border-amber-500/30 bg-amber-500/10 text-sm font-medium text-amber-800 dark:text-amber-200">
+                  <div className="col-span-5 flex min-w-0 items-center justify-center rounded-lg border border-dashed border-amber-500/30 bg-amber-500/10 px-2 text-center text-[10px] font-medium text-amber-800 dark:text-amber-200 sm:text-sm">
                     {t('breakRow', { time: row.label })}
                   </div>
                 </div>
@@ -83,12 +86,15 @@ export function WeeklyScheduleGrid({
 
             const idx = row.slotIndex;
             return (
-              <div key={idx} className="grid grid-cols-6 gap-3 min-h-22.5">
-                <div className="flex flex-col items-center justify-center p-3 bg-muted/20 border border-dashed border-border rounded-lg text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <div
+                key={idx}
+                className="grid min-h-17 grid-cols-[3.5rem_repeat(5,minmax(6rem,1fr))] gap-1 sm:min-h-22.5 sm:grid-cols-[minmax(5.75rem,0.7fr)_repeat(5,minmax(7.5rem,1fr))] sm:gap-3"
+              >
+                <div className="flex min-w-0 flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-0.5 text-center sm:p-3">
+                  <span className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground sm:text-[10px] sm:tracking-widest">
                     {t('block', { index: row.slotNumber })}
                   </span>
-                  <span className="text-xs font-semibold text-foreground font-mono">
+                  <span className="font-mono text-[10px] font-semibold text-foreground sm:text-xs">
                     {slotTimeLabels[idx]}
                   </span>
                 </div>
